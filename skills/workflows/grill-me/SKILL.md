@@ -1,7 +1,8 @@
 ---
 name: grill-me
-version: 1.0.0
-description: "Get relentlessly interviewed about a plan, design, or change until every branch of the decision tree is resolved. The agent walks the design tree depth-first, asks ONE question at a time, attaches its recommended answer to each question, and prefers exploring the codebase over asking when an answer can be found in code. Use this skill before any non-trivial change, when scope feels fuzzy, or when stress-testing a plan before committing. Trigger on: 'grill me', 'interview me', 'challenge my plan', 'ask me questions', 'I'm not sure what I want', 'help me think this through', 'is this the right approach', 'walk me through it', 'stress test this plan'."
+version: 1.1.0
+description: |
+  Get relentlessly interviewed about a plan, design, or change until every branch of the decision tree is resolved — depth-first, one question at a time, recommendation-attached, code-checked before user-asked. Use before any non-trivial change, when scope feels fuzzy, or to stress-test a plan before committing. Trigger on: 'grill me', 'interview me', 'challenge my plan', 'ask me questions', "I'm not sure what I want", 'help me think this through', 'is this the right approach', 'walk me through it', 'stress test this plan'.
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

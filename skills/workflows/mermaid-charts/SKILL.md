@@ -1,18 +1,8 @@
 ---
 name: mermaid-charts
-version: 2.3.0
-description: >
-  Create expert-quality mermaid diagrams — flowcharts, sequence diagrams, architecture maps,
-  state machines, ER diagrams, Gantt charts, mindmaps, and more. Handles complex systems with
-  15-30+ nodes across multiple architectural layers without losing readability. Use this skill
-  whenever the user asks to visualize, diagram, chart, map, or illustrate any system, process,
-  workflow, architecture, data model, timeline, or relationship. Also trigger when documenting
-  complex systems, generating architecture diagrams, creating technical illustrations, mapping
-  multi-project ecosystems, comparing system architectures, or when another skill needs a
-  mermaid diagram embedded in its output. Even if the user doesn't say "mermaid" explicitly —
-  if they want a visual representation of something technical, this is the skill. Trigger for
-  "draw this", "show me how X works", "map the architecture", "diagram the flow", or any
-  request involving system visualization.
+version: 2.4.0
+description: |
+  Create expert-quality mermaid diagrams — flowcharts, sequence, state, ER, Gantt, mindmap, block-beta and more — including dense 15-30+ node architecture maps that stay readable. Use whenever the user wants to visualize a system, process, workflow, architecture, data model, timeline, or relationship, or when another skill needs an embedded mermaid diagram. Trigger on "diagram this", "draw this", "show me how X works", "map the architecture", "chart the flow", "visualize this", or any request for a technical visual — even without the word "mermaid".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

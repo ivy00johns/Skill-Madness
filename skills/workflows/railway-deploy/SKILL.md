@@ -1,13 +1,11 @@
 ---
 name: railway-deploy
-version: 1.2.1
+version: 1.3.0
 description: >
-  Deploy projects to Railway — handles Dockerfile creation, railway.toml config, environment variables,
-  multi-service setups (web + worker), and deployment via CLI or GraphQL API. Use this skill whenever
-  the user mentions "deploy", "Railway", "push to production", "ship it", "put this online", "deploy to staging",
-  or wants to set up hosting for a web app, API, or background worker. Also trigger when the user asks about
-  Railway configuration, health checks, deployment status, or environment variable management on Railway.
-  This is the go-to skill for any Railway deployment workflow.
+  Deploy projects to Railway — Dockerfile creation, railway.toml config, environment variables,
+  multi-service setups (web + worker), and deployment via CLI or GraphQL API. Trigger on "deploy to
+  Railway", "ship it on Railway", or "set up Railway hosting", and on questions about Railway
+  configuration, health checks, deployment status, or env var management.
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

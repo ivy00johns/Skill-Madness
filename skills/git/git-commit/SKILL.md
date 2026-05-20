@@ -1,6 +1,6 @@
 ---
 name: git-commit
-version: 1.2.1
+version: 1.3.0
 description: >
   Guide for creating git commits in this repository: conventional commit format,
   allowed types, and branch naming conventions.
@@ -15,9 +15,9 @@ min_plan: starter
 owns:
   directories: []
   patterns: []
-  shared_read: ["*"]
+  shared_read: []
 allowed-tools: ["Read", "Bash"]
-composes_with: ["git-pr", "git-post-merge-cleanup"]
+composes_with: ["git-pr", "git-pr-feedback", "git-post-merge-cleanup"]
 spawned_by: []
 ---
 

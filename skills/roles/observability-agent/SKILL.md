@@ -1,9 +1,13 @@
 ---
 name: observability-agent
-version: 1.1.1
+version: 1.2.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Sets up logging, monitoring, metrics, and alerting for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
 compatibility: "Claude Code; requires Bash for instrumentation tooling"
+metadata:
+  author: hive-ecosystem
+  category: roles
+  tags: [observability, logging, monitoring, metrics, alerting, role-agent, multi-agent]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

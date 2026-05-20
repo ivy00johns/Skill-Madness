@@ -1,8 +1,8 @@
 ---
 name: claude-design-brief
-version: 1.3.1
+version: 1.4.0
 description: |
-  Generate paste-ready prompts for Claude Design (the artifact / design-canvas tool at claude.ai, distinct from Claude Code) that are so specific and committed that Claude Design skips its Q&A loop and goes straight to building. Use this skill whenever the user wants to produce hi-fi design mockups, an interactive prototype, an artifact-based mockup canvas, multiple design directions on a canvas, or compare safe / bold / experimental directions inside Claude. Trigger on phrases like "build mockups in Claude Design", "design canvas prompt", "hi-fi design mockup", "interactive prototype in claude", "claude design prompt", "make me a mockup prompt", "I want directions A/B/C in claude", "stop letting claude design ask me 15 questions", "claude design keeps asking", "compare safe / bold / experimental", or "build me variations on a design canvas". Distinguish from `ui-brief`: ui-brief produces a long Markdown spec for Claude Code / a frontend agent to BUILD the production site; this skill produces a short paste-ready prompt for Claude Design's canvas to MOCK UP variations. Works for any product type — personal brand sites, advocacy sites, dashboards, marketing sites, portfolios.
+  Generate paste-ready prompts for Claude Design (the artifact / design-canvas tool at claude.ai, NOT Claude Code) that are committed enough to skip its Q&A loop and start drawing on message one. Use when the user wants hi-fi mockups, an interactive prototype, multiple directions on a canvas, or a safe / bold / experimental comparison inside Claude. Trigger on: "build mockups in Claude Design", "design canvas prompt", "hi-fi design mockup", "interactive prototype in claude", "claude design prompt", "I want directions A/B/C in claude", "stop letting claude design ask me 15 questions", "claude design keeps asking", "compare safe / bold / experimental". Sibling skill `ui-brief` targets Claude Code production builds — this one targets the design canvas. Works for any product type.
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

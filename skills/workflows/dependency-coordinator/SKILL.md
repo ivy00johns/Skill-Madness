@@ -1,6 +1,6 @@
 ---
 name: dependency-coordinator
-version: 1.0.2
+version: 1.1.0
 description: "Orchestrator-dispatched only. Authors the cross-package dependency manifest before parallel implementation agents are dispatched, preventing transitive version drift. Composed by orchestrator during multi-agent builds. Not user-invocable."
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob"]
 disable-model-invocation: true

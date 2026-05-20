@@ -1,9 +1,13 @@
 ---
 name: performance-agent
-version: 1.2.1
+version: 1.3.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Designs and executes performance tests, load tests, and benchmarks for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
 compatibility: "Claude Code; requires Bash + k6"
+metadata:
+  author: hive-ecosystem
+  category: roles
+  tags: [performance, load-testing, benchmarks, k6, role-agent, multi-agent]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

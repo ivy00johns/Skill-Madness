@@ -1,6 +1,6 @@
 ---
 name: git-pr
-version: 1.2.0
+version: 1.3.0
 description: >
   Guide for creating and updating GitHub pull requests in this repository:
   PR title format, body structure, clean descriptions, and the gh CLI workflow.
@@ -16,7 +16,7 @@ min_plan: starter
 owns:
   directories: []
   patterns: []
-  shared_read: ["*"]
+  shared_read: []
 allowed-tools: ["Read", "Bash"]
 composes_with: ["git-commit", "git-pr-feedback"]
 spawned_by: []

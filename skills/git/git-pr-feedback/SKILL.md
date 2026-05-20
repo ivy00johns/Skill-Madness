@@ -1,6 +1,6 @@
 ---
 name: git-pr-feedback
-version: 1.2.0
+version: 1.3.0
 description: >
   Fetch, triage, and address PR review comments from GitHub Copilot and human
   reviewers. Use when the user asks to check PR feedback, review comments,
@@ -18,7 +18,7 @@ owns:
   patterns: []
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep"]
-composes_with: ["git-pr", "git-commit"]
+composes_with: ["git-pr", "git-commit", "git-post-merge-cleanup"]
 spawned_by: []
 ---
 

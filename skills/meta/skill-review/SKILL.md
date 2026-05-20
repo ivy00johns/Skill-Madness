@@ -1,9 +1,9 @@
 ---
 name: skill-review
-version: 1.1.0
+version: 1.2.0
 argument-hint: skill-name or 'all'
 description: |
-  Review skills for quality, consistency, triggering accuracy, and adherence to the 100-line rule. Two modes: 'all' (bulk ecosystem-wide scan for ownership conflicts, gaps, length outliers, weak triggers) or a single skill name (deep dive on description quality, body structure, anti-pattern naming, cross-references). Outputs a structured report consumable by skill-update. Trigger on: 'audit skills', 'review this skill', 'health check skills', 'skill ecosystem health', 'is this skill any good', 'scan all skills', 'check my skills', 'deep review', 'bulk review', 'what needs fixing'.
+  Review skills for quality, consistency, triggering accuracy, and adherence to the 5000-word / 500-line body guideline. Two modes: 'all' (bulk ecosystem-wide scan for ownership conflicts, length outliers, weak triggers, dead xrefs) or a single skill name (deep dive on description quality, body structure, anti-pattern naming, cross-references). Outputs a structured markdown report plus JSON sidecar consumable by skill-update. Trigger on "audit skills", "review this skill", "health check skills", "bulk review", "deep review", "what needs fixing".
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
@@ -12,7 +12,7 @@ owns:
   patterns: []
   shared_read: ["skills/"]
 allowed-tools: ["Read", "Glob", "Grep", "Bash", "Write"]
-composes_with: ["skill-update", "skill-writer"]
+composes_with: ["skill-update", "skill-writer", "skill-creator"]
 spawned_by: []
 ---
 

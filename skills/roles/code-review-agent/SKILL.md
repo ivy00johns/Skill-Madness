@@ -1,9 +1,13 @@
 ---
 name: code-review-agent
-version: 1.2.1
+version: 1.3.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Reviews code for quality, correctness, security, and adherence to project conventions in multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
 compatibility: "Claude Code"
+metadata:
+  author: hive-ecosystem
+  category: roles
+  tags: [code-review, quality, conventions, role-agent, multi-agent, read-only]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

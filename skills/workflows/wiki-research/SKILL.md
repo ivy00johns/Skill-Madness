@@ -1,17 +1,8 @@
 ---
 name: wiki-research
-version: 2.1.0
+version: 2.2.0
 description: |
-  Use this skill BEFORE any codebase exploration, repo-deep-dive, or raw source reading when
-  the project has an Obsidian-style wiki (index.md + wiki/ directory). Always invoke when an
-  orchestrator, code-review-agent, backend-agent, or any role skill needs project context,
-  architecture understanding, component knowledge, or design decisions. Reading 3–4 wiki
-  pages (~2,000 tokens) replaces crawling raw source directories (~100,000–500,000 tokens).
-  Trigger on: "how does X work", "what is X", "what patterns does X use", "understand the
-  architecture", "review this code", "build X" (when project context is needed), or any task
-  where understanding the system before touching files would save re-work. If unsure whether a
-  wiki exists, spend 5 seconds checking — the payoff is enormous. Skip only when the task is
-  purely mechanical (rename a variable, fix a typo) and requires zero project understanding.
+  Read the project's Obsidian-style wiki (index.md + wiki/) BEFORE any codebase exploration, repo-deep-dive, or raw source reading. Reading 3-4 wiki pages (~2,000 tokens) typically replaces crawling raw source directories (~100,000-500,000 tokens). Always invoke when orchestrator, a role agent, or code-review needs project context, architecture, component knowledge, or design decisions before touching files. Trigger on "how does X work", "understand the architecture", "review this code", or "build X" when project context matters. Skip only for purely mechanical tasks (rename a variable, fix a typo) where zero project understanding is needed.
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

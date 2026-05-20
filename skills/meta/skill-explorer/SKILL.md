@@ -1,18 +1,8 @@
 ---
 name: skill-explorer
-version: 1.0.1
+version: 1.1.0
 description: |
-  Help the user discover, recall, understand, and pick the right skill from the available toolkit.
-  Use this skill whenever the user is trying to find a skill ("I forgot the name of the one that does X",
-  "what was that skill called", "I had a skill for this"), asking what skills exist ("what skills do I
-  have", "show me the catalog", "list all my skills", "what can you do here"), asking what a specific
-  skill does ("what does X do", "explain the X skill", "tell me about Y"), asking how skills relate
-  ("how do these connect", "what works with X", "what does orchestrator spawn"), OR asking for routing
-  help ("which skill for this task", "what should I use to Y", "I want to do Z — which skill"). Also
-  trigger when the user starts a session by reaching for orchestrator on something that isn't a
-  multi-agent build, or asks any meta-question about the skill ecosystem itself. This is the entry
-  point for "I don't know what to use" — it names the right skill and explains why; it does NOT
-  invoke the skill on the user's behalf.
+  Help the user discover, recall, understand, and pick the right skill from the available toolkit. Names the skill; does NOT invoke it. Use when the user is trying to find a skill ("I forgot the name of the one that does X", "what was that skill called"), asking what skills exist ("what skills do I have", "list all my skills", "show me the catalog"), asking what a specific skill does ("what does X do", "explain the X skill"), asking how skills relate ("how do these connect", "what does orchestrator spawn"), or asking for routing help ("which skill for this task", "what should I use to Y"). Also trigger when the user reaches for orchestrator on something that isn't a multi-agent build, or asks any meta-question about the skill ecosystem itself.
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
@@ -27,7 +17,7 @@ spawned_by: []
 
 # Skill Explorer
 
-The user has accumulated a large toolkit across the skill ecosystem plus plugin skills loaded into every session. Names blur together, descriptions overlap, and reaching for the wrong entry point (typically `orchestrator`) wastes a turn before getting redirected. This skill is the deliberate entry point for "what do I have / which one is right for this".
+The user has accumulated a large toolkit (40+ repo skills plus plugin skills loaded into every session). Names blur together, descriptions overlap, and reaching for the wrong entry point (typically `orchestrator`) wastes a turn before getting redirected. This skill is the deliberate entry point for "what do I have / which one is right for this".
 
 It answers four kinds of question:
 

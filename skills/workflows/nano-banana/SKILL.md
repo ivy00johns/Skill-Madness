@@ -1,13 +1,11 @@
 ---
 name: nano-banana
-version: 1.2.1
+version: 1.3.0
 description: >
-  Generate images using Google's Nano Banana (Gemini Image Generation) API and save them to the project. Use this skill
-  whenever the user asks to generate images, create product photos, make hero banners, generate lifestyle shots, produce
-  visual content, or mentions "Nano Banana", "generate an image", "we need a photo of", "create a product shot", "make
-  a banner", or wants to batch-generate images. Also trigger for any AI image generation task using Gemini models, even
-  if they just say "let's do images", "generate the rest", or "make me a picture of". This is the go-to skill for any
-  image generation workflow.
+  Generate images using Google's Nano Banana (Gemini Image Generation) API and save them to the project. Use whenever
+  the user asks to generate images, create product photos, hero banners, or lifestyle shots, mentions "Nano Banana" /
+  "generate an image" / "make a banner", or wants batch image generation. Also trigger for any AI image task using
+  Gemini models — even casual phrasings like "let's do images" or "make me a picture of".
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

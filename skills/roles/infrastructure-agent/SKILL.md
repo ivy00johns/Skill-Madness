@@ -1,9 +1,13 @@
 ---
 name: infrastructure-agent
-version: 1.1.1
+version: 1.2.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Builds containerization, orchestration, CI/CD, and deployment configuration for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
 compatibility: "Claude Code; requires Bash + docker CLI + lsof"
+metadata:
+  author: hive-ecosystem
+  category: roles
+  tags: [infrastructure, docker, ci-cd, deployment, role-agent, multi-agent]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
