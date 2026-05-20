@@ -1,15 +1,15 @@
 ---
 name: contract-auditor
-version: 1.1.0
-disable-model-invocation: true
-description: "Orchestrator-dispatched only. Audits implementations against integration contracts to find mismatches before integration testing. Composed by orchestrator during multi-agent builds. Not user-invocable."
+version: 1.2.0
+description: "Orchestrator-dispatched only. Audits implementations against integration contracts (API, data layer, shared types) to find mismatches before integration testing. Static analysis pass — reads code and contracts, never runs the app. Not user-invocable."
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
+disable-model-invocation: true
 owns:
   directories: []
   patterns: []
-  shared_read: ["*"]
+  shared_read: ["contracts/", "src/", "backend/", "frontend/", "docs/"]
 allowed-tools: ["Read", "Write", "Grep", "Glob", "Bash"]
 composes_with: ["contract-author", "qe-agent", "backend-agent", "frontend-agent"]
 spawned_by: ["orchestrator"]

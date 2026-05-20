@@ -1,6 +1,6 @@
 ---
 name: git-post-merge-cleanup
-version: 1.0.0
+version: 1.1.0
 description: >
   Clean up everything stale after merges in one pass: local branches fully
   merged into the default branch, remote-tracking refs whose remote is gone,
@@ -9,12 +9,11 @@ description: >
   and `--yes`. Use whenever the user mentions cleaning up branches OR worktrees,
   tidying git state after a batch of PRs landed, or noticing stale debris.
   Trigger on: "clean up branches", "delete merged branches", "prune branches",
-  "stale branches", "branch cleanup", "tidy branches", "remove old branches",
+  "stale branches", "branch cleanup", "remove old branches",
   "clean up worktrees", "remove old worktrees", "worktree confusion", "phantom
-  modified files", "tidy git state", "lots of things merged", "post-merge
-  cleanup", "I have too many branches", "clean up my git".
+  modified files", "post-merge cleanup".
   Also trigger proactively when `git worktree list` shows entries beyond the
-  main worktree, or after a run of `git-pr` merges several PRs in a row.
+  main worktree, or after a batch of PRs land.
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
@@ -23,7 +22,7 @@ owns:
   patterns: []
   shared_read: []
 allowed-tools: ["Bash", "Read", "Write"]
-composes_with: ["git-commit", "git-pr"]
+composes_with: ["git-commit", "git-pr", "git-pr-feedback"]
 spawned_by: []
 ---
 

@@ -1,8 +1,8 @@
 ---
 name: plan-builder
-version: 1.3.0
+version: 1.4.0
 description: |
-  Transform research documents, Compass artifacts, PRDs, reference materials, and conversational goals into structured project plans ready for the orchestrator to execute. Use this skill when the user has source material and wants to build something from it, when the user says "make a plan", "plan this out", "I want to build X from this research", or when a plan is needed before invoking the orchestrator. Also trigger when @-mentioned files or attached documents accompany a build request, when the user wants to turn research into a website/app/tool, or when orchestrator would be invoked but no plan exists yet. This skill produces the plan — orchestrator consumes it.
+  Transform research documents, Compass artifacts, PRDs, and conversational goals into structured project plans the orchestrator can execute. Use when the user has source material plus a build request, says "make a plan" / "plan this out", or @-mentions files alongside a build ask. Also trigger when orchestrator would be the next step but no plan exists yet. Produces the plan — orchestrator consumes it.
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
@@ -29,7 +29,7 @@ This skill assumes a contract-first multi-agent build model:
 
 For single-agent or ad-hoc work, this skill is not the right tool.
 
-<what-to-do>
+## What to do
 
 Transform source material and project goals into orchestrator-ready build plans.
 
@@ -105,17 +105,13 @@ Wait for the user's choice. Do not auto-invoke the orchestrator.
 
 > **Forbidden:** Padding the plan with phases for the sake of structure. If three steps suffice, write three steps.
 
-</what-to-do>
+## Supporting Info
 
-<supporting-info>
-
-## Reference Documents
+### Reference Documents
 
 - **`references/plan-format.md`** — the section-by-section structure of the plan document (Architecture Reasoning + Build Plan, with templates for each section).
 - **`references/research-extraction.md`** — how to pull a plan out of research docs (synthesize, map to architecture, check existing code, confirm with user).
 
-## Output Location
+### Output Location
 
 Save the plan to `docs/plans/YYYY-MM-DD-<project-name>-plan.md` unless user preferences override the location.
-
-</supporting-info>

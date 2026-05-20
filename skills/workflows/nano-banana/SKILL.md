@@ -1,13 +1,11 @@
 ---
 name: nano-banana
-version: 1.2.0
+version: 1.3.0
 description: >
-  Generate images using Google's Nano Banana (Gemini Image Generation) API and save them to the project. Use this skill
-  whenever the user asks to generate images, create product photos, make hero banners, generate lifestyle shots, produce
-  visual content, or mentions "Nano Banana", "generate an image", "we need a photo of", "create a product shot", "make
-  a banner", or wants to batch-generate images. Also trigger for any AI image generation task using Gemini models, even
-  if they just say "let's do images", "generate the rest", or "make me a picture of". This is the go-to skill for any
-  image generation workflow.
+  Generate images using Google's Nano Banana (Gemini Image Generation) API and save them to the project. Use whenever
+  the user asks to generate images, create product photos, hero banners, or lifestyle shots, mentions "Nano Banana" /
+  "generate an image" / "make a banner", or wants batch image generation. Also trigger for any AI image task using
+  Gemini models — even casual phrasings like "let's do images" or "make me a picture of".
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
@@ -44,10 +42,10 @@ The bundled script uses `gemini-2.5-flash-image` — Google's current image gene
 
 ## Setup
 
-The script requires a `GEMINI_API_KEY` environment variable. It reads from the Skill Madness root `.env` file automatically. If not set, direct the user to:
+The script requires a `GEMINI_API_KEY` environment variable. It looks for the key in this order: process env → current project's repo-root `.env` → `~/.config/nano-banana/.env` as a user-wide fallback. If not set, direct the user to:
 
 1. Get a key at https://aistudio.google.com/apikey
-2. Add it to the repo root `.env` (see `.env.example` for the template)
+2. Add it to the current project's repo-root `.env` (see `.env.example` for the template), or to `~/.config/nano-banana/.env` for a user-wide default
 
 ## Generating Images
 

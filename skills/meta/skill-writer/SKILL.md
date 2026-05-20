@@ -1,8 +1,8 @@
 ---
 name: skill-writer
-version: 1.2.0
+version: 1.3.0
 description: |
-  Generate new SKILL.md files conforming to the ecosystem's frontmatter spec and structure conventions. Use this skill when creating any new skill, agent role definition, or workflow skill. Trigger whenever someone says "create a skill", "new agent", "write a SKILL.md", or needs to add a role to the skill ecosystem. Also use when reviewing existing skills for spec compliance.
+  Generate new SKILL.md files conforming to the ecosystem's frontmatter spec and structure conventions. Use when creating a new agent role, meta skill, workflow skill, or contract skill — anything that needs a SKILL.md scaffold. Trigger on "create a skill", "new agent", "write a SKILL.md", "scaffold a skill", "add a role to the skill ecosystem".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
@@ -11,7 +11,7 @@ owns:
   patterns: []
   shared_read: []
 allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep"]
-composes_with: ["project-profiler", "orchestrator"]
+composes_with: ["project-profiler", "orchestrator", "skill-review", "skill-update"]
 spawned_by: []
 ---
 
@@ -32,8 +32,7 @@ Generate correctly structured SKILL.md files for the Claude Code skill ecosystem
 skill-name/
 ├── SKILL.md              # Required — frontmatter + instructions
 └── references/           # Optional — loaded on demand
-    ├── detailed-guide.md
-    └── templates/
+    └── detailed-guide.md
 ```
 
 ## Progressive Disclosure
@@ -122,7 +121,7 @@ before reporting done.
 - **Body too long** — Approaching 5,000 words or 500 lines? Move content to references.
 - **Missing ownership** — Agent roles must declare owned and off-limits files.
 - **Overlapping ownership** — Two agents can't own the same directory. Directory ownership takes precedence over pattern ownership (see `references/frontmatter-spec.md` §Ownership Resolution Rules).
-- **Ignoring resolved conflicts** — Check the v1.1 resolved conflicts table before declaring ownership of `contracts/`, `.claude/handoffs/`, `CLAUDE.md`, `README.md`, or `tests/performance/`.
+- **Ignoring resolved conflicts** — Check `references/frontmatter-spec.md` §Resolved Conflicts (v1.0 → v1.1) before declaring ownership of `contracts/`, `.claude/handoffs/`, `CLAUDE.md`, `README.md`, or `tests/performance/`.
 - **Hardcoded project details** — Global skills never change per project. Use profile.yaml.
 
 ## Reference Files

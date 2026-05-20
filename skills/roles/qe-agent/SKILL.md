@@ -1,8 +1,13 @@
 ---
 name: qe-agent
-version: 1.3.0
+version: 1.4.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Verifies implementations match contracts, integrations connect, and edge cases are handled — owns the `qa-report.json` build gate. Composed by orchestrator during multi-agent builds. Not user-invocable."
+compatibility: "Claude Code; requires Bash + curl + python3"
+metadata:
+  author: hive-ecosystem
+  category: roles
+  tags: [qa, testing, quality-gate, contract-conformance, role-agent, multi-agent]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
@@ -19,7 +24,7 @@ spawned_by: ["orchestrator"]
 
 > **Tradeoff:** Biases toward thoroughness at the merge gate. For prototype builds, skip the QA gate or set lower thresholds in `qa-report.json`.
 
-> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Reports to `qe-agent` via `qa-report.json`. Owns: `tests/`, `e2e/`, `__tests__/`.
+> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Writes qa-report.json for the orchestrator gate. Owns: `tests/`, `e2e/`, `__tests__/`.
 
 Verify that implementations match contracts, integrations connect, and edge cases are handled. Your job is to find problems — not to fix them.
 

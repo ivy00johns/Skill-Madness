@@ -1,18 +1,8 @@
 ---
 name: skill-explorer
-version: 1.0.0
+version: 1.1.0
 description: |
-  Help the user discover, recall, understand, and pick the right skill from the available toolkit.
-  Use this skill whenever the user is trying to find a skill ("I forgot the name of the one that does X",
-  "what was that skill called", "I had a skill for this"), asking what skills exist ("what skills do I
-  have", "show me the catalog", "list all my skills", "what can you do here"), asking what a specific
-  skill does ("what does X do", "explain the X skill", "tell me about Y"), asking how skills relate
-  ("how do these connect", "what works with X", "what does orchestrator spawn"), OR asking for routing
-  help ("which skill for this task", "what should I use to Y", "I want to do Z — which skill"). Also
-  trigger when the user starts a session by reaching for orchestrator on something that isn't a
-  multi-agent build, or asks any meta-question about the skill ecosystem itself. This is the entry
-  point for "I don't know what to use" — it names the right skill and explains why; it does NOT
-  invoke the skill on the user's behalf.
+  Help the user discover, recall, understand, and pick the right skill from the available toolkit. Names the skill; does NOT invoke it. Use when the user is trying to find a skill ("I forgot the name of the one that does X", "what was that skill called"), asking what skills exist ("what skills do I have", "list all my skills", "show me the catalog"), asking what a specific skill does ("what does X do", "explain the X skill"), asking how skills relate ("how do these connect", "what does orchestrator spawn"), or asking for routing help ("which skill for this task", "what should I use to Y"). Also trigger when the user reaches for orchestrator on something that isn't a multi-agent build, or asks any meta-question about the skill ecosystem itself.
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
@@ -21,13 +11,13 @@ owns:
   patterns: []
   shared_read: ["skills/"]
 allowed-tools: ["Read", "Grep", "Glob", "Bash"]
-composes_with: ["skill-audit", "skill-deep-review", "skill-writer"]
+composes_with: ["skill-review", "skill-writer"]
 spawned_by: []
 ---
 
 # Skill Explorer
 
-The user has accumulated a large toolkit — 38 repo skills plus plugin skills loaded into every session. Names blur together, descriptions overlap, and reaching for the wrong entry point (typically `orchestrator`) wastes a turn before getting redirected. This skill is the deliberate entry point for "what do I have / which one is right for this".
+The user has accumulated a large toolkit (40+ repo skills plus plugin skills loaded into every session). Names blur together, descriptions overlap, and reaching for the wrong entry point (typically `orchestrator`) wastes a turn before getting redirected. This skill is the deliberate entry point for "what do I have / which one is right for this".
 
 It answers four kinds of question:
 
@@ -128,7 +118,7 @@ These are common confusions. Lean toward the right answer rather than reflecting
 - **"I just want to write/fix one thing"** → name the role skill directly (`backend-agent`, `frontend-agent`, etc.), not orchestrator. Orchestrator is for *coordinating* a team, not for any task that touches code.
 - **"Design / rebuild / redesign a UI"** → `ui-brief` first to produce the brief, then `frontend-design` or `frontend-agent` to build from it.
 - **"Make a plan from this research/PRD"** → `plan-builder`, then optionally `orchestrator` to execute the plan.
-- **"Audit / review my skills"** → `skill-audit` (broad), `skill-deep-review` (one skill deep).
+- **"Audit / review my skills"** → `skill-review` (`--scope=all` for bulk, `--scope=<name>` for deep dive).
 - **"Create a new skill"** → `skill-writer`.
 - **"Sync skills globally" / "link them"** → `sync-skills`.
 - **"Commit / branch / PR"** → `git-commit`, `git-pr`, etc.
@@ -141,7 +131,7 @@ When orchestrator would be wrong, **say so explicitly**: "This isn't a multi-age
 - The user already named a specific skill they want to run (`"use ui-brief for the dashboard"`) — just run it.
 - The user is mid-task and asks a domain question that the active skill should handle.
 - The user wants to *create* a new skill — that's `skill-writer`'s job. (You can mention `skill-writer` as a routing answer, but don't take it over.)
-- The user wants to *audit* skills — that's `skill-audit`. Same deal.
+- The user wants to *audit* skills — that's `skill-review`. Same deal.
 
 ## Anti-patterns
 

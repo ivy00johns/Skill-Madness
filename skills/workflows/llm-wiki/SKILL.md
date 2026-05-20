@@ -1,23 +1,14 @@
 ---
 name: llm-wiki
-version: 1.1.0
+version: 1.2.0
 description: |
-  Bootstrap and maintain LLM-powered personal knowledge bases (wikis) for any project or
-  domain. Use when the user wants to create a "second brain", knowledge base, personal wiki,
-  research tracker, reading companion, competitive analysis wiki, team knowledge base, or
-  project notes. Trigger when the user says "set up a wiki for X", "I want to track my
-  research on Y", "build me a knowledge base", "create an llm wiki", "organize my notes",
-  "set up my second brain", "I'm reading a book and want to track it", or "maintain a wiki
-  for this project". Also trigger when already inside a wiki directory for ingest, query, or
-  lint operations — "add this article to the wiki", "what does the wiki say about X",
-  "clean up the wiki", "process this source". This is distinct from RAG: the wiki is a
-  persistent, maintained artifact that compounds over time.
+  Bootstrap and operate LLM-maintained personal knowledge bases (wikis) for any project or domain — a persistent, compounding artifact, not RAG. Four modes: setup, ingest, query, lint. Trigger on "set up a wiki for X", "build me a knowledge base", "create an llm wiki", "organize my notes", "set up my second brain", "maintain a wiki for this project", and (inside an existing wiki) "add this article to the wiki", "what does the wiki say about X", "clean up the wiki", "process this source".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
 owns:
   directories: []
-  patterns: ["index.md", "log.md", "overview.md"]
+  patterns: ["wiki/index.md", "wiki/log.md", "wiki/overview.md"]
   shared_read: ["raw/", "wiki/"]
 allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep"]
 composes_with: ["wiki-research", "repo-deep-dive", "project-profiler", "mermaid-charts"]

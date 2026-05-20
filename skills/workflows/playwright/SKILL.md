@@ -1,8 +1,8 @@
 ---
 name: playwright
-version: 1.2.0
+version: 1.3.0
 description: |
-  Run browser-based E2E tests, capture screenshots, and validate user flows using Playwright with visible Chrome. Use this skill when testing a web UI end-to-end, capturing screenshots for visual review, running user journey validation, checking responsive layouts, verifying frontend behavior in a real browser, or performing accessibility audits. Trigger on: "browser test", "screenshot", "e2e test", "visual regression", "test in chrome", "playwright", "click through the UI", "verify the user flow", "responsive layout check", "accessibility audit". Also use when qe-agent needs browser-level integration testing.
+  Run browser-based E2E tests, capture screenshots, and validate user flows using Playwright with visible Chrome. Use this skill when testing a web UI end-to-end, capturing screenshots for visual review, checking responsive layouts, or auditing accessibility in a real browser. Trigger on: "e2e test", "screenshot the UI", "click through the app", "responsive layout check", "accessibility audit". Also invoke when qe-agent needs browser-level integration testing.
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
@@ -27,7 +27,7 @@ Automated test execution that produces a timestamped run directory with screensh
 
 ### Spot-Check Mode
 
-Interactive session where the user watches the browser and approves each step. Use this when the user says "let me watch", "spot check", "walk me through", or otherwise indicates they want to observe and approve in real time. In this mode, pause after each navigation or interaction, describe what's on screen, and wait for the user's go-ahead before continuing.
+Interactive session where the user watches the visible browser and approves each step in real time. Triggered by "let me watch", "spot check", or "walk me through". Pause after each navigation or interaction, describe what's on screen, and wait for the user's go-ahead. Screenshots still land in the timestamped run directory. Full workflow in `references/screenshot-workflow.md`.
 
 ## Setup
 
@@ -59,10 +59,6 @@ npx playwright install chromium
 4. **Lay out the outputs.** All runs go under `playwright-screenshots/<run-id>/` (PNG screenshots) and `playwright-results/<run-id>/` (reports, traces, JSON). Both directories are gitignored. See `references/screenshot-workflow.md` for the exact directory layout and naming convention.
 
 5. **Produce the report.** Report mode emits two files in the results directory: `playwright-report.json` (structured) and `playwright-report.md` (human-readable). See `references/screenshot-workflow.md` for the exact JSON schema and markdown template.
-
-## Spot-Check Mode
-
-In spot-check mode, the browser is visible, you narrate each step, the user approves before you continue, and screenshots still land in the timestamped directory. Full workflow is in `references/screenshot-workflow.md`.
 
 ## Coordination with QE Agent
 
