@@ -427,6 +427,52 @@ The recommended path on Claude Code. Symlinks `skills/<category>/<skill>/` to `~
 
 ---
 
+## 🪝 Hooks
+
+Skill Madness ships a small **hooks layer** under `hooks/` that turns the orchestrator's doctrine — the QA gate, formatting, profile injection — into enforcement. Hooks are modeled on the gated-hook design but built in the repo's own bash + `python3` (stdlib-only) idiom. Today only **Claude Code** has a native lifecycle-hook runtime, so hooks are emitted for Claude Code and skipped (logged `unsupported`) for the other ten hosts.
+
+### The four hooks
+
+| Hook | Event | Profiles | Blocks? | What it does |
+|------|-------|----------|---------|--------------|
+| `qa-gate` | `Stop` | all | **yes** | Validates `qa-report.json` against the QE schema and applies the orchestrator gate rules; blocks the Stop on a gate failure. **(marquee)** |
+| `post-edit-format` | `PostToolUse(Edit\|Write)` | standard, strict | no | Formats the just-edited file if a matching formatter (prettier/black/shfmt/gofmt/rustfmt) is on `PATH`. |
+| `session-start-profile` | `SessionStart` | standard, strict | no | Injects a ≤8 KB summary of `CLAUDE.md` / `.claude/profile.yaml` into the session. |
+| `pre-commit-lint` | `PreToolUse(Bash git commit)` | strict | no (warn) | Runs `lint-skills.sh` on staged skills and warns; never blocks the commit. |
+
+Everything routes through one entrypoint — `hooks/run-with-flags.sh <hook-id>` — which reads the gating env vars and `hooks.manifest.json`, then dispatches `hooks/scripts/<hook-id>.sh` (or no-ops `exit 0` if disabled).
+
+### Profiles & disabling
+
+Two env vars tune the whole graph:
+
+- `ATS_HOOK_PROFILE` ∈ `{minimal, standard, strict}` (default `standard`).
+  - `minimal` → `qa-gate` only.
+  - `standard` → `qa-gate` + `post-edit-format` + `session-start-profile`.
+  - `strict` → all four; `qa-gate` also treats a **missing** report as a block.
+- `ATS_DISABLED_HOOKS` → comma-separated hook ids to force-off, e.g. `post-edit-format,pre-commit-lint`.
+
+Only `qa-gate` ever blocks, and only on a real gate failure. It signals a block the Claude Code way — printing `{"decision":"block","reason":"…"}` to stdout and exiting `0`.
+
+### Install & enable
+
+`scripts/convert.sh --tool claude-code` copies `hooks/` into `integrations/claude-code/hooks/` and generates `integrations/claude-code/hooks.json` (Claude Code settings-hook format). `scripts/install.sh` then copies that tree to a **namespaced** target — `~/.claude/ats-hooks/` — and writes `hooks.json` there. Install is **non-destructive**: it never auto-merges your `~/.claude/settings.json`. Instead it prints the exact snippet to merge into the `"hooks"` key. The wrapper is invoked as:
+
+```text
+"$CLAUDE_PROJECT_DIR"/.claude/ats-hooks/run-with-flags.sh <hook-id>
+```
+
+### Lint & test
+
+```bash
+./scripts/lint-hooks.sh          # validate the hooks tree (manifest, exec bits, headers, profiles)
+bash tests/hooks/run-tests.sh    # the bats suite (wrapper gating, qa-gate, convert, lint)
+```
+
+Both run in CI via the `Hooks Layer (Ubuntu)` job in `.github/workflows/lint-skills.yml`.
+
+---
+
 ## 🛠️  Development
 
 ### Run the lint locally

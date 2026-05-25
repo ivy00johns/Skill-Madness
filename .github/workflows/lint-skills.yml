@@ -60,6 +60,91 @@ jobs:
           name: lint-results-ubuntu
           path: lint-results.xml
 
+  # Hooks layer: lint the hooks/ tree and run its bats suite.
+  # Additive job — independent of the skill lint gate above. Uses only static
+  # run commands (no GitHub event input), so no injection surface.
+  hooks-ubuntu:
+    name: Hooks Layer (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Verify python3
+        run: python3 --version
+
+      - name: Install bats-core
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y bats
+
+      # Static lint of the hooks tree (manifest, executability, script headers,
+      # profile validity). Non-zero exit fails the job.
+      - name: Lint hooks layer
+        run: scripts/lint-hooks.sh
+
+      # Behavioral bats suite for the wrapper, qa-gate, convert emission, and
+      # lint-hooks itself.
+      - name: Run hooks bats suite
+        run: bash tests/hooks/run-tests.sh
+
+  # Installer discipline (P1): assert the advertised skill counts match disk
+  # (catalog-as-CI-invariant) and run the plan/apply + catalog bats suites.
+  # Additive job — independent of the gates above. Static run commands only.
+  installer-ubuntu:
+    name: Installer + Catalog (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Verify python3
+        run: python3 --version
+
+      - name: Install bats-core
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y bats
+
+      # Catalog-as-CI-invariant: fails the build if README / plugin.json /
+      # marketplace.json skill counts have drifted from the filesystem.
+      - name: Catalog count check
+        run: scripts/catalog.sh --check
+
+      # Behavioral bats: catalog (--check/--sync/--text) and the plan/apply
+      # install lifecycle (plan → apply → list → drift → repair → uninstall).
+      - name: Run catalog bats suite
+        run: bats tests/catalog
+
+      - name: Run plan/apply bats suite
+        run: bats tests/install-plan
+
+  # Skill supply-chain / injection scan (P2): deterministic, LLM-free gate over
+  # the skills tree (secrets, prompt-injection, zero-width unicode, untrusted
+  # composes_with). Blocks the build on any HIGH finding. Static commands only.
+  security-ubuntu:
+    name: Skill Scan (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Verify python3
+        run: python3 --version
+
+      - name: Install bats-core
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y bats
+
+      # Blocking: non-zero exit on any HIGH-severity finding (secrets, private
+      # keys, zero-width unicode). MEDIUM/LOW are reported but do not fail.
+      - name: Scan skills (block on HIGH)
+        run: scripts/scan-skills.sh --check skills/
+
+      - name: Run scan-skills bats suite
+        run: bats tests/scan-skills
+
   # Smoke-check on macOS to catch bash 3.2 compatibility quirks.
   # Not a merge gate — continue-on-error prevents macOS-only failures
   # from blocking PRs authored on Linux/Windows.

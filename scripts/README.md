@@ -196,6 +196,99 @@ Navigation:
 ./scripts/install.sh --all --no-interactive
 ```
 
+## Plan/Apply install
+
+A disciplined alternative to `install.sh` that adds a dry-runnable operation
+list, recorded install-state with content hashes, drift detection, uninstall,
+and named profiles. It runs **alongside** `install.sh` (which is unchanged) and
+resolves the same source→destination matrix (`contracts/installer/install-locations.md`)
+from `integrations/`. Three scripts, plus `manifests/profiles.json`.
+
+All three honor `--root DIR`, which overrides both `~` (HOME) and `$PWD` bases
+so the whole lifecycle can run against a temp directory — the real `~/.claude/`
+is never touched in tests.
+
+### Profiles — `manifests/profiles.json`
+
+Named subsets of skills selected by category (`archive/` and `in-progress/`
+excluded, matching the catalog rule):
+
+| Profile | Categories |
+|---|---|
+| `full` | orchestrator, roles, contracts, meta, git, workflows |
+| `orchestration-only` | orchestrator, contracts |
+| `roles` | orchestrator, roles, contracts |
+| `git` | git |
+| `minimal` | orchestrator |
+
+### scripts/install-plan.sh — pure resolution (no writes)
+
+```bash
+scripts/install-plan.sh --tool NAME[,NAME...] [--profile NAME] \
+                        [--root DIR] [--integrations DIR] [--out FILE]
+```
+
+Resolves selected tools × profile-selected skills into a serializable JSON plan.
+No filesystem mutation. Emits:
+
+```json
+{
+  "schema_version": 1,
+  "generated_at": "…Z",
+  "profile": "minimal",
+  "tools": ["claude-code"],
+  "operations": [
+    { "tool": "claude-code", "source": "…", "dest": "…",
+      "action": "create|overwrite|skip", "sha256": "…" }
+  ]
+}
+```
+
+`action` is computed by comparing the source content hash to any existing
+destination file. Defaults: `--profile full`, `--root $HOME`,
+`--integrations <repo>/integrations`.
+
+### scripts/install-apply.sh — executor + state
+
+```bash
+scripts/install-apply.sh --plan FILE [--root DIR] [--dry-run]
+```
+
+Consumes a plan, performs the file operations (respecting `--dry-run`), then
+writes install-state to `<root>/.claude/.ats-install-state.json` with the
+content hash of every installed file. Idempotent — re-applying an unchanged
+plan is a no-op. A copy of the plan is stashed at
+`<root>/.claude/.ats-install-plan.json` so `repair` can re-source files.
+
+### scripts/install-state.sh — list / drift / uninstall / repair
+
+```bash
+scripts/install-state.sh list      [--root DIR]
+scripts/install-state.sh drift     [--root DIR]              # exit 1 on drift
+scripts/install-state.sh uninstall [--root DIR] [--dry-run]
+scripts/install-state.sh repair    [--root DIR] [--dry-run] [--plan FILE]
+```
+
+- `list` — show recorded install-state (files + hashes).
+- `drift` — compare recorded sha256 vs on-disk; report changed/removed; exit 1 if any drift.
+- `uninstall` — remove recorded files and clear the state file.
+- `repair` — re-copy files whose on-disk hash ≠ recorded (sources from the
+  stashed plan, or `--plan FILE`).
+
+### Full lifecycle example
+
+```bash
+TMP=$(mktemp -d)
+scripts/install-plan.sh  --profile minimal --tool claude-code --root "$TMP" --out "$TMP/plan.json"
+scripts/install-apply.sh --plan "$TMP/plan.json" --root "$TMP"
+scripts/install-state.sh list  --root "$TMP"
+scripts/install-state.sh drift --root "$TMP"      # exit 0 when pristine
+scripts/install-state.sh repair    --root "$TMP"  # restore any drift
+scripts/install-state.sh uninstall --root "$TMP"  # remove files + clear state
+```
+
+Tests: `tests/install-plan/` (bats) — `bats tests/install-plan`.
+
 ## scripts/lint-skills.sh
 
 **Purpose:** Validate all `skills/**/SKILL.md` files against the canonical frontmatter schema, body quality guidelines, and cross-skill invariants. This is the CI gate — errors block PR merges.

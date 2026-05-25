@@ -141,6 +141,16 @@ Generated: [timestamp]
 - **Remediation:** [how to fix]
 ```
 
+## Automated pre-scan
+
+Before hand-auditing, run the deterministic scanner and triage its output rather than hunting from scratch:
+
+```bash
+scripts/scan-skills.sh --json
+```
+
+It flags hardcoded secrets (`secret-aws`, `secret-generic`, `private-key`), invisible/bidi unicode (`zero-width-unicode`), prompt-injection phrasing (`prompt-injection`), untrusted `composes_with` references (`untrusted-composes`), MCP references, and long base64 blobs. HIGH-severity findings block the CI gate. Use these results as your secret-scanning baseline (Process step 2) and to seed the supply-chain section of your report. Triage and confirm each finding — do not invent findings the scanner did not produce, and do not silence a genuine secret. If a real secret surfaces, report it; never auto-edit a skill to hide it.
+
 ## Coordination Rules
 
 - **Never modify code** — report findings only

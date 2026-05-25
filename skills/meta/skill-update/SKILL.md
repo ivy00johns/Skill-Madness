@@ -136,6 +136,19 @@ If declined, remind: "Repo versions are updated but your global locations still 
 - Note ordering dependencies between changes (e.g. ownership fix in skill A must land before skill B's update)
 - Never reformat an entire file as a side-effect of a targeted edit
 
+## Data source
+
+Before drafting the edit list, consult real usage signal: run
+`scripts/skill-health.sh report --json` (P2-C skill-health telemetry) for the
+skills you are about to change. It reports per-skill total invocations,
+7-day/30-day success rates, a `declining` flag, and version drift (recorded vs
+current `SKILL.md` frontmatter `version`). The math is deterministic in code,
+never a prompt. The signal is coarse and best-effort — the emitter records
+`outcome:unknown` and a `no-data` skill is merely unobserved, not broken — so use
+it to prioritize and justify edits, not to fabricate problems. A `stale`
+version-drift row is a strong, signal-free hint that a skill's recorded behavior
+lags its current definition. See `contracts/installer/skill-health.md`.
+
 ## References
 
 - `references/plan-format.md` — schema for the one-bullet-per-edit plan

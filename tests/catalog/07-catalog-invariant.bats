@@ -1,0 +1,202 @@
+#!/usr/bin/env bats
+# 07-catalog-invariant.bats — Validate scripts/catalog.sh.
+#
+# Contract: contracts/installer/catalog-invariant.md v1.0.0
+#
+# Builds a self-contained fake repo in a temp dir (scripts/catalog.sh + libs,
+# a skills/ tree, README.md, plugin.json, marketplace.json) so the count
+# assertions can be driven from disk without touching the real repo.
+
+setup() {
+  REPO_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/../.." && pwd)"
+  CATALOG="$REPO_ROOT/scripts/catalog.sh"
+
+  FAKE="$(mktemp -d "${TMPDIR:-/tmp}/ats-catalog-test.XXXXXX")"
+
+  mkdir -p "$FAKE/scripts/lib" "$FAKE/.claude-plugin"
+  cp "$CATALOG"                     "$FAKE/scripts/catalog.sh"
+  cp "$REPO_ROOT/scripts/lib/term.sh" "$FAKE/scripts/lib/term.sh"
+
+  # ---- Build a small, deterministic skills tree -----------------------------
+  # 5 active skills total: orchestrator(1) + roles(2) + workflows(2).
+  _mk_skill "$FAKE/skills/orchestrator" orchestrator
+  _mk_skill "$FAKE/skills/roles/backend-agent" backend-agent
+  _mk_skill "$FAKE/skills/roles/frontend-agent" frontend-agent
+  _mk_skill "$FAKE/skills/workflows/plan-builder" plan-builder
+  _mk_skill "$FAKE/skills/workflows/mermaid-charts" mermaid-charts
+
+  # Excluded trees: must NOT be counted.
+  _mk_skill "$FAKE/skills/archive/old-skill" old-skill
+  _mk_skill "$FAKE/skills/in-progress/wip-skill" wip-skill
+
+  # ---- Asserted-count files, written to match disk -------------------------
+  # Disk per-category: contracts=0 roles=2 meta=0 git=0 workflows=2 -> total 5.
+  _write_readme "$FAKE/README.md" 5 0 2 0 0 2
+  _write_plugin "$FAKE/.claude-plugin/plugin.json" 5
+  _write_marketplace "$FAKE/.claude-plugin/marketplace.json" 5
+
+  FCATALOG="$FAKE/scripts/catalog.sh"
+}
+
+teardown() {
+  rm -rf "$FAKE"
+}
+
+# _mk_skill <dir> <name>
+_mk_skill() {
+  mkdir -p "$1"
+  cat > "$1/SKILL.md" <<EOF
+---
+name: $2
+version: 1.0.0
+description: test skill
+---
+# $2
+body
+EOF
+}
+
+# _write_readme <file> <total> <contracts> <roles> <meta> <git> <workflows>
+_write_readme() {
+  local f="$1" total="$2" contracts="$3" roles="$4" meta="$5" git="$6" wf="$7"
+  cat > "$f" <<EOF
+<img src="https://img.shields.io/badge/skills-${total}-success.svg" alt="${total} skills" />
+
+- 🧰 **${total} skills, six categories, all CI-linted** — stuff.
+- 🪜 A ${total}-skill library stays cheap to host.
+
+> - **The orchestrator + ${total}-skill library is the mature part.**
+
+That installs all ${total} skills into Claude Code's plugin storage.
+
+\`\`\`mermaid
+    subgraph contracts["📜 contracts/ — ${contracts} skills"]
+    subgraph roles["🤖 roles/ — ${roles} agents · exclusive file ownership"]
+    subgraph meta["🧠 meta/ — ${meta} skills"]
+    subgraph gitcat["🔁 git/ — ${git} skills"]
+    subgraph workflows["⚙️ workflows/ — ${wf} skills"]
+\`\`\`
+
+${total} skills organized into six categories. All bodies under 500 lines.
+
+| 47 | \`railway-deploy\` | workflow | Deploy to Railway |
+
+<summary><b>"My non-Claude-Code host doesn't see all ${total} skills"</b></summary>
+
+- [x] **Skill library** — ${total} skills, six categories, all linted
+EOF
+}
+
+# _write_plugin <file> <total>
+_write_plugin() {
+  cat > "$1" <<EOF
+{
+  "name": "skill-madness",
+  "description": "Contract-first multi-agent orchestrator with $2 skills: stuff.",
+  "skills": ["./skills/orchestrator"]
+}
+EOF
+}
+
+# _write_marketplace <file> <total>
+_write_marketplace() {
+  cat > "$1" <<EOF
+{
+  "metadata": {
+    "description": "All the chaos — the $2-skill library it draws from."
+  },
+  "plugins": [
+    { "description": "Install all $2 Skill-Madness skills: the orchestrator." }
+  ]
+}
+EOF
+}
+
+# ---------------------------------------------------------------------------
+# --text: total == sum of per-category counts
+# ---------------------------------------------------------------------------
+@test "catalog --text prints total equal to sum of categories" {
+  run env NO_COLOR=1 bash "$FCATALOG" --text
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qE 'TOTAL[[:space:]]+5'
+  echo "$output" | grep -qE 'orchestrator[[:space:]]+1'
+  echo "$output" | grep -qE 'roles[[:space:]]+2'
+  echo "$output" | grep -qE 'workflows[[:space:]]+2'
+  # contracts/meta/git are zero here -> sum (1+2+0+0+0+2)=5 == total
+}
+
+# ---------------------------------------------------------------------------
+# --check PASSES on a matching fixture
+# ---------------------------------------------------------------------------
+@test "catalog --check passes (exit 0) when prose matches disk" {
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qi "clean"
+}
+
+# ---------------------------------------------------------------------------
+# --check FAILS (exit 1) on an off-by-one README count
+# ---------------------------------------------------------------------------
+@test "catalog --check fails (exit 1) on off-by-one README count" {
+  # README total claims 6 skills; disk has 5 (categories stay disk-true).
+  _write_readme "$FAKE/README.md" 6 0 2 0 0 2
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -qi "drift"
+}
+
+@test "catalog --check fails on off-by-one plugin.json count" {
+  _write_plugin "$FAKE/.claude-plugin/plugin.json" 4
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+}
+
+# ---------------------------------------------------------------------------
+# --sync makes a failing fixture pass
+# ---------------------------------------------------------------------------
+@test "catalog --sync makes a failing fixture pass (--sync then --check = 0)" {
+  # Corrupt every asserted file.
+  _write_readme "$FAKE/README.md" 6 9 9 9 9 9
+  _write_plugin "$FAKE/.claude-plugin/plugin.json" 1
+  _write_marketplace "$FAKE/.claude-plugin/marketplace.json" 99
+
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 0 ]
+}
+
+@test "catalog --sync rewrites per-category mermaid labels from disk" {
+  # roles has 2 on disk; corrupt the label to 9 (total stays correct at 5).
+  _write_readme "$FAKE/README.md" 5 0 9 0 0 2
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+  grep -q 'roles/ — 2 agents' "$FAKE/README.md"
+}
+
+# ---------------------------------------------------------------------------
+# archive/ and in-progress/ are excluded from the count
+# ---------------------------------------------------------------------------
+@test "catalog excludes archive/ and in-progress/ from the count" {
+  # We created 5 active + 1 archive + 1 in-progress = 7 SKILL.md on disk,
+  # but the count must be 5.
+  run env NO_COLOR=1 bash "$FCATALOG" --text
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qE 'TOTAL[[:space:]]+5'
+  # A naive count would be 7; assert 7 does not appear as the total.
+  ! echo "$output" | grep -qE 'TOTAL[[:space:]]+7'
+}
+
+# ---------------------------------------------------------------------------
+# Table-row index ("| 47 |") must never be rewritten by --sync.
+# ---------------------------------------------------------------------------
+@test "catalog --sync leaves the skill-table row index untouched" {
+  _write_plugin "$FAKE/.claude-plugin/plugin.json" 1
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+  grep -qF '| 47 | `railway-deploy`' "$FAKE/README.md"
+}

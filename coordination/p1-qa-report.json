@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "timestamp": "2026-05-24T16:30:00Z",
+  "agent_role": "qe",
+  "build_session_id": "alltheskills-p1-installer-qe",
+  "status": "PASS",
+  "scores": {
+    "correctness": {
+      "score": 5,
+      "notes": "Independently re-ran everything; did not trust build reports. A (catalog): scripts/catalog.sh --text reports total 47 = sum of per-category (orchestrator 1, roles 10, contracts 2, meta 4, git 4, workflows 26); my own disk count (find skills -name SKILL.md minus archive/ + in-progress/) yields the identical 47 and identical per-category breakdown — tool agrees exactly. --check exits 0 post-sync. Adversarial: corrupting a README total (47->48) -> exit 1 naming README.md; corrupting plugin.json count (47->99) -> exit 1 naming plugin.json; CRITICAL adversarial case — corrupting ONLY a per-category mermaid label (roles 10 agents -> 9) while total stayed 47 -> exit 1 naming the roles label. So the check is genuinely per-category, not just a total compare. --sync is idempotent (diff of README/plugin/marketplace before-vs-after = empty; re-check clean). B (plan/apply): full lifecycle plan->apply->list->drift->repair->uninstall all exercised under a temp --root with sources generated to a temp --integrations (never in-repo, never real ~/.claude). minimal/claude-code plan: 10 ops, all action=create into empty root, all sha256 exactly 64 chars, every source in orchestrator category only. apply created 10 files + state with hashes matching on-disk (0 mismatches); re-apply skipped all 10 (true no-op). Drift: pristine exit 0, mutated file exit 1 naming the file; repair restored to source hash then drift exit 0; uninstall removed all files and cleared state. Action computation verified: pre-placed identical dest -> skip, differing dest -> overwrite. --dry-run wrote zero files."
+    },
+    "completeness": {
+      "score": 5,
+      "notes": "Every contracted behavior in both contracts is implemented and verified. A: --check/--sync/--text all present and correct; all asserted-count locations covered (README badge, prose lines, per-category mermaid labels, plugin.json description). 8/8 catalog bats pass including archive/in-progress exclusion (test 7) and skill-table-row-index protection (test 8). B: profiles.json has all 5 named profiles; install-plan/apply/state cover plan, apply, list, drift, uninstall, repair, dry-run. 21/21 install-plan bats pass. Profile resolution verified end-to-end: git -> git-only (4 skills), full -> all 6 categories with per-category slug counts matching the catalog (2/4/4/1/10/26 = 47) and archive/ correctly EXCLUDED despite being present in the integ tree, bogus profile -> clean exit 2. Orchestrator wired installer-ubuntu into the workflow (catalog --check + both bats suites). No contracted item missing."
+    },
+    "code_quality": {
+      "score": 4,
+      "notes": "bash -n clean on all 5 new scripts (catalog.sh 325L, install-plan.sh 286L, install-apply.sh 155L, install-state.sh 250L, lib/install-state.sh 170L). Bash 3.2 portable throughout — no associative arrays, no mapfile/readarray, no printf %q, no ${arr[@]:N:M} slicing (verified by grep; only matches were comments asserting portability). All three CLI scripts use set -euo pipefail. JSON handled via python3 stdlib, not fragile string munging. Emitted plan + state JSON parse cleanly. Tested on GNU bash 3.2.57 (arm64 macOS) with Bats 1.13.0. Minor: profiles.json uses schema_version integer 1 while plans/state also use integer schema_version 1 (consistent internally, but not the string '1.0.0' the qa-report schema uses — purely cosmetic, no functional impact). Not blocking."
+    },
+    "security": {
+      "score": 5,
+      "notes": "No eval of file contents anywhere in the 5 new scripts (grep confirmed zero eval). Content hashing via a portable helper that detects shasum -a 256 (macOS) / sha256sum (linux) once. Temp files use mktemp with proper XXXXXX suffix under ${TMPDIR:-/tmp}. JSON parsing/emission delegated to python3 stdlib (no shell injection from skill content). Apply respects --dry-run (verified: zero files written). Confirmed NO real ~/.claude was ever written (~/.claude/.ats-install-state.json does not exist) and NO integrations/ written in-repo by my testing (convert output went to a temp dir; the in-repo integrations/ is gitignored and pre-existing, mtime May 1). install.sh/convert.sh diffs are additive P0 hooks code only — no install-plan logic injected into legacy paths."
+    },
+    "contract_conformance": {
+      "score": 5,
+      "notes": "A conforms to catalog-invariant.md: single source of truth = disk; --check/--sync/--text CLI exact; targets README + plugin.json + marketplace.json; per-category mermaid labels checked AND synced; the pre-existing 46/47 drift resolved to the true disk number (47). Ownership respected (A did not touch workflow, install*.sh, convert.sh, scripts/README.md). B conforms to plan-apply.md + install-locations.md: install.sh and convert.sh NOT modified by P1-B (their git diffs are exclusively the P0 hooks layer — install_hooks_claude_code / convert_hooks_claude_code additions, no plan/apply logic); plan is serializable JSON with the contracted keys and action create|overwrite|skip computed by source-vs-dest hash; install-state written to <root>/.claude/.ats-install-state.json with content hashes; profiles resolve by category using the same archive/in-progress exclusion rule as catalog.sh. Workflow YAML safe_loads; installer-ubuntu job present with the three contracted steps; existing lint-ubuntu/lint-macos jobs intact."
+    }
+  },
+  "test_results": {
+    "unit": {
+      "pass": 8,
+      "fail": 0,
+      "skip": 0
+    },
+    "integration": {
+      "pass": 21,
+      "fail": 0,
+      "skip": 0
+    },
+    "e2e": {
+      "pass": 0,
+      "fail": 0,
+      "skip": 0
+    },
+    "contract": {
+      "pass": 9,
+      "fail": 0,
+      "skip": 0
+    },
+    "security_scan": {
+      "pass": 5,
+      "fail": 0,
+      "skip": 0
+    }
+  },
+  "blockers": [],
+  "issues": [
+    {
+      "id": "ISS-001",
+      "severity": "LOW",
+      "category": "consistency",
+      "file": "manifests/profiles.json",
+      "line": null,
+      "description": "profiles.json, the emitted plan, and the install-state all use schema_version as the integer 1, whereas the project's other JSON contracts (e.g. qa-report-schema.json) use a string semver like '1.0.0'. Internally consistent and fully functional, but inconsistent with the repo's wider schema_version convention.",
+      "suggested_fix": "Optionally standardize schema_version to a string (e.g. \"1.0.0\") across profiles.json / install-plan.sh / install-apply.sh / install-state.sh for consistency with qa-report-schema.json. Cosmetic; defer if not worth the churn."
+    },
+    {
+      "id": "ISS-002",
+      "severity": "INFO",
+      "category": "test_coverage",
+      "file": "tests/install-plan/01-plan-apply-lifecycle.bats",
+      "line": null,
+      "description": "The plan/apply bats suite generates its own sources rather than running the real convert.sh, which keeps it fast and hermetic. There is no test asserting that a plan generated from a real convert.sh run (full integrations/ tree) cleanly excludes archive/ skills. I verified this manually (full profile excluded archive/ despite archive/ being present in the convert output), but it is not codified as a regression test.",
+      "suggested_fix": "Add an adversarial bats case that seeds an integ tree containing an archive/ category and asserts no archive source appears in a full-profile plan."
+    }
+  ],
+  "recommendations": [
+    "The per-category mermaid label drift detection is the strongest part of catalog.sh --check (it catches drift even when the total is correct). Keep an explicit bats case for it (test 6 covers --sync of labels; consider also asserting --check FAILS on a label-only off-by-one to lock the behavior I verified manually).",
+    "Consider a CI assertion that a full-profile plan's per-category op counts equal catalog.sh --text per-category counts, so the two systems (catalog invariant and profile resolution) can never silently diverge.",
+    "Document in scripts/README.md that install-plan/apply/state never touch the real ~/.claude unless --root is omitted, and that all tests use a temp --root — this is the key safety property a future contributor must preserve."
+  ],
+  "gate_decision": {
+    "proceed": true,
+    "reason": "Both workstreams independently re-verified and pass. A: 8/8 catalog bats pass; disk truth (47, per-category 1/10/2/4/4/26) matches the tool and my own count; --check is genuinely per-category (catches a mermaid-label-only drift with the total still correct), exits 0 clean / 1 on corruption naming the right file; --sync idempotent. B: 21/21 plan/apply bats pass; full lifecycle plan->apply->list->drift->repair->uninstall works under a temp root; profiles resolve correctly (git-only, full=all 6 matching catalog with archive excluded, bogus -> exit 2); skip/overwrite/create actions correct; install.sh + convert.sh confirmed P0-hooks-only (not modified by P1-B). Cross-cutting: bash -n clean, no eval, portable hashing, bash 3.2 safe, workflow YAML valid with installer-ubuntu wired, NO real ~/.claude or in-repo writes. No CRITICAL/HIGH blockers. contract_conformance=5 (>=3) and security=5 (>=3). Only 1 LOW (schema_version int-vs-string cosmetic) and 1 INFO (an extra regression test suggestion) — neither blocks."
+  }
+}

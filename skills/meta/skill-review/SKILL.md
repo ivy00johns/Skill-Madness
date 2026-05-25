@@ -136,6 +136,19 @@ The report is designed to feed directly into **skill-update**, which consumes th
 - If scope is filtered in Mode A, still validate cross-skill references against the full inventory
 - Use subagents to parallelize independent check categories when available
 
+## Data source
+
+Before recommending changes, consult real usage signal: run
+`scripts/skill-health.sh report --json` (P2-C skill-health telemetry). It returns
+per-skill total invocations, 7-day/30-day success rates, a `declining` flag, and
+version drift (recorded vs current `SKILL.md` frontmatter `version`). The math is
+deterministic in code, never a prompt. Treat the signal as coarse and
+best-effort: the emitter can only attribute a skill on a Skill-tool call and
+records `outcome:unknown`, so a skill reported as `no-data` means "unobserved",
+not "broken". Use it to prioritize which skills to deep-review and to back up
+declining-quality verdicts — never as the sole basis for a low score. See
+`contracts/installer/skill-health.md`.
+
 ## Reference Files
 
 - `references/audit-checklist.md` — checklist of every per-skill and ecosystem-level check, plus the anti-pattern list

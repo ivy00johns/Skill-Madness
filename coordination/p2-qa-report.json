@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "timestamp": "2026-05-24T22:15:00Z",
+  "agent_role": "qe",
+  "build_session_id": "p2-skill-health-and-scanner-qe",
+  "status": "PASS",
+  "scores": {
+    "correctness": {
+      "score": 5,
+      "notes": "Independently re-ran all math, not trusting the build reports. C (skill-health): record then report yields total 4 / rate 0.75 (3 success + 1 failure); 7d vs 30d windows differ correctly when a 10-day-old event is added (7d=0.75, 30d=0.80); declining flag fires (7d 0.50 + threshold 0.15 < 30d 0.83) and stays false when the recent rate holds; version drift reports stale (recorded 0.9.0 vs current 1.2.0) and ok (matching 2.0.0); empty and absent logs exit 0 with no-data and never crash; malformed JSONL lines are skipped. The scoring math is entirely in code (one deterministic python3 block) — no LLM, prompt, network, or eval (only the words 'eval'/'network' in comments). Confirmed unknown outcomes count toward total but are excluded from the success-rate denominator (1 success + 1 unknown -> total 2, rate_7d 1.00). D (scanner): planted AWS key, RSA/OPENSSH private keys, api_key long literal, and Authorization: Bearer all produce HIGH and --check exit 1; zero-width U+200B is HIGH; placeholders (YOUR_API_KEY_HERE, ${VAR}, <your-token-here>) are not flagged; composes_with [does-not-exist] -> MEDIUM, real name (orchestrator) -> none."
+    },
+    "completeness": {
+      "score": 5,
+      "notes": "Every contract-required deliverable present and exercised. C: scripts/skill-health.sh (report/record/drift/--help), hooks/scripts/skill-usage.sh + a manifest entry (profiles standard+strict, blocking:false), tests/skill-health/ (17 bats), additive 'Data source' notes in skill-review + skill-update. D: scripts/scan-skills.sh (--check/--text/--json), tests/scan-skills/ (15 bats), additive 'Automated pre-scan' note in security-agent; no .scan-skills-ignore needed (real tree is clean without one). Orchestrator wired the security-ubuntu CI job. QE added a 6-test adversarial scan file (tests/scan-skills/02-adversarial.bats). The only contract deviation is the meta-skill target substitution, addressed under contract_conformance."
+    },
+    "code_quality": {
+      "score": 5,
+      "notes": "bash -n clean on all three new scripts. Bash 3.2 portable throughout (tested on GNU bash 3.2.57 arm64-darwin): no mapfile/readarray, no associative arrays (only a comment mentions them); epoch math via python3 stdlib; mktemp temp files with trap cleanup. Tunable constants named (DECLINING_THRESHOLD, RECENT/TREND_WINDOW_DAYS). Tests are self-contained with mktemp temp dirs and pass --log / ATS_TELEMETRY_LOG so no test touches real ~/.claude/. Scanner redaction is centralized; secret rules redact runs of >=8 secret-ish chars keeping a 4-char prefix. The .scan-skills-ignore file-ignore test backs up and restores any real repo ignore file."
+    },
+    "security": {
+      "score": 5,
+      "notes": "Real-tree gate is genuinely green: scan-skills.sh --check skills/ exits 0 with 0 HIGH findings and NO ignore file. The 12 MEDIUM untrusted-composes were each verified to be genuinely EXTERNAL cross-plugin references (skill-creator, brainstorming, writing-plans, frontend-design, ui-ux-pro-max, ux-review, claude-api, feature-dev, loop, schedule) — none exist as in-repo skill dirs, so they are correct findings, not real broken refs and not false positives that should be silenced. The 13 LOW are all mcp-ref informational. No genuine secret/HIGH was missed by the build agent. Redaction verified across --json, --text, AND --check modes: a planted AKIAIOSFODNN7EXAMPLE never prints in full anywhere; a long sk- secret is redacted in the excerpt. Injection phrasing (ignore previous instructions / you are now / system prompt:) is MEDIUM-only and does NOT fail --check. No eval / network / shell-injection surface in any P2 script. The skill-usage hook is non-blocking, degrades silently, writes only to the telemetry log (temp during tests), and records outcome:unknown; it never created ~/.claude/ats-telemetry during QE."
+    },
+    "contract_conformance": {
+      "score": 4,
+      "notes": "Both contracts satisfied behaviorally. The one deviation: skill-health.md names skills/meta/skill-audit and skills/meta/skill-improvement-plan as the meta-skills to annotate, but NEITHER exists in the repo (meta/ contains skill-explorer, skill-review, skill-update, skill-writer). The agent correctly substituted skill-review (its description literally triggers on 'audit skills' and produces the quality report) and skill-update (plans+applies skill changes) — the functional successors. VERDICT: the substitution is SOUND and is the right call; freezing on the literal non-existent names would have been worse. The 'Data source' notes are additive, well-scoped, honest about the coarse/best-effort emitter and no-data semantics, and lint clean (0 errors). Scanner contract met including the blocking-CI-gate-green requirement and the redaction/ignore mechanisms. Ownership boundaries are clean: C touched none of D's files and vice-versa (verified by git status of the relevant paths). CI: security-ubuntu job parses via YAML safe_load, runs --check + bats; all four existing jobs (lint-ubuntu, hooks-ubuntu, installer-ubuntu, lint-macos) intact."
+    }
+  },
+  "test_results": {
+    "unit": {
+      "pass": 38,
+      "fail": 0,
+      "skip": 0
+    },
+    "integration": {
+      "pass": 49,
+      "fail": 0,
+      "skip": 0
+    },
+    "e2e": {
+      "pass": 0,
+      "fail": 0,
+      "skip": 0
+    },
+    "contract": {
+      "pass": 11,
+      "fail": 0,
+      "skip": 0
+    },
+    "security_scan": {
+      "pass": 19,
+      "fail": 0,
+      "skip": 0
+    }
+  },
+  "blockers": [],
+  "issues": [
+    {
+      "id": "ISS-P2-001",
+      "severity": "LOW",
+      "category": "contract_violation",
+      "file": "contracts/installer/skill-health.md",
+      "line": 41,
+      "description": "Contract §3 instructs annotating skills/meta/skill-audit/SKILL.md and skills/meta/skill-improvement-plan/SKILL.md, but neither skill exists in the repo. The P2-C agent correctly annotated the functional successors skill-review and skill-update instead. This is a contract-vs-reality drift, not an implementation defect — the substitution is sound and was independently verified as the right targets.",
+      "suggested_fix": "Update skill-health.md §3 and the Ownership block to name skills/meta/skill-review and skills/meta/skill-update (the real meta-skills), so the contract matches the shipped, correct wiring."
+    },
+    {
+      "id": "ISS-P2-002",
+      "severity": "INFO",
+      "category": "false_positive_risk",
+      "file": "scripts/scan-skills.sh",
+      "line": null,
+      "description": "The real tree produces 12 MEDIUM untrusted-composes findings for legitimate cross-plugin composes_with references (e.g. orchestrator -> brainstorming, frontend-design). These are correct (external skills not present in this repo) and are non-blocking by design, but they add steady noise to every --text/--json run and to the security-agent's triage surface.",
+      "suggested_fix": "Optional: teach the scanner about an allowlist of known external/cross-plugin skill names (or a namespaced-by-convention marker) so legitimate ecosystem composes are downgraded to LOW/INFO. Leave HIGH gating unchanged."
+    },
+    {
+      "id": "ISS-P2-003",
+      "severity": "INFO",
+      "category": "lint",
+      "file": "skills/meta/skill-review/SKILL.md",
+      "line": null,
+      "description": "lint-skills.sh emits WARN-level results on the edited meta-skills and security-agent (description length, composes_with referencing external skills, missing allowed_tools). These warnings are PRE-EXISTING in the frontmatter and are not introduced by the additive 'Data source' / 'Automated pre-scan' prose; all three files still PASS lint with 0 errors.",
+      "suggested_fix": "No action needed for P2. The pre-existing WARNs can be addressed in a separate skill-update pass if desired."
+    }
+  ],
+  "recommendations": [
+    "Fix contracts/installer/skill-health.md to name the real meta-skills (skill-review, skill-update) so future agents are not pointed at non-existent skill-audit/skill-improvement-plan.",
+    "Consider an external/cross-plugin composes_with allowlist in scan-skills.sh to cut the 12 legitimate MEDIUM untrusted-composes findings down to informational noise, keeping the security-agent's triage focused on genuinely-unknown references.",
+    "When committing, note that hooks/scripts/skill-usage.sh ships inside the still-uncommitted P0 hooks/ tree; commit the P2-C hook with its manifest entry together so lint-hooks/hooks bats stay green.",
+    "Run markdownlint on the three edited SKILL.md files before commit (markdownlint-cli was unavailable locally per the build notes)."
+  ],
+  "gate_decision": {
+    "proceed": true,
+    "reason": "status PASS; zero CRITICAL blockers (zero blockers total); contract_conformance=4 (>=3 threshold); security=5 (>=3 threshold). Both workstreams independently re-verified: C skill-health math is deterministic-in-code and correct across rate/window/declining/drift/unknown-exclusion/empty-log cases (17/17 bats); D scanner gate is genuinely green on the real tree (0 HIGH, no ignore file), all planted HIGH fixtures fire with --check exit 1, secrets are redacted in every output mode, injection is MEDIUM-only (15/15 + 6 QE adversarial bats). P0 hooks regression intact (45/45). The 12 MEDIUM untrusted-composes were confirmed to be legitimate external cross-plugin refs, not missed secrets or broken refs. The meta-skill skill-audit->skill-review / skill-improvement-plan->skill-update substitution is sound. CI workflow parses with security-ubuntu added and all existing jobs intact."
+  }
+}

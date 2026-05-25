@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0.0",
+  "timestamp": "2026-05-24T20:50:00Z",
+  "agent_role": "qe",
+  "build_session_id": "p0-hooks-layer-qe",
+  "status": "PASS",
+  "scores": {
+    "correctness": {
+      "score": 5,
+      "notes": "Independently re-ran everything. Validator: 8 shipped fixture cases (PASS->0, 4 FAIL rules->1 with correct per-rule reasons, malformed bad-json + missing-key + file-not-found ->2) all correct. Added 10 adversarial validator cases, all correct: proceed=true+security=2 still BLOCKs (OR-precedence), score==3 boundary ALLOWs, HIGH-only blocker ALLOWs (does not trip the CRITICAL rule), proceed=true+CRITICAL BLOCKs, extra/unknown top-level+nested keys do not crash, score=0 out-of-range/score=3.0 float/proceed='false' string/blocker-without-severity all correctly rejected as malformed (exit 2), and multiple simultaneous rules concatenate into one reason. is_int correctly excludes bool. qa-gate.sh Stop-hook contract verified directly: FAIL emits exact {\"decision\":\"block\",\"reason\":...} to stdout AND exits 0; ALLOW emits no decision; malformed BLOCKs. Report-location precedence verified: ATS_QA_REPORT > ./qa-report.json > coordination/qa-report.json. Missing-report: allow under standard/minimal, block under strict. Wrapper gating verified: disabled hook = silent exit 0, minimal runs only qa-gate, unknown id = exit 0 + stderr note + empty stdout, stdin pass-through works."
+    },
+    "completeness": {
+      "score": 5,
+      "notes": "Full contract sections 1-7 surface covered. Directory layout matches section 1 (manifest, run-with-flags.sh, lib/hook-flags.sh, 4 hook scripts + validator). All four hooks present with correct profile membership in the manifest (qa-gate: all profiles; post-edit-format/session-start-profile: standard+strict; pre-commit-lint: strict only). hooks bats suite is 45/45 pass. installer regression suite 172/172 pass (no regression). lint-hooks passes on shipped tree and fails (exit 1) on a missing-script temp tree. convert emits claude-code hooks tree+hooks.json (all 4 events -> run-with-flags.sh, namespaced ats-hooks path) and logs 'hooks: unsupported for cursor' with no hooks tree. README has a Hooks section. CI workflow gained an additive hooks-ubuntu job without disturbing existing steps."
+    },
+    "code_quality": {
+      "score": 5,
+      "notes": "bash -n clean on all 10 new/edited .sh files; python3 -m py_compile clean on qa-gate-validate.py. Validator is pure stdlib (json only), well-structured with clear ALLOW/BLOCK/MALFORMED exit semantics. Shell scripts consistently source term.sh with no-op shims for the installed (term.sh-absent) tree, drain stdin, and exit 0 on non-critical paths. lint-hooks.sh uses the bash-3.2-safe empty-array idiom and mktemp with an XXXXXX template. qa-gate.sh guards the validator call with set +e / rc capture / set -e so pipefail cannot wedge the gate. Tests use setup_file + mktemp temp dirs and teardown cleanup."
+    },
+    "security": {
+      "score": 5,
+      "notes": "No eval anywhere in the hooks layer. The marquee validator does no process spawning or shell execution -- it only json.loads the report; report field values (including gate_decision.reason) are never interpolated into a shell or eval context. qa-gate.sh JSON-encodes the block reason via python3 json.dumps rather than string-building, so a malicious reason cannot break out of the JSON or inject shell. Temp dirs use mktemp with XXXXXX templates. Install target is the namespaced ~/.claude/ats-hooks/ and settings.json is never auto-merged (snippet printed only). Verified on real bash 3.2.57 (macOS default): no mapfile/readarray, no associative arrays, no bash-4 lowercase/uppercase parameter expansions."
+    },
+    "contract_conformance": {
+      "score": 5,
+      "notes": "Walked contract sections 1-7. Section 1 layout matches. Section 2 gating model exact (ATS_HOOK_PROFILE minimal/standard/strict default standard, ATS_DISABLED_HOOKS wins over profile, is_enabled combines manifest profiles with active profile). Section 3 qa-gate: report-location order + missing-report behavior + malformed->block + the four gate rules implemented exactly as an OR (proceed==false OR CRITICAL blocker OR contract_conformance.score<3 OR security.score<3) and emitted via the Stop-hook block-decision-JSON-plus-exit-0 contract. Section 4 installer emission verified into temp out dirs (claude-code full, cursor unsupported); NO integrations/ changes left in the working tree (git status clean for integrations/). Section 5 lint-hooks checks manifest parse/uniqueness/script-existence/executability/headers/profiles. Section 6 bats cases all present and passing. Section 7 DoD met; no git operations performed. Minor non-blocking observation: the validator at hooks/scripts/qa-gate-validate.py sits as a sibling of qa-gate.sh rather than literally nested as the section 1 ASCII tree drawing suggests -- the prose (called by qa-gate.sh) and every reference resolve to this path, so it is correct in practice."
+    }
+  },
+  "test_results": {
+    "unit": {
+      "pass": 18,
+      "fail": 0,
+      "skip": 0
+    },
+    "integration": {
+      "pass": 209,
+      "fail": 0,
+      "skip": 0
+    },
+    "e2e": {
+      "pass": 0,
+      "fail": 0,
+      "skip": 0
+    },
+    "contract": {
+      "pass": 10,
+      "fail": 0,
+      "skip": 0
+    },
+    "security_scan": {
+      "pass": 1,
+      "fail": 0,
+      "skip": 0
+    }
+  },
+  "blockers": [],
+  "issues": [
+    {
+      "id": "ISS-001",
+      "severity": "LOW",
+      "category": "contract_clarity",
+      "file": "contracts/hooks/hooks-layer.md",
+      "line": 36,
+      "description": "The section 1 ASCII layout draws qa-gate-validate.py as if nested under qa-gate.sh, but it is implemented (correctly, per the prose) as a sibling at hooks/scripts/qa-gate-validate.py. No functional impact -- all references resolve -- but the diagram is slightly misleading for future readers.",
+      "suggested_fix": "Adjust the ASCII tree in section 1 so qa-gate-validate.py is shown as a sibling of qa-gate.sh under scripts/, matching the implementation and the prose."
+    },
+    {
+      "id": "ISS-002",
+      "severity": "INFO",
+      "category": "robustness",
+      "file": "hooks/lib/hook-flags.sh",
+      "line": 66,
+      "description": "is_enabled shells out to python3 once per profile-membership check (_hook_profile_matches). For the wrapper's single-hook dispatch this is fine (one invocation), but if a future caller loops is_enabled across all hooks it would spawn one python3 process per hook. Not a correctness or performance problem at P0 scope.",
+      "suggested_fix": "If hot-path looping is ever needed, batch the manifest read into a single python3 call that returns all enabled ids, or cache the parsed manifest."
+    },
+    {
+      "id": "ISS-003",
+      "severity": "INFO",
+      "category": "documentation",
+      "file": "hooks/scripts/post-edit-format.sh",
+      "line": 66,
+      "description": "post-edit-format.sh handles yaml/yml via prettier in addition to the formatters listed in its header comment (which omits yaml/yml). Behavior is fine; the header doc is just slightly out of date.",
+      "suggested_fix": "Add yaml/yml to the 'Recognized formatters' comment block for accuracy."
+    }
+  ],
+  "recommendations": [
+    "Land as-is for P0 -- the hooks layer is contract-conformant, clean, and fully tested (45/45 hooks bats, 172/172 installer regression, 18 validator unit + 10 adversarial cases all green).",
+    "Consider adding the 10 adversarial validator cases (OR-precedence, score==3 boundary, HIGH-only blocker, float/bool/string type rejection, multi-rule concatenation) as permanent regression tests under tests/hooks/bats to lock the gate semantics against future edits.",
+    "Fix the section 1 ASCII tree (ISS-001) so the validator's location in the contract diagram matches the shipped layout."
+  ],
+  "gate_decision": {
+    "proceed": true,
+    "reason": "No CRITICAL blockers. contract_conformance score is 5 (>=3 threshold) and security score is 5 (>=3 threshold); status is PASS. All independently re-run verification passed: validator 8 shipped fixtures + 10 adversarial cases correct, qa-gate Stop-hook block/allow contract correct, wrapper profile/disable gating correct, convert emission clean with no working-tree leakage, lint-hooks pass-on-shipped/fail-on-broken correct, 45/45 hooks bats, 172/172 installer regression (no regression), bash 3.2 portability and no-eval/no-injection security spot-check clean. The 3 open items are LOW/INFO and none gate the build."
+  }
+}
