@@ -13,6 +13,8 @@
 #   --verbose        Show INFO output
 #   --fix-trivial    Auto-fix trivial issues (prompts before each fix)
 #   --format FORMAT  Output format: text (default) or junit
+#   --standard       Print the PSFS standard + version this linter implements
+#                    and the canonical schema path, then exit 0
 #   --help           Print this and exit
 #
 # PATH may be a directory (recurse) or an individual SKILL.md.
@@ -33,6 +35,18 @@ LIB_DIR="$SCRIPT_DIR/lib"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SKILLS_ROOT="$REPO_ROOT/skills"
 
+# Named standard this linter implements (see spec/PSFS.md).
+PSFS_NAME="Portable Skill Frontmatter Spec (PSFS)"
+PSFS_VERSION="1.1.0"
+SCHEMA_PATH="$REPO_ROOT/spec/frontmatter.schema.json"
+
+# print_standard — bind this bash impl to the named, versioned standard.
+print_standard() {
+  printf '%s v%s\n' "$PSFS_NAME" "$PSFS_VERSION"
+  printf 'Canonical schema: %s\n' "$SCHEMA_PATH"
+  printf 'Reference implementation: scripts/lint-skills.sh (bash)\n'
+}
+
 # ---------------------------------------------------------------------------
 # CLI state
 # ---------------------------------------------------------------------------
@@ -49,6 +63,9 @@ LINT_PATHS=()
 ERRORS=()    # "FILE:LINE:MESSAGE"
 WARNS=()
 INFOS=()
+
+# Emit the "jsonschema absent" advisory at most once across the whole run.
+JSONSCHEMA_ADVISED=false
 
 record_error() { ERRORS+=("$1"); }
 record_warn()  { WARNS+=("$1"); }
@@ -81,10 +98,12 @@ emit_issue() {
 # ---------------------------------------------------------------------------
 _lint_py3() {
   local file="$1"
-  python3 - "$file" <<'PYEOF'
+  local schema="${2:-}"
+  python3 - "$file" "$schema" <<'PYEOF'
 import sys, json, re
 
 path = sys.argv[1]
+schema_path = sys.argv[2] if len(sys.argv) > 2 else ''
 
 with open(path) as f:
     content = f.read()
@@ -97,6 +116,8 @@ result = {
     "data": {},
     "body_lines": [],
     "body_word_count": 0,
+    "schema_errors": [],
+    "jsonschema_missing": False,
 }
 
 # Check opening ---
@@ -136,6 +157,31 @@ except ImportError:
 result["ok"] = True
 result["data"] = data
 
+# Angle-bracket safety: '<' and '>' are forbidden in ANY frontmatter string
+# value or key, at any depth — including inside the free-form `metadata` object.
+# Frontmatter is injected verbatim into the model's system prompt, where '<...>'
+# can be read as control/tool tags or abused for prompt injection. Checked
+# against parsed VALUES (not raw text), so YAML block-scalar indicators such as
+# 'description: >' or 'description: |' are never false positives.
+def _angle_hits(obj, path=""):
+    hits = []
+    if isinstance(obj, str):
+        if "<" in obj or ">" in obj:
+            hits.append(path or "(root)")
+    elif isinstance(obj, dict):
+        for k, v in obj.items():
+            ks = str(k)
+            kp = f"{path}.{ks}" if path else ks
+            if "<" in ks or ">" in ks:
+                hits.append(f"{kp} (key)")
+            hits += _angle_hits(v, kp)
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            hits += _angle_hits(v, f"{path}[{i}]")
+    return hits
+
+result["angle_hits"] = _angle_hits(data)
+
 # Body analysis
 body_lines = lines[fm_end + 1:]
 result["body_lines"] = body_lines
@@ -171,6 +217,24 @@ result["has_action_verb"] = any(w in action_verbs for w in first_words_lower)
 
 # Check trigger context hint (when/for/whenever/if)
 result["has_trigger_context"] = bool(re.search(r'\b(when|for|whenever|if)\b', desc, re.IGNORECASE))
+
+# Optional schema cross-check (PSFS frontmatter.schema.json).
+# Only attempts when a schema path was passed AND jsonschema is importable.
+# Missing jsonschema is an environment advisory (WARN), mirroring pyyaml.
+if schema_path:
+    try:
+        import jsonschema
+        try:
+            with open(schema_path) as sf:
+                schema = json.load(sf)
+            validator = jsonschema.Draft202012Validator(schema)
+            for err in sorted(validator.iter_errors(data), key=str):
+                loc = '/'.join(str(p) for p in err.absolute_path) or '(root)'
+                result["schema_errors"].append(f"{loc}: {err.message}")
+        except Exception as e:  # noqa: BLE001 — never block lint on schema-read issues
+            result["schema_errors"].append(f"schema validation error: {e}")
+    except ImportError:
+        result["jsonschema_missing"] = True
 
 print(json.dumps(result))
 PYEOF
@@ -208,9 +272,12 @@ lint_one() {
     return
   fi
 
-  # Run python3 analysis
+  # Run python3 analysis (passing the schema path enables the optional
+  # PSFS schema cross-check when the jsonschema package is available)
+  local schema_arg=""
+  [[ -f "$SCHEMA_PATH" ]] && schema_arg="$SCHEMA_PATH"
   local json_out
-  json_out="$(_lint_py3 "$file")"
+  json_out="$(_lint_py3 "$file" "$schema_arg")"
   if [[ -z "$json_out" ]]; then
     emit_issue ERROR "$file" "" "python3 lint helper returned no output"
     return
@@ -237,6 +304,34 @@ lint_one() {
   body_lc="$(printf '%s' "$json_out" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('body_line_count',0))")"
   has_verb="$(printf '%s' "$json_out" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('has_action_verb',False))")"
   has_trigger="$(printf '%s' "$json_out" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('has_trigger_context',False))")"
+
+  # ---------------------------------------------------------------------------
+  # Optional PSFS schema cross-check (mirrors the pyyaml-absent advisory above)
+  # ---------------------------------------------------------------------------
+  local jsonschema_missing
+  jsonschema_missing="$(printf '%s' "$json_out" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('jsonschema_missing',False))")"
+  if [[ "$jsonschema_missing" == "True" ]]; then
+    if ! $JSONSCHEMA_ADVISED; then
+      emit_issue WARN "$file" "1" "install python3 jsonschema for schema validation"
+      JSONSCHEMA_ADVISED=true
+    fi
+  else
+    # Emit each schema violation as an ERROR (structural defect).
+    while IFS= read -r schema_err; do
+      [[ -z "$schema_err" ]] && continue
+      emit_issue ERROR "$file" "1" "schema: $schema_err"
+    done < <(printf '%s' "$json_out" | python3 -c "import sys,json; [print(e) for e in json.load(sys.stdin).get('schema_errors',[])]")
+  fi
+
+  # Angle-bracket safety (always-on, independent of jsonschema). This is the
+  # enforcement home for the no-'<'/'>' rule: the JSON Schema can only pattern
+  # the named typed fields, not arbitrary string leaves under the free-form
+  # `metadata` object, and the schema check is skipped when jsonschema is absent.
+  while IFS= read -r angle_path; do
+    [[ -z "$angle_path" ]] && continue
+    emit_issue ERROR "$file" "$fm_end_line" \
+      "frontmatter contains '<' or '>' in '$angle_path' (forbidden — frontmatter is injected into the system prompt)"
+  done < <(printf '%s' "$json_out" | python3 -c "import sys,json; [print(e) for e in json.load(sys.stdin).get('angle_hits',[])]")
 
   # Derive slug and category from path
   local skill_dir slug category
@@ -405,6 +500,9 @@ cross_validate() {
   for f in "${files[@]}"; do
     while IFS= read -r ref_name; do
       [[ -z "$ref_name" ]] && continue
+      # Plugin-namespaced refs (plugin:name) are external by definition — out of
+      # scope for in-collection resolution, so they are never flagged.
+      [[ "$ref_name" == *:* ]] && continue
       if ! printf '%s\n' "$all_names" | grep -qxF "$ref_name"; then
         emit_issue WARN "$f" "" "composes_with references unknown skill '$ref_name'"
       fi
@@ -412,6 +510,7 @@ cross_validate() {
 
     while IFS= read -r ref_name; do
       [[ -z "$ref_name" ]] && continue
+      [[ "$ref_name" == *:* ]] && continue
       if ! printf '%s\n' "$all_names" | grep -qxF "$ref_name"; then
         emit_issue WARN "$f" "" "spawned_by references unknown skill '$ref_name'"
       fi
@@ -544,7 +643,7 @@ print_junit_report() {
 # Main
 # ---------------------------------------------------------------------------
 usage() {
-  sed -n '3,18p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '3,21p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -555,6 +654,7 @@ main() {
       --verbose)      VERBOSE=true; shift ;;
       --fix-trivial)  FIX_TRIVIAL=true; shift ;;  # future: implement trivial auto-fixes
       --format)       FORMAT="${2:?'--format requires a value'}"; shift 2 ;;
+      --standard)     print_standard; exit 0 ;;
       --help|-h)      usage ;;
       -*)             ats_err "Unknown option: $1"; exit 2 ;;
       *)              LINT_PATHS+=("$1"); shift ;;

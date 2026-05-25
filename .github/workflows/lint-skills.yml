@@ -145,6 +145,46 @@ jobs:
       - name: Run scan-skills bats suite
         run: bats tests/scan-skills
 
+  # Frontmatter standard (P3): enforce the Portable Skill Frontmatter Spec
+  # (PSFS) as a real gate. The main lint job's schema cross-check degrades to
+  # an advisory when jsonschema is absent — this job installs it so the
+  # portable schema validates the whole tree authoritatively. Static commands
+  # only; no GitHub event input.
+  standard-ubuntu:
+    name: Frontmatter Standard / PSFS (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Verify python3
+        run: python3 --version
+
+      # The portable reference validator needs jsonschema; pyyaml parses the
+      # frontmatter. --break-system-packages is required on PEP 668 Pythons.
+      - name: Install jsonschema + pyyaml
+        run: python3 -m pip install --user --break-system-packages jsonschema pyyaml
+
+      - name: Install bats-core
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y bats
+
+      # Bind: the bash reference implementation reports the standard it serves.
+      - name: Report standard binding
+        run: scripts/lint-skills.sh --standard
+
+      # Authoritative gate: every real SKILL.md must validate against the
+      # portable schema. With jsonschema installed, lint-skills.sh runs the
+      # schema cross-check inline and fails on any structural violation.
+      - name: Lint with schema enforcement
+        run: scripts/lint-skills.sh skills/
+
+      # Behavioral suite: --standard output, schema well-formedness, the
+      # real-tree gate, and the positive/negative fixtures.
+      - name: Run frontmatter-standard bats suite
+        run: bash tests/standard/run-tests.sh
+
   # Smoke-check on macOS to catch bash 3.2 compatibility quirks.
   # Not a merge gate — continue-on-error prevents macOS-only failures
   # from blocking PRs authored on Linux/Windows.

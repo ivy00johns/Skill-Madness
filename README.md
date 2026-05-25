@@ -417,7 +417,12 @@ Outputs JUnit XML for GitHub Actions test results.
 ```bash
 ./scripts/lint-skills.sh                 # full lint
 ./scripts/lint-skills.sh --skill orchestrator  # one skill
+./scripts/lint-skills.sh --standard      # report the frontmatter standard it validates
 ```
+
+### Frontmatter standard — PSFS v1.1.0
+
+The frontmatter convention is published as a named, versioned standard: the **Portable Skill Frontmatter Spec (PSFS) v1.1.0** at [`spec/PSFS.md`](spec/PSFS.md). It defines two conformance tiers — **Core** (Anthropic-aligned, vendor-neutral; the tier any collection can adopt) and **Extended** (Core plus the multi-agent fields `owns` / `composes_with` / `spawned_by` / `requires_*`). The portable, tool-agnostic reference validator is [`spec/frontmatter.schema.json`](spec/frontmatter.schema.json) (JSON Schema 2020-12 — runnable in any language); `scripts/lint-skills.sh` is the bash reference implementation and adds the cross-file checks (name uniqueness, name-matches-directory, `owns` non-overlap) that a per-file schema can't express.
 
 ### `/sync-skills` (Claude Code slash command)
 

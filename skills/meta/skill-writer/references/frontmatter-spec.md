@@ -4,6 +4,8 @@ Canonical reference for all SKILL.md frontmatter fields in the skill ecosystem.
 
 This spec aligns with Anthropic's official Agent Skills frontmatter standard while adding fields specific to multi-agent orchestration (`owns`, `composes_with`, `spawned_by`, `requires_*`, `min_plan`). Skills written to this spec load correctly on Claude Code, Claude.ai, Claude Desktop, and the Agent SDK — the multi-agent extensions are ignored safely by parsers that don't understand them.
 
+This reference conforms to **PSFS v1.1.0** (`spec/PSFS.md`), the published standard, whose reference validators are `spec/frontmatter.schema.json` (canonical JSON Schema) and `scripts/lint-skills.sh --standard` (bash reference implementation).
+
 ## Quick Reference
 
 ```yaml
@@ -45,7 +47,7 @@ spawned_by: ["orchestrator"]
 - **Max length:** 64 characters
 - **Reserved prefixes:** should not start with `claude-` or `anthropic-` — reserved by Anthropic for first-party skills. **Exception:** skills that explicitly target an Anthropic product or feature (e.g., `claude-design-brief` for Claude's design canvas) may use the prefix when the name precisely describes the target. Document the exception in the skill body so future maintainers know it's intentional. `skill-review` WARNs on this pattern; it does not FAIL.
 - **Must match** the skill folder name
-- **Must be unique** across the ecosystem
+- **Must be unique** within the collection
 - **Examples:** `backend-agent`, `contract-author`, `skill-writer`
 
 ### version

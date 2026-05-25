@@ -1,10 +1,10 @@
-# Build Results — AllTheSkills P0 + P1 + P2
+# Build Results — AllTheSkills P0 + P1 + P2 + P3
 
-**Date:** 2026-05-24 · **Orchestrated build** · **Status: P0 + P1 + P2 COMPLETE (all QA gates PASS), uncommitted**
-**Plan:** `DeepResearch/The-Hive/ecc_deepdive/source-material/14-alltheskills-frontier.md` → P0
-**Contract:** `contracts/hooks/hooks-layer.md` v1.0.0
+**Date:** 2026-05-24 · **Orchestrated build** · **Status: P0–P3 COMPLETE (all QA gates PASS)**
+**Plan:** `DeepResearch/The-Hive/ecc_deepdive/source-material/14-alltheskills-frontier.md`
+**Contracts:** `contracts/hooks/hooks-layer.md`, `contracts/installer/*`, `contracts/standards/psfs.md`
 
-> ⚠️ **Nothing is committed.** The user was remote and could not approve Touch ID / GitHub commit-or-branch signing, so the build ran with a hard "no git writes" constraint. All changes are uncommitted working-tree edits on `main`. Review and commit when ready.
+> **P0–P2 merged** as PR #8 (`93a55ad`) into `main`. **P3** is on branch `feat/psfs-frontmatter-standard` (this build) — not yet committed; review and commit when ready.
 
 ## What shipped (P0)
 
@@ -121,8 +121,34 @@ Added an additive blocking `security-ubuntu` job (`scan-skills.sh --check skills
 
 ---
 
-## Deferred (P3 — not built this session)
-- **P3** — publish the AllTheSkills frontmatter spec (`skills/meta/skill-writer/references/frontmatter-spec.md`) as a named standard with the lint rules as its reference validator, so other collections (incl. ECC) can converge on it.
+## P3 — Publish the frontmatter standard (DONE — branch `feat/psfs-frontmatter-standard`)
+
+Published the frontmatter convention as the **Portable Skill Frontmatter Spec (PSFS) v1.1.0**, turning a local convention into a portable, vendor-neutral standard other collections (incl. ECC, which is Node) can validate against in any language.
+
+### What shipped
+- `spec/PSFS.md` — the named, versioned standard. Two conformance tiers: **Core** (Anthropic-aligned, vendor-neutral) and **Extended** (Core + multi-agent fields). RFC-2119 normative language; names both reference validators; relationship-to-Anthropic-spec section.
+- `spec/frontmatter.schema.json` — **JSON Schema 2020-12**, the canonical portable validator. Per-file structure only (required fields, kebab-case `name`, semver `version`, ≤1024 desc, `^[^<>]*$` angle-bracket prohibition on every constrained string, `min_plan` enum, typed `owns`/`composes_with`/`spawned_by`). `additionalProperties: false` — validates all 47 real skills clean with zero added fields.
+- `scripts/lint-skills.sh` (additive) — `--standard` flag reports the PSFS binding + schema path; optional inline schema cross-check (ERROR on violation when `jsonschema` present, single WARN advisory when absent, mirroring the pyyaml pattern). No regression — `bash -n` clean, `lint-skills.sh skills/` still exits 0.
+- `tests/standard/` — 12 bats (all pass, 0 skip here): `--standard` output, schema well-formedness + `check_schema`, the real-tree gate (47 skills, 0 failures), positive/negative fixtures, lint regression.
+- `contracts/standards/psfs.md` — the P3 contract.
+- `contracts/installer/lint-rules.md` → **1.2.0**, bound to PSFS v1.1.0 (schema = portable validator, lint-skills.sh = bash reference impl).
+- `.github/workflows/lint-skills.yml` — new **Frontmatter Standard / PSFS (Ubuntu)** job that installs `jsonschema`+`pyyaml` and enforces the schema as a real gate (the main lint job degrades schema-check to advisory when jsonschema is absent).
+- `README.md` — new "Frontmatter standard — PSFS v1.1.0" subsection + `--standard` usage line.
+
+### Post-review bump (PSFS 1.0.0 → 1.1.0)
+After a spec review, `spec/PSFS.md` was bumped **1.0.0 → 1.1.0** (MINOR — new normative surface, fully backward-compatible: no field added/removed, no constraint changed). Added Parser Requirements (Core parsers MUST ignore unrecognized keys; `allowed-tools` wins over the deprecated `allowed_tools`), the angle-bracket threat model + intentional-strictness note, Skill Versioning and Spec Versioning sections, the `owns` object shape + ownership-resolution order, Core/Extended worked examples (both schema-validated), and scoped `name` uniqueness to the collection. Version bumped in lockstep across the doc, schema `title`/`description`, `lint-skills.sh` `PSFS_VERSION`, the `tests/standard` assertion, `lint-rules.md`, the `frontmatter-spec.md` pointer, and README. The build contract `contracts/standards/psfs.md` is left at its as-built 1.0.0 (historical record of the initial publication).
+
+A **second review pass** (also folded into 1.1.0, since it was still unreleased) turned two doc claims into enforced behavior: (1) the angle-bracket rule is now an always-on ERROR over the **whole** parsed frontmatter — `<`/`>` in any string value or key at any depth, including nested `metadata` (previously only schema-patterned typed fields, and only when `jsonschema` was present); (2) `composes_with`/`spawned_by` resolution now **excludes** plugin-namespaced (`plugin:name`) refs from the broken-reference WARN (they're external) — this dropped the tree's lint warnings 111 → 98. Spec also gained: tool-agnostic phrasing of ownership-resolution rule 3, a Reference-resolution rule, a "broadening `owns` is breaking" note, and a README-conformance-claim SHOULD (machine-readable manifest deferred). `lint-rules.md` → **1.3.0**. `tests/standard` → **14 tests** (+2 linter-behavior regressions). Real tree still exit 0.
+- `coordination/p3-qa-report.json` — QE gate **PASS** (contract_conformance 5, security 5, correctness 5, completeness 5, code_quality 5; self-validates against the qa-report schema + `qa-gate-validate.py` exit 0).
+
+### Verification (run by lead at the wave gate + QE, independently)
+- `scripts/lint-skills.sh --standard` → `Portable Skill Frontmatter Spec (PSFS) v1.1.0` + schema path, exit 0.
+- `scripts/lint-skills.sh skills/` → exit 0 (0 errors, 111 pre-existing advisory WARNs).
+- `bash tests/standard/run-tests.sh` → 12/12 pass.
+- Direct jsonschema pass over the tree → 47 skills, 0 failures. Schema passes `Draft202012Validator.check_schema`.
+
+### P3 issues (INFO — non-gating)
+- P3-I1 — 111 lint WARNs are pre-existing (long "pushy" descriptions, optional `owns`/`allowed_tools` on some role skills, plugin-external `composes_with`); 0 errors, unrelated to P3.
 
 ## Handoff for the user (when home)
 1. **Review the diff, then commit** (signing will prompt Touch ID): the additive edits to `convert.sh`/`install.sh`/`lint-skills.yml`/`README.md` + the new `hooks/`, `scripts/lint-hooks.sh`, `tests/hooks/`, `contracts/hooks/`, `coordination/`. Your earlier `skills/workflows/repo-deep-dive/` changes are also still uncommitted and unrelated — commit separately if you like.
