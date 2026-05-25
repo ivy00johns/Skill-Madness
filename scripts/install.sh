@@ -300,6 +300,14 @@ install_claude_code() {
     skill_name="$(basename "$skill_dir")"
     local category
     category="$(basename "$(dirname "$skill_dir")")"
+
+    # The hooks layer lives at integrations/claude-code/hooks/ and is installed
+    # separately into ~/.claude/ats-hooks/ by install_hooks_claude_code — it is
+    # not a skill category, so skip its depth-2 dirs here.
+    if [[ "$category" == "hooks" ]]; then
+      continue
+    fi
+
     dest_dir="$base_dest/$category/$skill_name"
 
     # Skip dirs managed by /sync-skills (symlinks at the skill level)
@@ -320,6 +328,57 @@ install_claude_code() {
   done < <(find "$src" -mindepth 2 -maxdepth 2 -type d -print0 | sort -z)
 
   ats_ok "Claude Code: $count skills -> $base_dest"
+
+  install_hooks_claude_code
+}
+
+# ---------------------------------------------------------------------------
+# install_hooks_claude_code
+# Copy the converted hooks tree to a NAMESPACED target (~/.claude/ats-hooks/),
+# never the user's own hook dir, and place hooks.json there too. Does NOT
+# auto-merge the user's ~/.claude/settings.json — instead prints the exact
+# merge snippet + a one-line instruction. Non-destructive is mandatory.
+# (Contract: contracts/hooks/hooks-layer.md §4.)
+# ---------------------------------------------------------------------------
+install_hooks_claude_code() {
+  local hooks_src="$INTEGRATIONS/claude-code/hooks"
+  local hooks_json="$INTEGRATIONS/claude-code/hooks.json"
+  local dest="${HOME}/.claude/ats-hooks"
+
+  # No hooks artifacts → nothing to do (convert.sh may not have emitted them).
+  if [[ ! -d "$hooks_src" ]]; then
+    return 0
+  fi
+
+  if $DRY_RUN; then
+    printf '  [dry-run] would install hooks: %s -> %s\n' "$hooks_src" "$dest"
+    [[ -f "$hooks_json" ]] && printf '  [dry-run] would copy: %s -> %s/hooks.json\n' "$hooks_json" "$dest"
+    ats_ok "Claude Code hooks: (dry-run) -> $dest"
+    return 0
+  fi
+
+  mkdir -p "$dest"
+  install_dir "$hooks_src" "$dest"
+  if [[ -f "$hooks_json" ]]; then
+    install_file "$hooks_json" "$dest/hooks.json"
+  fi
+
+  # Preserve executable bits (install_file uses cp which keeps mode, but the
+  # source under integrations/ may not be +x if convert ran on a fresh clone).
+  [[ -f "$dest/run-with-flags.sh" ]] && chmod +x "$dest/run-with-flags.sh"
+  if [[ -d "$dest/scripts" ]]; then
+    find "$dest/scripts" -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+  fi
+  [[ -f "$dest/lib/hook-flags.sh" ]] && chmod +x "$dest/lib/hook-flags.sh"
+
+  ats_ok "Claude Code hooks: installed -> $dest"
+
+  # Non-destructive: print the merge snippet, do not touch settings.json.
+  ats_info "Claude Code hooks are NOT auto-merged into ~/.claude/settings.json."
+  ats_info "To enable, merge the contents of $dest/hooks.json into the \"hooks\" key of ~/.claude/settings.json:"
+  if [[ -f "$dest/hooks.json" ]]; then
+    sed 's/^/    /' "$dest/hooks.json"
+  fi
 }
 
 install_copilot() {

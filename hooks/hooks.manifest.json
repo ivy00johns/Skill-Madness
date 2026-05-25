@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Canonical registry of Skill Madness lifecycle hooks. The run-with-flags wrapper and lint-hooks.sh read this file. Profiles gate which hooks fire; only qa-gate blocks.",
+  "hooks": [
+    {
+      "id": "qa-gate",
+      "event": "Stop",
+      "script": "scripts/qa-gate.sh",
+      "profiles": ["minimal", "standard", "strict"],
+      "blocking": true,
+      "description": "Validate qa-report.json against the QE schema and apply orchestrator gate rules; BLOCK the Stop on a gate failure."
+    },
+    {
+      "id": "post-edit-format",
+      "event": "PostToolUse",
+      "script": "scripts/post-edit-format.sh",
+      "profiles": ["standard", "strict"],
+      "blocking": false,
+      "description": "Format the file just touched by Edit/Write if a matching formatter is on PATH; never blocks."
+    },
+    {
+      "id": "session-start-profile",
+      "event": "SessionStart",
+      "script": "scripts/session-start-profile.sh",
+      "profiles": ["standard", "strict"],
+      "blocking": false,
+      "description": "Inject a short CLAUDE.md / .claude/profile.yaml summary (<=8 KB) into the session context."
+    },
+    {
+      "id": "pre-commit-lint",
+      "event": "PreToolUse",
+      "script": "scripts/pre-commit-lint.sh",
+      "profiles": ["strict"],
+      "blocking": false,
+      "description": "On a Bash 'git commit', run lint-skills.sh if skills changed; warn only, never blocks the commit."
+    },
+    {
+      "id": "skill-usage",
+      "event": "PostToolUse",
+      "script": "scripts/skill-usage.sh",
+      "profiles": ["standard", "strict"],
+      "blocking": false,
+      "description": "Coarse, best-effort skill-usage emitter: on a Skill-tool call, append one outcome:unknown telemetry event via skill-health.sh record; degrades silently and never blocks."
+    }
+  ]
+}

@@ -139,6 +139,65 @@ convert_claude_code() {
 }
 
 # ---------------------------------------------------------------------------
+# convert_hooks_claude_code
+# Emit the hooks layer for Claude Code: copy the canonical hooks/ tree into
+# integrations/claude-code/hooks/ and generate integrations/claude-code/hooks.json
+# in Claude Code settings-hook format. Events map to the run-with-flags wrapper
+# under "$CLAUDE_PROJECT_DIR"/.claude/ats-hooks/ (the namespaced install target).
+# Only Claude Code has a native lifecycle-hook system; other tools skip (see main).
+# ---------------------------------------------------------------------------
+convert_hooks_claude_code() {
+  local hooks_src="$REPO_ROOT/hooks"
+  if [[ ! -d "$hooks_src" ]]; then
+    ats_warn "hooks: source tree $hooks_src not found — skipping hooks emission"
+    return 0
+  fi
+
+  local cc_dir="$OUT_DIR/claude-code"
+  local hooks_dest="$cc_dir/hooks"
+  mkdir -p "$hooks_dest"
+  ats_cp_r "$hooks_src" "$hooks_dest"
+
+  # Preserve executable bits on the wrapper + scripts (ats_cp_r uses cp -r).
+  [[ -f "$hooks_dest/run-with-flags.sh" ]] && chmod +x "$hooks_dest/run-with-flags.sh"
+  if [[ -d "$hooks_dest/scripts" ]]; then
+    find "$hooks_dest/scripts" -type f -name '*.sh' -exec chmod +x {} +
+    find "$hooks_dest/scripts" -type f -name '*.py' -exec chmod +x {} +
+  fi
+  [[ -f "$hooks_dest/lib/hook-flags.sh" ]] && chmod +x "$hooks_dest/lib/hook-flags.sh"
+
+  # Generate hooks.json (Claude Code settings-hook format) from the manifest.
+  # Each manifest event maps to: run-with-flags.sh <id>, invoked from the
+  # namespaced install dir. python3 stdlib only.
+  local manifest="$hooks_src/hooks.manifest.json"
+  python3 - "$manifest" > "$cc_dir/hooks.json" <<'PYEOF'
+import json, sys
+manifest = sys.argv[1]
+with open(manifest) as f:
+    data = json.load(f)
+
+wrapper = '"$CLAUDE_PROJECT_DIR"/.claude/ats-hooks/run-with-flags.sh'
+events = {}
+for h in data.get("hooks", []):
+    ev = h.get("event")
+    hid = h.get("id")
+    if not ev or not hid:
+        continue
+    entry = {
+        "hooks": [
+            {"type": "command", "command": '%s %s' % (wrapper, hid)}
+        ]
+    }
+    events.setdefault(ev, []).append(entry)
+
+# Claude Code settings.json "hooks" shape: { "<Event>": [ { hooks: [...] } ] }
+print(json.dumps({"hooks": events}, indent=2))
+PYEOF
+
+  ats_ok "Wrote integrations/claude-code/hooks/ + hooks.json"
+}
+
+# ---------------------------------------------------------------------------
 # Converter: copilot
 # Flat layout. Strip agent-role fields. Copy references as <slug>-references/.
 # ---------------------------------------------------------------------------
@@ -826,6 +885,18 @@ main() {
 
   # Finalize accumulated single-file outputs
   finalize_accumulators
+
+  # Hooks layer emission (contract: contracts/hooks/hooks-layer.md §4).
+  # Only Claude Code has a native lifecycle-hook system; emit its hooks tree +
+  # hooks.json. Every other tool is logged as unsupported (do not fabricate
+  # hook support for tools that lack a hook runtime).
+  for t in "${tools_to_run[@]}"; do
+    if [[ "$t" == "claude-code" ]]; then
+      convert_hooks_claude_code
+    else
+      ats_info "hooks: unsupported for $t"
+    fi
+  done
 
   if [[ "$tool" == "all" || "$tool" == "aider" ]]; then
     ats_ok "Wrote integrations/aider/CONVENTIONS.md"

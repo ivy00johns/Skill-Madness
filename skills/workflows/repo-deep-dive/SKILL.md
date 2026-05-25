@@ -1,6 +1,6 @@
 ---
 name: repo-deep-dive
-version: 1.3.0
+version: 1.4.0
 description: >-
   Perform a comprehensive technical deep dive on an open-source repository, combining
   a deep-research markdown document with hands-on codebase analysis to produce a structured
@@ -35,24 +35,26 @@ Turn a Claude Deep Research document and a locally cloned repository into a comp
 
 2. **A locally cloned repo** — the actual source code to trace, measure, and analyze.
 
-3. **An output directory** — where the deep dive's document series should land. Ask the user for this if not provided. There is no built-in default — naming the location explicitly keeps deep dives from accumulating in a default folder the user forgets about.
+3. **An output directory** — where the deep dive's document series should land. There is no built-in default — naming the location explicitly keeps deep dives from accumulating in a folder the user forgets about. **But don't just ask blind: first run vault detection (Phase 0).** Many users keep a dedicated deep-research / Obsidian "second-brain" vault with an established convention for where deep dives live. If one exists, offer it as the *recommended* target rather than asking from scratch. You still ask — detection sets a smart default, it doesn't override the user.
 
 If the deep-research document is missing, ask the user. It's critical — it grounds the analysis in why the project exists and where it sits in the landscape, not just what the code does. If the user doesn't have one, suggest they run a deep-research session first (it takes ~5 minutes and dramatically improves the output quality).
 
 ## The Process
 
-Four phases. Read `references/phases.md` for the detailed instructions, code snippets for measurement, and per-phase guidance.
+Six phases (Phase 0 and Phase 5 are conditional). Read `references/phases.md` for the detailed instructions and code snippets, and `references/vault-integration.md` for the Phase 0 detection heuristic + the Phase 5 wiki page schema.
 
+0. **Phase 0 — Locate the vault (before asking for output_dir).** Detect whether the user keeps a deep-research / Obsidian knowledge vault. If so, propose its convention as the recommended output target. See `references/vault-integration.md`.
 1. **Phase 1 — Orient.** Read the deep-research doc, extract claims, gather hard numbers from the repo (LoC, commits, contributors).
 2. **Phase 2 — Map the Architecture.** Trace from entry points inward. Use parallel subagents to explore subsystems concurrently. Produce a mermaid architecture diagram.
 3. **Phase 3 — Deep Dive Each Subsystem.** One focused document per major subsystem (6-10 typical). Read the actual code, not just docs.
 4. **Phase 4 — Compare and Assess.** Comparison + convergence/frontier documents. This is the strategic payoff.
+5. **Phase 5 — Wiki integration (only if the target is a knowledge vault).** Synthesize the deep dive into the vault's wiki layer — source page, entity/concept pages, a comparison page — and update the vault's index/log per its own conventions. This is what makes `composes_with: llm-wiki` real. See `references/vault-integration.md`.
 
 ## Output Structure
 
 All output goes in `{output_dir}/{project}_deepdive/source-material/`.
 
-`{output_dir}` is required and supplied by the user. If they don't specify one, ask before generating any files — silently dropping a 12-document series into a default location wastes their time finding it later.
+`{output_dir}` is required. Phase 0 detection sets a recommended default (a detected vault's deep-dive convention); otherwise the user supplies it. Either way, confirm the location before generating any files — silently dropping a 12-document series into a location the user didn't confirm wastes their time finding it later. **If the target is a detected vault, also run Phase 5** to integrate the series into its wiki layer rather than leaving it as an unlinked island.
 
 ### Document Progression
 
@@ -87,10 +89,13 @@ Read `references/parallelization.md` for: the subagent strategy across phases, h
 
 ## Anti-Pattern
 
-> **Forbidden:** Generating a deep dive without the user-supplied output directory. Silently dropping a 12-doc series into a default location wastes the user's time.
+> **Forbidden:** Generating a deep dive into an unconfirmed location. Phase 0 may *propose* a detected vault as the default, but you still confirm before writing. Silently dropping a 12-doc series anywhere — default folder or detected vault — without confirmation wastes the user's time.
+
+> **Forbidden:** Dropping the series into a detected knowledge vault but skipping Phase 5. An unlinked deep-dive folder inside a wiki is an orphan — if the target is a vault, integrate it (source/entity/concept/comparison pages + index + log) per the vault's own conventions.
 
 ## Reference Files
 
 - `references/phases.md` — detailed instructions for Phases 1-4 with measurement commands and subagent dispatch patterns
 - `references/document-template.md` — full per-document template (INDEX, overview, architecture, subsystem skeletons, comparison, convergence, frontier)
 - `references/parallelization.md` — subagent strategy, scope adaptation, reconciling research vs code, hallmarks of a great deep dive
+- `references/vault-integration.md` — Phase 0 vault-detection heuristic + Phase 5 wiki integration (page schema, index/log updates)
