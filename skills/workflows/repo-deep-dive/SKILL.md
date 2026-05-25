@@ -93,6 +93,14 @@ Read `references/parallelization.md` for: the subagent strategy across phases, h
 
 > **Forbidden:** Dropping the series into a detected knowledge vault but skipping Phase 5. An unlinked deep-dive folder inside a wiki is an orphan — if the target is a vault, integrate it (source/entity/concept/comparison pages + index + log) per the vault's own conventions.
 
+## Final step: feed findings into the living plan
+
+After producing the reference series, if the target project has a living plan/ledger
+(look for `START-HERE.md`, `BUILD-PLAN.md`, or `docs/REMAINING-WORK.md`), invoke the
+`plan-intake` skill on the integration/gap findings so they become tracked entries
+rather than a static report. Skip only if the project has no ledger.
+(For skill-creator / skill-review reports, run `plan-intake` manually on the report — same loop.)
+
 ## Reference Files
 
 - `references/phases.md` — detailed instructions for Phases 1-4 with measurement commands and subagent dispatch patterns
