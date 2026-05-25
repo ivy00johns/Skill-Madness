@@ -1,18 +1,21 @@
 # Contract: Lint Rules
 
 **Build:** Multi-Tool Installer (Slice A)
-**Version:** 1.1.0
+**Version:** 1.3.0
 **Owner:** orchestrator (authored Phase 4)
 **Consumed by:** scripts-agent (lint-skills.sh), infrastructure-agent (CI workflow), qe-agent (lint test fixtures)
+**Conforms to:** Portable Skill Frontmatter Spec (PSFS) v1.1.0 — `spec/PSFS.md`
 
 **Changelog:**
+- 1.3.0 — Made the PSFS angle-bracket rule a real, always-on gate: `<`/`>` in **any** frontmatter string value or key, at any depth (including inside the free-form `metadata` object), is an ERROR (see Frontmatter Safety below). Previously this was only enforced via the schema pattern on named typed fields and only when `jsonschema` was installed; the linter now walks the whole parsed frontmatter independently of jsonschema. Also: `composes_with`/`spawned_by` reference resolution now excludes plugin-namespaced (`plugin:name`, i.e. any `:`-containing) refs from the broken-reference WARN — they are external by definition. Scoped `name` uniqueness wording to "within the collection."
+- 1.2.0 — Bound to the published **Portable Skill Frontmatter Spec (PSFS) v1.1.0** (`spec/PSFS.md`). `lint-skills.sh` is the standard's **bash reference validator** (`--standard` reports the binding); the portable, tool-agnostic canonical validator is `spec/frontmatter.schema.json` (JSON Schema 2020-12). The lint script gained an optional inline schema cross-check (ERROR on structural violation when `jsonschema` is available; WARN advisory when absent). The split is normative: the schema covers per-file structure; this contract's cross-skill checks (name uniqueness, name==dirname, `owns` non-overlap) remain validator-only.
 - 1.1.0 — Demoted `description` length checks from ERROR to WARN at every threshold. Reason: `CLAUDE.md` explicitly endorses "pushy" descriptions that over-enumerate trigger contexts to combat under-triggering. Hard ERROR-on-length conflicted with the ecosystem's intentional design. Length is now a quality signal, not a CI gate.
 
 ## Purpose
 
 Defines what `scripts/lint-skills.sh` validates against every `skills/**/SKILL.md`. The lint script is the CI gate — failures block PR merges via `.github/workflows/lint-skills.yml`.
 
-The canonical frontmatter spec is at `skills/meta/skill-writer/references/frontmatter-spec.md`. This contract translates that spec into machine-checkable rules.
+The canonical frontmatter spec is at `skills/meta/skill-writer/references/frontmatter-spec.md`, published as the **Portable Skill Frontmatter Spec (PSFS) v1.1.0** (`spec/PSFS.md`). This contract translates that spec into machine-checkable rules; `spec/frontmatter.schema.json` is the portable reference validator and this script is the bash reference implementation.
 
 ## Severity Levels
 
@@ -51,10 +54,18 @@ These checks require reading multiple skills:
 
 | Check | Severity |
 |---|---|
-| `name` is unique across the ecosystem | ERROR (collision) |
+| `name` is unique within the collection | ERROR (collision) |
 | `owns.directories` between two agent role skills do not overlap (resolution rules in `frontmatter-spec.md` § Ownership Resolution apply) | ERROR (conflict) |
-| Every name in `composes_with` resolves to an existing skill | WARN (broken reference) |
-| Every name in `spawned_by` resolves to an existing skill | WARN (broken reference) |
+| Every in-collection name in `composes_with` resolves to an existing skill (plugin-namespaced `plugin:name` refs are external — excluded) | WARN (broken reference) |
+| Every in-collection name in `spawned_by` resolves to an existing skill (plugin-namespaced `plugin:name` refs are external — excluded) | WARN (broken reference) |
+
+## Frontmatter Safety (ERROR)
+
+| Check | Severity |
+|---|---|
+| No `<` or `>` in any frontmatter string value or key, at any depth (including nested `metadata` values) | ERROR |
+
+Frontmatter is injected verbatim into the model's system prompt, where `<...>` can be read as control/tool tags or abused for prompt injection. The linter walks parsed YAML *values* (not raw text), so block-scalar indicators (`description: >`, `description: |`) are structural and never trip the rule. This check runs independently of `jsonschema`; the JSON Schema's `^[^<>]*$` patterns on named fields are a portable complement, not the sole enforcement.
 
 ## Body Validation
 

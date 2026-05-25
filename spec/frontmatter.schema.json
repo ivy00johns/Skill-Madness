@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/the-hive-ecosystem/Skill-Madness/spec/frontmatter.schema.json",
+  "title": "Portable Skill Frontmatter Spec (PSFS) v1.1.0",
+  "description": "Canonical, portable, tool-agnostic JSON Schema for SKILL.md frontmatter, conforming to the Portable Skill Frontmatter Spec (PSFS) v1.1.0 (see spec/PSFS.md). This schema expresses PER-FILE STRUCTURE ONLY: required fields, types, patterns, and enumerations for a single SKILL.md frontmatter object. CROSS-FILE checks are explicitly OUT OF SCOPE for JSON Schema and remain in scripts/lint-skills.sh: name uniqueness within the collection, name == directory name, and owns.directories non-overlap between role skills. Core fields (name, version, description plus Anthropic optionals) define Core conformance; the multi-agent extension fields define Extended conformance.",
+  "type": "object",
+  "required": ["name", "version", "description"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Skill identifier. Kebab-case, must match the skill folder name (folder match enforced by lint-skills.sh, not this schema).",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "maxLength": 64
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version MAJOR.MINOR.PATCH.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Primary trigger text. No XML angle brackets ('<' or '>') — frontmatter loads into Claude's system prompt.",
+      "maxLength": 1024,
+      "pattern": "^[^<>]*$"
+    },
+
+    "compatibility": {
+      "type": "string",
+      "description": "Human-readable environment requirements. No angle brackets.",
+      "minLength": 1,
+      "maxLength": 500,
+      "pattern": "^[^<>]*$"
+    },
+    "license": {
+      "type": "string",
+      "description": "Per-skill license override. No angle brackets.",
+      "pattern": "^[^<>]*$"
+    },
+    "allowed-tools": {
+      "type": "array",
+      "description": "Canonical: whitelist of tool names the skill may invoke.",
+      "items": {
+        "type": "string",
+        "pattern": "^[^<>]*$"
+      }
+    },
+    "allowed_tools": {
+      "type": "array",
+      "description": "Deprecated alias of allowed-tools (underscore form). Accepted for back-compat; new skills should use allowed-tools.",
+      "items": {
+        "type": "string",
+        "pattern": "^[^<>]*$"
+      }
+    },
+    "argument-hint": {
+      "type": "string",
+      "description": "Hint shown in Claude Code's slash-command UI for skills taking a positional argument. No angle brackets.",
+      "pattern": "^[^<>]*$"
+    },
+    "disable-model-invocation": {
+      "type": "boolean",
+      "description": "When true, the skill is invocable only by an orchestrator or explicit slash-command, not Claude's normal auto-trigger."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Free-form attribution, cataloging, and integration metadata.",
+      "additionalProperties": true
+    },
+
+    "requires_agent_teams": {
+      "type": "boolean",
+      "description": "Extended: true if the skill requires CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1."
+    },
+    "requires_claude_code": {
+      "type": "boolean",
+      "description": "Extended: true if the skill requires the Claude Code CLI (bash, filesystem access)."
+    },
+    "min_plan": {
+      "type": "string",
+      "description": "Extended: minimum plan tier required.",
+      "enum": ["starter", "pro", "team", "enterprise"]
+    },
+    "owns": {
+      "type": "object",
+      "description": "Extended: ownership declaration for agent role skills. Cross-file non-overlap of owns.directories is enforced by lint-skills.sh, not this schema.",
+      "properties": {
+        "directories": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[^<>]*$" }
+        },
+        "patterns": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[^<>]*$" }
+        },
+        "shared_read": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[^<>]*$" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "composes_with": {
+      "type": "array",
+      "description": "Extended: other skill names this naturally works with (informational).",
+      "items": { "type": "string", "pattern": "^[^<>]*$" }
+    },
+    "spawned_by": {
+      "type": "array",
+      "description": "Extended: which skills spawn this one.",
+      "items": { "type": "string", "pattern": "^[^<>]*$" }
+    }
+  },
+  "additionalProperties": false
+}
