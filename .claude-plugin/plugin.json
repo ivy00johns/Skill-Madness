@@ -1,6 +1,6 @@
 {
   "name": "skill-madness",
-  "description": "Contract-first multi-agent orchestrator with 47 skills: a 14-phase orchestrator that authors machine-readable contracts before code, dispatches 10 role agents in parallel with exclusive file ownership, and blocks the merge on a structured QA report. Plus meta-skills, git conventions, and cross-cutting workflow tools (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, llm-wiki, …).",
+  "description": "Contract-first multi-agent orchestrator with 49 skills: a 14-phase orchestrator that authors machine-readable contracts before code, dispatches 10 role agents in parallel with exclusive file ownership, and blocks the merge on a structured QA report. Plus meta-skills, git conventions, and cross-cutting workflow tools (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, llm-wiki, …).",
   "version": "0.1.0",
   "author": {
     "name": "ivy00johns",
