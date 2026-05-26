@@ -75,6 +75,7 @@ After reading targeted pages, one of three situations applies:
 **Wiki covers it** → You're done. Proceed with your task using wiki knowledge.
 
 **Wiki has a gap** (page flags "not yet documented", contradiction exists, or your specific question wasn't covered):
+- When synthesizing 3+ sources, apply the **contradiction-finding** move (`references/contradiction-finding.md`) before writing your summary.
 - Check the relevant source page for raw doc pointers
 - Read the specific raw files identified — not entire directories
 - Return to your task once the gap is filled
@@ -160,3 +161,7 @@ If the project uses this pattern, its `CLAUDE.md` should call out which cluster 
 | Skipping `index.md` | You read the wrong pages and miss key context | Always start with `index.md` — it costs ~500 tokens |
 | Following every `## Related` link | Token spiral; loses thread of original task | Follow only links directly relevant to current task |
 | Ignoring the wiki when CLAUDE.md mentions one | Defeats the entire optimization | If wiki is declared, use it — escalate to raw source only on gaps |
+
+## Reference Documents
+
+- **`references/contradiction-finding.md`** — thinking move for surfacing where sources disagree before writing a synthesis (use when combining 3+ sources).

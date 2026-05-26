@@ -39,6 +39,8 @@ See `references/team-sizing.md` for the full decision framework.
 
 ## Phase 3: Define Agents
 
+Before defining agent boundaries, apply the **assumption-audit** move (`skills/workflows/deployment-checklist/references/assumption-audit.md`) to surface any unverified beliefs about the plan's environment, data, and constraints. Catching a bad assumption here is far cheaper than after agents have built against it.
+
 For each agent:
 
 1. Name (short, descriptive)

@@ -87,6 +87,7 @@ When the user has a clear goal but no source material:
 - **Bias toward action.** Three clarifying questions maximum. After that, draft the plan and let the user correct it. A wrong draft you can fix is more useful than a perfect question you haven't asked yet.
 - **Right-size for orchestrator.** Plans should be specific enough that the orchestrator can size teams and author contracts, but not so detailed that agents have no autonomy. Component responsibilities yes, implementation pseudocode no.
 - **Flag scale.** If the plan would require more than 6 parallel agents, suggest phasing: build the core in phase 1, extend in phase 2. Large teams need proactive context management (handoffs, phased spawning) to maintain quality.
+- **Trace second-order effects for consequential decisions.** When a decision affects systems beyond the immediate build scope or has a time horizon longer than 30 days, apply the **second-order-effects** move (`references/second-order-effects.md`) before finalizing that section of the plan.
 - **Respect existing code.** When augmenting an existing project, follow its conventions. Don't propose a React rewrite of a Vue app just because you prefer React.
 
 ## Handoff
@@ -111,6 +112,7 @@ Wait for the user's choice. Do not auto-invoke the orchestrator.
 
 - **`references/plan-format.md`** — the section-by-section structure of the plan document (Architecture Reasoning + Build Plan, with templates for each section).
 - **`references/research-extraction.md`** — how to pull a plan out of research docs (synthesize, map to architecture, check existing code, confirm with user).
+- **`references/second-order-effects.md`** — thinking move for tracing downstream ripple consequences of a plan decision (use when the decision scope extends beyond 30 days or touches shared systems).
 
 ### Output Location
 
