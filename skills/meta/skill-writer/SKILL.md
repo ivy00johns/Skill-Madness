@@ -128,3 +128,7 @@ before reporting done.
 
 - `references/frontmatter-spec.md` — Complete field reference with types, rules, and examples
 - `references/description-patterns.md` — Templates for writing effective trigger descriptions
+- `references/patterns.md` — Five architectural skill patterns (Sequential Workflow, Multi-MCP Coordination, Iterative Refinement, Context-Aware Tool Selection, Domain-Specific Intelligence)
+- `references/quick-checklist.md` — Pre-ship checklist: frontmatter, description, body length, triggers, cross-references
+- `references/performance-notes.md` — When and how to add a Performance Notes section to combat model laziness
+- `references/validation-script-pattern.md` — How to author and wire a deterministic validation script for a skill

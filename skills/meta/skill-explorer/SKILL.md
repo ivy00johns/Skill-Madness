@@ -149,4 +149,5 @@ When orchestrator would be wrong, **say so explicitly**: "This isn't a multi-age
 ## References
 
 - `references/routing-table.md` — fuller table of common requests → recommended skill, used when the four rules of thumb above don't cover the case
+- `references/troubleshooting.md` — named symptom taxonomy for skill discovery and routing problems (skill not triggering, wrong skill firing, overlapping triggers, instructions not followed)
 
