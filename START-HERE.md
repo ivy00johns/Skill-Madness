@@ -12,9 +12,9 @@ A mature library of **47 skills** (contracts · git · meta · orchestrator · r
 | **Skill curation** (8 new skills, 6 migrations, 3 merges, bulk edits — from the comparative deep dive) | ✅ Complete |
 | **Ecosystem audit** (47-skill review; 5 broken cross-refs, oversized descriptions, missing frontmatter) | ✅ Complete — all critical findings resolved |
 | **Runtime + install layer** (hooks, catalog CI, plan/apply install, skill-health, skill-scan, PSFS standard) | ✅ Complete — shipped PR #8 |
-| **Doc-polish backlog** (reference files + thinking-move docs — IMPROVEMENT_PLAN Phases 2–4) | 🟡 ~11 items open — see ledger |
+| **Doc-polish backlog** (reference files + thinking-move docs — IMPROVEMENT_PLAN Phases 2–4) | 🟡 RF1–RF5 + TM1–TM3 shipped; 3 items left (PR1 + 2 cleanups) |
 
-The library and its tooling are done. The only open work is documentation polish. Full narrative in [`PLAN.md`](PLAN.md) § "Where we are".
+The library and its tooling are done. The doc-polish backlog is nearly cleared — only one process item to verify and two minor cleanups remain. Full narrative in [`PLAN.md`](PLAN.md) § "Where we are".
 
 ## Which doc is which (ownership map)
 

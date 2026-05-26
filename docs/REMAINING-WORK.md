@@ -18,23 +18,23 @@ Source short-link: `[IP]` → `docs/archive/superseded-plans/IMPROVEMENT_PLAN.md
 ## Reference files (skill-writer / skill-explorer)
 
 ### RF1 — `patterns.md` for skill-writer (5 emergent Anthropic patterns)
-**P2 · Skill-writer · open · Owner: —** · Source: [IP] Phase 2 / B5
+**P2 · Skill-writer · closed (2026-05-26, 515a172) · Owner: —** · Source: [IP] Phase 2 / B5
 Create `skills/meta/skill-writer/references/patterns.md` documenting the 5 emergent skill patterns adopted from Anthropic's May 2026 Agent Skills guide. The references dir currently holds only `frontmatter-spec.md` + `description-patterns.md`.
 
 ### RF2 — `quick-checklist.md` for skill-writer
-**P3 · Skill-writer · open · Owner: —** · Source: [IP] Phase 2 / B6
+**P3 · Skill-writer · closed (2026-05-26, 515a172) · Owner: —** · Source: [IP] Phase 2 / B6
 Create `skills/meta/skill-writer/references/quick-checklist.md` — a fast pre-ship checklist for new skills.
 
 ### RF3 — `troubleshooting.md` for skill-explorer
-**P3 · Skill-explorer · open · Owner: —** · Source: [IP] Phase 2 / B7
+**P3 · Skill-explorer · closed (2026-05-26, 515a172) · Owner: —** · Source: [IP] Phase 2 / B7
 Create `skills/meta/skill-explorer/references/troubleshooting.md`. The references dir currently holds only `routing-table.md`.
 
 ### RF4 — `## Performance Notes` pattern doc
-**P3 · Skill-writer · open · Owner: —** · Source: [IP] Phase 2 / B8
+**P3 · Skill-writer · closed (2026-05-26, 515a172) · Owner: —** · Source: [IP] Phase 2 / B8
 Document the optional `## Performance Notes` section pattern (when/how a skill records perf characteristics) as a reference for skill authors.
 
 ### RF5 — validation-script-pattern doc
-**P3 · Skill-writer · open · Owner: —** · Source: [IP] Phase 2 / B9
+**P3 · Skill-writer · closed (2026-05-26, 515a172) · Owner: —** · Source: [IP] Phase 2 / B9
 Document the validation-script pattern (the *pattern doc* — actual scripts like `qa-gate-validate.py` / `scan-skills.sh` already exist from the PR #8 build, but the authoring pattern is undocumented).
 
 ---
@@ -42,15 +42,15 @@ Document the validation-script pattern (the *pattern doc* — actual scripts lik
 ## Thinking-move additions
 
 ### TM1 — `contradiction-finding` thinking move
-**P2 · Thinking-moves · open · Owner: —** · Source: [IP] Phase 3
+**P2 · Thinking-moves · closed (2026-05-26, 8127c7c) · Owner: —** · Source: [IP] Phase 3
 Create `skills/workflows/wiki-research/references/contradiction-finding.md` (the `references/` dir does not exist yet) and wire it into the SKILL.md. Surfaces contradictions between sources/claims.
 
 ### TM2 — `assumption-audit` thinking move
-**P2 · Thinking-moves · open · Owner: —** · Source: [IP] Phase 3
+**P2 · Thinking-moves · closed (2026-05-26, 8127c7c) · Owner: —** · Source: [IP] Phase 3
 Create `skills/workflows/deployment-checklist/references/assumption-audit.md` and wire it into deployment-checklist and the orchestrator phase-guide. Forces explicit listing + testing of assumptions before action.
 
 ### TM3 — `second-order-effects` thinking move
-**P2 · Thinking-moves · open · Owner: —** · Source: [IP] Phase 3
+**P2 · Thinking-moves · closed (2026-05-26, 8127c7c) · Owner: —** · Source: [IP] Phase 3
 Create `skills/workflows/plan-builder/references/second-order-effects.md` and wire it into plan-builder. (`plan-builder/references/` has `plan-format.md` + `research-extraction.md` but no second-order-effects doc.)
 
 ---

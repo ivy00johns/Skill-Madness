@@ -25,7 +25,7 @@ Skill-Madness is a mature **47-skill** library — a contract-first multi-agent 
 - ✅ **M1 — Skill curation pass** (2026-05-17 era): catalog reshaped to 47 skills across 6 categories, `archive/` + `in-progress/` staging dirs established.
 - ✅ **M2 — Ecosystem audit + fixes** (2026-05-20): 48 per-skill reports; all C1–C4 critical findings resolved.
 - ✅ **M3 — Runtime + install layer** (2026-05-24, PR #8): hooks, installer discipline, telemetry, scanner, PSFS standard.
-- 🟡 **M4 — Doc-polish (IMPROVEMENT_PLAN Phases 2–4)**: reference files + thinking-move docs. ~11 items open in the ledger. **Current focus.**
+- 🟡 **M4 — Doc-polish (IMPROVEMENT_PLAN Phases 2–4)**: reference files + thinking-move docs shipped (RF1–RF5, TM1–TM3). 3 items left in the ledger (PR1 verify + CL1/CL2 cleanup). **Nearly done.**
 
 ## Closure log
 
@@ -40,6 +40,8 @@ Items move here on ship. Format: `<ref> (date) — <one-line summary>`.
 - **IMPROVEMENT_PLAN Phase 1** (spec alignment, A1–A6 + B10) — `frontmatter-spec.md` documents `allowed-tools` (hyphen canonical), `compatibility`, `argument-hint`, `disable-model-invocation`, angle-bracket prohibition, and the `[What]+[When]+[Key capabilities]` description anatomy; A4 enforced by the PSFS schema/lint.
 - **IMPROVEMENT_PLAN Phase 5** (the compliance sweep) — satisfied by the MASTER_AUDIT campaign + PSFS schema validating all 47 skills clean.
 - **Runtime/install build P0–P3** (2026-05-24, PR #8) — hooks layer, catalog invariant, plan/apply install, skill-health, skill-scan, and PSFS v1.1.0 standard. Contracts in `contracts/`.
+- **RF1–RF5** (2026-05-26, 515a172) — IMPROVEMENT_PLAN Phase 2 reference files authored: `patterns.md`, `quick-checklist.md`, `performance-notes.md`, `validation-script-pattern.md` (skill-writer) + `troubleshooting.md` (skill-explorer).
+- **TM1–TM3** (2026-05-26, 8127c7c) — IMPROVEMENT_PLAN Phase 3 thinking moves authored + wired: `contradiction-finding` (wiki-research), `assumption-audit` (deployment-checklist + orchestrator phase-guide Phase 3), `second-order-effects` (plan-builder).
 
 ---
 
