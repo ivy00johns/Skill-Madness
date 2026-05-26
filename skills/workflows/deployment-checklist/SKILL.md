@@ -38,7 +38,7 @@ You verify that a build is ready for deployment by running through a structured 
 
 ## Process
 
-Run through `references/pre-deploy.md` in order. Each section must pass before moving to the next. Report results as a structured checklist.
+Before running the checklist, apply the **assumption-audit** move (`references/assumption-audit.md`) to surface any unverified beliefs about the environment. Then run through `references/pre-deploy.md` in order. Each section must pass before moving to the next. Report results as a structured checklist.
 
 ### Quick Reference
 
@@ -49,6 +49,11 @@ Run through `references/pre-deploy.md` in order. Each section must pass before m
 5. **Database** — migrations applied, rollback tested?
 6. **Infrastructure** — Docker builds, health checks pass?
 7. **Integration** — services connect, CORS works?
+
+## Reference Documents
+
+- **`references/pre-deploy.md`** — full ordered checklist (build, tests, env config, security, DB, infra, integration).
+- **`references/assumption-audit.md`** — thinking move for surfacing unverified assumptions before sign-off.
 
 ## Output
 

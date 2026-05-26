@@ -4,6 +4,8 @@
 
 ### *All the skills, all the agents, all the chaos.*
 
+**Maintainers/agents:** see [`START-HERE.md`](START-HERE.md) for current status and which docs are canonical.
+
 **One agent in one context window can only build so much. The `orchestrator` decomposes a build into a 14-phase plan, authors machine-readable contracts *before* any code is written, dispatches role agents in parallel with exclusive file ownership, and blocks the merge on a structured QA report. The skill library it draws from is portable: author once in `SKILL.md`, install into eleven AI coding tools — Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, Kimi.**
 
 <p align="center">
