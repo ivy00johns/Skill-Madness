@@ -13,7 +13,7 @@ From the inputs you receive (plan excerpt, acceptance criteria, user request), b
 
 ## Writing the Test Script
 
-Create a Playwright test file in your run's results directory. The test launches **non-headless Chromium** so screenshots show the actual rendered UI:
+Create a Playwright test file in your run's results directory (`.playwright/<run-id>/results/`). Write screenshots to `.playwright/<run-id>/screenshots/` — pass the run dir in via an env var (e.g. `RUN_DIR`) so the script knows where to put them. The test launches **non-headless Chromium** so screenshots show the actual rendered UI:
 
 ```typescript
 import { test, expect } from '@playwright/test';
@@ -40,19 +40,22 @@ test.use({
 
 ```bash
 RUN_ID=$(date +%Y-%m-%d_%H-%M-%S)
-mkdir -p playwright-screenshots/$RUN_ID playwright-results/$RUN_ID
+export RUN_DIR=.playwright/$RUN_ID
+mkdir -p "$RUN_DIR/screenshots" "$RUN_DIR/results"
 
-npx playwright test playwright-results/$RUN_ID/test.spec.ts \
+npx playwright test "$RUN_DIR/results/test.spec.ts" \
   --project=chromium \
   --reporter=json \
-  --output=playwright-results/$RUN_ID \
-  2>&1 | tee playwright-results/$RUN_ID/output.log
+  --output="$RUN_DIR/results" \
+  2>&1 | tee "$RUN_DIR/results/output.log"
 ```
+
+`--output` redirects Playwright's per-test artifacts (traces, videos) into the run dir instead of the default top-level `test-results/`. The test script reads `RUN_DIR` to place its screenshots under `$RUN_DIR/screenshots/`.
 
 If tests are written as standalone scripts (not using `@playwright/test` runner), execute directly:
 
 ```bash
-npx tsx playwright-results/$RUN_ID/test-script.ts
+npx tsx "$RUN_DIR/results/test-script.ts"
 ```
 
 ## Accessibility Quick-Check
