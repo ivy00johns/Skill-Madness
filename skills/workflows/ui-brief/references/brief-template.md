@@ -176,13 +176,19 @@ Often missing from briefs. Include it explicitly:
 
 ```markdown
 - **Pass axe AA on every route.** Wire it into the [test framework] suite, fail CI on violations.
-- **Keyboard navigable everywhere.** Tab order matches visual order. Focus rings visible.
-- **Responsive baseline**: [primary viewport] primary, must remain usable at [secondary], must show "this UI is built for [desktop/mobile]" at < [tertiary].
+- **Keyboard navigable everywhere.** Tab order matches visual order. Focus rings visible on every interactive element.
 - **Color contrast 4.5:1 minimum.** Use a checker.
 - **`prefers-reduced-motion` respected** — disables [the animations from Section 8].
+- **Mobile-first, not mobile-as-afterthought.** Base layout assumes 375px wide; larger layouts layer in via `min-width` media queries. Desktop-first with `max-width` patches is the workflow that ships hardcoded widths and inline `style=` grids — disallowed.
+- **Breakpoint tokens** (use the sm/md/lg/xl/2xl set; do not invent project-private breakpoints unless content genuinely demands one).
+- **Render proof at two widths before shipping**: 375 × 667 (mobile) and 1440 × 900 (desktop). No horizontal scroll at either; tap targets ≥ 44 × 44 on mobile; hero / primary CTA visible above the fold at both. Screenshots required — a `@media` rule in CSS proves nothing if an inline style is beating it.
+- **No hardcoded `width: <px>` on layout containers.** Use `max-width`, `clamp()`, `minmax()`, or `flex-basis` by intent. Fixed widths on tokens (icons, button heights, hairlines) are fine; on wrappers/columns/cards they lock the layout off mobile.
+- **No inline `style=` for layout.** Class + stylesheet rule, every time. The only legitimate inline `style=` is a per-instance CSS custom property the JS/server computes (e.g. `style="--progress: 72%"`).
 ```
 
-**Length:** ~80 words.
+For the full responsive playbook the frontend agent will work from, see `skills/roles/frontend-agent/references/mobile-responsive.md` — patterns, tokens, mobile gotchas, stack adapters. The bullets above are the contract; the reference is the toolkit.
+
+**Length:** ~140 words.
 
 ---
 
