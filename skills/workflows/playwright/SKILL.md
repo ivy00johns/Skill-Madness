@@ -1,6 +1,6 @@
 ---
 name: playwright
-version: 1.3.0
+version: 1.4.0
 description: |
   Run browser-based E2E tests, capture screenshots, and validate user flows using Playwright with visible Chrome. Use this skill when testing a web UI end-to-end, capturing screenshots for visual review, checking responsive layouts, or auditing accessibility in a real browser. Trigger on: "e2e test", "screenshot the UI", "click through the app", "responsive layout check", "accessibility audit". Also invoke when qe-agent needs browser-level integration testing.
 requires_agent_teams: false
@@ -56,13 +56,13 @@ npx playwright install chromium
 
 3. **Execute the run.** The standard `RUN_ID=$(date +%Y-%m-%d_%H-%M-%S)` command for both `@playwright/test` runner and standalone `npx tsx` execution is in `references/selectors-guide.md`.
 
-4. **Lay out the outputs.** All runs go under `playwright-screenshots/<run-id>/` (PNG screenshots) and `playwright-results/<run-id>/` (reports, traces, JSON). Both directories are gitignored. See `references/screenshot-workflow.md` for the exact directory layout and naming convention.
+4. **Lay out the outputs.** Everything from a run lives under a single gitignored root: `.playwright/<run-id>/`, with `screenshots/` (PNGs) and `results/` (traces, raw JSON, logs, the test script) beneath it. One root keeps a project's working tree from sprouting `playwright-screenshots/`, `playwright-results/`, `.playwright-mcp/`, and `test-results/` side by side. See `references/screenshot-workflow.md` for the exact directory layout and naming convention.
 
-5. **Produce the report.** Report mode emits two files in the results directory: `playwright-report.json` (structured) and `playwright-report.md` (human-readable). See `references/screenshot-workflow.md` for the exact JSON schema and markdown template.
+5. **Produce the report.** Report mode emits two files at the run-dir top level: `.playwright/<run-id>/report.json` (structured) and `report.md` (human-readable). See `references/screenshot-workflow.md` for the exact JSON schema and markdown template.
 
 ## Coordination with QE Agent
 
-When spawned by qe-agent during Phase 2 (Integration Verification): qe-agent provides base URL + flows + acceptance criteria; you return `playwright-report.json` + the screenshot directory path; qe-agent incorporates the findings into the overall QA report. Full handoff details — and standalone invocation — are in `references/screenshot-workflow.md`.
+When spawned by qe-agent during Phase 2 (Integration Verification): qe-agent provides base URL + flows + acceptance criteria; you return the run-dir path (`.playwright/<run-id>/`) — its `report.json` plus the `screenshots/` directory; qe-agent incorporates the findings into the overall QA report. Full handoff details — and standalone invocation — are in `references/screenshot-workflow.md`.
 
 ## Troubleshooting
 

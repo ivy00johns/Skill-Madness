@@ -8,7 +8,13 @@
 .workspaces/
 *-workspace/
 
-# Playwright test outputs — screenshots and results per run
+# Playwright test outputs — all ephemeral artifacts consolidate under one root
+.playwright/
+# Defaults Playwright/MCP write to when a project's own config is used — ignored as noise
+.playwright-mcp/
+playwright-report/
+test-results/
+# Legacy pre-consolidation dirs (kept so old runs don't show as untracked)
 playwright-screenshots/
 playwright-results/
 

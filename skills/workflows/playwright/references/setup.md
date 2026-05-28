@@ -59,18 +59,19 @@ npx tsx --version 2>/dev/null || npm install -D tsx
 
 ## Playwright Configuration
 
-If the project doesn't have a `playwright.config.ts`, you don't necessarily need one — tests can be run with CLI flags. But if the project has one, respect its settings and only override what's needed for screenshots.
+If the project doesn't have a `playwright.config.ts`, you don't necessarily need one — tests can be run with CLI flags. But if the project has one, respect its settings and only override what's needed for screenshots. If you do edit an existing config, edit it in place — don't leave a `playwright.config.ts.bak` behind; that stray backup is exactly the kind of clutter this skill avoids.
 
 ### Minimal Config for Screenshot Runs
 
-When you need a config (e.g., for custom viewports or multiple projects):
+When you need a config (e.g., for custom viewports or multiple projects), keep every artifact under the single `.playwright/` root by overriding the two paths Playwright otherwise writes to the project root (`outputDir` defaults to `./test-results`, the HTML reporter to `./playwright-report`):
 
 ```typescript
 // playwright.config.ts
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  testDir: './playwright-results',
+  outputDir: '.playwright/artifacts',                                  // traces/videos (default: ./test-results)
+  reporter: [['html', { outputFolder: '.playwright/html-report', open: 'never' }]], // default: ./playwright-report
   timeout: 30_000,
   expect: { timeout: 5_000 },
   fullyParallel: false, // sequential for predictable screenshots

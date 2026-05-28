@@ -4,21 +4,28 @@ How runs are laid out on disk, and the exact format of the structured + human-re
 
 ## Output Directories
 
-All outputs go into gitignored directories at the project root:
+Everything a run produces lives under **one** gitignored root: `.playwright/`. A single root is deliberate — Playwright and the Playwright MCP server otherwise scatter artifacts across `playwright-screenshots/`, `playwright-results/`, `.playwright-mcp/`, `playwright-report/`, and `test-results/` at the project root, which is the mess this convention exists to prevent.
 
-- **`playwright-screenshots/<run-id>/`** — PNG screenshots captured during the run
-- **`playwright-results/<run-id>/`** — test reports, traces, and the structured JSON summary
+Per run:
+
+```text
+.playwright/<run-id>/
+  screenshots/   — PNG screenshots captured during the run
+  results/       — the test script, traces, raw JSON reporter output, output.log
+  report.json    — the structured summary (this skill's schema, below)
+  report.md      — the human-readable summary
+```
 
 The `<run-id>` is a timestamp: `YYYY-MM-DD_HH-MM-SS` (e.g., `2026-04-08_14-32-07`).
 
-These directories are gitignored — they exist for local review only, never committed.
+`.playwright/` is gitignored — it exists for local review only, never committed. If a project still has loose `playwright-screenshots/`, `playwright-results/`, `.playwright-mcp/`, or a stray `playwright.config.ts.bak` from before this convention, those are pre-consolidation debris and safe to delete.
 
 ## Screenshot Naming Convention
 
-Within a run directory, screenshots follow this layout:
+Within a run, screenshots follow this layout:
 
 ```text
-playwright-screenshots/<run-id>/
+.playwright/<run-id>/screenshots/
   <flow-name>/
     01-<step-description>.png
     02-<step-description>.png
@@ -28,7 +35,7 @@ playwright-screenshots/<run-id>/
 Example:
 
 ```text
-playwright-screenshots/2026-04-08_14-32-07/
+.playwright/2026-04-08_14-32-07/screenshots/
   login-flow/
     01-login-page-loaded.png
     02-credentials-entered.png
@@ -40,9 +47,9 @@ playwright-screenshots/2026-04-08_14-32-07/
 
 ## Report Mode Output
 
-After a run completes, produce two files in the results directory.
+After a run completes, produce two files at the run-dir top level (`.playwright/<run-id>/`).
 
-### playwright-report.json
+### report.json
 
 ```json
 {
@@ -81,9 +88,9 @@ After a run completes, produce two files in the results directory.
 }
 ```
 
-### playwright-report.md
+### report.md
 
-Human-readable summary with inline screenshot references. Use this format:
+Human-readable summary with inline screenshot references. Screenshot paths are relative to the run's `screenshots/` directory. Use this format:
 
 ```markdown
 # Playwright Test Report
@@ -125,7 +132,7 @@ Screenshots still go into the timestamped directory even in spot-check mode — 
 When spawned by qe-agent during Phase 2 (Integration Verification):
 
 - qe-agent provides: base URL, user flows to test, acceptance criteria
-- You return: `playwright-report.json` and the screenshot directory path
+- You return: the run-dir path `.playwright/<run-id>/` — its `report.json` and `screenshots/` directory
 - qe-agent incorporates your findings into their overall QA report
 - Your screenshots serve as evidence for pass/fail assertions in the QA report
 
