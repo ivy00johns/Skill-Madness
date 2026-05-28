@@ -1,6 +1,6 @@
 ---
 name: frontend-agent
-version: 1.3.0
+version: 1.5.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Builds user interfaces, client-side state, and presentation layers for multi-agent builds. Composes with frontend-design and ui-ux-pro-max for visual quality. Not user-invocable."
 compatibility: "Claude Code; requires Bash + Node toolchain"
@@ -130,7 +130,19 @@ EventSource or fetch+ReadableStream. Handle chunk/done/error per contract. Accum
 
 ### 6. Styling
 
-Responsive by default, 4.5:1 contrast, no opacity-0 on interactive elements, visible focus states.
+Baseline: 4.5:1 contrast, no opacity-0 on interactive elements, visible focus states.
+
+**Before you write any CSS, read `references/mobile-responsive.md`.** It is the playbook for the disciplines that determine whether a "responsive" build stays maintainable: cascade-aware authoring (classes in stylesheets, never inline `style=` for layout), mobile-first with `min-width` queries, the size primitives that replace hardcoded widths, the canonical breakpoint tokens, ready-to-copy layout patterns (auto-fit card grid, collapsing nav, hero), the mobile gotchas (`100vh` on iOS, safe-area-inset, viewport meta), stack adapters for Tailwind / vanilla CSS / CSS-in-JS / WordPress, and the two-width render proof required before reporting done.
+
+Two rules from that file matter enough to repeat here so the rest of this step makes sense:
+
+- **Layout CSS lives in stylesheets, not in `style=` attributes.** An inline `style` beats any non-`!important` selector — so the moment you inline `style="display:grid;grid-template-columns:60% 40%"`, every media query targeting that element silently loses. Once one rule needs `!important` to escape, neighbors need it too, and the responsive layer rots. Class + stylesheet rule, every time. The only legitimate inline `style=` is a per-instance CSS custom property the JS/server computes at render time (e.g. `style="--progress: 72%"`).
+
+- **No hardcoded `width: <px>` on layout containers.** `width: 1200px` on a wrapper locks the layout off mobile entirely. Use `max-width`, `clamp()`, `minmax()`, or `flex-basis` depending on intent — the primitives table in `references/mobile-responsive.md` picks for you. Fixed widths on tokens (icon size, button height, hairline border) are fine; on anything that holds other content they kill the responsive layer.
+
+If you reach for `!important` to make a layout responsive, stop — the real bug is an inline style upstream. Move it to a class.
+
+For server-rendered themes (WordPress / Rails / Phoenix / Django / PHP) the same rules apply, plus the platform-specific stylesheet-registration mechanism — see the "Server-rendered themes" section of `references/mobile-responsive.md` (e.g. `wp_enqueue_style()` with `filemtime()` versioning for WordPress). Templates carry `class=` attributes only; no `<style>` blocks.
 
 ### 7. Accessibility (non-negotiable)
 
@@ -156,6 +168,11 @@ Focus indicators, labels on inputs, descriptive button text, alt text, keyboard 
 | Types diverge from contract | Mirror contracts/types |
 | Using innerHTML for rendering | Use createElement + textContent to prevent XSS |
 | Over-engineering vanilla JS | No build tools, no frameworks for simple projects |
+| Inline `style=` on elements for layout | Class + stylesheet rule — inline styles can't be overridden by media queries without `!important` |
+| `!important` to make a layout responsive | The real bug is an inline style upstream; move it to a class instead |
+| Hand-written `<style>`/`style=` in server templates | Enqueue/register the stylesheet (e.g. `wp_enqueue_style`); templates carry `class=` only |
+| Hardcoded `width: <px>` on layout containers | Pick from the size primitives in `references/mobile-responsive.md` — `max-width`, `clamp()`, `minmax()`, `flex-basis` — by intent |
+| Desktop-first with `max-width` media-query patches | Invert: write mobile-first base rules, layer with `min-width` queries |
 
 ## Validation
 

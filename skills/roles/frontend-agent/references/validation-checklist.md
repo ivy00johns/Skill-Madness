@@ -114,8 +114,65 @@ If the backend is not yet available: flag CORS verification as **BLOCKED** in yo
 - Empty states display correctly
 - Loading states appear during API calls
 - Error states appear when backend is down
-- Responsive at 375px width (mobile) and 1440px (desktop)
 - Zero console errors or warnings during primary user flow
+
+## Responsive Verification
+
+The full responsive playbook is in `references/mobile-responsive.md`. The bar below is the minimum gate before reporting done — meet all of it, or do not report done.
+
+### 1. Actually render at both widths
+
+A `@media` rule in CSS proves nothing if an inline style is overriding it. Open the page at both widths and look. Capture a screenshot at each (Playwright is cheap if available; browser devtools otherwise) and include the path in your completion report so reviewers can verify.
+
+- **375 × 667** (mobile, e.g. iPhone SE) — no horizontal scrollbar; tap targets look ≥ 44 × 44; text wraps without clipping; navigation is reachable (hamburger works if collapsed); hero / primary CTA visible at the top.
+- **1440 × 900** (desktop laptop) — layout uses the extra width; no awkward giant gaps; nothing clipped.
+
+### 2. Viewport meta tag is present
+
+```bash
+grep -rE '<meta[^>]+name="viewport"[^>]+width=device-width' \
+  --include='*.html' --include='*.php' --include='*.erb' --include='*.tsx' --include='*.jsx' .
+```
+
+Every served page needs `<meta name="viewport" content="width=device-width, initial-scale=1">` in `<head>`. Without it the page renders at fake-desktop zoom on phones and none of your responsive rules matter.
+
+### 3. No hardcoded `width: <px>` on layout containers
+
+Hardcoded pixel widths on wrappers, sections, cards, columns, or any container that holds other content lock the layout off mobile. Tokens (icons, button heights, hairlines) are fine.
+
+```bash
+# Surface every fixed-pixel width declaration in CSS for human review.
+# Expect to see most matches in token files (icon-size, button-height, etc.)
+# and very few in layout files. Investigate any match in a layout-shaped file.
+grep -rnE 'width:\s*[0-9]+(px|rem)\s*;?' \
+  --include='*.css' --include='*.scss' --include='*.module.css' . \
+  | grep -viE '(icon|btn|button|avatar|chip|badge|border|hairline|--w-)'
+```
+
+For each remaining match, replace with the size primitive that matches the container's intent — `max-width`, `clamp()`, `minmax()`, or `flex-basis`. See the primitives table in `references/mobile-responsive.md`.
+
+### 4. Inline `style=` is near-zero for layout
+
+Layout CSS belongs in stylesheets; inline `style=` beats media queries on specificity and silently breaks the responsive layer. A handful of inline styles feeding CSS custom properties (e.g. `style="--progress: 72%"`) is fine; inline `display: grid` / `width: …` / `flex: …` is not.
+
+```bash
+grep -rno 'style=' \
+  --include='*.php' --include='*.erb' --include='*.html' \
+  --include='*.html.heex' --include='*.jsx' --include='*.tsx' . \
+  | wc -l
+```
+
+Read each match if the count is non-trivial. Move every layout/sizing/grid/flex inline style into a class.
+
+### 5. `!important` count is near-zero
+
+`!important` is an escape hatch, not a layout tool. A responsive stylesheet larger than its base stylesheet, or one that leans on `!important`, almost always means inline styles upstream are being clawed back.
+
+```bash
+grep -rn '!important' --include='*.css' --include='*.scss' . | wc -l
+```
+
+If the count is non-trivial, fix the source (remove the inline styles or fixed widths that prompted it) rather than adding more `!important`.
 
 ## Accessibility Verification
 

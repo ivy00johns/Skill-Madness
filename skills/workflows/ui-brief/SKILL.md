@@ -1,6 +1,6 @@
 ---
 name: ui-brief
-version: 1.1.0
+version: 1.2.0
 description: |
   Generate opinionated, design-led briefs for building or rebuilding UIs so they lead with the product's actual moat instead of converging on a generic shadcn-default SaaS dashboard. Use whenever the user wants a detailed UI prompt or spec to hand off — greenfield OR rebuild. Trigger on "write me a UI brief", "the current UI sucks, redesign it", "make this not look like every shadcn admin", "I need a prompt for the frontend", "design brief for X", "the design feels generic", "build a UI for [project] like [reference]", or before non-trivial UI work when the user names a reference app or named visual style. Output is a standalone Markdown file with positioning, design-language rules, page-by-page treatment, component primitives, motion discipline, and a verifiable Definition of Done.
 requires_agent_teams: false
@@ -81,7 +81,7 @@ The briefs that work follow a specific shape. Each section earns its presence:
 5. **Page-by-Page Brief** — every primary route gets a layout treatment with what belongs and what does not.
 6. **Component Primitives** — name 8–12 reusable pieces with implied APIs (e.g. `<MetricNumber>`, `<DenseTable>`).
 7. **Motion / Sound / Notifications** — usually missing from briefs; including this section prevents drift toward over-animation or zero animation.
-8. **Accessibility & Responsive Baseline** — explicit, not aspirational. axe AA, specific viewports.
+8. **Accessibility & Responsive Baseline** — explicit, not aspirational. axe AA, specific viewports (default 375 × 667 mobile + 1440 × 900 desktop), mobile-first with `min-width` queries, the canonical breakpoint tokens (sm/md/lg/xl/2xl), no hardcoded `width: <px>` on layout containers, no inline `style=` for layout. These are contract clauses for the implementing agent — see `skills/roles/frontend-agent/references/mobile-responsive.md` for the playbook they will execute against.
 9. **Implementation Discipline** — which skills compose during the build (brainstorming → orchestrator → frontend-agent → playwright → ux-review).
 10. **Definition of Done** — verifiable items. Must include "loads in a browser with zero console errors" and a screenshot-diff item (vs old screenshot for rebuilds, vs target reference for greenfield).
 11. **Notes for the Operator** — guardrails to prevent drift back to generic defaults during the build.
