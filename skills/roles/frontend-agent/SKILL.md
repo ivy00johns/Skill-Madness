@@ -16,7 +16,7 @@ owns:
   patterns: ["*.tsx", "*.jsx", "*.vue", "*.svelte", "*.css"]
   shared_read: ["contracts/", "shared/", "src/types/", "assets/"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
-composes_with: ["backend-agent", "qe-agent", "infrastructure-agent", "contract-author", "frontend-design", "ui-ux-pro-max", "ui-brief", "nano-banana"]
+composes_with: ["backend-agent", "qe-agent", "infrastructure-agent", "contract-author", "frontend-design:frontend-design", "ui-ux-pro-max", "ui-brief", "nano-banana"]
 spawned_by: ["orchestrator"]
 ---
 
@@ -48,7 +48,7 @@ You receive from the lead:
 
 - **plan_excerpt** — UI, routing, and state management sections
 - **api_contract** — versioned API contract (URLs, methods, request/response shapes, error envelope, SSE format)
-- **shared_types** — shared type definitions (import or mirror from `contracts/types.[ts|py|json]`)
+- **shared_types** — shared type definitions, a single flat file written by `contract-author` (import or mirror from `contracts/types.<ext>`, e.g. `contracts/types.ts` / `contracts/types.py` / `contracts/types.json` — not a `contracts/types/` directory)
 - **ownership** — your files/directories and off-limits boundaries
 - **tech_stack** — framework, UI library, package manager
 
@@ -165,7 +165,7 @@ Focus indicators, labels on inputs, descriptive button text, alt text, keyboard 
 | Trailing slash mismatch | Copy URLs from contract |
 | Fetch without error handling | Every fetch checks res.ok |
 | Missing loading/empty states | Handle for every async op |
-| Types diverge from contract | Mirror contracts/types |
+| Types diverge from contract | Mirror the flat `contracts/types.<ext>` file (e.g. `contracts/types.ts`) |
 | Using innerHTML for rendering | Use createElement + textContent to prevent XSS |
 | Over-engineering vanilla JS | No build tools, no frameworks for simple projects |
 | Inline `style=` on elements for layout | Class + stylesheet rule — inline styles can't be overridden by media queries without `!important` |

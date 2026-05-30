@@ -13,12 +13,12 @@ A directory is a **knowledge vault** if it shows the markers below. Search likel
 ```bash
 # Strong signals (any one is a good indicator; two+ is near-certain):
 #   .obsidian/        → an Obsidian vault
-#   index.md + log.md at root, plus a wiki/ dir
+#   a root index.md entry point, plus a wiki/ dir of article pages (incl. wiki/log.md)
 #   a CLAUDE.md (or similar) that self-describes as a wiki/knowledge base
 # Existing convention: sibling dirs ending in _deepdive (the established naming)
 find <search-root> -maxdepth 2 -type d -name '.obsidian' 2>/dev/null
 find <search-root> -maxdepth 3 -type d -name '*_deepdive' 2>/dev/null | head
-ls <candidate>/index.md <candidate>/log.md <candidate>/CLAUDE.md 2>/dev/null
+ls <candidate>/index.md <candidate>/CLAUDE.md 2>/dev/null
 ls -d <candidate>/wiki/{entities,concepts,comparisons,sources} 2>/dev/null
 ```
 
@@ -40,8 +40,8 @@ Run this **only when the output target is a detected vault**, and only *after* t
 2. **Entity pages** — create/update `wiki/entities/<project>.md` and a page for any major named subsystem worth its own node (e.g. a security scanner, a notable engine). Synthesis, not a dump.
 3. **Concept pages** — create/update `wiki/concepts/<idea>.md` for any cross-cutting pattern the deep dive surfaced that spans multiple projects (e.g. a learning loop, a merge strategy). Link which systems implement it and how they differ.
 4. **Comparison page** — `wiki/comparisons/<project>-vs-<reference>.md` distilling the Phase 4 comparison + the build list.
-5. **Update the catalog** — add entries for every new page to `index.md` in its correct section (Entities / Concepts / Comparisons / Sources).
-6. **Append the log** — add one append-only entry to `log.md` in the vault's format (commonly `## [YYYY-MM-DD] deep-dive | <Title>`) noting sources, outputs, wiki pages touched, and key findings.
+5. **Update the catalog** — add entries for every new page to the root `index.md` (the entry point) in its correct section (Entities / Concepts / Comparisons / Sources).
+6. **Append the log** — add one append-only entry to `wiki/log.md` in the vault's format (commonly `## [YYYY-MM-DD] deep-dive | <Title>`) noting sources, outputs, wiki pages touched, and key findings.
 
 ### Page format (typical Obsidian vault)
 

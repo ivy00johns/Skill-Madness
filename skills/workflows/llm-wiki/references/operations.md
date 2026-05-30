@@ -91,7 +91,7 @@ Keep `overview.md` readable as a standalone document. It should represent your b
 
 ### Step 7: Update index.md
 
-Add a row to the Sources table. Update the header counts (Sources: N, Pages: N).
+Update the root `index.md` (the entry point). Add a row to the Sources table. Update the header counts (Sources: N, Pages: N).
 
 If you created new entity or concept pages, add entries to those sections.
 
@@ -134,7 +134,7 @@ Answer questions using the wiki as the knowledge base.
 
 ### Step 1: Read the index
 
-Always start with `wiki/index.md`. Identify which pages are likely relevant.
+Always start with the root `index.md`. Identify which pages are likely relevant.
 
 For simple factual questions: the index alone often shows where to look.
 For synthesis questions: you may need to read multiple pages.
@@ -177,7 +177,7 @@ Health-check the wiki and surface maintenance work.
 
 ### Step 1: Read the full wiki
 
-Read `wiki/index.md` and then all pages listed in it.
+Read the root `index.md` and then all pages listed in it.
 
 For large wikis: do a targeted scan — read page headers and first paragraphs, drilling to full content only when a specific issue is suspected.
 

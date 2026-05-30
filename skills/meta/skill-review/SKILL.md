@@ -12,7 +12,7 @@ owns:
   patterns: []
   shared_read: ["skills/"]
 allowed-tools: ["Read", "Glob", "Grep", "Bash", "Write"]
-composes_with: ["skill-update", "skill-writer", "skill-creator"]
+composes_with: ["skill-update", "skill-writer", "skill-creator:skill-creator"]
 spawned_by: []
 ---
 

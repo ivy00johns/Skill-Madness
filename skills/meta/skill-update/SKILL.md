@@ -7,7 +7,7 @@ requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
 owns:
-  directories: ["skills/"]
+  directories: []
   patterns: []
   shared_read: []
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]

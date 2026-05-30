@@ -29,8 +29,8 @@ owns:
   directories: []
   patterns: []
   shared_read: ["*"]
-composes_with: ["superpowers:ux-review", "qe-agent", "orchestrator", "frontend-agent", "feature-dev:feature-dev", "playwright"]
-spawned_by: ["orchestrator", "superpowers:ux-review", "qe-agent"]
+composes_with: ["superpowers:ux-review", "orchestrator", "frontend-agent", "feature-dev:feature-dev", "playwright"]
+spawned_by: ["orchestrator", "superpowers:ux-review"]
 ---
 
 # Render Sanity
@@ -158,7 +158,6 @@ This skill catches one specific failure mode: **the app renders, but renders bro
 
 - **`orchestrator`** is the primary invoker. It calls render-sanity at Phase 12 (post-build verification) BEFORE `superpowers:ux-review` — render-sanity catches broken-content failures; ux-review then assesses polish on a known-good shell. A render-sanity FAIL blocks the build's Definition of Done.
 - **`superpowers:ux-review`** MAY invoke render-sanity as a precondition. When it does, the render-sanity report becomes the "Critical Issues" section of the ux-review report.
-- **`qe-agent`** SHOULD invoke render-sanity when its plan includes E2E or "UI reflects backend state after mutations" acceptance criteria. The signed-out/signed-in matrices catch bugs contract conformance cannot.
 - **`feature-dev:feature-dev`** SHOULD invoke render-sanity after a feature is wired end-to-end, before declaring "the feature works."
 - **The user** can invoke this skill directly any time they want a fast objective answer to "is the UI actually working" — typically after a build claims done, after a refactor, after auth was added, or after seeing a screenshot with `?` / `Couldn't load` / dead links.
 

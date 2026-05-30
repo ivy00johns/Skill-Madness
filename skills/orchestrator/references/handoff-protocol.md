@@ -5,8 +5,9 @@ When an agent approaches context limits (~80% usage), it writes a structured han
 ## Roles
 
 - **Agent** — detects context usage approaching ~80%, drafts the handoff file content
-- **Context-manager** — owns `.claude/handoffs/`, validates handoff quality, assists with compaction strategy
-- **Orchestrator** — reads completed handoff files, spawns continuation agents with the handoff as context
+- **Orchestrator** — owns the build-loop handoff: it validates handoff quality against the checklist below, reads completed handoff files from `.claude/handoffs/`, and spawns continuation agents with the handoff as context. This protocol document is the single canonical home for that validation logic.
+
+The orchestrator does NOT spawn `context-manager` as a build-phase validator. `context-manager` is a **user-invocable compaction helper** — a person reaches for it directly ("compact this", "hand off this conversation") to compress a long session or write a session-handoff. It is not part of the orchestrator's automated build loop; the handoff validation in this document is the orchestrator's own responsibility.
 
 Signaling varies by runtime: in Agent Teams, signal via inbox/TeammateTool. In subagent mode, the agent exits and the orchestrator reads the handoff file from `.claude/handoffs/`. In sequential mode, the user relays.
 

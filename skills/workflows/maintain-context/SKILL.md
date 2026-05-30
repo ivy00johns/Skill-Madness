@@ -7,8 +7,8 @@ requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
 owns:
-  directories: []
-  patterns: ["CONTEXT.md", "docs/adr/**"]
+  directories: ["docs/adr/"]
+  patterns: ["CONTEXT.md"]
   shared_read: []
 allowed-tools: ["Read", "Write", "Edit", "Grep", "Glob"]
 composes_with: ["grill-me", "architecture-rescue", "setup-project-skills"]
@@ -18,6 +18,8 @@ spawned_by: []
 # maintain-context
 
 Incrementally maintain two artifacts as conversations happen: `CONTEXT.md` (the project's domain glossary) and `docs/adr/` (decision records). Both compound in value only if you keep them honest, narrow, and rare.
+
+> **Ownership.** This skill owns `docs/adr/` exclusively (as a directory, so it takes precedence over pattern ownership) plus the `CONTEXT.md` glossary file. `docs/adr/` is an explicit carve-out from `docs-agent`'s broader `docs/` ownership — without it, `docs/` would silently swallow the ADR subtree. `docs-agent` reads `docs/adr/` for context but never writes there. See the canonical map in the orchestrator's `references/file-ownership.md`.
 
 ## The three-condition ADR gate
 
