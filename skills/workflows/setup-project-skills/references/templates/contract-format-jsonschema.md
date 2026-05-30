@@ -12,7 +12,7 @@ This repository uses **JSON Schema** as the source of truth for integration cont
 
 When the orchestrator invokes `contract-author` in this repo, it should:
 
-1. Use the JSON Schema template at `skills/contracts/contract-author/references/templates/jsonschema-template.json`.
+1. Use the JSON Schema template at `skills/contracts/contract-author/references/json-schema-template.json`.
 2. Write to `contracts/schemas/<name>.schema.json`.
 3. Include `$id`, `$schema`, `title`, `description`, `type`, `properties`, `required`, and `additionalProperties: false` at every object level.
 

@@ -12,7 +12,7 @@ This repository uses **TypeScript interfaces** as the source of truth for integr
 
 When the orchestrator invokes `contract-author` in this repo, it should:
 
-1. Use the TypeScript template at `skills/contracts/contract-author/references/templates/typescript-template.ts`.
+1. Use the TypeScript template at `skills/contracts/contract-author/references/typescript-template.ts`.
 2. Write to `contracts/types/<domain>.contracts.ts`.
 3. Export request, response, error, and event interfaces. Use discriminated unions for sum types. Include JSDoc on every exported type.
 

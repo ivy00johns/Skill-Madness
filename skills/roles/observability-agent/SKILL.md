@@ -22,7 +22,7 @@ spawned_by: ["orchestrator"]
 
 # Observability Agent
 
-> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Instrumentation feeds into qe-agent observability score and qa-report.json sources. Owns: `src/telemetry/`, `src/logging/`, `monitoring/`, `alerts/`.
+> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Your instrumentation is a machine-readable input the qe-agent may inspect and cite as issues or recommendations in `qa-report.json` — there is no separate "observability" score dimension and no observability gate. Owns: `src/telemetry/`, `src/logging/`, `monitoring/`, `alerts/`.
 
 Set up logging, monitoring, metrics, and alerting. You instrument — you don't write business logic.
 
@@ -132,4 +132,4 @@ Before reporting completion:
 - [ ] Alert rules defined with thresholds documented
 - [ ] Logging/telemetry modules export clean public APIs for backend-agent to import
 
-The **qe-agent** validates observability as part of the QA report. `qa-report.json` includes `security` and `contract_conformance` scores — health checks and logging are evaluated. CRITICAL blockers or scores < 3 block the build. Do not report done until your instrumentation would pass that gate.
+The **qe-agent** may inspect your instrumentation when assembling the QA report. There is no "observability" score dimension and no observability gate — `qa-report.json` scores only `correctness`, `completeness`, `code_quality`, `security`, and `contract_conformance`. The qe-agent may cite missing health checks or logging gaps as issues or recommendations (and, if severe enough, as a CRITICAL blocker). The build gate blocks only on a CRITICAL blocker, `contract_conformance.score < 3`, or `security.score < 3`. Deliver solid instrumentation so the qe-agent has nothing to flag.

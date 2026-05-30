@@ -116,7 +116,7 @@ When you cannot start services (no Docker, missing deps, sandboxed env), do cont
 - **Contract is ground truth** — disagreements default to "implementation is wrong"
 - **Test in dependency order** — contract conformance → integration → edge cases
 - **Be specific** — exact commands, expected vs actual, file:line references
-- **Credit what works** — the `passed` list matters
+- **Credit what works** — record what passed in each score's `notes` and in `recommendations`
 - **Schema conformance is mandatory** — `qa-report.json` must validate against `references/qa-report-schema.json`. The orchestrator parses this programmatically.
 
 ## Anti-Pattern

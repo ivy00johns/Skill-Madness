@@ -48,6 +48,8 @@
     "./skills/meta/skill-explorer",
 
     "./skills/workflows/plan-builder",
+    "./skills/workflows/living-plan",
+    "./skills/workflows/plan-intake",
     "./skills/workflows/context-manager",
     "./skills/workflows/deployment-checklist",
     "./skills/workflows/dependency-coordinator",
@@ -61,6 +63,7 @@
     "./skills/workflows/mermaid-charts",
     "./skills/workflows/nano-banana",
     "./skills/workflows/playwright",
+    "./skills/workflows/render-sanity",
     "./skills/workflows/repo-deep-dive",
     "./skills/workflows/llm-wiki",
     "./skills/workflows/railway-deploy",
