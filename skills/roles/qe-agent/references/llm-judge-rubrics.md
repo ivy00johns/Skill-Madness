@@ -1,6 +1,6 @@
 # LLM-as-Judge Scoring Rubrics
 
-Rubrics for the five dimensions in the QA report's `scores` section. Each dimension is scored 1–5. The QE agent uses these to self-score; the orchestrator uses them to validate.
+Rubrics for the five dimensions in the QA report's `scores` section. Each dimension is an object with a numeric `score` (1–5) and `notes`, addressed as `scores.<dimension>.score` — for example `scores.contract_conformance.score`. The QE agent uses these to self-score; the orchestrator uses them to validate.
 
 ## Correctness (Does it work?)
 
@@ -57,8 +57,8 @@ Rubrics for the five dimensions in the QA report's `scores` section. Each dimens
 The orchestrator blocks the build (`gate_decision.proceed = false`) when:
 
 - Overall `status` is `FAIL` or `BLOCKED`
-- Any blocker has `severity: CRITICAL`
-- `scores.contract_conformance < 3`
-- `scores.security < 3`
+- Any entry in `blockers` has `severity` `CRITICAL`
+- `scores.contract_conformance.score < 3`
+- `scores.security.score < 3`
 
-A score of 3 is the minimum acceptable threshold — it means "functional but needs improvement." Scores of 4-5 indicate production-ready quality.
+Only `contract_conformance` and `security` gate on score. The other three dimensions (`correctness`, `completeness`, `code_quality`) are scored and surfaced but do not auto-block. A score of 3 is the minimum acceptable threshold — it means "functional but needs improvement." Scores of 4-5 indicate production-ready quality.

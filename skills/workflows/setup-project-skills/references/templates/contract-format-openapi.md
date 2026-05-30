@@ -12,7 +12,7 @@ This repository uses **OpenAPI** (Swagger) for integration contracts. REST endpo
 
 When the orchestrator invokes `contract-author` in this repo, it should:
 
-1. Use the OpenAPI template at `skills/contracts/contract-author/references/templates/openapi-template.yaml`.
+1. Use the OpenAPI template at `skills/contracts/contract-author/references/openapi-template.yaml`.
 2. Write to `contracts/openapi/<name>.openapi.yaml`.
 3. Include request/response schemas, error responses, and authentication declarations.
 

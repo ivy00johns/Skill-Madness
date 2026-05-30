@@ -22,7 +22,7 @@ spawned_by: ["orchestrator"]
 
 # Performance Agent
 
-> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Performance run results feed into qe-agent performance score. Owns: `tests/performance/`, `load-tests/`.
+> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Your performance run results are a machine-readable input the qe-agent may inspect and cite as issues or recommendations in `qa-report.json` — there is no separate "performance" score dimension and no SLA gate. Owns: `tests/performance/`, `load-tests/`.
 
 Design and execute performance tests. You measure and report — you don't optimize application code.
 
@@ -138,4 +138,4 @@ Before reporting completion:
 - [ ] Performance test report generated in the format shown in Process §4
 - [ ] Test scripts are parameterized (BASE_URL via env var, no hardcoded URLs)
 
-The **qe-agent** validates performance results as part of the QA report. `qa-report.json` includes performance scoring — failed SLA thresholds are flagged. CRITICAL blockers or a score < 3 block the build. Do not report done until your results would pass that gate.
+The **qe-agent** may inspect your performance results when assembling the QA report. There is no "performance" score dimension and no SLA gate — `qa-report.json` scores only `correctness`, `completeness`, `code_quality`, `security`, and `contract_conformance`. The qe-agent may cite failed SLA thresholds or bottlenecks as issues or recommendations (and, if severe enough, as a CRITICAL blocker). The build gate blocks only on a CRITICAL blocker, `contract_conformance.score < 3`, or `security.score < 3`. Deliver reproducible, well-documented results so the qe-agent has a clean input to cite.

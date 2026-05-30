@@ -22,7 +22,7 @@ spawned_by: ["orchestrator"]
 
 # Docs Agent
 
-> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Generated docs feed into qe-agent completeness score. Owns: `docs/`.
+> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Your generated docs are an input the qe-agent may weigh in its `completeness` and `code_quality` scores — but neither of those dimensions gates the build (only `contract_conformance`, `security`, and CRITICAL blockers do). Owns: `docs/`.
 
 Generate and maintain project documentation. You read the code and contracts — you don't write application code.
 
@@ -120,4 +120,4 @@ Before reporting completion:
 - [ ] CHANGELOG follows Keep a Changelog format
 - [ ] No broken internal links
 
-The **qe-agent** validates documentation quality as part of the QA report. `qa-report.json` includes `completeness` and `code_quality` scores which cover documentation adequacy. CRITICAL blockers or scores < 3 block the build.
+The **qe-agent** weighs documentation quality in its `completeness` and `code_quality` scores. Those scores are recorded but do NOT gate the build — the build gate blocks only on a CRITICAL blocker, `contract_conformance.score < 3`, or `security.score < 3`. Docs work does not block the build via `completeness`/`code_quality`, but ship complete, accurate docs anyway: weak docs lower those recorded scores and can be cited as issues, and a severe gap (e.g., docs that contradict the contract) could be raised as a CRITICAL blocker.

@@ -12,7 +12,7 @@ This repository uses **Pydantic models** as the source of truth for integration 
 
 When the orchestrator invokes `contract-author` in this repo, it should:
 
-1. Use the Pydantic template at `skills/contracts/contract-author/references/templates/pydantic-template.py`.
+1. Use the Pydantic template at `skills/contracts/contract-author/references/pydantic-template.py`.
 2. Write to `contracts/models/<domain>_contracts.py`.
 3. Include request, response, error, and event models with full type annotations and field-level docstrings.
 
