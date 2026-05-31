@@ -1,7 +1,7 @@
 # Skill-Madness — Plan
 
 > **Created:** 2026-05-26
-> **Last updated:** 2026-05-26
+> **Last updated:** 2026-05-31
 > **Companions:** [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md) (tactical ledger), [`docs/FUTURE.md`](docs/FUTURE.md) (frontier, out of scope)
 
 > **Editing this doc?**
@@ -12,13 +12,14 @@
 
 ## Where we are
 
-Skill-Madness is a mature **47-skill** library — a contract-first multi-agent orchestrator (14 phases), 10 role agents with exclusive file ownership, contract/meta/git/workflow skills — with a runtime + install layer on top. Two large efforts and one audit have all landed:
+Skill-Madness is a mature **49-skill** library — a contract-first multi-agent orchestrator (14 phases), 10 role agents with exclusive file ownership, contract/meta/git/workflow skills — with a runtime + install layer on top. Two large efforts and two audits have landed; the latest audit's remediation is mid-flight:
 
 1. **Skill curation** (from `DeepResearch/skills-comparative_deepdive/PLAN-skill-creator.md`): authored 8 new skills, migrated 6, merged 3 pairs into 3 unified skills, and applied 8 categories of bulk in-place edits. Fully executed.
-2. **Ecosystem audit** (`audit/MASTER_AUDIT_PLAN.md`, 47 skills, 7-dimension rubric, avg 4.49/5): all critical findings closed — 5 broken `composes_with` cross-references fixed, 7 oversized descriptions trimmed under the 1024-char ceiling, 2 missing frontmatter blocks restored.
+2. **Ecosystem audit — surface pass** (`audit/MASTER_AUDIT_PLAN.md`, 7-dimension rubric, avg 4.49/5): all critical findings closed — 5 broken `composes_with` cross-references fixed, 7 oversized descriptions trimmed under the 1024-char ceiling, 2 missing frontmatter blocks restored. This was the *style / compliance / cross-ref* layer; its per-skill reports now live in `audit/reports-v1-sufrace/`.
 3. **Runtime + install layer** (`BUILD_RESULTS.md`, shipped PR #8): hooks layer (qa-gate, post-edit-format, session-start-profile, pre-commit-lint), catalog-as-CI-invariant, plan/apply installer with profiles, skill-health telemetry, supply-chain skill-scan, and the **PSFS** frontmatter standard (`spec/PSFS.md` v1.1.0 + JSON Schema validator).
+4. **Functional audit + remediation** (`audit/reports-v2/`, 2026-05-28): a deeper, second audit of all **49** skills on *function / triggerability / completeness / real bugs* (distinct from effort 2's surface pass). Verdict: 14 working, 35 partial-gaps, 0 broken; 4 P0 blockers plus a wiring/ownership/namespace integrity layer. **P0 remediation shipped** (PR #15, merged 2026-05-30); **P1 wiring/ownership/namespace remediation is in review** (PR #16); the **P2 fidelity backlog is filed** in the ledger (FA1–FA5).
 
-**What's left** is documentation polish only: the reference files and "thinking-move" docs proposed in `IMPROVEMENT_PLAN.md` Phases 2–4 that were never created. No skill, tooling, or structural work is outstanding. See [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md).
+**What's left** falls in two buckets: (1) the original *documentation-polish* backlog — reference files and "thinking-move" docs from `IMPROVEMENT_PLAN.md` Phases 2–4 (mostly shipped; PR1 + CL1/CL2 remain); and (2) the *functional-fidelity* backlog from the reports-v2 audit — P2 script/doc truth-ups (FA1–FA5), the 5 namespace refs awaiting confirmation (FA6), and two open design decisions (FA7–FA8). PR #16 (P1) is also awaiting merge. See [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md).
 
 ## Milestones
 
@@ -26,6 +27,7 @@ Skill-Madness is a mature **47-skill** library — a contract-first multi-agent 
 - ✅ **M2 — Ecosystem audit + fixes** (2026-05-20): 48 per-skill reports; all C1–C4 critical findings resolved.
 - ✅ **M3 — Runtime + install layer** (2026-05-24, PR #8): hooks, installer discipline, telemetry, scanner, PSFS standard.
 - 🟡 **M4 — Doc-polish (IMPROVEMENT_PLAN Phases 2–4)**: reference files + thinking-move docs shipped (RF1–RF5, TM1–TM3). 3 items left in the ledger (PR1 verify + CL1/CL2 cleanup). **Nearly done.**
+- 🟡 **M5 — Functional audit (reports-v2) + remediation** (audit 2026-05-28; remediation 2026-05-30): P0 blockers closed (PR #15, merged); P1 wiring/ownership/namespace in review (PR #16); P2 fidelity backlog filed (FA1–FA5), plus 2 open design decisions (FA7–FA8) and the namespace confirm (FA6). **In progress.**
 
 ## Closure log
 
@@ -42,6 +44,9 @@ Items move here on ship. Format: `<ref> (date) — <one-line summary>`.
 - **Runtime/install build P0–P3** (2026-05-24, PR #8) — hooks layer, catalog invariant, plan/apply install, skill-health, skill-scan, and PSFS v1.1.0 standard. Contracts in `contracts/`.
 - **RF1–RF5** (2026-05-26, 515a172) — IMPROVEMENT_PLAN Phase 2 reference files authored: `patterns.md`, `quick-checklist.md`, `performance-notes.md`, `validation-script-pattern.md` (skill-writer) + `troubleshooting.md` (skill-explorer).
 - **TM1–TM3** (2026-05-26, 8127c7c) — IMPROVEMENT_PLAN Phase 3 thinking moves authored + wired: `contradiction-finding` (wiki-research), `assumption-audit` (deployment-checklist + orchestrator phase-guide Phase 3), `second-order-effects` (plan-builder).
+- **Functional audit** (2026-05-28, `audit/reports-v2/`) — second-layer audit of all 49 skills on function / triggerability / completeness / real-bugs (distinct from M2's surface pass). Verdict: 14 working, 35 partial-gaps, 0 broken; 4 P0 blockers plus wiring/ownership/namespace integrity issues. Rendered companion at `audit/reports-v2/00-MASTER-AUDIT.html`. Findings intaken to the ledger as FA1–FA8. *(Note: `audit/` is now gitignored — the reports live in the working tree, not version control.)*
+- **FA-P0 — functional-audit blockers** (2026-05-30, PR #15, c2d10af) — `plugin.json` 46→49 (added `living-plan`, `plan-intake`, `render-sanity`); qe-agent schema prose reconciled to the canonical `qa-report-schema.json`; observability/performance/docs agents stop claiming a phantom QE gate score; setup-project-skills broken contract-template path fixed.
+- **FA-P1 — wiring & integrity** (2026-05-30, PR #16 — *in review*, b140d52+cffed3a) — 6 dead `spawned_by` edges trimmed; contract types standardized on flat `contracts/types.<ext>`; wiki layout canonicalized to root `index.md` + `wiki/`; `file-ownership.md` rebuilt canonical (no path owned twice; `.env.example`→infra; `docs/agents`→setup-project-skills; `docs/adr`→maintain-context); known plugin refs namespaced (5 left pending human confirm → FA6); `audit/` + `node_modules/` gitignored.
 
 ---
 

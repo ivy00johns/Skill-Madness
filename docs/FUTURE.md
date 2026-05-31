@@ -1,6 +1,6 @@
 # Future — Frontier (out of scope)
 
-**Last updated:** 2026-05-26
+**Last updated:** 2026-05-31 (reviewed in the reports-v2 reconciliation — no scope changes)
 **Companions:** [`PLAN.md`](../PLAN.md), [`docs/REMAINING-WORK.md`](REMAINING-WORK.md)
 
 Items explicitly out of scope for the current plan. Kept here so they aren't lost; pulled into the ledger only if a future cycle prioritizes them.
