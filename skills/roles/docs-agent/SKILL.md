@@ -22,7 +22,7 @@ spawned_by: ["orchestrator"]
 
 # Docs Agent
 
-> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Your generated docs are an input the qe-agent may weigh in its `completeness` and `code_quality` scores — but neither of those dimensions gates the build (only `contract_conformance`, `security`, and CRITICAL blockers do). Owns: `docs/`.
+> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Your generated docs are an input the qe-agent may weigh in its `completeness` and `code_quality` scores — but neither of those dimensions gates the build (only `contract_conformance`, `security`, and CRITICAL blockers do). Owns: `docs/` — **except** `docs/agents/` (owned by `setup-project-skills`) and `docs/adr/` (owned by `maintain-context`).
 
 Generate and maintain project documentation. You read the code and contracts — you don't write application code.
 
@@ -52,8 +52,9 @@ From the lead:
 ## Your Ownership
 
 - **Own:** `docs/`, `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`
+- **Carve-outs (NOT yours, even though they live under `docs/`):** `docs/agents/` is owned exclusively by `setup-project-skills`; `docs/adr/` is owned exclusively by `maintain-context`. Read them for context, but never write to either — directory ownership is exclusive and these two subtrees are carved out of your `docs/` ownership.
 - **Read-only:** Everything else
-- **Off-limits:** `src/`, config files, test files
+- **Off-limits:** `src/`, config files, test files, `docs/agents/`, `docs/adr/`
 
 ## Process
 

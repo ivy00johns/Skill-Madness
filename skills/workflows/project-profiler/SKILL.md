@@ -12,12 +12,14 @@ owns:
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
 composes_with: ["skill-writer", "contract-author", "orchestrator"]
-spawned_by: ["orchestrator"]
+spawned_by: []
 ---
 
 # Project Profiler
 
 Analyze a codebase and generate a project profile that agents can consume. You produce two files: `CLAUDE.md` (human-readable, ≤200 lines) and `.claude/profile.yaml` (machine-readable).
+
+**Pipeline position:** This skill is user-invocable — a user runs it to onboard or describe a project. It is not spawned by the orchestrator. Its output is *consumed by* downstream skills: the orchestrator reads `CLAUDE.md` for project context, deployment-checklist reads it for environment-specific commands and URLs, and dependency-coordinator reads `.claude/profile.yaml` for the tech-stack profile. Think consumed-by, not spawned-by.
 
 ## Role
 
@@ -101,7 +103,7 @@ Follow the schema in `references/profile-schema.yaml`. Fill in every field that 
 
 ### 7. Generate CLAUDE.md
 
-Structure per the spec (≤200 lines):
+Structure as follows (≤200 lines):
 
 - What This Is (1-2 sentences)
 - Tech Stack (bullet list)
@@ -115,7 +117,7 @@ Structure per the spec (≤200 lines):
 
 ## Quality Checklist
 
-- [ ] profile.yaml passes schema validation
+- [ ] profile.yaml conforms to the structure in `references/profile-schema.yaml`
 - [ ] CLAUDE.md is ≤200 lines
 - [ ] All "How to Run" commands are verified to work
 - [ ] Directory map matches actual structure

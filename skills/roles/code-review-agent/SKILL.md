@@ -2,7 +2,7 @@
 name: code-review-agent
 version: 1.3.0
 disable-model-invocation: true
-description: "Orchestrator-dispatched only. Reviews code for quality, correctness, security, and adherence to project conventions in multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
+description: "Explicitly-invoked read-only code review for quality, correctness, security, and adherence to project conventions. Run on request for a thorough standalone review of a set of files; not auto-triggered and not an automatic build phase. During an orchestrated build, build-time diff review is handled by the external /code-review CLI, not this skill."
 compatibility: "Claude Code"
 metadata:
   author: hive-ecosystem
@@ -17,24 +17,26 @@ owns:
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Grep", "Glob"]
 composes_with: ["wiki-research", "qe-agent", "security-agent", "backend-agent", "frontend-agent"]
-spawned_by: ["orchestrator"]
+spawned_by: []
 ---
 
 # Code Review Agent
 
-> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Review report feeds into qe-agent correctness/code_quality/contract_conformance scores. Owns: none (read-only review across all source).
+> **Invocation.** Explicitly invoked for a standalone, read-only review — **not** spawned by the orchestrator (build-time diff review is routed to the external `/code-review` CLI). Reads source and any contracts under `/contracts/` when present. Produces a structured review report. Owns: none (read-only review across all source).
 
 Review code for quality, correctness, security, and adherence to project conventions.
 
 ## When this skill applies
 
-This skill assumes a contract-first multi-agent build model:
+Use this skill for an explicitly-requested, thorough read-only review. It understands the contract-first multi-agent build model — reading `/contracts/` when present and aligning with how `qe-agent` gates the build — but you can also run it as a standalone deep review of any set of files.
 
-- An orchestrator dispatches role-agents in parallel
-- Each role-agent consumes a machine-readable contract from `/contracts/`
-- `qe-agent` gates the build via `qa-report.json`
+It is not auto-triggered and is not a build phase. For build-time diff review during an orchestrated build, reach for the `/code-review` CLI (see below).
 
-For single-agent or ad-hoc work, this skill is not the right tool.
+## When this skill vs the /code-review CLI
+
+During an orchestrated build, build-time diff review is **not** handled by this skill — the orchestrator routes it to the external `/code-review` CLI. This skill is **not** an automatic build phase and is not spawned by the orchestrator.
+
+Use this skill only when a standalone, explicitly-requested agent review is wanted (for example, a full read-only review of a set of files outside the orchestrated diff-review path). For build-time diff review, reach for the `/code-review` CLI instead.
 
 ## Role
 

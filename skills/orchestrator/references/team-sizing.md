@@ -44,7 +44,8 @@ Every file in the repo has exactly one owner. No exceptions.
 | File | Usually Owned By | Rationale |
 |------|-----------------|-----------|
 | Root `package.json` | Frontend (if JS monorepo root) or Backend | Whoever runs `npm install` more often |
-| `.env` / `.env.example` | Backend | Backend defines ports, DB URLs, API keys |
+| `.env.example` | Infrastructure | Infrastructure owns the committed template; backend supplies the variable names/defaults its services read |
+| `.env` (gitignored, real local values) | Backend | Backend defines ports, DB URLs, API keys |
 | `docker-compose.yml` | Backend or Infrastructure | Defines service topology |
 | `tsconfig.json` (root) | Frontend | Frontend build tooling more sensitive to TS config |
 | `.gitignore` | Lead (pre-created) | Rarely changes |

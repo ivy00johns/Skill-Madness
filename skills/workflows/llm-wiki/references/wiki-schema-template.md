@@ -31,10 +31,10 @@ in `raw/` and are never modified.
 ```
 {{WIKI_ROOT}}/
 ├── CLAUDE.md          ← this file (the schema)
+├── index.md           ← entry-point content catalog (root) — read this first before every query
 ├── raw/               ← immutable source documents (human adds, LLM reads only)
 │   └── assets/        ← downloaded images and attachments
-└── wiki/              ← everything the LLM writes and maintains
-    ├── index.md       ← content catalog — read this first before every query
+└── wiki/              ← article pages the LLM writes and maintains
     ├── log.md         ← append-only operation history
     ├── overview.md    ← evolving synthesis / thesis across all sources
     ├── sources/       ← one summary page per ingested source
@@ -58,7 +58,7 @@ When the human adds a new source or pastes content:
    - Same pattern: update or create `wiki/concepts/<slug>.md`
 6. Update `wiki/overview.md` — revise the synthesis to incorporate this source; explicitly
    note if it confirms, contradicts, or extends prior claims
-7. Update `wiki/index.md` — add the source entry, update counts in the header
+7. Update the root `index.md` (the entry point) — add the source entry, update counts in the header
 8. Append to `wiki/log.md`: `## [YYYY-MM-DD] ingest | <source title>`
 
 A single ingest typically touches 5–15 wiki pages. Work through all of them.
@@ -67,7 +67,7 @@ A single ingest typically touches 5–15 wiki pages. Work through all of them.
 
 When the human asks a question:
 
-1. Read `wiki/index.md` to identify relevant pages
+1. Read the root `index.md` to identify relevant pages
 2. Read those pages
 3. Synthesize an answer with citations linking to wiki pages (e.g., `[[entities/openai]]`)
 4. If the answer is a valuable synthesis (comparison, analysis, discovered connection),
@@ -77,7 +77,7 @@ When the human asks a question:
 
 When the human asks for a health check:
 
-1. Read `wiki/index.md` and all pages
+1. Read the root `index.md` and all pages
 2. Flag: contradictions between pages, orphan pages, missing cross-references, important
    concepts mentioned but lacking pages, data gaps a web search could fill
 3. Produce a lint report with specific fixes
@@ -182,7 +182,7 @@ tags: []
 
 ### Index conventions
 
-`wiki/index.md` has this structure:
+The root `index.md` (the entry point) has this structure:
 
 ```markdown
 # Index
@@ -192,16 +192,16 @@ tags: []
 ## Sources
 | Title | Slug | Date | Type |
 |-------|------|------|------|
-| [Source Title](sources/slug.md) | slug | YYYY-MM-DD | article |
+| [Source Title](wiki/sources/slug.md) | slug | YYYY-MM-DD | article |
 
 ## Entities
-- [Entity Name](entities/slug.md) — one-line description
+- [Entity Name](wiki/entities/slug.md) — one-line description
 
 ## Concepts
-- [Concept Name](concepts/slug.md) — one-line description
+- [Concept Name](wiki/concepts/slug.md) — one-line description
 
 ## Syntheses and analyses
-- [Page Title](path/to/page.md) — one-line description
+- [Page Title](wiki/path/to/page.md) — one-line description
 ```
 
 Update the header counts and add rows/entries on every ingest.
@@ -226,7 +226,7 @@ Always link entity and concept names on first mention within a page.
 ### Working rules
 
 1. Never modify anything in `raw/` — it is the immutable source of truth
-2. Always update `index.md` and `log.md` on every ingest
+2. Always update the root `index.md` and `wiki/log.md` on every ingest
 3. Cross-references are the point — a page with no links is a missed opportunity
 4. File good answers back — if a query produces a valuable synthesis, create a wiki page
 5. Note contradictions explicitly — don't silently overwrite; flag the tension

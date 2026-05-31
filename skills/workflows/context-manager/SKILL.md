@@ -12,40 +12,43 @@ owns:
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob"]
 composes_with: ["orchestrator"]
-spawned_by: ["orchestrator"]
+spawned_by: []
 ---
 
 # Context Manager
 
 Manage context window usage, compaction strategy, and session handoffs for long-running builds.
 
+This is a **user-invocable** helper. A user reaches for it directly when a conversation is running out of context and needs to be compacted or handed off to a fresh session. It is **not** spawned by the orchestrator during a build.
+
+> **During an orchestrated build, handoff validation is governed by `orchestrator/references/handoff-protocol.md`** (the protocol the orchestrator actually runs). This skill is for user-driven compaction/handoff outside that loop.
+
 ## Role
 
-You help agents and the orchestrator manage their context window efficiently. When agents approach context limits (~80% usage), you help them produce structured handoff files so a continuation agent can pick up seamlessly. You also **validate handoff quality** — ensuring handoff files contain actionable continuation context before the orchestrator spawns a continuation agent.
+You help a user manage their context window efficiently when a session is getting too full. When usage approaches limits (~80%), you help produce a structured handoff file so a fresh continuation session can pick up seamlessly. You also **validate handoff quality** — ensuring the handoff file you write contains actionable continuation context before the user transfers to a new session.
 
 ## Your Ownership
 
 - **You own (exclusive):** `.claude/handoffs/` directory
 - **Shared read:** All project files (read-only)
 - **Off-limits:** `src/`, implementation code
-- **Resolved conflict (v1.1):** `.claude/handoffs/` was previously claimed by both orchestrator and context-manager. Context-manager is the definitive owner — you write and validate handoffs. The orchestrator reads handoff files to spawn continuation agents.
+- **Resolved conflict (v1.1):** `.claude/handoffs/` was previously claimed by both orchestrator and context-manager. Context-manager is the definitive owner of user-driven handoffs — you write and validate them. (Build-loop handoffs during an orchestrated build are governed separately by `orchestrator/references/handoff-protocol.md`.)
 
 ## Inputs
 
-- **Agent context signal** — an agent reports it's approaching ~80% context usage, or the orchestrator detects it
-- **Handoff draft (optional)** — an agent may produce a draft handoff file for you to validate and improve
-- **Compaction request (optional)** — an agent asks for help compacting its context before resorting to a full handoff
+- **Context signal** — the current session is approaching ~80% context usage
+- **Handoff draft (optional)** — the user may provide a draft handoff file for you to validate and improve
+- **Compaction request (optional)** — the user asks for help compacting the session before resorting to a full handoff
 
 ## When to Act
 
-- Agent context usage approaches 80%
-- Complex build requires multiple sessions
-- Orchestrator needs to hand off coordination
-- An agent reports it's running low on context
+- Session context usage approaches 80%
+- A long-running task needs to continue across multiple sessions
+- The user wants to transfer the conversation to a fresh session
 
 ## Handoff Protocol
 
-When an agent needs to hand off, it writes a structured YAML file to `.claude/handoffs/`. See `references/compaction-guide.md` for the full specification.
+When the session needs to hand off, write a structured YAML file to `.claude/handoffs/`. See `references/compaction-guide.md` for the full specification.
 
 ### Handoff File Structure
 
@@ -80,17 +83,15 @@ continuation_context: |
 suggested_first_action: [exact next step]
 ```
 
-### Orchestrator Behavior on Handoff
+### Continuation in a Fresh Session
 
-1. Read the handoff file
-2. Spawn a continuation agent with the handoff as first message context
-3. Tag the task as `in_progress_handoff` in the shared task list
-4. The continuation agent reads files_modified and files_created to understand current state
-5. The continuation agent starts with suggested_first_action
+After the handoff file is written, the user starts a fresh session and points it at the latest file in `.claude/handoffs/`. The continuation session reads `files_modified` and `files_created` to understand current state, then begins with `suggested_first_action`.
+
+> **Inside an orchestrated build, the read/validate/spawn behavior on a handoff is governed by `orchestrator/references/handoff-protocol.md` — not this skill.** This skill covers writing and quality-checking the user-driven handoff file; it does not duplicate the orchestrator's build-loop validation.
 
 ## Context Efficiency Tips
 
-For agents approaching context limits:
+For a session approaching its context limit:
 
 - Avoid re-reading files already in context
 - Summarize long outputs before storing in context
@@ -100,7 +101,5 @@ For agents approaching context limits:
 ## Coordination
 
 - Handoff files are append-only — never modify a previous handoff
-- Each handoff gets a unique filename: `{agent-role}-{timestamp}.yaml`
-- The orchestrator is the only one that spawns continuation agents
-- **Quality gate:** Before the orchestrator acts on a handoff, validate that `continuation_context` is specific and actionable (not vague), `suggested_first_action` is an exact next step, and `completion_pct` is an honest estimate. Reject vague handoffs back to the originating agent.
-- **Orchestrator boundary:** You own `.claude/handoffs/` and validate quality. The orchestrator reads handoffs and spawns continuations — it does not write to this directory.
+- Each handoff gets a unique filename: `{role-or-session}-{timestamp}.yaml`
+- **Quality gate (your job):** Before declaring a handoff ready, validate that `continuation_context` is specific and actionable (not vague), `suggested_first_action` is an exact next step, and `completion_pct` is an honest estimate. Reject and rewrite vague handoffs.

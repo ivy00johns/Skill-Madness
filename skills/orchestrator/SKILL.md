@@ -13,14 +13,14 @@ owns:
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
 composes_with: [
   "wiki-research", "llm-wiki", "repo-deep-dive",
-  "brainstorming", "plan-builder", "writing-plans",
+  "superpowers:brainstorming", "plan-builder", "superpowers:writing-plans",
   "backend-agent", "frontend-agent", "infrastructure-agent", "qe-agent",
   "security-agent", "docs-agent", "observability-agent", "db-migration-agent", "performance-agent",
   "contract-author", "contract-auditor", "dependency-coordinator",
   "context-manager", "deployment-checklist", "code-review-agent", "project-profiler",
   "mermaid-charts", "playwright",
-  "claude-design-brief", "ui-brief", "frontend-design", "ui-ux-pro-max", "ux-review", "render-sanity",
-  "nano-banana", "claude-api", "feature-dev",
+  "claude-design-brief", "ui-brief", "frontend-design:frontend-design", "ui-ux-pro-max", "ux-review", "render-sanity",
+  "nano-banana", "claude-api", "feature-dev:feature-dev",
   "git-commit", "git-pr", "git-pr-feedback", "git-post-merge-cleanup",
   "claude-mem:mem-search", "claude-mem:timeline-report", "claude-mem:knowledge-agent",
   "skill-writer", "skill-review", "skill-update",
@@ -48,7 +48,8 @@ For single-agent or ad-hoc work, this skill is not the right tool.
 The orchestrator is the conductor — not the only player. It composes with three groups of skills:
 
 - **INVOKES at the right phase:** `nano-banana` (seed imagery), `ui-ux-pro-max` + `frontend-design` (UI quality), `ux-review` + `render-sanity` (post-build validation), `repo-deep-dive` (reference research), `llm-wiki` (project knowledge base), `mermaid-charts` (architecture diagrams), `deployment-checklist` (ship readiness).
-- **DISPATCHES role-agents in parallel:** `backend-agent`, `frontend-agent`, `infrastructure-agent`, `db-migration-agent`, `security-agent`, `observability-agent`, `performance-agent`, `docs-agent`, `qe-agent`, `code-review-agent`.
+- **DISPATCHES role-agents in parallel:** `backend-agent`, `frontend-agent`, `infrastructure-agent`, `db-migration-agent`, `security-agent`, `observability-agent`, `performance-agent`, `docs-agent`, `qe-agent`.
+- **DELEGATES diff/code review to the external `/code-review` CLI:** during a build, the Phase 4 diff review pass is the external `/code-review` CLI, NOT a spawned `code-review-agent`. The in-repo `code-review-agent` skill is not a default build phase — invoke it only deliberately for a standalone, repo-aware review. See `references/mission-interpretation.md`.
 - **DOES NOT preempt:** `brainstorming`, `plan-builder`, `writing-plans`, `claude-design-brief`, `ui-brief`, `feature-dev`, `claude-mem:*`. If any of these belong before the build starts, let them run first — orchestrator picks up from the artifacts they produce.
 
 <what-to-do>

@@ -13,7 +13,7 @@ requires_claude_code: true
 min_plan: starter
 owns:
   directories: [".github/workflows/", "nginx/", "k8s/", "terraform/", "scripts/deploy/"]
-  patterns: ["Dockerfile*", "docker-compose*", "Makefile", "justfile"]
+  patterns: ["Dockerfile*", "docker-compose*", "Makefile", "justfile", ".env.example"]
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
 composes_with: ["backend-agent", "frontend-agent", "qe-agent", "deployment-checklist", "observability-agent"]
@@ -52,8 +52,9 @@ From the lead:
 
 ## Your Ownership
 
-- **Own:** `.github/workflows/`, `nginx/`, `k8s/`, `terraform/`, `scripts/deploy/`, `Dockerfile*`, `docker-compose*`, `Makefile`, `justfile`
-- **May create:** `.env.example`, `.dockerignore`
+- **Own:** `.github/workflows/`, `nginx/`, `k8s/`, `terraform/`, `scripts/deploy/`, `Dockerfile*`, `docker-compose*`, `Makefile`, `justfile`, `.env.example`
+- **`.env.example` is yours exclusively** — the canonical map assigns `.env.example` to infrastructure-agent only. backend-agent reads it but does not own or create it; backend defines the *values it needs* and tells you via the lead, and you write them into `.env.example`.
+- **May create:** `.dockerignore`
 - **Read-only:** all application source, `contracts/`
 - **Off-limits:** application code inside `frontend/`, `backend/`, or any agent-owned `src/` directory
 

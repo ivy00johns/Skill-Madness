@@ -114,7 +114,7 @@ they earn their keep. This table maps "build situation" → "skill to invoke".
 | Mid-build feature addition with codebase understanding required | `feature-dev` | Phase 3, after core scaffolding |
 | Any project that ships code | `qe-agent` (mandatory), `security-agent` | Phase 3 |
 | Need to validate every implementation against its contract | `contract-auditor` | Phase 4 |
-| Diff review pass | `code-review` (or `/code-review:code-review`) | Phase 4 |
+| Diff review pass | external `/code-review` CLI (see note below) | Phase 4 |
 | Security-only diff pass | `security-review` (or `/security-review`) | Phase 4 |
 | Find dead code, premature abstractions, duplicated logic | `simplify` | Phase 4 |
 | E2E happy-path validation with a real browser | `playwright` | Phase 4 |
@@ -130,6 +130,25 @@ they earn their keep. This table maps "build situation" → "skill to invoke".
 | Search persistent memory for prior solutions before designing | `claude-mem:mem-search` | Phase 0 or wherever a "have we solved this?" question lands |
 | Post-build skill ecosystem audit | `skill-review`, `skill-update`, `skill-writer` | Phase 7 |
 | Stale worktrees and branches | `git-post-merge-cleanup`, `sync-skills` | Phase 8 |
+
+## Diff/code review during a build → external `/code-review` CLI
+
+Diff and code review during a build is handled by the **external `/code-review`
+CLI**, not by spawning the in-repo `code-review-agent` skill. The orchestrator
+does **not** add a build phase that spawns `code-review-agent` by default —
+Phase 4's diff review pass runs the `/code-review` CLI against the build's diff.
+
+When to choose which:
+
+- **`/code-review` CLI (default)** — fast, diff-scoped correctness + cleanup
+  pass over the working tree or PR during an active build. This is the Phase 4
+  default. Use it for every build's review pass.
+- **`code-review-agent` skill (opt-in only)** — reach for it only when you
+  explicitly need the skill's structured, repo-aware role behavior (e.g. a
+  standalone, non-build review where you want the agent's full checklist and
+  reference files rather than a diff-scoped CLI pass). It is not spawned as
+  part of the default build loop; invoke it deliberately when that behavior is
+  what you want.
 
 ## When the user explicitly names a skill
 

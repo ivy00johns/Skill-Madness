@@ -16,7 +16,7 @@ owns:
   patterns: []
   shared_read: ["contracts/", "shared/", "src/types/"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
-composes_with: ["frontend-agent", "qe-agent", "infrastructure-agent", "contract-author", "db-migration-agent", "observability-agent"]
+composes_with: ["frontend-agent", "qe-agent", "infrastructure-agent", "contract-author", "db-migration-agent", "observability-agent", "wiki-research"]
 spawned_by: ["orchestrator"]
 ---
 
@@ -57,7 +57,8 @@ You receive from the lead:
 ## Your Ownership
 
 - **Own:** `src/api/`, `src/services/`, `src/models/`, `src/middleware/`, `src/utils/` (directory names adapt to project conventions — frontmatter `owns.directories` is canonical)
-- **Conditionally own:** `.env`, `.env.example`, `requirements.txt` / `package.json` (confirm with lead if not already assigned)
+- **Conditionally own:** `.env`, `requirements.txt` / `package.json` (confirm with lead if not already assigned)
+- **NOT yours:** `.env.example` is owned exclusively by infrastructure-agent. Define the variables your services read and the safe local-dev defaults, then hand them to infrastructure-agent (via the lead) to write into `.env.example`. Do not create or edit `.env.example` yourself.
 - **Read-only:** `contracts/`, `shared/`, `src/types/`
 - **Off-limits:** `src/components/`, `src/pages/` (frontend), `src/telemetry/`, `src/logging/` (observability), `migrations/` (db-migration), `Dockerfile*`, `docker-compose*` (infrastructure), all other agents' directories
 
@@ -134,7 +135,7 @@ The #1 "works in dev, breaks in integration" issue. Set up immediately:
 
 ### 8. Environment Configuration
 
-`.env.example` committed with placeholders, `.env` gitignored with real values. Every config from env vars.
+Every config comes from env vars; `.env` is gitignored and holds real local values. The committed `.env.example` (placeholders, safe defaults) is owned by infrastructure-agent — supply the variable names and defaults your services read and hand them off via the lead rather than writing `.env.example` yourself.
 
 ## Coordination Rules
 

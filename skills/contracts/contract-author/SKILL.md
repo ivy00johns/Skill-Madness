@@ -67,13 +67,13 @@ This extraction step prevents missing entities that only become apparent during 
 
 ### 1. Start with Shared Types
 
-Always create the shared types file first — everything else references it.
+Always create the shared types file first — everything else references it. Write it as a **single flat file** named `contracts/types.<ext>` (e.g. `contracts/types.ts`, `contracts/types.py`, `contracts/types.json`) — **not** a directory `contracts/types/`. Consumers (`contract-auditor`, `frontend-agent`) read this one flat file.
 
 Pick the format that matches the project's primary language:
 
-- TypeScript → `references/typescript-template.ts`
-- Python → `references/pydantic-template.py`
-- Multi-language → `references/json-schema-template.json`
+- TypeScript → `references/typescript-template.ts` → write to `contracts/types.ts`
+- Python → `references/pydantic-template.py` → write to `contracts/types.py`
+- Multi-language → `references/json-schema-template.json` → write to `contracts/types.json`
 
 Define every entity, enum, request shape, response shape, and the error envelope. Use the strongest type annotations available — `EmailStr` for emails, `HttpUrl` for URLs, `Decimal` for money (or integer cents with clear documentation). The richer the types, the fewer integration bugs.
 
@@ -212,7 +212,7 @@ Over-engineered contracts waste agent time implementing unnecessary complexity.
 
 Your deliverables (machine-readable formats — not markdown narratives):
 
-- `contracts/types.[ts|py|json]` — shared type definitions
+- `contracts/types.[ts|py|json]` — shared type definitions. This is a single **flat file** (`contracts/types.ts` / `contracts/types.py` / `contracts/types.json`), **never** a directory `contracts/types/`. The consumer (`contract-auditor`) and `frontend-agent` read this exact flat-file path.
 - `contracts/tsconfig.json` — REQUIRED when language is TypeScript. Must extend the workspace base tsconfig if one exists (e.g. `../../tsconfig.base.json`). Without this, `tsc --noEmit` runs with no project config and silently prints its help text instead of typechecking, which gets discovered late. (Skip this file for Python/Go/other-language projects.)
 - `contracts/openapi.yaml` — API contract (OpenAPI 3.1 spec)
 - `contracts/data-layer.yaml` — data layer interface (use `references/data-layer-template.yaml`)

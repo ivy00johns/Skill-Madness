@@ -22,6 +22,8 @@ Explicit-invocation only. Run once per repository.
 
 > **What this writes:** a `docs/agents/` directory containing three config files (`domain-docs.md`, `contract-format.md`, `work-item-tracker.md`) plus an `## Agent skills` block appended to either `CLAUDE.md` or `AGENTS.md`. Never both. Never overwrites an existing `## Agent skills` block without explicit confirmation.
 
+> **Ownership:** this skill owns `docs/agents/` exclusively. It is carved out of `docs-agent`'s broader `docs/` ownership — `docs-agent` reads `docs/agents/` for context but never writes there. See the canonical map in the orchestrator's `references/file-ownership.md`.
+
 This skill bootstraps the per-repo configuration that the rest of the Skill-Madness toolkit reads at runtime. Downstream skills like `maintain-context`, `contract-author`, and the orchestrator look in `docs/agents/` for these files and fail loud if they are missing.
 
 ## The three questions

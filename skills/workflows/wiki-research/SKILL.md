@@ -12,7 +12,7 @@ owns:
   shared_read: ["wiki/", "index.md"]
 allowed-tools: ["Read", "Glob", "Grep"]
 composes_with: ["repo-deep-dive", "llm-wiki", "project-profiler"]
-spawned_by: ["orchestrator", "code-review-agent", "repo-deep-dive", "project-profiler", "backend-agent", "frontend-agent", "security-agent", "plan-builder"]
+spawned_by: ["orchestrator", "code-review-agent"]
 ---
 
 # Wiki-First Research Protocol
