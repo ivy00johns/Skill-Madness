@@ -1,6 +1,6 @@
 # Remaining Work — Tactical Ledger
 
-**Last updated:** 2026-05-26
+**Last updated:** 2026-05-31
 **Companions:** [`PLAN.md`](../PLAN.md) (strategic roadmap + closure log), [`docs/FUTURE.md`](FUTURE.md) (frontier overflow)
 
 > **Editing this doc?**
@@ -9,9 +9,9 @@
 
 ## How this is organized
 
-Every entry has **Priority** (P0–P3), **Area**, **Source**, **Status**, **Owner**, and a body. Entries are grouped by Area. ID prefixes are stable and never reused: `RF` (reference-file gaps), `TM` (thinking-move additions), `PR` (process additions), `CL` (cleanup). All current items trace to `IMPROVEMENT_PLAN.md` Phases 2–4 (archived) and were verified still-open against the repo on 2026-05-26.
+Every entry has **Priority** (P0–P3), **Area**, **Source**, **Status**, **Owner**, and a body. Entries are grouped by Area. ID prefixes are stable and never reused: `RF` (reference-file gaps), `TM` (thinking-move additions), `PR` (process additions), `CL` (cleanup), `FA` (functional-audit findings). The RF/TM/PR/CL items trace to `IMPROVEMENT_PLAN.md` Phases 2–4 (archived) and were verified still-open against the repo on 2026-05-26; the FA items were intaken from the reports-v2 functional audit on 2026-05-31.
 
-Source short-link: `[IP]` → `docs/archive/superseded-plans/IMPROVEMENT_PLAN.md`. For shipped work see the closure log in [`PLAN.md`](../PLAN.md).
+Source short-links: `[IP]` → `docs/archive/superseded-plans/IMPROVEMENT_PLAN.md`; `[FAUDIT]` → `audit/reports-v2/00-MASTER-AUDIT.md` (gitignored — local working tree only). For shipped work see the closure log in [`PLAN.md`](../PLAN.md).
 
 ---
 
@@ -72,3 +72,43 @@ Add the three process additions: iterate-on-one-task-at-a-time (B2), a required 
 ### CL2 — Stale global `fly-hermes` symlink
 **P3 · Cleanup · open · Owner: —** · Source: reconciliation 2026-05-26
 A leftover global symlink `~/.claude/skills/fly-hermes → Skill-Madness/claude_docs/fly-hermes` survives the Phase-1 migration; the canonical copy now lives in `hermes-agent/.claude/skills/`. Remove the stale symlink. (Outside the repo tree — operator cleanup.)
+
+---
+
+## Functional audit (reports-v2)
+
+Findings from the second-layer *function / triggerability / completeness / real-bugs* audit (`audit/reports-v2/`, 2026-05-28). The **P0** blockers (#15, merged) and the **P1** wiring/ownership work (#16, in review) are already shipped/in-flight — see the `FA-P0` / `FA-P1` closure-log entries in [`PLAN.md`](../PLAN.md). The entries below are the **open remainder**: the P2 fidelity backlog, the namespace confirm carried over from P1, and two design decisions.
+
+### FA1 — Script truth-up across 8 skills
+**P2 · Scripts · open · Owner: —** · Source: [FAUDIT] §10 P2.9
+Make documented script behavior match the actual scripts: nano-banana, sync-skills (+ README `--force`), mermaid-charts `mmdc`, playwright report authoring, security-agent secret-scan, deployment-checklist `grep -oP`, living-plan `cp`, orchestrator `skills/` path prefixes.
+
+### FA2 — `allowed-tools` as contract + `compatibility` backfill
+**P2 · Frontmatter · open · Owner: —** · Source: [FAUDIT] §10 P2.10
+Add `Bash` / `WebFetch` where bodies use them, trim unused entries, standardize ordering; backfill `compatibility` on the ~15 env-dependent workflow skills.
+
+### FA3 — Doc-count source of truth + CI guard
+**P2 · Tooling · open · Owner: —** · Source: [FAUDIT] §10 P2.11
+Adopt the audit's §8 count table as the single source of truth and add `check-catalog-sync.sh` so doc/manifest skill counts can't silently drift (this very reconciliation — docs stuck at 47 while the manifest said 49 — is the symptom). Drop dead `requires_agent_teams` / `min_plan` default fields.
+
+### FA4 — Disambiguation clauses for colliding triggers
+**P2 · Descriptions · open · Owner: —** · Source: [FAUDIT] §10 P2.12
+Add boundary clauses where trigger contexts overlap: ui-brief, plan-builder↔living-plan, interactive-doc tokens, skill-explorer↔find-skills, git-commit `Co-Authored-By` trailer, diagnose-loop↔systematic-debugging, qe-agent↔contract-auditor dedupe.
+
+### FA5 — Cosmetic polish
+**P3 · Cosmetic · open · Owner: —** · Source: [FAUDIT] §10 P2.13
+caveman exit phrase, claude-design-brief count, render-sanity Phase label (12 vs 13), interactive-doc `conversation_search` + metadata stub, frontmatter field ordering.
+
+### FA6 — Confirm + apply 5 bare external namespace refs
+**P1 · Namespaces · open (needs human confirm) · Owner: —** · Source: [FAUDIT] §10 P1.8 (carryover from #16)
+P1 namespaced the known plugin refs but left 5 bare pending confirmation of the correct prefix: `ux-review`, `ui-ux-pro-max`, `claude-api`, `loop`, `schedule` in orchestrator + frontend-agent (likely `superpowers:` / plugin prefixes). Confirm each target, then apply + add the lint that FAILs on bare known-plugin names.
+
+### FA7 — DECISION: `metadata` block — backfill all 49 or drop
+**P3 · Decision · open · Owner: —** · Source: [FAUDIT] §10 Human Decisions
+Either backfill a `metadata` block across all 49 skills (discovery argument) or drop it entirely and rely on directory category + description. Pick one and apply uniformly.
+
+### FA8 — DECISION: observability/performance scores — gate or stay advisory
+**P3 · Decision · open · Owner: —** · Source: [FAUDIT] §10 Human Decisions
+P0 already reworded observability/performance output to non-gating "input QE may cite." Open question: leave it advisory (close as-is) or make these gate by adding real score dimensions + rubrics to `qa-report-schema.json`. Choosing "leave advisory" closes this.
+
+> **Already-decided human decisions** (not tracked here): code-review-agent → ceded to the external `/code-review` CLI (reframed explicit-invoke-only); context-manager → reframed user-only + deduped into `handoff-protocol.md`. Both landed in #16.
