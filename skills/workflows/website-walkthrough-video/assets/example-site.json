@@ -1,0 +1,12 @@
+{
+  "title": "Example Site",
+  "baseUrl": "http://localhost:8080",
+  "outDir": "./walkthrough",
+  "routes": [
+    { "path": "/", "label": "Home" },
+    { "path": "/about/", "label": "About" },
+    { "path": "/pricing/", "label": "Pricing" },
+    { "path": "/blog/", "label": "Blog" },
+    { "path": "/contact/", "label": "Contact" }
+  ]
+}

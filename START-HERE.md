@@ -5,17 +5,17 @@
 
 ## Status at a glance
 
-A mature library of **49 skills** (contracts · git · meta · orchestrator · roles · workflows), all PSFS-validated, full Ubuntu + macOS lint matrix on every push.
+A mature library of **50 skills** (contracts · git · meta · orchestrator · roles · workflows), all PSFS-validated, full Ubuntu + macOS lint matrix on every push.
 
 | Effort | State |
 |--------|-------|
 | **Skill curation** (8 new skills, 6 migrations, 3 merges, bulk edits — from the comparative deep dive) | ✅ Complete |
 | **Ecosystem audit — surface pass** (style/compliance/cross-refs; 5 broken cross-refs, oversized descriptions, missing frontmatter) | ✅ Complete — all critical findings resolved |
 | **Runtime + install layer** (hooks, catalog CI, plan/apply install, skill-health, skill-scan, PSFS standard) | ✅ Complete — shipped PR #8 |
-| **Functional audit** (reports-v2: triggerability / completeness / real bugs across 49 skills) | 🟡 P0 merged (#15) · P1 in review (#16) · ledger filed (FA1–FA8) |
+| **Functional audit** (reports-v2: triggerability / completeness / real bugs across 49 skills) | 🟡 P0 (#15) + P1 (#16) merged · plan reconciled (#17) · P2 backlog open (FA1–FA8) |
 | **Doc-polish backlog** (reference files + thinking-move docs — IMPROVEMENT_PLAN Phases 2–4) | 🟡 RF1–RF5 + TM1–TM3 shipped; 3 items left (PR1 + 2 cleanups) |
 
-The library and its core tooling are mature. Two backlogs remain open: the near-cleared **doc-polish** items (PR1 + 2 cleanups) and the **functional-fidelity** backlog from the reports-v2 audit (P2 items FA1–FA5, the namespace confirm FA6, and two design decisions FA7–FA8). PR #16 (P1) is also awaiting merge. Full narrative in [`PLAN.md`](PLAN.md) § "Where we are".
+The library and its core tooling are mature. Two backlogs remain open: the near-cleared **doc-polish** items (PR1 + 2 cleanups) and the **functional-fidelity** backlog from the reports-v2 audit (P2 items FA1–FA5, the namespace confirm FA6, and two design decisions FA7–FA8). Full narrative in [`PLAN.md`](PLAN.md) § "Where we are".
 
 ## Which doc is which (ownership map)
 
