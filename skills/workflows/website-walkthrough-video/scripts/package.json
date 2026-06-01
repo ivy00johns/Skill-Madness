@@ -1,0 +1,13 @@
+{
+  "name": "website-walkthrough-video",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Capture full-page screenshots and render smooth scrolling walkthrough videos.",
+  "bin": {
+    "walkthrough": "./walkthrough.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  }
+}

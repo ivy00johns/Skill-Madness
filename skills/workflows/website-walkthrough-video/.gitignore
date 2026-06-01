@@ -1,0 +1,7 @@
+# Installed by `cd scripts && npm install`
+scripts/node_modules/
+scripts/package-lock.json
+
+# Generated artifacts from ad-hoc runs
+*.mp4
+manifest.json
