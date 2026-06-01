@@ -497,12 +497,20 @@ cross_validate() {
   local all_names
   all_names="$(awk -F'\t' '{print $1}' "$name_map_file" | sort)"
 
+  # Known bare external refs: skills that live outside this collection (a global
+  # ~/.claude/skills/ skill, or a bare-invoked plugin skill) or Claude Code
+  # built-in slash commands. Bare is their invocable form, so they are legitimate
+  # and must not flag as "unknown". Only add genuinely-verified externals. See FA6.
+  local known_external=" ux-review ui-ux-pro-max claude-api loop schedule "
+
   for f in "${files[@]}"; do
     while IFS= read -r ref_name; do
       [[ -z "$ref_name" ]] && continue
       # Plugin-namespaced refs (plugin:name) are external by definition — out of
       # scope for in-collection resolution, so they are never flagged.
       [[ "$ref_name" == *:* ]] && continue
+      # Known bare externals (global skills / built-in commands) are also fine.
+      [[ "$known_external" == *" $ref_name "* ]] && continue
       if ! printf '%s\n' "$all_names" | grep -qxF "$ref_name"; then
         emit_issue WARN "$f" "" "composes_with references unknown skill '$ref_name'"
       fi
@@ -511,6 +519,7 @@ cross_validate() {
     while IFS= read -r ref_name; do
       [[ -z "$ref_name" ]] && continue
       [[ "$ref_name" == *:* ]] && continue
+      [[ "$known_external" == *" $ref_name "* ]] && continue
       if ! printf '%s\n' "$all_names" | grep -qxF "$ref_name"; then
         emit_issue WARN "$f" "" "spawned_by references unknown skill '$ref_name'"
       fi

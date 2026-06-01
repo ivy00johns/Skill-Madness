@@ -27,7 +27,7 @@ Skill-Madness is a mature **50-skill** library — a contract-first multi-agent 
 - ✅ **M2 — Ecosystem audit + fixes** (2026-05-20): 48 per-skill reports; all C1–C4 critical findings resolved.
 - ✅ **M3 — Runtime + install layer** (2026-05-24, PR #8): hooks, installer discipline, telemetry, scanner, PSFS standard.
 - 🟡 **M4 — Doc-polish (IMPROVEMENT_PLAN Phases 2–4)**: reference files + thinking-move docs shipped (RF1–RF5, TM1–TM3). 3 items left in the ledger (PR1 verify + CL1/CL2 cleanup). **Nearly done.**
-- 🟡 **M5 — Functional audit (reports-v2) + remediation** (audit 2026-05-28; remediation 2026-05-30/31): P0 blockers (PR #15) and P1 wiring/ownership/namespace (PR #16) **both merged**; plan ledger reconciled (PR #17). P2 fidelity backlog filed (FA1–FA5), plus 2 open design decisions (FA7–FA8) and the namespace confirm (FA6). **Remediation landed; P2 backlog open.**
+- 🟡 **M5 — Functional audit (reports-v2) + remediation** (audit 2026-05-28; remediation 2026-05-30/31): P0 blockers (PR #15) and P1 wiring/ownership/namespace (PR #16) **both merged**; plan ledger reconciled (PR #17). P2 fidelity backlog filed (FA1–FA5); FA6 namespaces resolved (2026-06-01); 2 open design decisions remain (FA7–FA8). **Remediation landed; P2 + 2 decisions open.**
 
 ## Closure log
 
@@ -49,6 +49,7 @@ Items move here on ship. Format: `<ref> (date) — <one-line summary>`.
 - **FA-P1 — wiring & integrity** (2026-05-30, PR #16, merged 2026-05-31) — 6 dead `spawned_by` edges trimmed; contract types standardized on flat `contracts/types.<ext>`; wiki layout canonicalized to root `index.md` + `wiki/`; `file-ownership.md` rebuilt canonical (no path owned twice; `.env.example`→infra; `docs/agents`→setup-project-skills; `docs/adr`→maintain-context); known plugin refs namespaced (5 left pending human confirm → FA6); `audit/` + `node_modules/` gitignored.
 - **Living-plan reconciliation** (2026-05-31, PR #17) — re-synced PLAN / START-HERE / REMAINING-WORK / FUTURE / CLAUDE to reality (count 47→49), intaken the reports-v2 functional audit as ledger entries FA1–FA8, and untracked the 96 superseded v1 audit reports.
 - **website-walkthrough-video skill** (2026-05-31) — added the 50th skill: a smooth full-site scrolling walkthrough-video generator (Playwright full-page capture + ffmpeg pan/render → desktop + mobile mp4s). Catalog 49→50.
+- **FA6 — external namespace correctness** (2026-06-01) — corrected refs wrongly prefixed `superpowers:` on non-superpowers skills (`superpowers:ux-review`→`ux-review`, `superpowers:ui-ux-pro-max`→`ui-ux-pro-max`, `superpowers:frontend-design`→`frontend-design:frontend-design`) in render-sanity / ui-brief / claude-design-brief / frontmatter-spec; added a known-bare-externals whitelist to `lint-skills.sh`. The 5 "bare" refs the audit flagged were already correct (built-in commands + a global skill, not superpowers).
 
 ---
 

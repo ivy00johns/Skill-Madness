@@ -29,15 +29,15 @@ owns:
   directories: []
   patterns: []
   shared_read: ["*"]
-composes_with: ["superpowers:ux-review", "orchestrator", "frontend-agent", "feature-dev:feature-dev", "playwright"]
-spawned_by: ["orchestrator", "superpowers:ux-review"]
+composes_with: ["ux-review", "orchestrator", "frontend-agent", "feature-dev:feature-dev", "playwright"]
+spawned_by: ["orchestrator", "ux-review"]
 ---
 
 # Render Sanity
 
 > **Why this exists:** "Tests pass, dev server boots, console is clean" is a process bar. It's not the same as "the app works." This skill is the missing semantic check between those two — it catches failure modes that render plausibly but are quietly broken.
 
-This skill is **not** subjective. It does not evaluate visual hierarchy, typography, or polish — those are `superpowers:ux-review`'s job. It hunts four specific, objectively-verifiable failure modes that ship past every other gate.
+This skill is **not** subjective. It does not evaluate visual hierarchy, typography, or polish — those are `ux-review`'s job. It hunts four specific, objectively-verifiable failure modes that ship past every other gate.
 
 **Announce at start:** "Using render-sanity to click through [N routes] and check for stale data, placeholder text, dead links, and auth dead-ends."
 
@@ -146,8 +146,8 @@ A FAIL is a gate, not a recommendation. The orchestrator's Definition of Done de
 
 ## What this skill is NOT
 
-- **Not visual review.** "The spacing feels off" / "the gradient is harsh" — those belong to `superpowers:ux-review`. This skill has no opinion about aesthetics.
-- **Not accessibility audit.** Heading hierarchy, ARIA labels, keyboard nav — `superpowers:ux-review` or a11y tooling.
+- **Not visual review.** "The spacing feels off" / "the gradient is harsh" — those belong to `ux-review`. This skill has no opinion about aesthetics.
+- **Not accessibility audit.** Heading hierarchy, ARIA labels, keyboard nav — `ux-review` or a11y tooling.
 - **Not performance.** Bundle size, LCP, hydration — `performance-agent`.
 - **Not contract conformance.** Whether the API matches the OpenAPI spec — `qe-agent` / `contract-auditor`.
 - **Not test coverage.** Whether the unit tests cover this code — `qe-agent`.
@@ -156,8 +156,8 @@ This skill catches one specific failure mode: **the app renders, but renders bro
 
 ## When invoked by other skills
 
-- **`orchestrator`** is the primary invoker. It calls render-sanity at Phase 12 (post-build verification) BEFORE `superpowers:ux-review` — render-sanity catches broken-content failures; ux-review then assesses polish on a known-good shell. A render-sanity FAIL blocks the build's Definition of Done.
-- **`superpowers:ux-review`** MAY invoke render-sanity as a precondition. When it does, the render-sanity report becomes the "Critical Issues" section of the ux-review report.
+- **`orchestrator`** is the primary invoker. It calls render-sanity at Phase 12 (post-build verification) BEFORE `ux-review` — render-sanity catches broken-content failures; ux-review then assesses polish on a known-good shell. A render-sanity FAIL blocks the build's Definition of Done.
+- **`ux-review`** MAY invoke render-sanity as a precondition. When it does, the render-sanity report becomes the "Critical Issues" section of the ux-review report.
 - **`feature-dev:feature-dev`** SHOULD invoke render-sanity after a feature is wired end-to-end, before declaring "the feature works."
 - **The user** can invoke this skill directly any time they want a fast objective answer to "is the UI actually working" — typically after a build claims done, after a refactor, after auth was added, or after seeing a screenshot with `?` / `Couldn't load` / dead links.
 

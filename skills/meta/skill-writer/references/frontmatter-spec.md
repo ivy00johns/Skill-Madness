@@ -183,14 +183,15 @@ This repo's extensions for orchestrated builds. Not part of Anthropic's spec; pa
 
 When a skill's `composes_with` or `spawned_by` references a skill from another plugin pack (rather than this repo), prefix the skill name with the plugin namespace:
 
-- `superpowers:brainstorming` (skill lives in `superpowers` plugin)
-- `superpowers:ui-ux-pro-max` (plugin)
+- `superpowers:brainstorming` (skill lives in the `superpowers` plugin)
+- `frontend-design:frontend-design` (skill in the `frontend-design` plugin)
 - `claude-mem:mem-search` (claude-mem plugin)
+- `ux-review`, `ui-ux-pro-max`, `loop` (bare — a global `~/.claude/skills/` skill, a bare-invoked plugin skill, or a Claude Code built-in command; no plugin namespace applies)
 - `bare-name` (in-repo skill — no prefix)
 
-This makes the audit pass: in-repo references can be verified against `skills/`; plugin-namespaced refs are treated as external dependencies.
+This makes the audit pass: in-repo references verify against `skills/`; `plugin:skill` refs are external dependencies; and a curated whitelist of known bare externals in `scripts/lint-skills.sh` keeps legitimate global/built-in refs from flagging as unknown.
 
-In-repo skills using this convention: `orchestrator` (claude-mem:*), `ui-brief`, `render-sanity`, `claude-design-brief`, `frontend-agent` (all using `superpowers:` prefix).
+**Only prefix a ref with a plugin namespace if the skill actually lives in that plugin — verify against the live catalog, do not assume `superpowers:`.** (FA6 corrected several refs wrongly prefixed `superpowers:`: `ux-review` and `ui-ux-pro-max` are bare; `frontend-design` is `frontend-design:frontend-design`.)
 
 ## Forbidden in Frontmatter
 
