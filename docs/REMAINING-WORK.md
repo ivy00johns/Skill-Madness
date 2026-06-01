@@ -99,9 +99,9 @@ Add boundary clauses where trigger contexts overlap: ui-brief, plan-builder↔li
 **P3 · Cosmetic · open · Owner: —** · Source: [FAUDIT] §10 P2.13
 caveman exit phrase, claude-design-brief count, render-sanity Phase label (12 vs 13), interactive-doc `conversation_search` + metadata stub, frontmatter field ordering.
 
-### FA6 — Confirm + apply 5 bare external namespace refs
-**P1 · Namespaces · open (needs human confirm) · Owner: —** · Source: [FAUDIT] §10 P1.8 (carryover from #16)
-P1 namespaced the known plugin refs but left 5 bare pending confirmation of the correct prefix: `ux-review`, `ui-ux-pro-max`, `claude-api`, `loop`, `schedule` in orchestrator + frontend-agent (likely `superpowers:` / plugin prefixes). Confirm each target, then apply + add the lint that FAILs on bare known-plugin names.
+### FA6 — External skill namespace correctness
+**P1 · Namespaces · closed (2026-06-01) · Owner: —** · Source: [FAUDIT] §10 P1.8 (carryover from #16)
+RESOLVED. Investigation (against the live catalog) showed the 5 "bare" refs were already correct and are **not** superpowers: `ux-review` is a bare global `~/.claude/skills/` skill; `ui-ux-pro-max` is a bare-invoked plugin skill; `claude-api` / `loop` / `schedule` are Claude Code built-in commands. The real bugs were the *opposite* — wrong `superpowers:` prefixes on non-superpowers skills (`superpowers:ux-review`, `superpowers:ui-ux-pro-max`, `superpowers:frontend-design`) in render-sanity, ui-brief, claude-design-brief, and the frontmatter-spec example/convention. Fixed: corrected those to `ux-review` / `ui-ux-pro-max` / `frontend-design:frontend-design`; added a known-bare-externals whitelist to `scripts/lint-skills.sh` (so legit global/built-in refs stop warning); corrected the frontmatter-spec convention text. The 6 valid `superpowers:` refs (brainstorming, systematic-debugging, tdd, using-git-worktrees, verification-before-completion, writing-plans) were left untouched.
 
 ### FA7 — DECISION: `metadata` block — backfill all 49 or drop
 **P3 · Decision · open · Owner: —** · Source: [FAUDIT] §10 Human Decisions

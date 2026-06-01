@@ -11,7 +11,7 @@ owns:
   patterns: []
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
-composes_with: ["ui-brief", "superpowers:ui-ux-pro-max", "superpowers:frontend-design", "superpowers:brainstorming"]
+composes_with: ["ui-brief", "ui-ux-pro-max", "frontend-design:frontend-design", "superpowers:brainstorming"]
 spawned_by: []
 ---
 
