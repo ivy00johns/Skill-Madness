@@ -1,8 +1,8 @@
 ---
 name: orchestrator
-version: 1.9.0
+version: 1.10.0
 description: |
-  Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Use when the user mentions agent teams, parallel builds, swarm builds, multi-agent work, a MISSION.md file, executing a multi-phase mission, or wants to split work across Claude sessions. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission". Composes with brainstorming, plan-builder, writing-plans, contract-author, role-agents (backend/frontend/infra/qe/security/observability/performance/docs/db), render-sanity, ux-review, deployment-checklist, frontend-design, ui-ux-pro-max, nano-banana, repo-deep-dive, llm-wiki, mermaid-charts, claude-mem. Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
+  Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow"/"workflows" ask, it drives the implement + verify phases with the Workflow tool — fanning out the role-agents (`agent({agentType})`) against the contracts and adversarially verifying — instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, splitting work across Claude sessions, "workflow"/"dynamic workflow", or ultracode mode. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
@@ -10,7 +10,7 @@ owns:
   directories: []
   patterns: [".gitignore"]
   shared_read: ["contracts/", ".claude/handoffs/"]
-allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
+allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "Workflow"]
 composes_with: [
   "wiki-research", "llm-wiki", "repo-deep-dive",
   "superpowers:brainstorming", "plan-builder", "superpowers:writing-plans",
@@ -117,16 +117,49 @@ For the full 14-phase playbook, read `references/phase-guide.md`. For mission-in
 ## Runtime Detection
 
 ```text
-Is CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS set?
-  YES → Native Agent Teams (tmux, TeammateTool, inbox, shared task list)
-  NO → Is bash tool available?
-    YES → Subagents via Task/Agent tool (parallel, no TeammateTool)
-    NO → Sequential mode (work through roles one at a time, user coordinates)
+Is ultracode on (a system-reminder says so) OR did the user say "workflow"/"workflows"/"dynamic workflow"?
+  YES → Workflow mode (PREFERRED): drive the implement + verify phases with the Workflow tool —
+        deterministic JS that fans out the role-agents and adversarially verifies the result.
+        Design/contracts stay inline. See "Dynamic Workflows" below + references/workflow-orchestration.md.
+  NO → Is CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS set?
+    YES → Native Agent Teams (tmux, TeammateTool, inbox, shared task list)
+    NO → Is the Agent/Task tool available?
+      YES → Subagents via Task/Agent tool (parallel, no TeammateTool)
+      NO → Sequential mode (work through roles one at a time, user coordinates)
 ```
 
-Each agent role skill works standalone regardless of runtime. Only this orchestrator skill needs the full decision tree.
+Workflow mode is gated on those opt-in signals on purpose: the Workflow tool can spawn dozens of
+agents, so absent ultracode or an explicit "workflow" ask, don't reach for it — the other runtimes
+stay the default and behave exactly as before. Each agent role skill works standalone regardless of
+runtime; only this orchestrator skill needs the full decision tree.
 
 **Sequential mode**: When neither Agent Teams nor subagent spawning is available, work through each role one at a time within a single session. Apply the relevant role skill as your own instructions for that phase. The user may need to coordinate context resets between roles. Contracts and validation still apply — only the parallelism changes.
+
+## Dynamic Workflows (ultracode)
+
+When Workflow mode is selected, the **execution substrate** changes but the contract-first
+philosophy does not. You still spend 50% on design and contracts — and that work stays **inline,
+in the main loop**, because it's the human-in-the-loop architecture phase. What moves onto the
+Workflow tool is the parallel-implement and verify phases: instead of hand-spawning agents and
+shepherding replies message by message, you author a Workflow script that launches them with real
+control flow — fan-out, barriers, loop-until-green, adversarial verification.
+
+The "WITH our madness" part: a workflow `agent()` becomes one of your role-agents by invoking that
+role's skill from inside the agent's prompt (the portable path — every role skill runs standalone),
+or via `agent({agentType})` when the role is a registered subagent type. The brief is the same
+distilled template from `references/agent-spawning.md`; the contracts in `contracts/` stay the
+integration layer; file ownership, the wave gate, and the QA gate rules all still apply unchanged.
+
+Work it **one workflow per phase, in sequence** — an implement workflow, then (after you run the
+wave gate and read the structured reports) a verify workflow — so you stay at every gate instead of
+burying them in one mega-script. Keep HITL phases inline: a workflow agent runs to completion once,
+so anything needing a mid-flight human stays out of the script. And the QA gate is still law — the
+verify workflow informs you, it never overrides `gate_decision`; fix and re-run.
+
+**Read `references/workflow-orchestration.md` before authoring** — it has the phase→workflow map,
+the implement/verify script skeletons (with schemas for structured agent reports and the QA gate),
+the adversarial-verify pattern, and the caveats that bite (pure-literal `meta`, one-level nesting,
+worktree isolation cost, budget scaling, no silent caps).
 
 ## File Ownership
 
@@ -200,6 +233,10 @@ When agents approach context limits, follow the handoff protocol in `references/
 | **Treating "ux-review invoked" as the post-build gate** | Process-level checks ("did the skill run?") let visible bugs ship — stale mock IDs leaking into "live" pages, lone `?` / generic-fallback placeholder text where real data should be, lists rendering plausibly but linking to dead targets, "Couldn't load X · Unauthorized" dead-end shells on auth-gated routes. These render with 0 console errors and pass every test-suite-based gate. The outcome-level gate is `render-sanity`: its four objective checks (smell scan, click-through every list, signed-out matrix, signed-in matrix) must return PASS. A "ux-review invoked" line in MISSION_SKILLS.md without a render-sanity PASS is the bug v1.7's process rigor was masking. |
 | **Skipping `render-sanity` when the dev stack isn't up** | Don't invoke validation against a dead port and call it green. Either bring up the stack first (the workspace already has a one-command `dev` script per workspace-bootstrap rules) or report "Cannot run — dev server not responding." Silent skips are how broken builds get declared done. |
 | **Spawning an agent without AFK/HITL classification** | Every agent dispatch must declare whether it can finish unattended (AFK) or needs a human in the loop (HITL). Undeclared dispatches stall builds the moment a prompt fires with no one watching. |
+| **Hand-spawning agents one message at a time under ultracode / Workflow mode** | When the opt-in signals are present, deterministic fan-out is the whole point — author a Workflow script (`references/workflow-orchestration.md`) for the implement + verify phases instead of dispatching and babysitting replies manually. |
+| **Putting the contract/design phase inside a workflow** | Design and contracts are interactive, human-in-the-loop architecture — the 50% that can't be delegated. Keep them inline; workflows execute implement + verify, not the decisions that shape them. |
+| **Cramming the whole build into one mega-workflow** | One workflow per phase, run in sequence, so the wave gate and QA gate stay real checkpoints you read between. A single script that implements-and-ships hides the gates that keep multi-agent builds safe. |
+| **Letting a workflow silently cap coverage** | If a script bounds work (top-N findings, sampled routes, no retry), `log()` what was dropped — same audit ethos as the mission-skills manifest. Silent truncation reads as "covered everything." |
 
 ## Definition of Done
 
@@ -227,6 +264,7 @@ ALL must be true:
 ## Reference Documents
 
 - **`references/mission-interpretation.md`** — how to read a multi-phase mission/plan as a script you EXECUTE, including the skill-trigger heuristic (when each composable skill earns its keep) and the `MISSION_SKILLS.md` template.
+- **`references/workflow-orchestration.md`** — Workflow mode (ultracode / "workflow"): the phase→workflow map, role-agents-as-workflow-agents, implement + verify script skeletons with schemas, adversarial QA verification, and the caveats that bite. Read before authoring any Workflow script.
 - **`references/phase-guide.md`** — the full 14-phase build playbook (Phase 0 external-services audit through Phase 13 handoff).
 - **`references/team-sizing.md`** — how to size the agent team to the work; thresholds and starter formulas.
 - **`references/file-ownership.md`** — canonical agent-to-directory ownership map and contract-first architecture overview.
