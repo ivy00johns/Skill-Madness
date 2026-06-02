@@ -216,6 +216,7 @@ check_status_claude() {
   done
 
   [[ $broken -gt 0 ]] && echo "  ($broken broken symlink(s) — run --clean to remove)"
+  return 0
 }
 
 # Status for Cursor (category-level)
@@ -268,6 +269,7 @@ check_status_cursor() {
   done
 
   [[ $broken -gt 0 ]] && echo "  ($broken broken symlink(s) — run --clean to remove)"
+  return 0
 }
 
 if [[ "$STATUS_MODE" == "yes" ]]; then
