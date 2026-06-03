@@ -35,6 +35,14 @@
       "description": "On a Bash 'git commit', run lint-skills.sh if skills changed; warn only, never blocks the commit."
     },
     {
+      "id": "catalog-sync",
+      "event": "PreToolUse",
+      "script": "scripts/catalog-sync.sh",
+      "profiles": ["standard", "strict"],
+      "blocking": false,
+      "description": "On a Bash 'git commit', if the skill catalog (counts across README/CLAUDE/PLAN/START-HERE/plugin.json/marketplace.json + the plugin.json skills array) has drifted from disk, run catalog.sh --sync and re-stage the corrected files so the commit stays self-consistent; acts only on real drift, never blocks."
+    },
+    {
       "id": "skill-usage",
       "event": "PostToolUse",
       "script": "scripts/skill-usage.sh",
