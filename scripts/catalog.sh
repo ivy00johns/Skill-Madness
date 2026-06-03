@@ -2,27 +2,33 @@
 #
 # catalog.sh — Catalog-as-CI-invariant for Skill Madness.
 #
-# The filesystem is the single source of truth for the advertised skill counts.
-# This script computes the true inventory from disk and either checks the
-# hard-coded counts in README.md + plugin.json + marketplace.json against it
-# (--check), rewrites those counts to match (--sync), or prints the table
-# (--text).
+# The filesystem is the single source of truth for the skill catalog. This
+# script computes the true inventory from disk and either checks every derived
+# assertion against it (--check), rewrites them to match (--sync), or prints the
+# table (--text). It covers:
+#   - the count phrases in README.md, plugin.json, marketplace.json,
+#     CLAUDE.md, PLAN.md, and START-HERE.md (live phrasings only — historical
+#     "47 skills" notes are left alone);
+#   - the plugin.json `skills` array itself (every on-disk skill registered,
+#     no stale entries) — delegated to scripts/sync-catalog-skills.py.
 #
-# Contract: contracts/installer/catalog-invariant.md v1.0.0
+# Contract: contracts/installer/catalog-invariant.md v1.1.0
 #
 # Usage:
 #   scripts/catalog.sh [--check | --sync | --text] [--help]
 #
 # Options:
-#   --check   (default) compare asserted counts to disk; exit 1 on any mismatch.
-#   --sync    rewrite asserted counts in README/plugin.json/marketplace.json.
+#   --check   (default) compare every asserted count + the plugin listing to
+#             disk; exit 1 on any mismatch.
+#   --sync    rewrite all counts + reconcile the plugin.json skills array.
 #   --text    print total + per-category table to stdout.
 #   --help    print this and exit.
 #
-# A skill = a directory under skills/ containing a SKILL.md, EXCLUDING anything
-# under skills/archive/ and skills/in-progress/. Category = the immediate
-# subdirectory of skills/ the skill lives in (orchestrator/SKILL.md at the
-# category root counts as category 'orchestrator').
+# A skill = a directory directly under a category (skills/<cat>/<skill>/SKILL.md)
+# or the top-level orchestrator (skills/orchestrator/SKILL.md). Anything under
+# skills/archive/, skills/in-progress/, or node_modules/ — or nested deeper than
+# a skill root (a bundled node_modules SKILL.md) — is NOT a skill; the -maxdepth
+# scan and the python reconciler both enforce that.
 #
 # Exit codes: 0 ok / clean, 1 drift detected (--check), 2 argument failure.
 #
@@ -41,9 +47,16 @@ SKILLS_ROOT="$REPO_ROOT/skills"
 README="$REPO_ROOT/README.md"
 PLUGIN_JSON="$REPO_ROOT/.claude-plugin/plugin.json"
 MARKETPLACE_JSON="$REPO_ROOT/.claude-plugin/marketplace.json"
+CLAUDE_MD="$REPO_ROOT/CLAUDE.md"
+PLAN_MD="$REPO_ROOT/PLAN.md"
+START_HERE="$REPO_ROOT/START-HERE.md"
 
-# The six known categories, fixed order for stable output.
-CATEGORIES="orchestrator roles contracts meta git workflows"
+# Companion that reconciles the plugin.json `skills` array with disk (registers
+# new skills, drops stale entries). Delegated to from --check / --sync.
+SKILLS_SYNC="$SCRIPT_DIR/sync-catalog-skills.py"
+
+# The six known categories, fixed order for stable output (matches plugin.json).
+CATEGORIES="orchestrator roles contracts git meta workflows"
 
 # ---------------------------------------------------------------------------
 # Disk inventory
@@ -65,7 +78,7 @@ category_of() {
 # count_total <skills_root>  — total active skills.
 count_total() {
   local root="$1"
-  find "$root" -name SKILL.md -type f 2>/dev/null \
+  find "$root" -maxdepth 3 -name SKILL.md -type f 2>/dev/null \
     | grep -v "$root/archive/" \
     | grep -v "$root/in-progress/" \
     | wc -l \
@@ -79,7 +92,7 @@ count_category() {
     [[ -z "$f" ]] && continue
     c="$(category_of "$f")"
     [[ "$c" == "$cat" ]] && n=$(( n + 1 ))
-  done < <(find "$root" -name SKILL.md -type f 2>/dev/null \
+  done < <(find "$root" -maxdepth 3 -name SKILL.md -type f 2>/dev/null \
              | grep -v "$root/archive/" \
              | grep -v "$root/in-progress/")
   echo "$n"
@@ -116,8 +129,11 @@ cmd_text() {
 # ---------------------------------------------------------------------------
 
 # sed_replace <file> <sed-expr...> — apply one or more -e exprs portably.
+# A missing target is a no-op: not every repo (or test fixture) carries every
+# asserted-count file, and a count that isn't present simply can't drift.
 sed_replace() {
   local file="$1"; shift
+  [[ -f "$file" ]] || return 0
   local tmp
   tmp="$(mktemp "${TMPDIR:-/tmp}/ats-catalog.XXXXXX")"
   sed "$@" "$file" > "$tmp"
@@ -247,6 +263,29 @@ for_each_assertion() {
     'Install all [0-9]+ Skill-Madness skills' "$total" \
     's/.*Install all ([0-9]+) Skill-Madness skills.*/\1/' \
     "s/(Install all )[0-9]+( Skill-Madness skills)/\1${total}\2/g"
+
+  # --- CLAUDE.md / PLAN.md / START-HERE.md live total counts -----------------
+  # Only the LIVE current-count phrasings are targeted. Historical mentions
+  # ("47 skills across 6 categories", "validating all 47 skills clean",
+  # "across 49 skills") use different wording and are deliberately left alone.
+
+  # CLAUDE.md "What This Is": "— N OSS-publishable skills in `skills/`".
+  "$cb" "$CLAUDE_MD" "CLAUDE.md (N OSS-publishable skills)" \
+    '[0-9]+ OSS-publishable skills' "$total" \
+    's/.*[^0-9]([0-9]+) OSS-publishable skills.*/\1/' \
+    "s/[0-9]+( OSS-publishable skills)/${total}\1/g"
+
+  # PLAN.md "Where we are": "a mature **N-skill** library".
+  "$cb" "$PLAN_MD" "PLAN.md (N-skill library)" \
+    '\*\*[0-9]+-skill\*\* library' "$total" \
+    's/.*\*\*([0-9]+)-skill\*\* library.*/\1/' \
+    "s/(\*\*)[0-9]+(-skill\*\* library)/\1${total}\2/g"
+
+  # START-HERE.md "Status at a glance": "A mature library of **N skills**".
+  "$cb" "$START_HERE" "START-HERE.md (library of N skills)" \
+    'library of \*\*[0-9]+ skills\*\*' "$total" \
+    's/.*library of \*\*([0-9]+) skills\*\*.*/\1/' \
+    "s/(library of \*\*)[0-9]+( skills\*\*)/\1${total}\2/g"
 }
 
 # ---------------------------------------------------------------------------
@@ -261,7 +300,7 @@ cmd_check() {
   MISMATCHES=()
   for_each_assertion _check_cb
 
-  local total
+  local total rc=0
   total="$(count_total "$SKILLS_ROOT")"
 
   if (( ${#MISMATCHES[@]} > 0 )); then
@@ -270,10 +309,20 @@ cmd_check() {
     for m in "${MISMATCHES[@]}"; do
       ats_warn "$m"
     done
+    rc=1
+  fi
+
+  # plugin.json `skills` array registration — delegated to the reconciler, which
+  # prints its own drift lines. Missing python3 degrades to count-only checking.
+  if [[ -f "$SKILLS_SYNC" ]] && command -v python3 >/dev/null 2>&1; then
+    python3 "$SKILLS_SYNC" --check || rc=1
+  fi
+
+  if (( rc != 0 )); then
     ats_info "run 'scripts/catalog.sh --sync' to reconcile"
     return 1
   fi
-  ats_ok "catalog clean: all asserted counts match disk (total = $total)"
+  ats_ok "catalog clean: counts + plugin.json listing all match disk (total = $total)"
   return 0
 }
 
@@ -288,9 +337,13 @@ _sync_cb() {
 
 cmd_sync() {
   for_each_assertion _sync_cb
+  # Reconcile the plugin.json `skills` array (register new, drop stale).
+  if [[ -f "$SKILLS_SYNC" ]] && command -v python3 >/dev/null 2>&1; then
+    python3 "$SKILLS_SYNC" --sync
+  fi
   local total
   total="$(count_total "$SKILLS_ROOT")"
-  ats_ok "synced asserted counts to disk (total = $total)"
+  ats_ok "synced counts + plugin.json listing to disk (total = $total)"
   return 0
 }
 

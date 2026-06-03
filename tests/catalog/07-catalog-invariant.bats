@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 # 07-catalog-invariant.bats — Validate scripts/catalog.sh.
 #
-# Contract: contracts/installer/catalog-invariant.md v1.0.0
+# Contract: contracts/installer/catalog-invariant.md v1.1.0
 #
 # Builds a self-contained fake repo in a temp dir (scripts/catalog.sh + libs,
 # a skills/ tree, README.md, plugin.json, marketplace.json) so the count
@@ -199,4 +199,88 @@ EOF
   run env NO_COLOR=1 bash "$FCATALOG" --sync
   [ "$status" -eq 0 ]
   grep -qF '| 47 | `railway-deploy`' "$FAKE/README.md"
+}
+
+# ---------------------------------------------------------------------------
+# node_modules SKILL.md scaffolds (bundled npm deps) must NOT be counted.
+# ---------------------------------------------------------------------------
+@test "catalog ignores node_modules SKILL.md scaffolds" {
+  mkdir -p "$FAKE/skills/workflows/plan-builder/scripts/node_modules/dep/inner"
+  printf -- '---\nname: dep\n---\n' \
+    > "$FAKE/skills/workflows/plan-builder/scripts/node_modules/dep/inner/SKILL.md"
+  run env NO_COLOR=1 bash "$FCATALOG" --text
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qE 'TOTAL[[:space:]]+5'        # still 5, not 6
+  ! echo "$output" | grep -qE 'TOTAL[[:space:]]+6'
+}
+
+# ---------------------------------------------------------------------------
+# CLAUDE.md / PLAN.md / START-HERE.md live counts are checked + synced; a
+# missing file is a no-op (not every fixture carries them).
+# ---------------------------------------------------------------------------
+@test "catalog checks + syncs CLAUDE.md / PLAN.md / START-HERE.md live counts" {
+  printf -- '— 6 OSS-publishable skills in `skills/`.\n'        > "$FAKE/CLAUDE.md"
+  printf -- 'a mature **6-skill** library — stuff.\n'           > "$FAKE/PLAN.md"
+  printf -- 'A mature library of **6 skills** (contracts).\n'   > "$FAKE/START-HERE.md"
+
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+  grep -q '5 OSS-publishable skills'   "$FAKE/CLAUDE.md"
+  grep -q '\*\*5-skill\*\* library'    "$FAKE/PLAN.md"
+  grep -q 'library of \*\*5 skills\*\*' "$FAKE/START-HERE.md"
+
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# Historical count phrasings ("reshaped to 47 skills", "across 49 skills") must
+# survive --sync untouched — only the live phrasing is reconciled.
+# ---------------------------------------------------------------------------
+@test "catalog --sync leaves historical count notes untouched" {
+  printf -- '— 6 OSS-publishable skills now.\nHistory: reshaped to 47 skills; across 49 skills.\n' \
+    > "$FAKE/CLAUDE.md"
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+  grep -q '5 OSS-publishable skills' "$FAKE/CLAUDE.md"   # live count reconciled
+  grep -q 'reshaped to 47 skills'    "$FAKE/CLAUDE.md"   # history preserved
+  grep -q 'across 49 skills'         "$FAKE/CLAUDE.md"
+}
+
+# ---------------------------------------------------------------------------
+# plugin.json `skills` array is reconciled with disk (register missing, drop
+# stale). Requires python3 + the reconciler copied into the fixture.
+# ---------------------------------------------------------------------------
+@test "catalog registers on-disk skills missing from the plugin.json array" {
+  command -v python3 >/dev/null 2>&1 || skip "python3 not available"
+  cp "$REPO_ROOT/scripts/sync-catalog-skills.py" "$FAKE/scripts/sync-catalog-skills.py"
+  # Fixture plugin.json registers only orchestrator; disk has 5 skills.
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -qi "not registered"
+
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+  grep -q 'backend-agent'  "$FAKE/.claude-plugin/plugin.json"
+  grep -q 'mermaid-charts' "$FAKE/.claude-plugin/plugin.json"
+
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 0 ]
+}
+
+@test "catalog drops a stale plugin.json array entry" {
+  command -v python3 >/dev/null 2>&1 || skip "python3 not available"
+  cp "$REPO_ROOT/scripts/sync-catalog-skills.py" "$FAKE/scripts/sync-catalog-skills.py"
+  printf '{\n  "description": "x with 5 skills",\n  "skills": ["./skills/orchestrator", "./skills/workflows/ghost"]\n}\n' \
+    > "$FAKE/.claude-plugin/plugin.json"
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -qi "stale entry"
+
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+  ! grep -q 'ghost' "$FAKE/.claude-plugin/plugin.json"
 }
