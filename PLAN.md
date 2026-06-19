@@ -12,7 +12,7 @@
 
 ## Where we are
 
-Skill-Madness is a mature **51-skill** library — a contract-first multi-agent orchestrator (14 phases), 10 role agents with exclusive file ownership, contract/meta/git/workflow skills — with a runtime + install layer on top. Two large efforts and two audits have landed; the latest audit's P0+P1 remediation has now merged, with a P2 fidelity backlog filed:
+Skill-Madness is a mature **53-skill** library — a contract-first multi-agent orchestrator (14 phases), 10 role agents with exclusive file ownership, contract/meta/git/workflow skills — with a runtime + install layer on top. Two large efforts and two audits have landed; the latest audit's P0+P1 remediation has now merged, with a P2 fidelity backlog filed:
 
 1. **Skill curation** (from `DeepResearch/skills-comparative_deepdive/PLAN-skill-creator.md`): authored 8 new skills, migrated 6, merged 3 pairs into 3 unified skills, and applied 8 categories of bulk in-place edits. Fully executed.
 2. **Ecosystem audit — surface pass** (`audit/MASTER_AUDIT_PLAN.md`, 7-dimension rubric, avg 4.49/5): all critical findings closed — 5 broken `composes_with` cross-references fixed, 7 oversized descriptions trimmed under the 1024-char ceiling, 2 missing frontmatter blocks restored. This was the *style / compliance / cross-ref* layer; its per-skill reports now live in `audit/reports-v1-sufrace/`.
