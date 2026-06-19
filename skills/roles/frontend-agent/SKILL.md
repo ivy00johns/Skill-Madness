@@ -140,6 +140,8 @@ Two rules from that file matter enough to repeat here so the rest of this step m
 
 - **No hardcoded `width: <px>` on layout containers.** `width: 1200px` on a wrapper locks the layout off mobile entirely. Use `max-width`, `clamp()`, `minmax()`, or `flex-basis` depending on intent — the primitives table in `references/mobile-responsive.md` picks for you. Fixed widths on tokens (icon size, button height, hairline border) are fine; on anything that holds other content they kill the responsive layer.
 
+- **Colors come from design tokens, never hardcoded literals.** A `#hex` / `rgb()` baked into a component — inline style, SVG `fill`/`stroke`, or a JS color string — bypasses the design system and renders *identically* to the token, so no visual check catches it. Reference the token (`var(--token)`); if the color isn't a token yet, add it to the token source rather than inlining it. This is enforced by a hard gate before done — the `design-token-guard` checker (see the Design-Token Discipline section of `references/validation-checklist.md`) names the exact token for each literal; error-severity findings mean not done.
+
 If you reach for `!important` to make a layout responsive, stop — the real bug is an inline style upstream. Move it to a class.
 
 For server-rendered themes (WordPress / Rails / Phoenix / Django / PHP) the same rules apply, plus the platform-specific stylesheet-registration mechanism — see the "Server-rendered themes" section of `references/mobile-responsive.md` (e.g. `wp_enqueue_style()` with `filemtime()` versioning for WordPress). Templates carry `class=` attributes only; no `<style>` blocks.

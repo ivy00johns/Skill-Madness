@@ -1,0 +1,11 @@
+# scan-skills false-positive suppressions — "path:rule", path relative to repo root.
+# Only for KNOWN-safe documentation examples, never to hide a real secret.
+#
+# use-freellmapi: its curl smoke tests and per-framework recipes show where a key
+# goes using the placeholder unified key `freellmapi-xxxx` and idiomatic env-var
+# reads like `apiKey: process.env.OPENAI_API_KEY`. The secret-generic heuristic
+# can't distinguish a placeholder / env-var reference from a real literal, so the
+# suppression is scoped to these two docs-only files. The skill ships no real
+# credentials (verified: every "key" is a placeholder or an env lookup).
+skills/workflows/use-freellmapi/SKILL.md:secret-generic
+skills/workflows/use-freellmapi/references/recipes.md:secret-generic

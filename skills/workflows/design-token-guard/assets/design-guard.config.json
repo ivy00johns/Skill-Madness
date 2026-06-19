@@ -1,0 +1,18 @@
+{
+  "tokenSources": ["src/styles/tokens.css"],
+  "scanExtensions": [".tsx", ".ts", ".jsx", ".js", ".vue", ".svelte", ".astro", ".html"],
+  "ignoreDirs": ["node_modules", ".git", ".next", "dist", "build", "out", "coverage"],
+  "ignorePathContains": [".config.", ".d.ts"],
+  "rules": {
+    "no-hardcoded-color": "error",
+    "no-inline-style": "warn",
+    "no-class-in-svg": "off",
+    "restricted-radius": "off",
+    "forbidden-colors": "off",
+    "no-arbitrary-tailwind": "off"
+  },
+  "inlineStyleMode": "literal",
+  "maxRadiusPx": 2,
+  "forbiddenColors": [],
+  "scanStyleSheets": false
+}

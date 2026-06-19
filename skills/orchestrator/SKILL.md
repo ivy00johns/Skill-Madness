@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-version: 1.10.0
+version: 1.11.0
 description: |
   Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow"/"workflows" ask, it drives the implement + verify phases with the Workflow tool — fanning out the role-agents (`agent({agentType})`) against the contracts and adversarially verifying — instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, splitting work across Claude sessions, "workflow"/"dynamic workflow", or ultracode mode. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
@@ -19,7 +19,7 @@ composes_with: [
   "contract-author", "contract-auditor", "dependency-coordinator",
   "context-manager", "deployment-checklist", "code-review-agent", "project-profiler",
   "mermaid-charts", "playwright",
-  "claude-design-brief", "ui-brief", "frontend-design:frontend-design", "ui-ux-pro-max", "ux-review", "render-sanity",
+  "claude-design-brief", "ui-brief", "frontend-design:frontend-design", "ui-ux-pro-max", "ux-review", "render-sanity", "design-token-guard",
   "nano-banana", "claude-api", "feature-dev:feature-dev",
   "git-commit", "git-pr", "git-pr-feedback", "git-post-merge-cleanup",
   "claude-mem:mem-search", "claude-mem:timeline-report", "claude-mem:knowledge-agent",
@@ -47,7 +47,7 @@ For single-agent or ad-hoc work, this skill is not the right tool.
 
 The orchestrator is the conductor — not the only player. It composes with three groups of skills:
 
-- **INVOKES at the right phase:** `nano-banana` (seed imagery), `ui-ux-pro-max` + `frontend-design` (UI quality), `ux-review` + `render-sanity` (post-build validation), `repo-deep-dive` (reference research), `llm-wiki` (project knowledge base), `mermaid-charts` (architecture diagrams), `deployment-checklist` (ship readiness).
+- **INVOKES at the right phase:** `nano-banana` (seed imagery), `ui-ux-pro-max` + `frontend-design` (UI quality), `ux-review` + `render-sanity` (post-build *render*-level validation), `design-token-guard` (post-build *source*-level gate — no inline styles / hardcoded colors bypassing tokens), `repo-deep-dive` (reference research), `llm-wiki` (project knowledge base), `mermaid-charts` (architecture diagrams), `deployment-checklist` (ship readiness).
 - **DISPATCHES role-agents in parallel:** `backend-agent`, `frontend-agent`, `infrastructure-agent`, `db-migration-agent`, `security-agent`, `observability-agent`, `performance-agent`, `docs-agent`, `qe-agent`.
 - **DELEGATES diff/code review to the external `/code-review` CLI:** during a build, the Phase 4 diff review pass is the external `/code-review` CLI, NOT a spawned `code-review-agent`. The in-repo `code-review-agent` skill is not a default build phase — invoke it only deliberately for a standalone, repo-aware review. See `references/mission-interpretation.md`.
 - **DOES NOT preempt:** `brainstorming`, `plan-builder`, `writing-plans`, `claude-design-brief`, `ui-brief`, `feature-dev`, `claude-mem:*`. If any of these belong before the build starts, let them run first — orchestrator picks up from the artifacts they produce.
@@ -105,7 +105,7 @@ If the user says "merge it", "push to main", or "create a PR" — then and only 
 6. Size the team based on the work — see `references/team-sizing.md`
 7. **Pre-build creative + research skills** — invoke these BEFORE contracts where the mission asks for them: `nano-banana` (generates real seed imagery — hero banners, product photos, category icons), `claude-design-brief` or `ui-brief` (design direction document), `repo-deep-dive` (reference repo analysis), `llm-wiki` (project knowledge base bootstrap), `mermaid-charts` (architecture diagrams). These produce ARTIFACTS the agents will consume — running them first means agents get real images and real architecture refs instead of placeholders.
 8. Author contracts (the critical phase) — invoke the `contract-author` skill
-9. Spawn agents in parallel with distilled prompts — see `references/agent-spawning.md` for template, AFK/HITL classification, and a worked example. For frontend-agent dispatch, REQUIRE the agent to invoke `frontend-design` and `ui-ux-pro-max` during their build (not just mention them — actually call the Skill tool).
+9. Spawn agents in parallel with distilled prompts — see `references/agent-spawning.md` for template, AFK/HITL classification, and a worked example. **Role labels are not subagent types:** `backend-agent`, `docs-agent`, `qe-agent`, etc. name the *work*, not a `subagent_type` — dispatch with `general-purpose` (always available) and carry the role skill in the prompt. Passing a `*-agent` label as the type fails with "Agent type not found." See the mapping table at the top of `references/agent-spawning.md`. For frontend-agent dispatch, REQUIRE the agent to invoke `frontend-design` and `ui-ux-pro-max` during their build (not just mention them — actually call the Skill tool).
 10. **Spawn QE agent for testing** — this is mandatory, not optional (see below)
 11. Coordinate and validate (wave gates between every parallel wave)
 12. Gate on QA report
@@ -132,6 +132,16 @@ Workflow mode is gated on those opt-in signals on purpose: the Workflow tool can
 agents, so absent ultracode or an explicit "workflow" ask, don't reach for it — the other runtimes
 stay the default and behave exactly as before. Each agent role skill works standalone regardless of
 runtime; only this orchestrator skill needs the full decision tree.
+
+**Model defaults don't change this gate.** As of Claude Code v2.1.170 (Fable 5), the
+dynamic-workflows *feature* ships enabled by default on Max/Team/API plans (off by default for
+Enterprise; `/config` opt-in on Pro) — but every model, Fable 5 included, defaults to `/effort
+high`, and *automatic* workflow orchestration only happens under `/effort ultracode` (a
+session-only Claude Code setting: `xhigh` reasoning + Claude plans a workflow per substantive
+task; resets every new session). So "the session model is Fable 5" is NOT an opt-in signal —
+wait for the ultracode system-reminder or an explicit ask, same as before. The prompt trigger
+keyword is `ultracode` (renamed from `workflow` in v2.1.160); a natural-language "use a
+workflow" counts as the same opt-in in any version.
 
 **Sequential mode**: When neither Agent Teams nor subagent spawning is available, work through each role one at a time within a single session. Apply the relevant role skill as your own instructions for that phase. The user may need to coordinate context resets between roles. Contracts and validation still apply — only the parallelism changes.
 
@@ -181,7 +191,7 @@ Every orchestrated build **must** spawn a QE agent. Testing is not optional. Eve
 
 1. **Contract diff** — curl commands vs fetch calls, line by line
 2. **Agent validation** — each agent runs their checklist
-3. **Wave gate (CRITICAL)** — between every wave of parallel agents, run the integrated install + typecheck + test loop and route failures back to the responsible agent. See `references/wave-gate.md` for the per-stack commands and failure routing.
+3. **Wave gate (CRITICAL)** — between every wave of parallel agents, run the integrated install + typecheck + test loop and route failures back to the responsible agent. **For any wave that touched UI, also run the `design-token-guard` source-convention gate** (`--json`; non-zero `summary.errors` blocks the wave, routed back by file) alongside typecheck — it's deterministic and parses once. See `references/wave-gate.md` for the per-stack commands and failure routing, and the `design-token-guard` skill's `references/wiring-into-orchestrator.md` for the gate snippet.
 4. **QE agent testing** — the QE agent writes and runs tests, produces `qa-report.json`
 5. **End-to-end testing** — you run this: startup, happy path, persistence, edge cases
 6. **QA gate** — QE agent's `qa-report.json` must pass gate rules
@@ -232,8 +242,11 @@ When agents approach context limits, follow the handoff protocol in `references/
 | **Declaring done without ux-review on UI builds** | Tests pass + dev server boots is not the bar for a UI project. After the build, invoke `ux-review` (or run Playwright + screenshots manually) and address what comes back. Visual quality is verifiable; verify it. |
 | **Treating "ux-review invoked" as the post-build gate** | Process-level checks ("did the skill run?") let visible bugs ship — stale mock IDs leaking into "live" pages, lone `?` / generic-fallback placeholder text where real data should be, lists rendering plausibly but linking to dead targets, "Couldn't load X · Unauthorized" dead-end shells on auth-gated routes. These render with 0 console errors and pass every test-suite-based gate. The outcome-level gate is `render-sanity`: its four objective checks (smell scan, click-through every list, signed-out matrix, signed-in matrix) must return PASS. A "ux-review invoked" line in MISSION_SKILLS.md without a render-sanity PASS is the bug v1.7's process rigor was masking. |
 | **Skipping `render-sanity` when the dev stack isn't up** | Don't invoke validation against a dead port and call it green. Either bring up the stack first (the workspace already has a one-command `dev` script per workspace-bootstrap rules) or report "Cannot run — dev server not responding." Silent skips are how broken builds get declared done. |
-| **Spawning an agent without AFK/HITL classification** | Every agent dispatch must declare whether it can finish unattended (AFK) or needs a human in the loop (HITL). Undeclared dispatches stall builds the moment a prompt fires with no one watching. |
-| **Hand-spawning agents one message at a time under ultracode / Workflow mode** | When the opt-in signals are present, deterministic fan-out is the whole point — author a Workflow script (`references/workflow-orchestration.md`) for the implement + verify phases instead of dispatching and babysitting replies manually. |
+| **Trusting render-level gates to catch hardcoded styling** | render-sanity and ux-review read *pixels*; a hardcoded color (`style={{background:"#07090c"}}`) renders identically to its token, so it passes every visual gate and lives only in source. Inline styles and off-token colors accumulate invisibly until a human eyeballs the code weeks later and burns hours on a manual token refactor. The source-level gate is `design-token-guard` — run it on every UI wave alongside typecheck. A green render does not certify token discipline. |
+| **Trusting a green gate without checking the fix is real** | A gate measures a *proxy* — lint count, type errors, tests passing. An agent told to "make it green" can move the number without fixing the cause: relocate a violation into the checker's blind spot (a banned `rounded-full` class reborn as an inline `borderRadius:"50%"`), silence it with an ignore directive, or delete the failing assertion. The metric goes green; the problem ships. When a gate flips red→green, read the diff that did it — did it *resolve* the finding or *relocate* it? Adversarial verification verifies the fix, not the count. A suspiciously easy green is a finding, not a win — the same false-green as a masked exit code. |
+| **Retrofitting a source-convention gate after the code exists** | A convention gate (`design-token-guard`, strict typecheck, a new lint rule) added *after* a fleet of agents has written the UI inherits a backlog — so it can only land in report-only "ratchet" mode, and clearing the debt becomes a manual multi-file burndown later (the painful kind a human notices). Scaffold these gates in the **bootstrap wave**, before the first frontend-agent writes a line, so violation #1 is caught at commit #1 and the backlog never accumulates. See `references/wave-gate.md`. |
+| **Maintaining a changelog inline in a code file** | A version-history block at the top of a constantly-imported source file (a shared `types.ts`, a long-lived service module) is read on nearly every task for zero runtime value — and it *self-propagates*: each agent that edits the file pattern-matches the existing block and appends to it, so it only grows. The dedicated `CHANGELOG.md` is the system of record; a code file gets at most a one-line `version: X.Y.Z` plus a pointer to the changelog. When a contract/convention says "bump the header," that means the version line — not a growing inline history. If you find an inline changelog while editing, that's a finding (file a cleanup item), not a thing to extend. |
+| **Spawning an agent without AFK/HITL classification** | Every agent dispatch must declare whether it can finish unattended (AFK) or needs a human in the loop (HITL). Undeclared dispatches stall builds the moment a prompt fires with no one watching. || **Hand-spawning agents one message at a time under ultracode / Workflow mode** | When the opt-in signals are present, deterministic fan-out is the whole point — author a Workflow script (`references/workflow-orchestration.md`) for the implement + verify phases instead of dispatching and babysitting replies manually. |
 | **Putting the contract/design phase inside a workflow** | Design and contracts are interactive, human-in-the-loop architecture — the 50% that can't be delegated. Keep them inline; workflows execute implement + verify, not the decisions that shape them. |
 | **Cramming the whole build into one mega-workflow** | One workflow per phase, run in sequence, so the wave gate and QA gate stay real checkpoints you read between. A single script that implements-and-ships hides the gates that keep multi-agent builds safe. |
 | **Letting a workflow silently cap coverage** | If a script bounds work (top-N findings, sampled routes, no retry), `log()` what was dropped — same audit ethos as the mission-skills manifest. Silent truncation reads as "covered everything." |
@@ -252,10 +265,11 @@ ALL must be true:
 8. **Visual assets exist for UI builds** — if the project has a UI, real seed imagery exists in `assets/` or `web/public/` (generated via `nano-banana` or sourced via another path). The bar is "looks like a product"; "stub URL placeholders" doesn't meet it.
 9. **Post-build UX review passed for UI builds** — `ux-review` invoked (or equivalent Playwright + screenshots pass), and the issues it surfaces are fixed or recorded.
 10. **Render-sanity returned PASS for UI builds** — `render-sanity` walked every user-facing route in a real browser, ran all four checks (smell scan, click-through, signed-out matrix, signed-in matrix), and returned zero critical findings. Process-level "I invoked ux-review" is not the same as outcome-level "the four checks came back clean" — render-sanity is the outcome gate. A FAIL here blocks the build until the criticals are fixed.
-11. Contract changelog clean
-12. QA gate passed — QE agent tests written, executed, and passing
-13. **One-command dev is wired** — for any project with multiple services, the workspace root has a single `dev` (or equivalent) script that runs the whole dev stack in one terminal with prefixed output. See `references/workspace-bootstrap.md`.
-14. **End-state report** — a single file (e.g., `BUILD_RESULTS.md` or the build's git commit summary) lists what shipped, what was deferred, the mission skill checklist state, and explicit handoff items for the user. The user should be able to read this file and know exactly where the build stopped.
+11. **Source-convention gate passed for UI builds** — `design-token-guard` returns zero error-severity findings: no inline styles or hardcoded colors bypassing the design-token system. This is the *source-level* complement to render-sanity's pixel-level checks — a hardcoded color renders identically to its token, so it sails through every visual gate and only exists in source. A clean render and a clean console do not certify token discipline; only this does. The inline-CSS class of bug lives exactly in render-sanity's blind spot, which is how it ships unseen and accumulates into a painful manual token refactor — so a UI build needs **both** gates, not one. Findings route back to the owning frontend-agent by file.
+12. Contract changelog clean
+13. QA gate passed — QE agent tests written, executed, and passing
+14. **One-command dev is wired** — for any project with multiple services, the workspace root has a single `dev` (or equivalent) script that runs the whole dev stack in one terminal with prefixed output. See `references/workspace-bootstrap.md`.
+15. **End-state report** — a single file (e.g., `BUILD_RESULTS.md` or the build's git commit summary) lists what shipped, what was deferred, the mission skill checklist state, and explicit handoff items for the user. The user should be able to read this file and know exactly where the build stopped.
 
 </what-to-do>
 

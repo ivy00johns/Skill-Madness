@@ -174,6 +174,27 @@ grep -rn '!important' --include='*.css' --include='*.scss' . | wc -l
 
 If the count is non-trivial, fix the source (remove the inline styles or fixed widths that prompted it) rather than adding more `!important`.
 
+## Design-Token Discipline (source-level gate)
+
+The grep in §4 above catches inline *layout* styles, but it can't see a hardcoded
+**color** — `style={{ background: "#07090c" }}` renders identically to the token
+it should have used, so it sails through every visual check. That class of bug
+only exists in source, and it's how inline CSS accumulates until a painful manual
+token refactor. Close it deterministically with the `design-token-guard` skill:
+
+```bash
+# Run against the files you changed. --json for a parseable verdict.
+python3 ~/.claude/skills/design-token-guard/scripts/check_design_tokens.py \
+  --root . --json <your changed files or dirs> > /tmp/dtg.json
+python3 -c "import json;d=json.load(open('/tmp/dtg.json'));print('errors:',d['summary']['errors'])"
+```
+
+**Error-severity findings mean you are not done.** Each finding names the exact
+fix — when the literal matches a declared token it suggests `var(--token)`; when
+it doesn't, the color was never tokenized (add it to the token source or use the
+nearest existing token — don't leave the literal). This is the source-level
+complement to the render checks: a clean render does not certify token discipline.
+
 ## Accessibility Verification
 
 - Tab through every interactive element — focus indicator visible on each

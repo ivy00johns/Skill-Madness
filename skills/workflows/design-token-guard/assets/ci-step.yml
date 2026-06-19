@@ -1,0 +1,20 @@
+# design-token-guard — CI step (GitHub Actions example).
+#
+# Add this job (or just the step) to .github/workflows/ci.yml. The checker is
+# pure-stdlib Python, so no install is needed beyond a Python runtime. It exits
+# non-zero on error-severity findings, failing the build.
+
+jobs:
+  design-token-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check for inline styles & hardcoded colors
+        run: python3 scripts/check_design_tokens.py --root .
+
+# If you vendored the checker elsewhere, adjust the path. To see machine-readable
+# output in logs, append `--json`. To scan only changed files in a PR, gate on
+# `git diff --name-only origin/${{ github.base_ref }}...` and pass those paths.

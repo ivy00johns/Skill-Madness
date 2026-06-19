@@ -1,6 +1,6 @@
 # Remaining Work — Tactical Ledger
 
-**Last updated:** 2026-05-31
+**Last updated:** 2026-06-02
 **Companions:** [`PLAN.md`](../PLAN.md) (strategic roadmap + closure log), [`docs/FUTURE.md`](FUTURE.md) (frontier overflow)
 
 > **Editing this doc?**
@@ -60,6 +60,10 @@ Create `skills/workflows/plan-builder/references/second-order-effects.md` and wi
 ### PR1 — B2/B3/B4 process guidance in skill-writer / skill-review
 **P3 · Process · open (verify first) · Owner: —** · Source: [IP] Phase 4
 Add the three process additions: iterate-on-one-task-at-a-time (B2), a required triggering-test format (B3), and an optional perf-comparison step (B4) to the skill-writer / skill-review bodies. Partial evidence exists (skill-update mentions "diff before/after"); confirm exact B2/B3/B4 wording is present before closing — may be partly done.
+
+### PR2 — Changelog discipline: no inline version-history in code files
+**P2 · Process / contracts · open · Owner: —** · Source: user report 2026-06-02 (observed in downstream project TruthLens)
+A downstream build accumulated a 21-line inline `// Changelog:` block at the top of `contracts/types.ts` — a file imported app-wide and read on nearly every task, so the history is pure read-tax for zero runtime value, and it **self-propagates** (each editor pattern-matches the block and appends to it). Root-cause check done: this is **not** prescribed by `contract-author` or its `references/typescript-template.ts` (both clean — no changelog header; the Versioning section only says "increment version + write the full contract"). It's emergent drift — a project-local "bump the `types.ts` header" convention plus the self-propagating block — that the skills don't actively **prevent**. Fix: (1) add an explicit guardrail to `contract-author` (Versioning + Output sections): the changelog lives in `CHANGELOG.md` **only**; the types file carries a one-line `// — vX.Y.Z` marker, never an inline history block ("bump the header" = the version line). (2) Model it in `references/typescript-template.ts` with a `// version history → contracts/CHANGELOG.md` pointer comment so the template demonstrates the right pattern. (3) Mirror the matching orchestrator anti-pattern (drafted 2026-06-02 in the deployed `~/.claude/skills/orchestrator` copy — **not yet committed to this repo**). (4) Sweep other code-authoring skills/templates for the same latent pattern.
 
 ---
 

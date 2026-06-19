@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# design-token-guard pre-commit hook.
+#
+# Blocks a commit that introduces inline styles or hardcoded colors that bypass
+# the design-token system. Scans ONLY staged files, so it's fast and only ever
+# complains about code you're actually committing.
+#
+# Install (raw git hook):
+#   cp assets/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# Or wire through Husky/lefthook — see references/scaffolding.md.
+#
+# It calls the checker with --staged; the checker exits 1 on error-severity
+# findings, which aborts the commit. Warnings do not block.
+
+set -euo pipefail
+
+# Resolve the checker: prefer a copy committed into the repo, else fall back to
+# the skill's own copy. Adjust CHECKER if you vendored it elsewhere.
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+CHECKER="$REPO_ROOT/scripts/check_design_tokens.py"
+if [ ! -f "$CHECKER" ]; then
+  CHECKER="$HOME/.claude/skills/design-token-guard/scripts/check_design_tokens.py"
+fi
+if [ ! -f "$CHECKER" ]; then
+  echo "design-token-guard: checker not found; skipping (run scaffolding to install)." >&2
+  exit 0
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "design-token-guard: python3 not found; skipping." >&2
+  exit 0
+fi
+
+if python3 "$CHECKER" --root "$REPO_ROOT" --staged --quiet; then
+  exit 0
+else
+  echo "" >&2
+  echo "design-token-guard blocked this commit: hardcoded styling found above." >&2
+  echo "Fix the literals (use the suggested var(--token)) or, if intentional," >&2
+  echo "commit with --no-verify." >&2
+  exit 1
+fi
