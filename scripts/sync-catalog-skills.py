@@ -34,7 +34,7 @@ PLUGIN_JSON = REPO / ".claude-plugin" / "plugin.json"
 
 # Fixed category order — matches the manifest's existing grouping so a clean
 # repo round-trips with a zero-line diff.
-CATEGORIES = ["orchestrator", "roles", "contracts", "git", "meta", "workflows"]
+CATEGORIES = ["orchestrator", "roles", "contracts", "git", "meta", "workflows", "loops"]
 EXCLUDED = {"archive", "in-progress", "node_modules"}
 
 

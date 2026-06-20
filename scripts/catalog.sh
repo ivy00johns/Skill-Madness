@@ -55,8 +55,8 @@ START_HERE="$REPO_ROOT/START-HERE.md"
 # new skills, drops stale entries). Delegated to from --check / --sync.
 SKILLS_SYNC="$SCRIPT_DIR/sync-catalog-skills.py"
 
-# The six known categories, fixed order for stable output (matches plugin.json).
-CATEGORIES="orchestrator roles contracts git meta workflows"
+# The seven known categories, fixed order for stable output (matches plugin.json).
+CATEGORIES="orchestrator roles contracts git meta workflows loops"
 
 # ---------------------------------------------------------------------------
 # Disk inventory
@@ -173,6 +173,7 @@ MERMAID_LABELS=(
   "meta/|meta|skills"
   "git/|git|skills"
   "workflows/|workflows|skills"
+  "loops/|loops|skills"
 )
 
 # ---------------------------------------------------------------------------
@@ -205,11 +206,11 @@ for_each_assertion() {
   # never touch the skill-table row index ("| 47 |") or the per-category
   # mermaid labels ("contracts/ — 2 skills"), which carry different numbers.
 
-  # "N skills, six categories" — feature bullet (~45) and roadmap line (~544).
-  "$cb" "$README" "README prose (N skills, six categories)" \
-    '[0-9]+ skills, six categories' "$total" \
-    's/.*[^0-9]([0-9]+) skills, six categories.*/\1/' \
-    "s/[0-9]+( skills, six categories)/${total}\1/g"
+  # "N skills, seven categories" — feature bullet (~45) and roadmap line (~544).
+  "$cb" "$README" "README prose (N skills, seven categories)" \
+    '[0-9]+ skills, seven categories' "$total" \
+    's/.*[^0-9]([0-9]+) skills, seven categories.*/\1/' \
+    "s/[0-9]+( skills, seven categories)/${total}\1/g"
 
   # "all N skills" — install instruction (~80).
   "$cb" "$README" "README prose (installs all N skills)" \

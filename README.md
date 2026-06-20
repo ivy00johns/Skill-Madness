@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml"><img src="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml/badge.svg" alt="Skill Lint" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
-  <img src="https://img.shields.io/badge/skills-53-success.svg" alt="53 skills" />
+  <img src="https://img.shields.io/badge/skills-55-success.svg" alt="55 skills" />
   <img src="https://img.shields.io/badge/role%20agents-10-blueviolet.svg" alt="10 role agents" />
   <img src="https://img.shields.io/badge/orchestrator-14%20phases-success.svg" alt="14-phase orchestrator" />
   <img src="https://img.shields.io/badge/hosts-11-orange.svg" alt="11 hosts" />
@@ -42,13 +42,13 @@ Every AI coding tool ships the same trap: one agent, one context window, one set
 - 📜 **Contract-first** — `contract-author` writes OpenAPI / AsyncAPI / Pydantic / TypeScript / JSON Schema *before* a line of implementation. `contract-auditor` verifies every shipped module against the spec. Agents can't drift; the contract is the truth.
 - 🤖 **Ten role agents, exclusive ownership** — backend, frontend, infrastructure, QE, security, docs, observability, db-migration, performance, code-review. Each declares `owns.directories` / `owns.files` in its frontmatter. No two agents touch the same path. Conflicts get resolved before spawn, not after.
 - 🛡️ **QA gate that blocks** — `qe-agent` emits a `qa-report.json` with critical / high / medium / low findings plus contract-conformance and security scores. The orchestrator gates the merge on the report. Agents can't self-declare "done."
-- 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 53-skill library stays cheap to host.
+- 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 55-skill library stays cheap to host.
 - 🔁 **Two-runtime degradation** — Agent Teams (parallel tmux) → subagents (Task tool) → sequential. The orchestrator picks the highest mode the host supports; role skills work standalone in any of them.
-- 🧰 **53 skills, six categories, all CI-linted** — orchestrator, roles, contracts, meta-skills (skill-writer, skill-explorer, skill-review, skill-update), git workflow conventions, and 26 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, diagnose-loop, grill-me, …). Frontmatter, body length, and cross-skill ownership all gated on every push.
+- 🧰 **55 skills, seven categories, all CI-linted** — orchestrator, roles, contracts, meta-skills (skill-writer, skill-explorer, skill-review, skill-update), git workflow conventions, 26 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, diagnose-loop, grill-me, …), and autonomous-loop skills (loop-controller, fix-until-green). Frontmatter, body length, and cross-skill ownership all gated on every push.
 - 🌐 **Portable across eleven hosts** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The orchestrator's parallel-dispatch metadata is Claude-Code-specific, but everything else (role definitions, contracts, workflows, git conventions, meta-skills) ports cleanly. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
 
 > **Status — read before you pitch this to anyone:**
-> - **The orchestrator + 53-skill library is the mature part.** All bodies under 500 lines, zero ownership conflicts, zero broken cross-references, full Ubuntu + macOS lint matrix on every push.
+> - **The orchestrator + 55-skill library is the mature part.** All bodies under 500 lines, zero ownership conflicts, zero broken cross-references, full Ubuntu + macOS lint matrix on every push.
 > - **Claude Code is the end-to-end-verified host.** Multi-agent dispatch with file-ownership exclusivity and the `qa-report.json` gate runs live on Claude Code today. The other ten hosts receive skill *content* but don't run the orchestrator's parallel dispatch.
 > - **Lossy conversion is announced.** When a skill is converted to a non-Claude-Code host, orchestration-only fields (`allowed_tools`, `owns`, `composes_with`, `spawned_by`, `requires_agent_teams`) are stripped with a stderr line per skill. Skills marked `requires_claude_code: true` are skipped entirely for those targets. See `contracts/installer/per-tool-output-spec.md`.
 
@@ -79,7 +79,7 @@ From inside Claude Code:
 /plugin install skill-madness@skill-madness
 ```
 
-That installs all 53 skills into Claude Code's plugin storage. No clone, no symlink, no edits-to-the-repo workflow. Use this if you just want the skills.
+That installs all 55 skills into Claude Code's plugin storage. No clone, no symlink, no edits-to-the-repo workflow. Use this if you just want the skills.
 
 To update later: `/plugin update skill-madness`.
 
@@ -134,7 +134,7 @@ Or invoke any skill standalone:
 
 ## 🧬 Architecture
 
-The orchestrator sits above six skill categories — every build pulls from this library, every category lints clean, every category ports to all eleven hosts.
+The orchestrator sits above seven skill categories — every build pulls from this library, every category lints clean, every category ports to all eleven hosts.
 
 ```mermaid
 flowchart TB
@@ -194,11 +194,18 @@ flowchart TB
         more["+ 13 more"]
     end
 
+    subgraph loops["🔁 loops/ — 2 skills"]
+        direction TB
+        lc[loop-controller]
+        fug[fix-until-green]
+    end
+
     orch --> contracts
     orch --> roles
     orch --> meta
     orch --> gitcat
     orch --> workflows
+    orch --> loops
 
     classDef entry fill:#7c3aed,stroke:#4c1d95,color:#fff,stroke-width:2px
     classDef gate fill:#dc2626,stroke:#7f1d1d,color:#fff,stroke-width:1.5px
@@ -251,7 +258,7 @@ flowchart TB
 
 ## 🧰 Skill catalog
 
-53 skills organized into six categories. All bodies under 500 lines, all frontmatter validated, zero ownership conflicts, zero broken cross-references.
+55 skills organized into seven categories. All bodies under 500 lines, all frontmatter validated, zero ownership conflicts, zero broken cross-references.
 
 <details>
 <summary><b>📚 Full skill table</b> (click to expand)</summary>
@@ -521,7 +528,7 @@ Almost always a `pyyaml` version skew. CI installs `pyyaml` explicitly on macOS 
 </details>
 
 <details>
-<summary><b>"My non-Claude-Code host doesn't see all 53 skills"</b></summary>
+<summary><b>"My non-Claude-Code host doesn't see all 55 skills"</b></summary>
 
 Expected. Skills with `requires_claude_code: true` (notably the `orchestrator` and most of `roles/`) are skipped for hosts that can't execute multi-agent dispatch. Run `./scripts/convert.sh --verbose` to see the skip list per host.
 </details>
@@ -548,7 +555,7 @@ Set the override env var documented in `scripts/README.md` (e.g. `CURSOR_RULES_D
 
 ## 🗺️  Roadmap
 
-- [x] **Skill library** — 53 skills, six categories, all linted
+- [x] **Skill library** — 55 skills, seven categories, all linted
 - [x] **Multi-tool installer** — convert / install / lint, eleven host adapters
 - [x] **CI matrix** — Ubuntu + macOS lint on every push
 - [x] **Contract-first specs** — OpenAPI / AsyncAPI / Pydantic / TypeScript / JSON Schema templates
