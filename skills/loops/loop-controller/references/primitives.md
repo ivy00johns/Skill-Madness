@@ -107,7 +107,9 @@ Fan-out, not convergence-in-place.
 
 - **`/batch`** spreads one large change across **5–30 parallel worktree-isolated
   subagents**, each opening a PR.
-- **Dynamic workflows** (research preview, CLI **v2.1.154+**): Claude writes a
+- **Dynamic workflows** (debuted as a research preview at CLI **v2.1.154**; the
+  opt-in keyword was renamed `workflow` → **`ultracode`** at v2.1.160, and the
+  feature ships default-on for Max/Team/API at v2.1.170 / Fable 5): Claude writes a
   **JavaScript orchestration script** that fans out across up to **1,000
   subagents (16 concurrent)**, keeping intermediate results in script variables
   (not context). Primitives: `agent()` (one subagent, optional JSON-schema-
