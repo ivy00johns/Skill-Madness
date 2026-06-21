@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-version: 1.11.1
+version: 1.12.0
 description: |
   Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow"/"workflows" ask, it drives the implement + verify phases with the Workflow tool — fanning out the role-agents (`agent({agentType})`) against the contracts and adversarially verifying — instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, splitting work across Claude sessions, "workflow"/"dynamic workflow", or ultracode mode. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
@@ -24,7 +24,8 @@ composes_with: [
   "git-commit", "git-pr", "git-pr-feedback", "git-post-merge-cleanup",
   "claude-mem:mem-search", "claude-mem:timeline-report", "claude-mem:knowledge-agent",
   "skill-writer", "skill-review", "skill-update",
-  "railway-deploy", "loop", "schedule"
+  "railway-deploy", "loop", "schedule",
+  "loop-controller", "fix-until-green"
 ]
 spawned_by: []
 ---
@@ -51,6 +52,7 @@ The orchestrator is the conductor — not the only player. It composes with thre
 - **DISPATCHES role-agents in parallel:** `backend-agent`, `frontend-agent`, `infrastructure-agent`, `db-migration-agent`, `security-agent`, `observability-agent`, `performance-agent`, `docs-agent`, `qe-agent`.
 - **DELEGATES diff/code review to the external `/code-review` CLI:** during a build, the Phase 4 diff review pass is the external `/code-review` CLI, NOT a spawned `code-review-agent`. The in-repo `code-review-agent` skill is not a default build phase — invoke it only deliberately for a standalone, repo-aware review. See `references/mission-interpretation.md`.
 - **DOES NOT preempt:** `brainstorming`, `plan-builder`, `writing-plans`, `claude-design-brief`, `ui-brief`, `feature-dev`, `claude-mem:*`. If any of these belong before the build starts, let them run first — orchestrator picks up from the artifacts they produce.
+- **RUNS the validation phases AS LOOPS (not one-shot checks):** the wave gate and the QA gate are convergence loops. `fix-until-green` is the contract for driving install/typecheck/test/QA red→green *without cheating the gate* — it is the QE inner loop and the wave-gate driver; `loop-controller` is the underlying harness (iterate → evaluate → guardrail → stop) whose no-progress/oscillation guardrail *is* the 3-failure circuit breaker and whose iteration/budget caps bound wave-gate retries. Both are `disable-model-invocation: true`: you **explicitly dispatch** them, they never auto-trigger because a test happened to fail. They shape *how* the validation phases iterate rather than being invoked at a single phase. See `skills/loops/`.
 
 <what-to-do>
 
@@ -181,7 +183,7 @@ Directory ownership takes precedence over pattern ownership. Subdirectory carve-
 - **All inter-agent communication goes through you**
 - **Contract changes require the full protocol**: pause → update → version → notify → confirm
 - **Shared file changes go through you** — relay to the owning agent
-- **Circuit breaker at 3 failures** — see `references/circuit-breaker.md`
+- **Circuit breaker at 3 failures** — see `references/circuit-breaker.md`. This *is* `loop-controller`'s no-progress / oscillation guardrail applied to agent dispatch (same set of failures surviving 3 consecutive iterations → stop and escalate). Every bounded-retry loop in this build — the wave gate, the QA gate, this circuit breaker — is a `loop-controller` configuration, so one stop-condition vocabulary (max iterations, no-progress detection, enforced budget, escalate-to-human) governs all three instead of three ad-hoc loops.
 
 ## QE Agent Is Mandatory
 
@@ -191,7 +193,7 @@ Every orchestrated build **must** spawn a QE agent. Testing is not optional. Eve
 
 1. **Contract diff** — curl commands vs fetch calls, line by line
 2. **Agent validation** — each agent runs their checklist
-3. **Wave gate (CRITICAL)** — between every wave of parallel agents, run the integrated install + typecheck + test loop and route failures back to the responsible agent. **For any wave that touched UI, also run the `design-token-guard` source-convention gate** (`--json`; non-zero `summary.errors` blocks the wave, routed back by file) alongside typecheck — it's deterministic and parses once. See `references/wave-gate.md` for the per-stack commands and failure routing, and the `design-token-guard` skill's `references/wiring-into-orchestrator.md` for the gate snippet.
+3. **Wave gate (CRITICAL)** — between every wave of parallel agents, run the integrated install + typecheck + test loop and route failures back to the responsible agent. Driving that wave red→green is an explicitly-dispatched `fix-until-green` loop: re-run the *same* gate command after each fix, fix one root cause per iteration, treat a green as real only when the diff that produced it *resolved* the finding rather than relocating or silencing it (see the green-gate anti-pattern below), route each failure back **by file ownership** to the owning agent, and stop on the circuit breaker if the wave oscillates. **For any wave that touched UI, also run the `design-token-guard` source-convention gate** (`--json`; non-zero `summary.errors` blocks the wave, routed back by file) alongside typecheck — it's deterministic and parses once. See `references/wave-gate.md` for the per-stack commands and failure routing, and the `design-token-guard` skill's `references/wiring-into-orchestrator.md` for the gate snippet.
 4. **QE agent testing** — the QE agent writes and runs tests, produces `qa-report.json`
 5. **End-to-end testing** — you run this: startup, happy path, persistence, edge cases
 6. **QA gate** — QE agent's `qa-report.json` must pass gate rules
@@ -211,7 +213,7 @@ Build is blocked when:
 - `scores.contract_conformance.score < 3`
 - `scores.security.score < 3`
 
-**You do NOT override the QE gate.** Fix the issues and re-run.
+**You do NOT override the QE gate.** Fix the issues and re-run — this is an explicitly-dispatched `fix-until-green` loop: each iteration fixes one real blocker and re-runs the QE agent against the *same* `qa-report.json` schema; it never lowers the gate thresholds or edits the report to pass. The loop **informs, it does not decide** — `gate_decision` in `qa-report.json` still rules, so a `fix-until-green` no-progress escalation is a real blocker for the QA gate, not a number to paper over. Stop conditions: `gate_decision.proceed = true` (success) or the circuit breaker (escalate to human).
 
 ## Context Management
 
@@ -243,7 +245,7 @@ When agents approach context limits, follow the handoff protocol in `references/
 | **Treating "ux-review invoked" as the post-build gate** | Process-level checks ("did the skill run?") let visible bugs ship — stale mock IDs leaking into "live" pages, lone `?` / generic-fallback placeholder text where real data should be, lists rendering plausibly but linking to dead targets, "Couldn't load X · Unauthorized" dead-end shells on auth-gated routes. These render with 0 console errors and pass every test-suite-based gate. The outcome-level gate is `render-sanity`: its four objective checks (smell scan, click-through every list, signed-out matrix, signed-in matrix) must return PASS. A "ux-review invoked" line in MISSION_SKILLS.md without a render-sanity PASS is the bug v1.7's process rigor was masking. |
 | **Skipping `render-sanity` when the dev stack isn't up** | Don't invoke validation against a dead port and call it green. Either bring up the stack first (the workspace already has a one-command `dev` script per workspace-bootstrap rules) or report "Cannot run — dev server not responding." Silent skips are how broken builds get declared done. |
 | **Trusting render-level gates to catch hardcoded styling** | render-sanity and ux-review read *pixels*; a hardcoded color (`style={{background:"#07090c"}}`) renders identically to its token, so it passes every visual gate and lives only in source. Inline styles and off-token colors accumulate invisibly until a human eyeballs the code weeks later and burns hours on a manual token refactor. The source-level gate is `design-token-guard` — run it on every UI wave alongside typecheck. A green render does not certify token discipline. |
-| **Trusting a green gate without checking the fix is real** | A gate measures a *proxy* — lint count, type errors, tests passing. An agent told to "make it green" can move the number without fixing the cause: relocate a violation into the checker's blind spot (a banned `rounded-full` class reborn as an inline `borderRadius:"50%"`), silence it with an ignore directive, or delete the failing assertion. The metric goes green; the problem ships. When a gate flips red→green, read the diff that did it — did it *resolve* the finding or *relocate* it? Adversarial verification verifies the fix, not the count. A suspiciously easy green is a finding, not a win — the same false-green as a masked exit code. |
+| **Trusting a green gate without checking the fix is real** | A gate measures a *proxy* — lint count, type errors, tests passing. An agent told to "make it green" can move the number without fixing the cause: relocate a violation into the checker's blind spot (a banned `rounded-full` class reborn as an inline `borderRadius:"50%"`), silence it with an ignore directive, or delete the failing assertion. The metric goes green; the problem ships. When a gate flips red→green, read the diff that did it — did it *resolve* the finding or *relocate* it? Adversarial verification verifies the fix, not the count. A suspiciously easy green is a finding, not a win — the same false-green as a masked exit code. This is exactly the failure mode `fix-until-green` exists to guard against: its core contract is "drive the gate green *without cheating the gate*" (never delete/skip a test, weaken an assertion, add an ignore directive, or relocate a violation into the checker's blind spot) — when a gate flips red→green, read the diff and confirm it *resolved* the finding. Run the wave/QA fix cycle as that bounded `loop-controller`/`fix-until-green` loop, not as an unbounded, un-guardrailed "keep retrying until it's green." |
 | **Retrofitting a source-convention gate after the code exists** | A convention gate (`design-token-guard`, strict typecheck, a new lint rule) added *after* a fleet of agents has written the UI inherits a backlog — so it can only land in report-only "ratchet" mode, and clearing the debt becomes a manual multi-file burndown later (the painful kind a human notices). Scaffold these gates in the **bootstrap wave**, before the first frontend-agent writes a line, so violation #1 is caught at commit #1 and the backlog never accumulates. See `references/wave-gate.md`. |
 | **Maintaining a changelog inline in a code file** | A version-history block at the top of a constantly-imported source file (a shared `types.ts`, a long-lived service module) is read on nearly every task for zero runtime value — and it *self-propagates*: each agent that edits the file pattern-matches the existing block and appends to it, so it only grows. The dedicated `CHANGELOG.md` is the system of record; a code file gets at most a one-line `version: X.Y.Z` plus a pointer to the changelog. When a contract/convention says "bump the header," that means the version line — not a growing inline history. If you find an inline changelog while editing, that's a finding (file a cleanup item), not a thing to extend. |
 | **Spawning an agent without AFK/HITL classification** | Every agent dispatch must declare whether it can finish unattended (AFK) or needs a human in the loop (HITL). Undeclared dispatches stall builds the moment a prompt fires with no one watching. |
@@ -287,7 +289,7 @@ ALL must be true:
 - **`references/agent-spawning.md`** — the agent prompt template, AFK/HITL classification, spawn permissions, and a worked backend-agent example.
 - **`references/wave-gate.md`** — per-stack install/typecheck/test commands and failure-routing protocol.
 - **`references/workspace-bootstrap.md`** — required root README sections and the per-stack one-command `dev` aggregator table.
-- **`references/circuit-breaker.md`** — the 3-failure circuit breaker for agent dispatch.
+- **`references/circuit-breaker.md`** — the 3-failure circuit breaker for agent dispatch; this is `loop-controller`'s no-progress / oscillation guardrail. The sibling `loop-controller` and `fix-until-green` skills (in `skills/loops/`) are the general loop harness that this build's wave gate, QA gate, and circuit breaker are all configurations of — `loop-controller` is the engine, `fix-until-green` is the config that plugs a three-exit-code proof into it. Both are `disable-model-invocation: true`: dispatch them explicitly.
 - **`references/handoff-protocol.md`** — context-window handoff protocol for long-running builds.
 
 </supporting-info>
