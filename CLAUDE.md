@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A multi-agent orchestration toolkit for Claude Code — 55 OSS-publishable skills in `skills/`. Skills are symlinked to `~/.claude/skills/` for global availability.
+A multi-agent orchestration toolkit for Claude Code — 56 OSS-publishable skills in `skills/`. Skills are symlinked to `~/.claude/skills/` for global availability.
 
 The toolkit targets Claude Code as the primary host but the SKILL.md format is platform-agnostic — Claude.ai, Copilot CLI, Codex, and Gemini CLI all consume it. Skills should describe work in terms of capabilities ("read the file", "run the command") rather than Claude-Code-specific tool names where reasonable, so the same skill body works across hosts.
 
@@ -42,8 +42,8 @@ All SKILL.md files use the frontmatter convention defined in `skills/meta/skill-
 - **`skills/contracts/`** (2) — contract-author (generates contracts from templates) and contract-auditor (verifies implementations match). Templates: OpenAPI, AsyncAPI, Pydantic, TypeScript, JSON Schema.
 - **`skills/meta/`** (5) — skill-writer, skill-review, skill-update, skill-explorer, skill-catalog.
 - **`skills/git/`** (4) — Git workflow conventions: git-commit, git-pr, git-pr-feedback, git-post-merge-cleanup.
-- **`skills/workflows/`** (29) — plan-builder, plan-intake, living-plan, context-manager, deployment-checklist, dependency-coordinator, project-profiler, wiki-research, interactive-doc, settings-consolidator, sync-skills, ui-brief, claude-design-brief, mermaid-charts, nano-banana, playwright, render-sanity, repo-deep-dive, llm-wiki, railway-deploy, architecture-rescue, caveman, diagnose-loop, grill-me, maintain-context, zoom-out, setup-project-skills, work-item-brief, website-walkthrough-video.
-- **`skills/loops/`** (2) — Autonomous-loop skills. loop-controller (the foundation harness: the 5-part loop contract, primitive selection — `/goal` vs `/loop` vs Stop-hook vs bash Ralph vs dynamic workflows, the mandatory guardrail stack, and the fresh-context evaluator) and fix-until-green (drive tests+lint+typecheck to passing without cheating the gate). Every concrete loop is a configuration of loop-controller.
+- **`skills/workflows/`** (31) — plan-builder, plan-intake, living-plan, context-manager, deployment-checklist, dependency-coordinator, project-profiler, wiki-research, interactive-doc, settings-consolidator, sync-skills, ui-brief, claude-design-brief, mermaid-charts, nano-banana, playwright, render-sanity, repo-deep-dive, llm-wiki, railway-deploy, architecture-rescue, caveman, diagnose-loop, grill-me, maintain-context, zoom-out, setup-project-skills, work-item-brief, website-walkthrough-video.
+- **`skills/loops/`** (3) — Autonomous-loop skills. loop-controller (the foundation harness: the 5-part loop contract, primitive selection — `/goal` vs `/loop` vs Stop-hook vs bash Ralph vs dynamic workflows, the mandatory guardrail stack, and the fresh-context evaluator), fix-until-green (drive tests+lint+typecheck to passing without cheating the gate), and orchestrator-task-loop (the outer loop over the Agent Teams shared task list — drain the board until every task is completed + passing its TaskCompleted gate, feeding idle workers via TeammateIdle; experimental, behind CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1). Every concrete loop is a configuration of loop-controller.
 
 ## Key Design Decisions
 

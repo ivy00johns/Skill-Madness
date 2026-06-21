@@ -17,7 +17,7 @@ requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
-composes_with: ["loop-controller", "qe-agent", "diagnose-loop", "git-commit", "orchestrator"]
+composes_with: ["loop-controller", "orchestrator-task-loop", "qe-agent", "diagnose-loop", "git-commit", "orchestrator"]
 spawned_by: ["orchestrator"]
 ---
 
