@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-version: 1.12.0
+version: 1.13.0
 description: |
   Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow"/"workflows" ask, it drives the implement + verify phases with the Workflow tool — fanning out the role-agents (`agent({agentType})`) against the contracts and adversarially verifying — instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, splitting work across Claude sessions, "workflow"/"dynamic workflow", or ultracode mode. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
@@ -25,7 +25,7 @@ composes_with: [
   "claude-mem:mem-search", "claude-mem:timeline-report", "claude-mem:knowledge-agent",
   "skill-writer", "skill-review", "skill-update",
   "railway-deploy", "loop", "schedule",
-  "loop-controller", "fix-until-green"
+  "loop-controller", "fix-until-green", "orchestrator-task-loop"
 ]
 spawned_by: []
 ---
@@ -52,7 +52,7 @@ The orchestrator is the conductor — not the only player. It composes with thre
 - **DISPATCHES role-agents in parallel:** `backend-agent`, `frontend-agent`, `infrastructure-agent`, `db-migration-agent`, `security-agent`, `observability-agent`, `performance-agent`, `docs-agent`, `qe-agent`.
 - **DELEGATES diff/code review to the external `/code-review` CLI:** during a build, the Phase 4 diff review pass is the external `/code-review` CLI, NOT a spawned `code-review-agent`. The in-repo `code-review-agent` skill is not a default build phase — invoke it only deliberately for a standalone, repo-aware review. See `references/mission-interpretation.md`.
 - **DOES NOT preempt:** `brainstorming`, `plan-builder`, `writing-plans`, `claude-design-brief`, `ui-brief`, `feature-dev`, `claude-mem:*`. If any of these belong before the build starts, let them run first — orchestrator picks up from the artifacts they produce.
-- **RUNS the validation phases AS LOOPS (not one-shot checks):** the wave gate and the QA gate are convergence loops. `fix-until-green` is the contract for driving install/typecheck/test/QA red→green *without cheating the gate* — it is the QE inner loop and the wave-gate driver; `loop-controller` is the underlying harness (iterate → evaluate → guardrail → stop) whose no-progress/oscillation guardrail *is* the 3-failure circuit breaker and whose iteration/budget caps bound wave-gate retries. Both are `disable-model-invocation: true`: you **explicitly dispatch** them, they never auto-trigger because a test happened to fail. They shape *how* the validation phases iterate rather than being invoked at a single phase. See `skills/loops/`.
+- **RUNS the validation phases AS LOOPS (not one-shot checks):** the wave gate and the QA gate are convergence loops. `fix-until-green` is the contract for driving install/typecheck/test/QA red→green *without cheating the gate* — it is the QE inner loop and the wave-gate driver; `loop-controller` is the underlying harness (iterate → evaluate → guardrail → stop) whose no-progress/oscillation guardrail *is* the 3-failure circuit breaker and whose iteration/budget caps bound wave-gate retries. Both are `disable-model-invocation: true`: you **explicitly dispatch** them, they never auto-trigger because a test happened to fail. They shape *how* the validation phases iterate rather than being invoked at a single phase. Under native Agent Teams, `orchestrator-task-loop` drives the whole-task-list OUTER loop (drain the shared task list until every task is completed + passing its `TaskCompleted` gate, feeding idle workers via `TeammateIdle`), and each task's gate can be driven by a `fix-until-green` INNER loop (inner/outer composition). All three are `disable-model-invocation: true` — explicitly dispatched, never auto-triggered. See `skills/loops/`.
 
 <what-to-do>
 
@@ -124,7 +124,7 @@ Is ultracode on (a system-reminder says so) OR did the user say "workflow"/"work
         deterministic JS that fans out the role-agents and adversarially verifies the result.
         Design/contracts stay inline. See "Dynamic Workflows" below + references/workflow-orchestration.md.
   NO → Is CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS set?
-    YES → Native Agent Teams (tmux, TeammateTool, inbox, shared task list)
+    YES → Native Agent Teams (tmux, TeammateTool, inbox, shared task list). Outer drive loop = orchestrator-task-loop: the lead loops the shared task list until every task is completed and passes its TaskCompleted gate, fed by the TeammateIdle hook.
     NO → Is the Agent/Task tool available?
       YES → Subagents via Task/Agent tool (parallel, no TeammateTool)
       NO → Sequential mode (work through roles one at a time, user coordinates)
@@ -183,7 +183,7 @@ Directory ownership takes precedence over pattern ownership. Subdirectory carve-
 - **All inter-agent communication goes through you**
 - **Contract changes require the full protocol**: pause → update → version → notify → confirm
 - **Shared file changes go through you** — relay to the owning agent
-- **Circuit breaker at 3 failures** — see `references/circuit-breaker.md`. This *is* `loop-controller`'s no-progress / oscillation guardrail applied to agent dispatch (same set of failures surviving 3 consecutive iterations → stop and escalate). Every bounded-retry loop in this build — the wave gate, the QA gate, this circuit breaker — is a `loop-controller` configuration, so one stop-condition vocabulary (max iterations, no-progress detection, enforced budget, escalate-to-human) governs all three instead of three ad-hoc loops.
+- **Circuit breaker at 3 failures** — see `references/circuit-breaker.md`. This *is* `loop-controller`'s no-progress / oscillation guardrail applied to agent dispatch (same set of failures surviving 3 consecutive iterations → stop and escalate). Every bounded-retry loop in this build — the wave gate, the QA gate, this circuit breaker, and the Agent Teams outer task-list loop (`orchestrator-task-loop`) — is a `loop-controller` configuration, so one stop-condition vocabulary (max iterations, no-progress detection, enforced budget, escalate-to-human) governs them all instead of ad-hoc loops. `orchestrator-task-loop`'s no-progress guardrail *is* this 3-failure breaker (board/task unchanged across 3 passes, or a task ping-ponging completed→gate-fail→pending ≥3×).
 
 ## QE Agent Is Mandatory
 
@@ -289,7 +289,7 @@ ALL must be true:
 - **`references/agent-spawning.md`** — the agent prompt template, AFK/HITL classification, spawn permissions, and a worked backend-agent example.
 - **`references/wave-gate.md`** — per-stack install/typecheck/test commands and failure-routing protocol.
 - **`references/workspace-bootstrap.md`** — required root README sections and the per-stack one-command `dev` aggregator table.
-- **`references/circuit-breaker.md`** — the 3-failure circuit breaker for agent dispatch; this is `loop-controller`'s no-progress / oscillation guardrail. The sibling `loop-controller` and `fix-until-green` skills (in `skills/loops/`) are the general loop harness that this build's wave gate, QA gate, and circuit breaker are all configurations of — `loop-controller` is the engine, `fix-until-green` is the config that plugs a three-exit-code proof into it. Both are `disable-model-invocation: true`: dispatch them explicitly.
+- **`references/circuit-breaker.md`** — the 3-failure circuit breaker for agent dispatch; this is `loop-controller`'s no-progress / oscillation guardrail. The sibling `loop-controller`, `fix-until-green`, and `orchestrator-task-loop` skills (in `skills/loops/`) are the general loop harness that this build's wave gate, QA gate, circuit breaker, and Agent Teams outer task-list loop are all configurations of — `loop-controller` is the engine, `fix-until-green` is the config that plugs a three-exit-code proof into it, and `orchestrator-task-loop` is the outer loop that drains the shared task list. All three are `disable-model-invocation: true`: dispatch them explicitly.
 - **`references/handoff-protocol.md`** — context-window handoff protocol for long-running builds.
 
 </supporting-info>

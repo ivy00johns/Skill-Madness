@@ -5,7 +5,7 @@
 
 ## Status at a glance
 
-A mature library of **55 skills** (contracts · git · meta · orchestrator · roles · workflows), all PSFS-validated, full Ubuntu + macOS lint matrix on every push.
+A mature library of **56 skills** (contracts · git · meta · orchestrator · roles · workflows), all PSFS-validated, full Ubuntu + macOS lint matrix on every push.
 
 | Effort | State |
 |--------|-------|

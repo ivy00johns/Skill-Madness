@@ -30,6 +30,13 @@ composition of two.
 | 8 | **Performance** | benchmark under repeatable conditions → optimize highest-leverage → re-benchmark | metric under target on every measured path, no regression | performance |
 | 9 | **Self-healing** | watch logs/CI → on actionable error, trace root cause → fix → verify → PR | error resolved and verified, or clean-log confirmation | observability + role |
 | 10 | **Exploration** | fan-out read-only subagents map subsystems → synthesize → find gaps | a written architecture summary answers the seed questions | project-profiler |
+| 11 | **Orchestrate-until-drained** | assign the next unblocked task to an idle teammate; gate each completed task | every task `completed` AND passing its `TaskCompleted` gate, no dangling `blockedBy` (default-FAIL, whole-board) | orchestrator |
+
+Row 11 is the **meta-archetype**: an outer loop over a *list* of any-archetype
+inner loops (each task's gate may itself be a Fix-until-green, Build-until-spec,
+or Review-and-revise loop). It doesn't slot cleanly into a single row because its
+proof is a *whole-board predicate*, not one process's exit — it's
+`orchestrator-task-loop`, the Agent Teams configuration of this harness.
 
 Two structural rules every archetype shares: **name the proof artifact**
 (coverage report, benchmark, PR, audit, evaluator verdict), and **re-verify the
