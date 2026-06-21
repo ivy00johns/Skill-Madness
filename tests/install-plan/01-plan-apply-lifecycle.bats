@@ -248,10 +248,19 @@ assert 'archive' not in cats
 
 @test "profile resolution: per-category skill counts match disk (catalog rule)" {
   plan --profile full --tool claude-code --out "$ROOT/plan.json"
-  # Disk truth: count skill dirs per category, excluding archive/in-progress.
+  # Disk truth: count skill dirs per category using the SAME filter as
+  # scripts/catalog.sh, so this independent check agrees with what the catalog
+  # registered. A real skill's SKILL.md sits at skills/<category>/<skill>/SKILL.md
+  # (depth <=3), so -maxdepth 3 drops the gitignored junk that lives deeper —
+  # bundled node_modules SKILL.md scaffolds and *-workspace eval snapshots. The
+  # explicit greps make that intent obvious and stay robust if such junk ever
+  # appears at a shallower depth; no real skill path contains those tokens.
+  # Without this, gitignored junk inflates the per-category counts and the test
+  # fails on a working tree that has eval workspaces or installed node_modules.
   local disk
-  disk="$(find "$REPO_ROOT/skills" -name SKILL.md -type f \
+  disk="$(find "$REPO_ROOT/skills" -maxdepth 3 -name SKILL.md -type f \
             | grep -v '/archive/' | grep -v '/in-progress/' \
+            | grep -v '/node_modules/' | grep -v -- '-workspace/' \
             | while IFS= read -r f; do
                 d="$(dirname "$f")"; slug="$(basename "$d")"
                 parent="$(basename "$(dirname "$d")")"
