@@ -62,7 +62,7 @@ _write_readme() {
   cat > "$f" <<EOF
 <img src="https://img.shields.io/badge/skills-${total}-success.svg" alt="${total} skills" />
 
-- 🧰 **${total} skills, six categories, all CI-linted** — stuff.
+- 🧰 **${total} skills, seven categories, all CI-linted** — stuff.
 - 🪜 A ${total}-skill library stays cheap to host.
 
 > - **The orchestrator + ${total}-skill library is the mature part.**
@@ -77,13 +77,13 @@ That installs all ${total} skills into Claude Code's plugin storage.
     subgraph workflows["⚙️ workflows/ — ${wf} skills"]
 \`\`\`
 
-${total} skills organized into six categories. All bodies under 500 lines.
+${total} skills organized into seven categories. All bodies under 500 lines.
 
 | 47 | \`railway-deploy\` | workflow | Deploy to Railway |
 
 <summary><b>"My non-Claude-Code host doesn't see all ${total} skills"</b></summary>
 
-- [x] **Skill library** — ${total} skills, six categories, all linted
+- [x] **Skill library** — ${total} skills, seven categories, all linted
 EOF
 }
 

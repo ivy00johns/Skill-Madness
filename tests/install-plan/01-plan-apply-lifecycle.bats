@@ -234,13 +234,13 @@ assert cats=={'git'}, cats
   [ "$status" -eq 0 ]
 }
 
-@test "profile full: selects all six categories" {
+@test "profile full: selects all seven categories" {
   plan --profile full --tool claude-code --out "$ROOT/plan.json"
   run python3 -c "
 import json
 ops=json.load(open('$ROOT/plan.json'))['operations']
 cats={o['source'].split('/claude-code/')[1].split('/')[0] for o in ops}
-assert cats=={'orchestrator','roles','contracts','meta','git','workflows'}, cats
+assert cats=={'orchestrator','roles','contracts','meta','git','workflows','loops'}, cats
 assert 'archive' not in cats
 "
   [ "$status" -eq 0 ]
