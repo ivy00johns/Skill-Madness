@@ -2,6 +2,31 @@
 
 The template, the permissions, and a worked example for spawning an implementation agent.
 
+## Role label ≠ subagent type (read this first)
+
+`backend-agent`, `frontend-agent`, `docs-agent`, `qe-agent`, etc. are **role labels** — they name a *kind* of work and a body of instructions (the matching skill under `skills/roles/`). They are **NOT** valid `subagent_type` values for the Agent/Task tool.
+
+When you dispatch, the tool's `subagent_type` must be a type the host actually registers. Passing a role label like `docs-agent` fails with `Agent type 'docs-agent' not found`. So:
+
+1. **Default to `general-purpose`.** It is always available and is the correct target for every role. The role is established by the *prompt*, not the type.
+2. **Carry the role instructions in the prompt.** The subagent type does NOT auto-load the role skill. Invoke the role skill inside the agent (or paste its checklist) as part of the prompt body. "Be the docs agent" must mean "apply the docs-agent skill," delivered as text.
+3. **Specialist types are optional and host-dependent.** If you've confirmed the host registers a closely-matching type, you MAY use it — but `general-purpose` + the role skill is always correct and never errors.
+
+| Role label | Safe `subagent_type` (always works) | Specialist *if the host registers it* |
+|---|---|---|
+| backend-agent | `general-purpose` | `backend-architect`, `fullstack-developer` |
+| frontend-agent | `general-purpose` | `frontend-developer` |
+| infrastructure-agent | `general-purpose` | `deployment-engineer` |
+| db-migration-agent | `general-purpose` | `backend-architect` |
+| qe-agent | `general-purpose` | `test-engineer` |
+| security-agent | `general-purpose` | `api-security-audit` |
+| observability-agent | `general-purpose` | `error-detective` |
+| performance-agent | `general-purpose` | `performance-profiler` |
+| docs-agent | `general-purpose` | `api-documenter` |
+| code-review-agent | `general-purpose` | `code-reviewer` |
+
+When in doubt, use `general-purpose`. Never pass a `*-agent` label as `subagent_type`.
+
 ## Agent Prompt Template
 
 Each agent receives ONLY what they need:
