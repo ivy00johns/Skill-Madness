@@ -18,7 +18,7 @@ owns:
   patterns: []
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep"]
-composes_with: ["git-pr", "git-commit", "git-post-merge-cleanup"]
+composes_with: ["git-pr", "git-commit", "git-post-merge-cleanup", "babysit"]
 spawned_by: []
 ---
 
