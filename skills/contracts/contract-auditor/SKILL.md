@@ -1,6 +1,6 @@
 ---
 name: contract-auditor
-version: 1.2.0
+version: 1.2.1
 description: "Orchestrator-dispatched only. Audits implementations against integration contracts (API, data layer, shared types) to find mismatches before integration testing. Static analysis pass — reads code and contracts, never runs the app. Not user-invocable."
 requires_agent_teams: false
 requires_claude_code: true
@@ -11,13 +11,13 @@ owns:
   patterns: []
   shared_read: ["contracts/", "src/", "backend/", "frontend/", "docs/"]
 allowed-tools: ["Read", "Write", "Grep", "Glob", "Bash"]
-composes_with: ["contract-author", "qe-agent", "backend-agent", "frontend-agent"]
+composes_with: ["contract-author", "contract-conformance-loop", "qe-agent", "backend-agent", "frontend-agent"]
 spawned_by: ["orchestrator"]
 ---
 
 # Contract Auditor
 
-> **Pipeline position.** Runs after implementation agents complete. Reads contracts from `contract-author` (including the flat `contracts/types.<ext>`). Writes findings to `contract-audit.md` at the repo root, consumed by `qe-agent`.
+> **Pipeline position.** Runs after implementation agents complete. Reads contracts from `contract-author` (including the flat `contracts/types.<ext>`). Writes findings to `contract-audit.md` at the repo root, consumed by `qe-agent`. When [`contract-conformance-loop`](../../loops/contract-conformance-loop/SKILL.md) dispatches you as its fresh-context evaluator, you are spawned with **no Write/Edit tools** (Read/Grep/Bash only) — the `Write` in your frontmatter is for standalone `contract-audit.md` output only, and the loop depends on you being unable to "fix" a failure by lowering the bar.
 
 Audit implementations against their integration contracts. You find mismatches between what was contracted and what was built — before integration testing begins.
 

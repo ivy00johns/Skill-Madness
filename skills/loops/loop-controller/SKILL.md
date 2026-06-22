@@ -17,7 +17,7 @@ requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "Workflow"]
-composes_with: ["orchestrator", "fix-until-green", "orchestrator-task-loop", "qe-agent", "contract-auditor", "diagnose-loop", "context-manager", "loop", "schedule"]
+composes_with: ["orchestrator", "fix-until-green", "orchestrator-task-loop", "contract-conformance-loop", "babysit", "coverage-loop", "perf-loop", "self-healing-loop", "migration-loop", "nightly-docs-and-changelog", "dependency-health-loop", "codebase-exploration-loop", "repo-cleanup-loop", "qe-agent", "contract-auditor", "diagnose-loop", "context-manager", "loop", "schedule"]
 spawned_by: ["orchestrator"]
 ---
 

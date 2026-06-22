@@ -11,7 +11,7 @@ owns:
   patterns: ["openapi.yaml", "asyncapi.yaml"]
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep"]
-composes_with: ["backend-agent", "frontend-agent", "contract-auditor", "qe-agent"]
+composes_with: ["backend-agent", "frontend-agent", "contract-auditor", "contract-conformance-loop", "qe-agent"]
 spawned_by: ["orchestrator"]
 ---
 
