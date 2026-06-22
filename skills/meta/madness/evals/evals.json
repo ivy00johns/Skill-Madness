@@ -1,0 +1,40 @@
+{
+  "skill_name": "madness",
+  "evals": [
+    {
+      "id": 1,
+      "name": "expensive-build-confirms",
+      "prompt": "/madness I've got a MISSION.md in here for a multi-service analytics dashboard (web + worker + a Postgres schema). Let's actually build the whole thing out with the agent team.",
+      "expected_output": "Routes to `orchestrator`, announces it as a multi-agent build, and CONFIRMS before launching. Does NOT start writing code or contracts itself.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "autonomous-loop-confirms",
+      "prompt": "/madness the test suite on this branch is a mess. I want something to just keep grinding on it until everything's green and lint passes — I'm going to bed.",
+      "expected_output": "Routes to `loop-controller` (which selects fix-until-green), flags it as autonomous/overnight = expensive, and CONFIRMS before starting. Does not begin fixing tests inline.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "cheap-route-just-goes",
+      "prompt": "/madness this UI looks like every other generic shadcn admin dashboard. help me make it not.",
+      "expected_output": "Routes to `ui-brief` (then mentions frontend-design/frontend-agent as the follow-on build). Treats it as cheap and launches without a needless confirm. Hands off rather than redesigning inline.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "browsing-hands-to-explorer",
+      "prompt": "/madness honestly I don't even remember what I've got for testing and QA stuff. what's in here?",
+      "expected_output": "Recognizes this as browsing/orientation, hands to `skill-explorer` (or answers the catalog inline) and does NOT launch any heavy workflow. No confirm gate needed.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "vague-coldstart-shows-menu",
+      "prompt": "/madness",
+      "expected_output": "Bare invocation with no intent: shows the short front-door menu and asks which door, rather than guessing a heavy route. Keeps the menu to front doors, not all 60 skills.",
+      "files": []
+    }
+  ]
+}
