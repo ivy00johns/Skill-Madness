@@ -1,7 +1,9 @@
 # Remaining Work — Tactical Ledger
 
-**Last updated:** 2026-06-02
+**Last updated:** 2026-06-23
 **Companions:** [`PLAN.md`](../PLAN.md) (strategic roadmap + closure log), [`docs/FUTURE.md`](FUTURE.md) (frontier overflow)
+
+> **Status at a glance (2026-06-23):** The **autonomous-loop library is DONE** — 13 loops + the `madness` router shipped via PRs #24–#30 (`docs/research/DEEP-RESEARCH-LOOPS.md` §10 backlog fully cleared; catalog 50 → 67). That work was tracked in the research doc, not as ledger entries here, so there is nothing to close out below for it. **The 11 items still open below are the older *pre-loops* backlog** (doc-polish/process + reports-v2 functional-fidelity): PR1, PR2, CL1, CL2, CL3, FA1, FA2, FA4, FA5 (cosmetic), FA7, FA8 (decisions). FA3 (count drift) and FA6 (namespaces) are now closed.
 
 > **Editing this doc?**
 > 1. If you closed an item, also update the partner doc (closure log in `PLAN.md`, status here).
@@ -77,6 +79,10 @@ A downstream build accumulated a 21-line inline `// Changelog:` block at the top
 **P3 · Cleanup · open · Owner: —** · Source: reconciliation 2026-05-26
 A leftover global symlink `~/.claude/skills/fly-hermes → Skill-Madness/claude_docs/fly-hermes` survives the Phase-1 migration; the canonical copy now lives in `hermes-agent/.claude/skills/`. Remove the stale symlink. (Outside the repo tree — operator cleanup.)
 
+### CL3 — `catalog --check` doesn't cover the README skill-table or architecture diagram
+**P3 · Tooling · open · Owner: —** · Source: residual of FA3 (#23) + observed README drift 2026-06-23
+`catalog.sh --check` (FA3) guards the skill-*count phrases* in README/CLAUDE/PLAN/START-HERE and the `plugin.json` array, but it does **not** validate the README's numbered skill-catalog table (one row per skill) or the architecture-diagram counts — those drifted silently to 60/67 before this reconciliation and had to be hand-fixed. Either extend `catalog.sh --check` to assert the README table has one row per disk skill (and the diagram totals match), or document that the table/diagram are hand-maintained and add them to a pre-ship checklist. (Local-only debris also noticed: `skills/loops/fix-until-green-workspace/` is untracked eval scaffolding sitting under the skills tree — harmless to the catalog, but tidy up.)
+
 ---
 
 ## Functional audit (reports-v2)
@@ -92,8 +98,8 @@ Make documented script behavior match the actual scripts: nano-banana, sync-skil
 Add `Bash` / `WebFetch` where bodies use them, trim unused entries, standardize ordering; backfill `compatibility` on the ~15 env-dependent workflow skills.
 
 ### FA3 — Doc-count source of truth + CI guard
-**P2 · Tooling · open · Owner: —** · Source: [FAUDIT] §10 P2.11
-Adopt the audit's §8 count table as the single source of truth and add `check-catalog-sync.sh` so doc/manifest skill counts can't silently drift (this very reconciliation — docs stuck at 47 while the manifest said 49 — is the symptom). Drop dead `requires_agent_teams` / `min_plan` default fields.
+**P2 · Tooling · closed (2026-06-02, PR #23) · Owner: —** · Source: [FAUDIT] §10 P2.11
+RESOLVED by #23 ("make the skill catalog self-maintaining"). The filesystem is now the single source of truth: `catalog.sh` gained `--check`/`--sync` (CI-wired in `lint-skills.yml`), `-maxdepth` immunity so bundled `node_modules` SKILL.md scaffolds stop inflating the count, and coverage of the count phrasings in README/CLAUDE/PLAN/START-HERE; `sync-catalog-skills.py` reconciles the `plugin.json` skills array with disk; a PreToolUse `catalog-sync` hook re-stages drift before commit; +5 bats; catalog contract → v1.1.0. **Residual gap → CL3** (the count *phrases* are guarded, but the README skill-table rows and the architecture-diagram counts are not — those still drift by hand).
 
 ### FA4 — Disambiguation clauses for colliding triggers
 **P2 · Descriptions · open · Owner: —** · Source: [FAUDIT] §10 P2.12
