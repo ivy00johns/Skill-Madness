@@ -47,7 +47,7 @@ it("returns 404 when the user is soft-deleted", async () => {
 #!/usr/bin/env bash
 # repro.sh — exit 0 if fixed, exit 1 if bug present
 set -euo pipefail
-response=$(curl -fsS -X POST http://localhost:3000/api/orders \
+response=$(curl -fsS -X POST http://localhost:8000/api/orders \
   -H 'content-type: application/json' \
   -d '{"sku":"WIDGET-1","qty":2}')
 echo "$response" | jq -e '.total == 19.98' > /dev/null
@@ -80,7 +80,7 @@ diff -u fixtures/expected.txt /tmp/actual.txt
 import { chromium } from "playwright";
 const browser = await chromium.launch();
 const page = await browser.newPage();
-await page.goto("http://localhost:3000/checkout");
+await page.goto("http://localhost:5173/checkout");
 await page.click('button[data-testid="apply-coupon"]');
 await page.fill('input[name="coupon"]', "BLACKFRIDAY");
 const total = await page.textContent('[data-testid="total"]');

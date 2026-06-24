@@ -79,7 +79,7 @@ export default defineConfig({
     headless: false,
     screenshot: 'on',
     trace: 'on-first-retry',
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.BASE_URL || 'http://localhost:5173',
   },
   projects: [
     {
@@ -115,7 +115,7 @@ Use `page.setViewportSize()` to switch between them during a single test, or con
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `BASE_URL` | Target application URL | `http://localhost:3000` |
+| `BASE_URL` | Target application URL | `http://localhost:5173` |
 | `SPOT_CHECK` | Enable slow-motion for interactive review | unset |
 | `PW_TIMEOUT` | Global test timeout (ms) | `30000` |
 
@@ -173,17 +173,17 @@ await page.screenshot({ path: screenshotPath });
 
 **Fix:** Check what's on the port before starting:
 ```bash
-lsof -i :3000 | grep LISTEN
+lsof -i :5173 | grep LISTEN
 ```
 
-Kill if needed, or configure a different port via `BASE_URL`.
+Kill if needed, or configure a different port via `BASE_URL`. The app's real port comes from the project's dev script / `skills/orchestrator/references/port-conventions.md` — Playwright targets whatever the dev server actually bound, so confirm the live URL before pointing `BASE_URL` at it.
 
 ## Generating Tests with Codegen
 
 Playwright's codegen is useful for quickly scaffolding test scripts:
 
 ```bash
-npx playwright codegen http://localhost:3000
+npx playwright codegen http://localhost:5173
 ```
 
 This opens a browser and records your interactions as Playwright test code. Useful for creating initial test scripts that you then refine.

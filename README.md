@@ -11,7 +11,7 @@ A multi-agent orchestration toolkit for Claude Code: **67 portable skills** that
 <p align="center">
   <a href="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml"><img src="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml/badge.svg" alt="Skill Lint" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
-  <img src="https://img.shields.io/badge/skills-67-success.svg" alt="67 skills" />
+  <img src="https://img.shields.io/badge/skills-68-success.svg" alt="68 skills" />
   <img src="https://img.shields.io/badge/role%20agents-10-blueviolet.svg" alt="10 role agents" />
   <img src="https://img.shields.io/badge/autonomous%20loops-13-9cf.svg" alt="13 autonomous loops" />
   <img src="https://img.shields.io/badge/orchestrator-14%20phases-success.svg" alt="14-phase orchestrator" />
@@ -77,14 +77,14 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 - 🤖 **Ten role agents, exclusive ownership** — backend, frontend, infrastructure, QE, security, docs, observability, db-migration, performance, code-review. Each declares `owns.directories` / `owns.files` in its frontmatter. No two agents touch the same path. Conflicts get resolved before spawn, not after.
 - 🛡️ **QA gate that blocks** — `qe-agent` emits a `qa-report.json` with critical / high / medium / low findings plus contract-conformance and security scores. The orchestrator gates the merge on the report. Agents can't self-declare "done."
 - 🔁 **Autonomous loops that converge** — 13 loop skills keep Claude working until something is *provably* true: `fix-until-green` won't stop until tests + lint + typecheck pass (and can't cheat the gate), `coverage-loop` grows the suite to a target without gaming it, `contract-conformance-loop` builds until a fresh-context evaluator agrees the spec is met, and `babysit` / `self-healing-loop` / `nightly-docs-and-changelog` run on a schedule. Every one is a configuration of `loop-controller`'s guardrail stack — iteration cap, token budget, no-progress breaker, stop condition — so they finish instead of thrashing. [See the loops →](#autonomous-loops)
-- 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 67 and launches it. The cure for "which skill was that again?" across a 67-skill library.
-- 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 67-skill library stays cheap to host.
+- 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 67 and launches it. The cure for "which skill was that again?" across a 68-skill library.
+- 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 68-skill library stays cheap to host.
 - 🔁 **Two-runtime degradation** — Agent Teams (parallel tmux) → subagents (Task tool) → sequential. The orchestrator picks the highest mode the host supports; role skills work standalone in any of them.
-- 🧰 **67 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 6 meta-skills (including `madness`, the front-door router), 4 git-workflow skills, 31 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
+- 🧰 **68 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 6 meta-skills (including `madness`, the front-door router), 4 git-workflow skills, 31 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
 - 🌐 **Portable across eleven hosts** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The orchestrator's parallel-dispatch metadata is Claude-Code-specific, but everything else (role definitions, contracts, workflows, git conventions, meta-skills) ports cleanly. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
 
 > **Status — read before you pitch this to anyone:**
-> - **The orchestrator + 67-skill library is the mature part.** All bodies under 500 lines, zero ownership conflicts, zero broken cross-references, full Ubuntu + macOS lint matrix on every push.
+> - **The orchestrator + 68-skill library is the mature part.** All bodies under 500 lines, zero ownership conflicts, zero broken cross-references, full Ubuntu + macOS lint matrix on every push.
 > - **The 13 autonomous loops are the newest layer.** All built on one `loop-controller` guardrail harness and CI-linted. The build/verify loops (`fix-until-green`, `coverage-loop`, `contract-conformance-loop`) are the most exercised; the scheduled ones (`self-healing-loop`, `dependency-health-loop`) are powerful but younger — keep a human in the loop on anything irreversible.
 > - **Claude Code is the end-to-end-verified host.** Multi-agent dispatch with file-ownership exclusivity and the `qa-report.json` gate runs live on Claude Code today. The other ten hosts receive skill *content* but don't run the orchestrator's parallel dispatch.
 > - **Lossy conversion is announced.** When a skill is converted to a non-Claude-Code host, orchestration-only fields (`allowed_tools`, `owns`, `composes_with`, `spawned_by`, `requires_agent_teams`) are stripped with a stderr line per skill. Skills marked `requires_claude_code: true` are skipped entirely for those targets. See `contracts/installer/per-tool-output-spec.md`.
@@ -116,7 +116,7 @@ From inside Claude Code:
 /plugin install skill-madness@skill-madness
 ```
 
-That installs all 67 skills into Claude Code's plugin storage. No clone, no symlink, no edits-to-the-repo workflow. Use this if you just want the skills.
+That installs all 68 skills into Claude Code's plugin storage. No clone, no symlink, no edits-to-the-repo workflow. Use this if you just want the skills.
 
 To update later: `/plugin update skill-madness`.
 
@@ -232,7 +232,7 @@ flowchart TB
         gpmc[git-post-merge-cleanup]
     end
 
-    subgraph workflows["⚙️ workflows/ — 31 skills"]
+    subgraph workflows["⚙️ workflows/ — 32 skills"]
         direction TB
         pb[plan-builder]
         cm[context-manager]
@@ -362,7 +362,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 🧰 Skill catalog
 
-67 skills organized into seven categories. All bodies under 500 lines, all frontmatter validated, zero ownership conflicts, zero broken cross-references.
+68 skills organized into seven categories. All bodies under 500 lines, all frontmatter validated, zero ownership conflicts, zero broken cross-references.
 
 <details>
 <summary><b>📚 Full skill table</b> (click to expand)</summary>
@@ -653,7 +653,7 @@ Almost always a `pyyaml` version skew. CI installs `pyyaml` explicitly on macOS 
 </details>
 
 <details>
-<summary><b>"My non-Claude-Code host doesn't see all 67 skills"</b></summary>
+<summary><b>"My non-Claude-Code host doesn't see all 68 skills"</b></summary>
 
 Expected. Skills with `requires_claude_code: true` (notably the `orchestrator` and most of `roles/`) are skipped for hosts that can't execute multi-agent dispatch. Run `./scripts/convert.sh --verbose` to see the skip list per host.
 </details>
@@ -680,7 +680,7 @@ Set the override env var documented in `scripts/README.md` (e.g. `CURSOR_RULES_D
 
 ## 🗺️  Roadmap
 
-- [x] **Skill library** — 67 skills, seven categories, all linted
+- [x] **Skill library** — 68 skills, seven categories, all linted
 - [x] **Multi-tool installer** — convert / install / lint, eleven host adapters
 - [x] **CI matrix** — Ubuntu + macOS lint on every push
 - [x] **Contract-first specs** — OpenAPI / AsyncAPI / Pydantic / TypeScript / JSON Schema templates

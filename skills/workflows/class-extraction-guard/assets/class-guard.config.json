@@ -1,0 +1,12 @@
+{
+  "minUtilities": 4,
+  "minRepeats": 3,
+  "maxUtilities": 12,
+  "allowlist": [],
+  "namedClassPattern": "",
+  "rules": {
+    "repeated-class-string": "warning",
+    "long-class-string": "off",
+    "abstraction-defeat": "off"
+  }
+}
