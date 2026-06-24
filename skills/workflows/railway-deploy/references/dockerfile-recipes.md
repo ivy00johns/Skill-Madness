@@ -46,7 +46,7 @@ COPY . .
 
 RUN npm run build  # if needed
 
-EXPOSE 3000
+EXPOSE 3000  # must match the app's configured port; Railway injects $PORT at runtime
 CMD ["node", "server.js"]
 ```
 

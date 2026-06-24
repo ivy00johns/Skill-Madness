@@ -1,0 +1,15 @@
+# class-extraction-guard — CI step (GitHub Actions example).
+#
+# Non-blocking by default (the shipped config emits warnings only). To make a
+# pull request's NEW utility-soup fail the job, set in .class-guard.json:
+#   "rules": { "repeated-class-string": "error" }
+# and (recommended) commit a .class-guard-baseline.json so only NEW combos count.
+- name: class-extraction-guard
+  run: |
+    python3 path/to/check_class_extraction.py --root . --json | tee class-guard.json
+    python3 - <<'PY'
+    import json, sys
+    s = json.load(open("class-guard.json"))["summary"]
+    print(f"class-extraction-guard: {s['errors']} error(s), {s['warnings']} warning(s), {s['files_scanned']} files")
+    sys.exit(1 if s["errors"] else 0)
+    PY

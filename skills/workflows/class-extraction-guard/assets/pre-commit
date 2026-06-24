@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# class-extraction-guard — git pre-commit hook (scans only staged files).
+#
+# Install (plain git):
+#   cp assets/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# Or call the command below from husky / lefthook / pre-commit framework.
+#
+# Non-blocking by default: with the shipped config the only on rule is
+# `repeated-class-string: warning`, so this hook never fails a commit. It blocks
+# only once a rule is set to "error" in .class-guard.json (e.g. a greenfield
+# project that scaffolded the gate at bootstrap).
+set -euo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+GUARD="${CLASS_GUARD:-$HOME/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py}"
+OUT="$(mktemp)"
+
+python3 "$GUARD" --root "$ROOT" --staged --json > "$OUT" || true
+ERRORS="$(python3 -c "import json;print(json.load(open('$OUT'))['summary']['errors'])")"
+
+if [ "$ERRORS" -gt 0 ]; then
+  python3 "$GUARD" --root "$ROOT" --staged   # human-readable detail
+  echo "class-extraction-guard: $ERRORS error-severity finding(s) in staged files."
+  echo "Extract the repeated combos into a named class/component, or adjust .class-guard.json."
+  exit 1
+fi
+exit 0

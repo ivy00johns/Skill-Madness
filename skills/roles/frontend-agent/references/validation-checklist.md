@@ -195,6 +195,26 @@ it doesn't, the color was never tokenized (add it to the token source or use the
 nearest existing token — don't leave the literal). This is the source-level
 complement to the render checks: a clean render does not certify token discipline.
 
+## Class-Extraction Discipline (source-level gate)
+
+design-token-guard catches the *wrong value* (a hardcoded color); it passes a
+*correctly-tokenized* utility string even when that same 6-utility combo is pasted
+inline for the ninth time. That copy-paste soup renders identically to an extracted
+class, so no visual check sees it either — it only exists in source. Close it with
+`class-extraction-guard`:
+
+```bash
+python3 ~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py \
+  --root . --json <your changed files or dirs> > /tmp/ceg.json
+python3 -c "import json;d=json.load(open('/tmp/ceg.json'));print('warnings:',d['summary']['warnings'],'errors:',d['summary']['errors'])"
+```
+
+When the same combo of 4+ utilities shows up 3+ times, extract it into a named
+class (`@apply` / a `cva` variant / a shared component) per the skill's
+`extraction-convention.md` — the markup should read as intent, not soup. Warnings
+are informational by default; an error-severity finding (a project that set the
+rule to block) means you are not done.
+
 ## Accessibility Verification
 
 - Tab through every interactive element — focus indicator visible on each

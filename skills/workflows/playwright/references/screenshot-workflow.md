@@ -56,7 +56,7 @@ After a run completes, produce two files at the run-dir top level (`.playwright/
   "run_id": "2026-04-08_14-32-07",
   "mode": "report",
   "timestamp": "2026-04-08T14:32:07Z",
-  "base_url": "http://localhost:3000",
+  "base_url": "http://localhost:5173",
   "browser": "chromium",
   "headless": false,
   "flows_tested": [
@@ -95,7 +95,7 @@ Human-readable summary with inline screenshot references. Screenshot paths are r
 ```markdown
 # Playwright Test Report
 **Run:** 2026-04-08_14-32-07
-**URL:** http://localhost:3000
+**URL:** http://localhost:5173
 **Browser:** Chromium (non-headless)
 
 ## Results: 2/3 flows passed
