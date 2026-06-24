@@ -146,6 +146,9 @@ Generated: [timestamp]
 Before hand-auditing, run the deterministic scanner and triage its output rather than hunting from scratch:
 
 ```bash
+# scan-skills.sh is Skill-Madness repo-root tooling (not bundled with this skill).
+# It scans skills/ for secrets, injection, bidi-unicode, and untrusted composes.
+# Run it from the Skill-Madness checkout root when auditing a skills library:
 scripts/scan-skills.sh --json
 ```
 

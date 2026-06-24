@@ -19,6 +19,8 @@ spawned_by: []
 
 > **Tradeoff caveat.** This skill biases toward thoroughness over speed. For trivial bugs with obvious causes (typos, off-by-one, a missing import the stack trace already points at), skip phases and just fix it. For everything else — flaky tests, performance regressions, "it works on my machine," intermittent failures, anything you've stared at for more than 15 minutes — the discipline is the point. Adapted from mattpocock's `diagnose` pattern.
 
+> **diagnose-loop vs systematic-debugging.** The plugin skill `superpowers:systematic-debugging` is the general "form a hypothesis before you touch a fix" discipline for any bug or unexpected behavior. Reach for `diagnose-loop` (this skill) specifically when the payoff is in *building a fast, deterministic, binary feedback loop first* — flaky tests, performance regressions, hard-to-reproduce or intermittent failures. For a straightforward bug where you just need disciplined hypothesizing, `superpowers:systematic-debugging` is the lighter fit.
+
 ## Phase 1 — Build a feedback loop (THE SKILL)
 
 **Spend disproportionate effort here. Be aggressive. Be creative. Refuse to give up.**

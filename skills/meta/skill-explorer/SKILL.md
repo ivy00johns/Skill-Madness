@@ -19,6 +19,8 @@ spawned_by: []
 
 The user has accumulated a large toolkit (40+ repo skills plus plugin skills loaded into every session). Names blur together, descriptions overlap, and reaching for the wrong entry point (typically `orchestrator`) wastes a turn before getting redirected. This skill is the deliberate entry point for "what do I have / which one is right for this".
 
+**skill-explorer vs its siblings.** Use `skill-explorer` (this skill) to *discover, recall, explain, and route* — it names the right skill and stops, leaving you to fire it. Use `madness` when you want that routing decision *acted on* — it picks the entry point and launches it (confirming first on anything expensive). Use `skill-catalog` when you want the authoritative generated inventory/counts of what is installed, not a recall or routing answer. (There is no `find-skills` skill in this repo; that name belongs to a separately-installed plugin.)
+
 It answers four kinds of question:
 
 

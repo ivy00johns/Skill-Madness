@@ -17,6 +17,8 @@ spawned_by: []
 
 Pair an Obsidian-friendly markdown source with a self-contained HTML companion. The .md is the canonical source of truth — token-efficient, wiki-linkable, what other agents and tools consume. The HTML is the experience for humans who want to *read* it instead of *grep* it. Same content, two surfaces.
 
+> **Design tokens do not apply here.** These docs are standalone, handmade artifacts that live in a repo or vault, not product UI governed by a project's design-token system — so `design-token-guard` / `class-extraction-guard` are out of scope. The HTML's own theming uses CSS variables in `:root` (see House style below); that local convention is the only "token" layer, and you should *not* try to wire these docs into an application's token pipeline or framework CSS.
+
 ## The two workflows
 
 This skill handles two distinct jobs. Identify which one applies before doing anything else.
@@ -148,7 +150,7 @@ You:
 User: "Create a doc explaining how SKILL.md works as an operational contract."
 
 You:
-1. Confirm the substance — what does the user know about this? Where does it live in the code? What sources can you draw from? (Check past chats with `conversation_search` if it'd help.)
+1. Confirm the substance — what does the user know about this? Where does it live in the code? What sources can you draw from? (Check past conversations if available and if it'd help.)
 2. Pick type → concept explainer (it's pedagogical, wants a live demo).
 3. Read references for concept-explainer, house-style, markdown-document.
 4. Write `skill-md-as-contract.md` first — full prose, frontmatter, callouts, wiki links to `[[hive-orchestrator]]` and `[[agent-anatomy]]`, a Mermaid diagram of the dispatch flow, file-referenced code samples.
