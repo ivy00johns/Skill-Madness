@@ -4,8 +4,6 @@ version: 1.1.0
 description: |
   Produce rich documentation as a paired Obsidian-friendly markdown source plus a self-contained HTML companion built from it — the .md is canonical, the HTML is the experience. Two workflows: (A) render an existing research markdown file into an HTML companion (the .md stays read-only by default), or (B) write both for a new doc, .md first as the substantive source and the HTML derived from it. Trigger for architecture deep-dives, module maps, concept explainers with interactive demos, side-by-side repo/approach comparisons, feature walkthroughs, or whenever the user says "interactive doc", "wiki page", "Obsidian doc", "explainer", "render this research", "architecture diagram", or "compare these repos". Output is always a pair: an Obsidian-native `.md` plus a self-contained `.html`.
 allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
-metadata:
-  category: workflows
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

@@ -17,10 +17,6 @@ description: >-
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
-metadata:
-  author: ivy00johns
-  category: meta
-  tags: [routing, dispatch, entry-point, front-door]
 owns:
   directories: []
   patterns: []

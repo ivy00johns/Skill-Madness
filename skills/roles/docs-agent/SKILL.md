@@ -4,10 +4,6 @@ version: 1.2.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Generates project documentation, API docs, READMEs, and changelogs for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
 compatibility: "Claude Code"
-metadata:
-  author: hive-ecosystem
-  category: roles
-  tags: [documentation, readme, api-docs, changelog, role-agent, multi-agent]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

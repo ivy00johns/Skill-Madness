@@ -103,7 +103,13 @@ For the complete validation procedure, read `references/validation-checklist.md`
 before reporting done.
 ```
 
-### Step 5: Validate the Skill
+### Step 5: Add a Triggering Test
+
+Every skill must carry a concrete **triggering test** — at least one example user phrasing that MUST activate the skill, and ideally one near-miss that must NOT. This is how you verify the `description` actually triggers (not just that it reads well). Record it in the skill (e.g. a short "Triggering test" note or a row in `references/quick-checklist.md`) so reviewers can re-run it.
+
+### Step 6: Validate the Skill
+
+Work one focused change at a time — make a single edit, re-validate (lint + the triggering test below), then move to the next. Don't sweep many unrelated changes into one pass.
 
 - [ ] Frontmatter has all required fields
 - [ ] `name` is kebab-case. If it starts with `claude-` or `anthropic-`, that's a documented exception (skill targets the corresponding Anthropic product)
@@ -114,6 +120,11 @@ before reporting done.
 - [ ] Directory ownership takes precedence over pattern ownership
 - [ ] Reference files are linked from the body
 - [ ] No duplicate content between body and references
+- [ ] A triggering test is recorded (≥1 phrasing that must trigger; ideally one near-miss that must not)
+
+### Step 7: Earn the Context Cost (optional, recommended for non-trivial skills)
+
+Optionally compare behavior with vs without the skill — a quick baseline eval on one or two representative prompts — to confirm the skill measurably improves the output and earns the tokens it adds to every context. Skip for trivial skills; do it for anything substantial.
 
 ## Common Mistakes
 

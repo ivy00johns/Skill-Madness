@@ -4,10 +4,6 @@ version: 1.5.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Builds user interfaces, client-side state, and presentation layers for multi-agent builds. Composes with frontend-design and ui-ux-pro-max for visual quality. Not user-invocable."
 compatibility: "Claude Code; requires Bash + Node toolchain"
-metadata:
-  author: hive-ecosystem
-  category: roles
-  tags: [frontend, ui, role-agent, multi-agent, contract-first]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

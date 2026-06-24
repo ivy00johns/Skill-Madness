@@ -21,11 +21,6 @@ owns:
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 composes_with: ["project-profiler"]
 spawned_by: []
-metadata:
-  author: ivy00johns
-  category: workflows
-  tags: [llm, prototyping, openai-compatible, freellmapi, free-tier]
-  documentation: https://github.com/tashfeenahmed/freellmapi
 ---
 
 # use-freellmapi

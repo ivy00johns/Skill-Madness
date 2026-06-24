@@ -9,6 +9,9 @@
 #   - the count phrases in README.md, plugin.json, marketplace.json,
 #     CLAUDE.md, PLAN.md, and START-HERE.md (live phrasings only — historical
 #     "47 skills" notes are left alone);
+#   - the README one-row-per-skill catalog table: row count + skill names must
+#     equal disk (--check only; the table's descriptions are hand-maintained so
+#     --sync deliberately does not rewrite it — fix reported rows by hand);
 #   - the plugin.json `skills` array itself (every on-disk skill registered,
 #     no stale entries) — delegated to scripts/sync-catalog-skills.py.
 #
@@ -98,6 +101,26 @@ count_category() {
   echo "$n"
 }
 
+# list_skills <skills_root> — print each active skill's name (the directory
+# basename, or "orchestrator" for the top-level skill), one per line, sorted.
+# Uses the SAME -maxdepth 3 + archive/in-progress filter as count_total so the
+# README-table check sees exactly the inventory the counts are derived from.
+list_skills() {
+  local root="$1" f d
+  while IFS= read -r f; do
+    [[ -z "$f" ]] && continue
+    d="$(dirname "$f")"
+    if [[ "$(basename "$(dirname "$d")")" == "skills" && "$(basename "$d")" == "orchestrator" ]]; then
+      echo "orchestrator"
+    else
+      basename "$d"
+    fi
+  done < <(find "$root" -maxdepth 3 -name SKILL.md -type f 2>/dev/null \
+             | grep -v "$root/archive/" \
+             | grep -v "$root/in-progress/") \
+    | LC_ALL=C sort
+}
+
 # ---------------------------------------------------------------------------
 # --text
 # ---------------------------------------------------------------------------
@@ -159,6 +182,90 @@ check_pattern() {
       MISMATCHES+=("$label: found $got, disk says $expected  ($(basename "$file"))")
     fi
   done < <(grep -nE "$ere" "$file" 2>/dev/null || true)
+}
+
+# ---------------------------------------------------------------------------
+# README skill-catalog TABLE check.
+#
+# The README carries a one-row-per-skill catalog table:
+#     | # | Skill | Category | What it does |
+#     |---|-------|----------|--------------|
+#     | 1 | `orchestrator` | coordinator | ... |
+#     ...
+# This is hand-maintained and has drifted silently before (a new skill ships
+# but no row is added), which the count-phrase checks above cannot catch — the
+# total badge can be bumped without the table gaining a row.
+#
+# check_readme_table asserts the set of backticked skill names in that table
+# equals the on-disk skill set: same cardinality, and (where parseable) the
+# exact names. It is keyed on the table HEADER, so any README without that
+# header (e.g. the bats fixture) is a clean no-op — never a false failure.
+#
+# Records drift in MISMATCHES (so the existing --check exit-1 path fires) AND
+# prints an explicit [!!] line per missing/extra skill for an actionable diff.
+check_readme_table() {
+  local file="$1"
+  [[ -f "$file" ]] || return 0
+
+  # Locate the catalog-table header. No header -> no table to check (no-op).
+  # `|| true` keeps a no-match grep from tripping `set -o pipefail`.
+  local hdr
+  hdr="$( { grep -nE '^\| *# *\| *Skill *\| *Category' "$file" 2>/dev/null || true; } \
+           | head -n1 | cut -d: -f1)"
+  [[ -z "$hdr" ]] && return 0
+
+  # Collect backticked skill names from contiguous numbered rows after the
+  # header (skip the `|---|` separator). Stop at the first non-row line.
+  local tmp_t tmp_d
+  tmp_t="$(mktemp "${TMPDIR:-/tmp}/ats-table.XXXXXX")"
+  awk -v start="$hdr" '
+    NR <= start { next }
+    /^\|[[:space:]]*-+/ { next }                 # separator row
+    /^\|[[:space:]]*[0-9]+[[:space:]]*\|/ {       # | N | `name` | ... |
+      if (match($0, /`[^`]+`/)) {
+        s = substr($0, RSTART + 1, RLENGTH - 2)
+        print s
+      }
+      next
+    }
+    { exit }                                      # first non-row line ends table
+  ' "$file" | LC_ALL=C sort > "$tmp_t"
+
+  tmp_d="$(mktemp "${TMPDIR:-/tmp}/ats-disk.XXXXXX")"
+  list_skills "$SKILLS_ROOT" > "$tmp_d"
+
+  local disk_n table_n
+  disk_n="$(wc -l < "$tmp_d" | tr -d ' ')"
+  table_n="$(wc -l < "$tmp_t" | tr -d ' ')"
+
+  # Cardinality assertion (always meaningful even if name parsing is imperfect).
+  if [[ "$table_n" != "$disk_n" ]]; then
+    MISMATCHES+=("README catalog table rows: found $table_n, disk says $disk_n  ($(basename "$file"))")
+  fi
+
+  # Name-level diff: skills on disk but missing a table row, and vice versa.
+  local missing extra line
+  missing="$(LC_ALL=C comm -23 "$tmp_d" "$tmp_t")"
+  extra="$(LC_ALL=C comm -13 "$tmp_d" "$tmp_t")"
+
+  if [[ -n "$missing" ]]; then
+    while IFS= read -r line; do
+      [[ -z "$line" ]] && continue
+      MISMATCHES+=("README catalog table: missing row for on-disk skill '$line'")
+    done <<EOF
+$missing
+EOF
+  fi
+  if [[ -n "$extra" ]]; then
+    while IFS= read -r line; do
+      [[ -z "$line" ]] && continue
+      MISMATCHES+=("README catalog table: stale row '$line' (no such skill on disk)")
+    done <<EOF
+$extra
+EOF
+  fi
+
+  rm -f "$tmp_t" "$tmp_d"
 }
 
 # ---------------------------------------------------------------------------
@@ -300,6 +407,9 @@ _check_cb() {
 cmd_check() {
   MISMATCHES=()
   for_each_assertion _check_cb
+  # Additionally assert the README's one-row-per-skill catalog table matches
+  # disk (row count + skill names). No-op on READMEs without the table header.
+  check_readme_table "$README"
 
   local total rc=0
   total="$(count_total "$SKILLS_ROOT")"

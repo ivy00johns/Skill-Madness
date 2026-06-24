@@ -80,7 +80,7 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 - 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 67 and launches it. The cure for "which skill was that again?" across a 68-skill library.
 - 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 68-skill library stays cheap to host.
 - 🔁 **Two-runtime degradation** — Agent Teams (parallel tmux) → subagents (Task tool) → sequential. The orchestrator picks the highest mode the host supports; role skills work standalone in any of them.
-- 🧰 **68 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 6 meta-skills (including `madness`, the front-door router), 4 git-workflow skills, 31 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
+- 🧰 **68 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 6 meta-skills (including `madness`, the front-door router), 4 git-workflow skills, 32 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
 - 🌐 **Portable across eleven hosts** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The orchestrator's parallel-dispatch metadata is Claude-Code-specific, but everything else (role definitions, contracts, workflows, git conventions, meta-skills) ports cleanly. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
 
 > **Status — read before you pitch this to anyone:**
@@ -410,32 +410,33 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 | 39 | `caveman` | workflow | Ultra-compressed responses, ~75% token cut, full accuracy |
 | 40 | `render-sanity` | workflow | "Tests pass but UI is broken" gate — click-through + stale-data scan |
 | 41 | `design-token-guard` | workflow | Block inline styles / hardcoded CSS from bypassing the design-token system |
-| 42 | `sync-skills` | workflow | Symlink/copy skills to `~/.claude/skills/` and Cursor |
-| 43 | `settings-consolidator` | workflow | Merge Claude Code permissions across projects |
-| 44 | `repo-deep-dive` | workflow | OSS repo → 12–14 doc technical reference series |
-| 45 | `llm-wiki` | workflow | Bootstrap + maintain LLM-powered knowledge bases |
-| 46 | `interactive-doc` | workflow | Paired Obsidian `.md` + self-contained `.html` companion |
-| 47 | `ui-brief` | workflow | Opinionated UI design briefs (greenfield + rebuild) |
-| 48 | `claude-design-brief` | workflow | Paste-ready prompts for Claude Design mockup canvas |
-| 49 | `mermaid-charts` | workflow | Expert-quality diagrams (15–30+ node systems) |
-| 50 | `nano-banana` | workflow | Google Gemini image generation + batch ops |
-| 51 | `playwright` | workflow | Browser-based E2E + screenshots with visible Chrome |
-| 52 | `website-walkthrough-video` | workflow | Smooth scrolling walkthrough mp4 of a whole site (desktop + mobile) |
-| 53 | `railway-deploy` | workflow | Deploy to Railway (Dockerfile, multi-service, GraphQL API) |
-| 54 | `use-freellmapi` | workflow | Wire a project to FreeLLMAPI — a local free-model OpenAI-compatible proxy |
-| 55 | `loop-controller` | loop | Foundation harness: 5-part contract + guardrail stack every loop composes on |
-| 56 | `fix-until-green` | loop | Drive tests+lint+typecheck green without cheating the gate |
-| 57 | `contract-conformance-loop` | loop | Build-until-spec: implement until contract criteria hold, fresh-context evaluator |
-| 58 | `coverage-loop` | loop | Grow the test suite to a coverage target without gaming the metric |
-| 59 | `perf-loop` | loop | Profile → optimize → re-benchmark a metric under budget, no regression |
-| 60 | `migration-loop` | loop | Migrate an enumerated target set until done + suite green + no legacy pattern |
-| 61 | `babysit` | loop | Scheduled review-and-revise: keep a PR rebased + green via `/loop` |
-| 62 | `self-healing-loop` | loop | Watch logs/CI → root-cause → fix → verify → PR on a poll cadence |
-| 63 | `nightly-docs-and-changelog` | loop | Nightly `/schedule` sweep keeping docs + changelog from rotting |
-| 64 | `dependency-health-loop` | loop | Scheduled audit + gated update + green gate; HITL on majors |
-| 65 | `codebase-exploration-loop` | loop | Fan-out read-only mappers until seed questions are answered |
-| 66 | `orchestrator-task-loop` | loop | Outer loop draining the Agent Teams shared task board (experimental) |
-| 67 | `repo-cleanup-loop` | loop | Weekly evidence-gated branch/PR/worktree hygiene, recover-before-delete |
+| 42 | `class-extraction-guard` | workflow | Catch utility-class soup — repeated inline class runs that should be extracted |
+| 43 | `sync-skills` | workflow | Symlink/copy skills to `~/.claude/skills/` and Cursor |
+| 44 | `settings-consolidator` | workflow | Merge Claude Code permissions across projects |
+| 45 | `repo-deep-dive` | workflow | OSS repo → 12–14 doc technical reference series |
+| 46 | `llm-wiki` | workflow | Bootstrap + maintain LLM-powered knowledge bases |
+| 47 | `interactive-doc` | workflow | Paired Obsidian `.md` + self-contained `.html` companion |
+| 48 | `ui-brief` | workflow | Opinionated UI design briefs (greenfield + rebuild) |
+| 49 | `claude-design-brief` | workflow | Paste-ready prompts for Claude Design mockup canvas |
+| 50 | `mermaid-charts` | workflow | Expert-quality diagrams (15–30+ node systems) |
+| 51 | `nano-banana` | workflow | Google Gemini image generation + batch ops |
+| 52 | `playwright` | workflow | Browser-based E2E + screenshots with visible Chrome |
+| 53 | `website-walkthrough-video` | workflow | Smooth scrolling walkthrough mp4 of a whole site (desktop + mobile) |
+| 54 | `railway-deploy` | workflow | Deploy to Railway (Dockerfile, multi-service, GraphQL API) |
+| 55 | `use-freellmapi` | workflow | Wire a project to FreeLLMAPI — a local free-model OpenAI-compatible proxy |
+| 56 | `loop-controller` | loop | Foundation harness: 5-part contract + guardrail stack every loop composes on |
+| 57 | `fix-until-green` | loop | Drive tests+lint+typecheck green without cheating the gate |
+| 58 | `contract-conformance-loop` | loop | Build-until-spec: implement until contract criteria hold, fresh-context evaluator |
+| 59 | `coverage-loop` | loop | Grow the test suite to a coverage target without gaming the metric |
+| 60 | `perf-loop` | loop | Profile → optimize → re-benchmark a metric under budget, no regression |
+| 61 | `migration-loop` | loop | Migrate an enumerated target set until done + suite green + no legacy pattern |
+| 62 | `babysit` | loop | Scheduled review-and-revise: keep a PR rebased + green via `/loop` |
+| 63 | `self-healing-loop` | loop | Watch logs/CI → root-cause → fix → verify → PR on a poll cadence |
+| 64 | `nightly-docs-and-changelog` | loop | Nightly `/schedule` sweep keeping docs + changelog from rotting |
+| 65 | `dependency-health-loop` | loop | Scheduled audit + gated update + green gate; HITL on majors |
+| 66 | `codebase-exploration-loop` | loop | Fan-out read-only mappers until seed questions are answered |
+| 67 | `orchestrator-task-loop` | loop | Outer loop draining the Agent Teams shared task board (experimental) |
+| 68 | `repo-cleanup-loop` | loop | Weekly evidence-gated branch/PR/worktree hygiene, recover-before-delete |
 
 </details>
 
@@ -455,7 +456,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 │   ├── contracts/                    # 2 — contract-author / contract-auditor
 │   ├── meta/                         # 6 — skills that manage skills (incl. madness)
 │   ├── git/                          # 4 — git workflow conventions
-│   ├── workflows/                    # 31 — cross-cutting process skills
+│   ├── workflows/                    # 32 — cross-cutting process skills
 │   └── loops/                        # 13 — autonomous-loop skills
 │
 ├── scripts/                          # multi-tool installer

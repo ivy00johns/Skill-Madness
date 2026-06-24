@@ -189,6 +189,8 @@ All contracts start at v1. When changes are needed during the build:
 3. Notify all affected agents with explicit change description
 4. Get acknowledgment from each affected agent
 
+**The changelog lives in `contracts/CHANGELOG.md` ONLY.** A generated types/contract file (`contracts/types.ts`, `contracts/openapi.yaml`, etc.) carries at most a single one-line `// — vX.Y.Z` version marker near the top — **NEVER** an inline multi-line version-history block. "Bump the header" means updating that one version line, not appending a history entry to the file. An inline changelog at the top of a widely-imported file (`types.ts` is read on nearly every task) is pure read-tax for zero runtime value, and it self-propagates: each agent that edits the file pattern-matches the block and appends to it, so it only grows. Keep version history in `CHANGELOG.md`, not in source headers. If you find an inline history block while editing, that's a finding (file a cleanup item), not a thing to extend.
+
 ## Right-Sizing
 
 Match contract complexity to the project. A personal habit tracker with SQLite doesn't need JWT auth schemas, AsyncAPI specs, or elaborate security middleware contracts. Ask:
@@ -225,6 +227,8 @@ Your deliverables (machine-readable formats — not markdown narratives):
   - File ownership boundaries
   - Per-agent implementation notes
   - Endpoint quick reference
+
+- `contracts/CHANGELOG.md` — the single system of record for contract version history. Every version bump's history entry goes here. A code/contract file gets only the one-line `// — vX.Y.Z` marker plus (optionally) a pointer to this file; it never carries an inline multi-line history block. See "Contract Versioning" above.
 
 The `schemas/` directory is for standalone JSON Schema files when the project uses schema-based validation outside the API context (e.g., config file validation, message queue payloads).
 
