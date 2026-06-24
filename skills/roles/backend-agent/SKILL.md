@@ -4,10 +4,6 @@ version: 1.2.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Builds API servers, business logic, and data layers for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
 compatibility: "Claude Code; requires Bash for curl/test commands"
-metadata:
-  author: hive-ecosystem
-  category: roles
-  tags: [backend, api, role-agent, multi-agent, contract-first]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

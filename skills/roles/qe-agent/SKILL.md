@@ -4,10 +4,6 @@ version: 1.4.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Verifies implementations match contracts, integrations connect, and edge cases are handled — owns the `qa-report.json` build gate. Composed by orchestrator during multi-agent builds. Not user-invocable."
 compatibility: "Claude Code; requires Bash + curl + python3"
-metadata:
-  author: hive-ecosystem
-  category: roles
-  tags: [qa, testing, quality-gate, contract-conformance, role-agent, multi-agent]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

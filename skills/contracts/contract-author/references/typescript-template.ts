@@ -2,6 +2,8 @@
  * Shared Type Definitions — SINGLE SOURCE OF TRUTH
  * All agents reference these types. Do not duplicate.
  */
+// — v1.0.0   (single version marker only — bump this one line)
+// version history → contracts/CHANGELOG.md  (NEVER an inline multi-line history block here)
 
 // ============================================================
 // Enums and Constants

@@ -4,10 +4,6 @@ version: 1.3.0
 disable-model-invocation: true
 description: "Explicitly-invoked read-only code review for quality, correctness, security, and adherence to project conventions. Run on request for a thorough standalone review of a set of files; not auto-triggered and not an automatic build phase. During an orchestrated build, build-time diff review is handled by the external /code-review CLI, not this skill."
 compatibility: "Claude Code"
-metadata:
-  author: hive-ecosystem
-  category: roles
-  tags: [code-review, quality, conventions, role-agent, multi-agent, read-only]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

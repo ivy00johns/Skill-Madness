@@ -13,10 +13,6 @@ description: |
   auto-fixes drift on commit), then `sync-skills` for the global symlinks. Never
   hand-edit the counts or the plugin.json array — let the tooling regenerate them.
 compatibility: Claude Code
-metadata:
-  author: hive-ecosystem
-  category: meta
-  tags: [catalog, plugin-manifest, skill-counts, single-source-of-truth, sync, ci-invariant]
 requires_claude_code: true
 requires_agent_teams: false
 min_plan: starter

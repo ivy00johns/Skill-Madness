@@ -93,6 +93,8 @@ Read `SKILL.md` and every file in `references/`. Score these dimensions against 
 
 #### B2. Live Trigger Testing
 
+First, check the skill carries a **triggering test** — at least one example phrasing that must activate it (ideally one near-miss that must not). Flag its absence as an issue. Then verify it actually holds.
+
 If `/skill-creator` is available, use its eval infrastructure to test whether the skill actually triggers:
 
 1. Generate 3–5 realistic prompts that **should** trigger this skill
@@ -110,6 +112,8 @@ For skills that produce structured output (reports, files, configs):
 2. Run them through the skill (or skill-creator's test harness)
 3. Compare actual output against the skill's stated format
 4. Note gaps between promised and actual output
+
+Optionally (recommended for non-trivial skills), run one prompt with and without the skill and compare — if the skill doesn't measurably improve the output, flag that it may not earn its context cost.
 
 ### Phase 4: Report
 
@@ -131,6 +135,7 @@ The report is designed to feed directly into **skill-update**, which consumes th
 - Be constructive — every issue gets a concrete suggestion
 - Score honestly but explain reasoning, especially for low scores. Don't nitpick style if the skill is functionally sound
 - Weight trigger testing heavily — a skill that doesn't trigger is useless regardless of how well-written it is
+- When recommending fixes, expect them applied one focused change at a time with re-validation between — don't bundle many unrelated edits into one pass
 - In Mode A, don't read reference file contents unless checking for orphans or broken links. Frontmatter + body line count is enough for most checks
 - In Mode B, if the user supplied context (e.g., "it never triggers"), lead with that complaint
 - If scope is filtered in Mode A, still validate cross-skill references against the full inventory

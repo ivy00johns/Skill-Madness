@@ -1,7 +1,7 @@
 # Skill-Madness — Start Here
 
 > The one place to land. If you're lost, read this first.
-> **Last updated:** 2026-06-23
+> **Last updated:** 2026-06-24
 
 ## Status at a glance
 
@@ -12,11 +12,12 @@ A mature library of **68 skills** (contracts · git · loops · meta · orchestr
 | **Skill curation** (8 new skills, 6 migrations, 3 merges, bulk edits — from the comparative deep dive) | ✅ Complete |
 | **Ecosystem audit — surface pass** (style/compliance/cross-refs; 5 broken cross-refs, oversized descriptions, missing frontmatter) | ✅ Complete — all critical findings resolved |
 | **Runtime + install layer** (hooks, catalog CI, plan/apply install, skill-health, skill-scan, PSFS standard) | ✅ Complete — shipped PR #8 |
-| **Functional audit** (reports-v2: triggerability / completeness / real bugs across 49 skills) | 🟡 P0 (#15) + P1 (#16) merged · reconciled (#17) · FA3 closed (#23) · FA6 closed · P2 open: FA1/FA2/FA4 (FA5 cosmetic) + decisions FA7–FA8 |
-| **Doc-polish / process backlog** (reference files + thinking-move docs — IMPROVEMENT_PLAN Phases 2–4) | 🟡 RF1–RF5 + TM1–TM3 shipped; 5 items left (PR1 + PR2 + CL1/CL2/CL3) |
+| **Functional audit** (reports-v2: triggerability / completeness / real bugs) | ✅ Complete — P0 (#15) + P1 (#16) + P2 (#32) shipped; FA3 (#23) + FA6 closed; decisions FA7 (drop metadata, #34) + FA8 (advisory) resolved |
+| **Doc-polish / process backlog** (reference files + thinking-move docs — IMPROVEMENT_PLAN Phases 2–4) | ✅ Complete — RF1–RF5 + TM1–TM3, PR1/PR2, CL1/CL2/CL3 all closed (#32, #34) |
 | **Autonomous-loop library** (13 loops + `madness` router — DEEP-RESEARCH-LOOPS §10) | ✅ Complete — #24–#30, catalog 50 → 67, all CI green |
+| **class-extraction-guard gate + backlog clear** (styling-organization gate + the final FA/PR/CL items) | ✅ Complete — #31–#34, catalog → 68, backlog cleared |
 
-The library and its core tooling are mature, and the **autonomous-loop library is complete** — 13 loops + the `madness` router (#24–#30), catalog now **67**. The only open work is the *pre-loops* backlog: the near-cleared **doc-polish / process** items (PR1 + PR2 + CL1/CL2) and the **functional-fidelity** backlog from the reports-v2 audit (P2 items FA1/FA2/FA4, FA5 cosmetic, and two design decisions FA7–FA8; FA3 + FA6 already closed) — **11 items total** (incl. the new CL3 catalog-coverage gap). Full narrative in [`PLAN.md`](PLAN.md) § "Where we are".
+The library, its tooling, the autonomous-loop library (13 loops + `madness`), and now the **entire pre-loops backlog are all complete**. As of **2026-06-24 the backlog is cleared — 0 open items, ready for new work**: the functional-fidelity audit (FA1–FA8) and the doc-polish / process items (RF/TM/PR/CL) all closed across PRs #31–#34, catalog now **68**. Add the next batch via the `plan-intake` skill. Full narrative in [`PLAN.md`](PLAN.md) § "Where we are"; closed-item detail in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md).
 
 ## Which doc is which (ownership map)
 
