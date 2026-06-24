@@ -106,8 +106,10 @@ ALLOWED_ORIGIN env var (verified against the Cloud Run config in Phase 0).
 
 ## Before Reporting Done
 - `pnpm typecheck && pnpm test` clean
-- `curl -i localhost:3000/api/habits/` returns 401 without auth, 200 with
+- `curl -i localhost:8000/api/habits/` returns 401 without auth, 200 with
 - CORS preflight returns ALLOWED_ORIGIN, not `*`
 ```
 
 The prompt is ~40 lines. The full plan was 12 pages. That ratio is the point — every line not relevant to the backend agent is noise that crowds out the work.
+
+> **Ports come from the project's convention, never a hardcoded default.** This example uses `8000` (the house backend port; frontend `5173`, FreeLLMAPI proxy `3001`) — do **not** paste a literal `localhost:3000` into agent prompts. `3000` is a frontend framework default, and worked examples that carry it leak into project code as the API port. Read the project's `.env.example` / dev scripts / `profile.yaml` for the real ports and pass *those* to the agent.

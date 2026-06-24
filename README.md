@@ -2,17 +2,18 @@
 
 # 🧰 Skill Madness
 
-### *All the skills, all the agents, all the chaos.*
+### *All the skills, all the agents, all the chaos — coordinated.*
 
-**Maintainers/agents:** see [`START-HERE.md`](START-HERE.md) for current status and which docs are canonical.
+**Most AI coding setups give you one agent, one context window, one shot. Skill Madness gives you a coordinated fleet — plus the autonomous loops to keep it working until the job is provably done.**
 
-**One agent in one context window can only build so much. The `orchestrator` decomposes a build into a 14-phase plan, authors machine-readable contracts *before* any code is written, dispatches role agents in parallel with exclusive file ownership, and blocks the merge on a structured QA report. The skill library it draws from is portable: author once in `SKILL.md`, install into eleven AI coding tools — Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, Kimi.**
+A multi-agent orchestration toolkit for Claude Code: **67 portable skills** that turn a one-line ask into a contract-first parallel build, run **autonomous loops** until your tests are actually green, and install into **eleven AI coding tools** from a single `SKILL.md` source.
 
 <p align="center">
   <a href="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml"><img src="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml/badge.svg" alt="Skill Lint" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
   <img src="https://img.shields.io/badge/skills-67-success.svg" alt="67 skills" />
   <img src="https://img.shields.io/badge/role%20agents-10-blueviolet.svg" alt="10 role agents" />
+  <img src="https://img.shields.io/badge/autonomous%20loops-13-9cf.svg" alt="13 autonomous loops" />
   <img src="https://img.shields.io/badge/orchestrator-14%20phases-success.svg" alt="14-phase orchestrator" />
   <img src="https://img.shields.io/badge/hosts-11-orange.svg" alt="11 hosts" />
   <img src="https://img.shields.io/badge/format-SKILL.md-3178c6.svg" alt="SKILL.md format" />
@@ -22,6 +23,7 @@
 <p align="center">
   <a href="#quick-start">Quick Start</a> ·
   <a href="#why-this-exists">Why this exists</a> ·
+  <a href="#autonomous-loops">Loops</a> ·
   <a href="#architecture">Architecture</a> ·
   <a href="#skill-catalog">Skill catalog</a> ·
   <a href="#also-works-on-ten-other-hosts">Other hosts</a> ·
@@ -32,23 +34,58 @@
 
 ---
 
+<table>
+<tr>
+<td width="33%" valign="top">
+
+**🪄 Orchestrate**
+
+Turn a one-line ask into a coordinated multi-agent build. The `orchestrator` decomposes the work into a 14-phase plan, authors machine-readable contracts **before** any code, dispatches role agents in parallel with exclusive file ownership, and blocks the merge on a structured QA report.
+
+</td>
+<td width="33%" valign="top">
+
+**🔁 Loop**
+
+Point Claude at a goal and walk away. **13 autonomous loops** drive tests to green, coverage to target, a contract to conformance, or a PR to merged — each on a guardrail stack so it converges instead of thrashing or burning your budget.
+
+</td>
+<td width="33%" valign="top">
+
+**🌐 Port**
+
+Author once in `SKILL.md`; install the same library into **eleven** AI coding tools — Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi.
+
+</td>
+</tr>
+</table>
+
+> 🚪 **New here, or not sure which skill to reach for?** Type **`/madness`** in Claude Code and just say what you want. It reads your intent, picks the right starting skill out of all 67, confirms before anything expensive, and launches it — so you never have to memorize the catalog. One front door for the whole toolkit.
+
+<sub><b>Maintainers / agents:</b> see <a href="START-HERE.md"><code>START-HERE.md</code></a> for current status and which docs are canonical.</sub>
+
+---
+
 ## ✨ Why this exists
 
-Every AI coding tool ships the same trap: one agent, one context window, one set of files — fine for small projects, brittle for anything larger than a single context can hold. And every tool reinvents the same wheel — Cursor wants `.mdc`, Aider wants `CONVENTIONS.md`, Windsurf wants `.windsurfrules`, Claude Code wants `SKILL.md` — so any prompt library you build gets stranded on whichever host you wrote it for.
+Every AI coding tool ships the same traps. **One agent, one context window, one set of files** — fine for a small project, brittle for anything bigger than a single context can hold. They **stop at the first draft** — when the tests are still red, *you're* the one re-prompting "still failing, try again" until it finally goes green. And **every tool reinvents the same wheel** — Cursor wants `.mdc`, Aider wants `CONVENTIONS.md`, Windsurf wants `.windsurfrules`, Claude Code wants `SKILL.md` — so any prompt library you build gets stranded on whichever host you wrote it for.
 
-**Skill Madness fixes both ends.** The `orchestrator` skill decomposes a complex build into a 14-phase plan, makes integration surfaces machine-readable *before* anyone writes code, dispatches role agents in parallel with strict file ownership, and refuses to ship until a separate QE agent signs off via a structured report. And the skill library it draws from authors once in the canonical `SKILL.md` format — the same skills install into eleven different AI coding tools without copy-paste drift.
+**Skill Madness attacks all three.** The `orchestrator` decomposes a complex build into a 14-phase plan, makes integration surfaces machine-readable *before* anyone writes code, dispatches role agents in parallel with strict file ownership, and refuses to ship until a separate QE agent signs off via a structured report. **Autonomous loops** then keep the work going after that first pass — driving tests to green, coverage to a target, or a contract to conformance, with guardrails that make them converge instead of thrash. And the skill library underneath authors once in the canonical `SKILL.md` format — the same skills install into eleven different AI coding tools without copy-paste drift.
 
 - 👑 **The orchestrator is the entry point** — a single 14-phase playbook covering team sizing, runtime detection, contract authoring, parallel dispatch, integration validation, QA gate, and handoff. It's the skill that turns a one-line ask into a coordinated multi-agent build.
 - 📜 **Contract-first** — `contract-author` writes OpenAPI / AsyncAPI / Pydantic / TypeScript / JSON Schema *before* a line of implementation. `contract-auditor` verifies every shipped module against the spec. Agents can't drift; the contract is the truth.
 - 🤖 **Ten role agents, exclusive ownership** — backend, frontend, infrastructure, QE, security, docs, observability, db-migration, performance, code-review. Each declares `owns.directories` / `owns.files` in its frontmatter. No two agents touch the same path. Conflicts get resolved before spawn, not after.
 - 🛡️ **QA gate that blocks** — `qe-agent` emits a `qa-report.json` with critical / high / medium / low findings plus contract-conformance and security scores. The orchestrator gates the merge on the report. Agents can't self-declare "done."
+- 🔁 **Autonomous loops that converge** — 13 loop skills keep Claude working until something is *provably* true: `fix-until-green` won't stop until tests + lint + typecheck pass (and can't cheat the gate), `coverage-loop` grows the suite to a target without gaming it, `contract-conformance-loop` builds until a fresh-context evaluator agrees the spec is met, and `babysit` / `self-healing-loop` / `nightly-docs-and-changelog` run on a schedule. Every one is a configuration of `loop-controller`'s guardrail stack — iteration cap, token budget, no-progress breaker, stop condition — so they finish instead of thrashing. [See the loops →](#autonomous-loops)
+- 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 67 and launches it. The cure for "which skill was that again?" across a 67-skill library.
 - 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 67-skill library stays cheap to host.
 - 🔁 **Two-runtime degradation** — Agent Teams (parallel tmux) → subagents (Task tool) → sequential. The orchestrator picks the highest mode the host supports; role skills work standalone in any of them.
-- 🧰 **67 skills, seven categories, all CI-linted** — orchestrator, roles, contracts, meta-skills (skill-writer, skill-explorer, skill-review, skill-update), git workflow conventions, 31 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, diagnose-loop, grill-me, …), and autonomous-loop skills (loop-controller, fix-until-green, orchestrator-task-loop, contract-conformance-loop, babysit, coverage-loop, perf-loop, self-healing-loop, migration-loop, nightly-docs-and-changelog, dependency-health-loop, codebase-exploration-loop, repo-cleanup-loop). Frontmatter, body length, and cross-skill ownership all gated on every push.
+- 🧰 **67 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 6 meta-skills (including `madness`, the front-door router), 4 git-workflow skills, 31 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
 - 🌐 **Portable across eleven hosts** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The orchestrator's parallel-dispatch metadata is Claude-Code-specific, but everything else (role definitions, contracts, workflows, git conventions, meta-skills) ports cleanly. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
 
 > **Status — read before you pitch this to anyone:**
 > - **The orchestrator + 67-skill library is the mature part.** All bodies under 500 lines, zero ownership conflicts, zero broken cross-references, full Ubuntu + macOS lint matrix on every push.
+> - **The 13 autonomous loops are the newest layer.** All built on one `loop-controller` guardrail harness and CI-linted. The build/verify loops (`fix-until-green`, `coverage-loop`, `contract-conformance-loop`) are the most exercised; the scheduled ones (`self-healing-loop`, `dependency-health-loop`) are powerful but younger — keep a human in the loop on anything irreversible.
 > - **Claude Code is the end-to-end-verified host.** Multi-agent dispatch with file-ownership exclusivity and the `qa-report.json` gate runs live on Claude Code today. The other ten hosts receive skill *content* but don't run the orchestrator's parallel dispatch.
 > - **Lossy conversion is announced.** When a skill is converted to a non-Claude-Code host, orchestration-only fields (`allowed_tools`, `owns`, `composes_with`, `spawned_by`, `requires_agent_teams`) are stripped with a stderr line per skill. Skills marked `requires_claude_code: true` are skipped entirely for those targets. See `contracts/installer/per-tool-output-spec.md`.
 
@@ -120,6 +157,15 @@ Tell Claude Code to build something with multiple agents:
 
 The `orchestrator` skill triggers automatically: it sizes the team, generates contracts, spawns parallel agents in isolated worktrees, gates the build on `qa-report.json`, and returns when QE signs off.
 
+Or set it loose on a goal and let a loop converge on its own:
+
+```text
+"Fix the failing tests and don't stop until everything's green."  → fix-until-green
+"Get test coverage up to 85% without gaming the metric."          → coverage-loop
+"Keep this PR rebased and green while review comes in."           → /loop 5m /babysit
+"Map this whole codebase and write me the architecture."         → codebase-exploration-loop
+```
+
 Or invoke any skill standalone:
 
 ```text
@@ -129,6 +175,14 @@ Or invoke any skill standalone:
 "Profile this codebase and write me a CLAUDE.md."  → project-profiler
 "Generate a UI brief for a refresh of /settings."  → ui-brief
 ```
+
+Not sure which skill fits? Don't guess — let the front door route you:
+
+```text
+/madness build a CLI that syncs two folders, with tests
+```
+
+`madness` reads the intent, picks the right starting skill, confirms before anything expensive (a swarm, an overnight loop, a full build), and hands off.
 
 ---
 
@@ -162,10 +216,12 @@ flowchart TB
 
     subgraph meta["🧠 meta/ — 6 skills"]
         direction TB
-        sw[skill-writer]
+        md["madness<br/><sub>(front door)</sub>"]:::entry
         sx[skill-explorer]
+        sw[skill-writer]
         sr[skill-review]
         su[skill-update]
+        sc[skill-catalog]
     end
 
     subgraph gitcat["🔁 git/ — 4 skills"]
@@ -191,7 +247,7 @@ flowchart TB
         mc[mermaid-charts]
         rs[render-sanity]
         dl[diagnose-loop]
-        more["+ 13 more"]
+        more["+ 18 more"]
     end
 
     subgraph loops["🔁 loops/ — 13 skills"]
@@ -267,6 +323,43 @@ flowchart TB
 
 ---
 
+## 🔁 Autonomous loops
+
+The newest part of Skill Madness — and the fastest way to feel why it exists. A loop points Claude at a goal with a **verifiable stop condition** and a **mandatory guardrail stack**, then lets it run until the goal is provably met. No more babysitting "still failing, try again."
+
+Every loop is a configuration of **`loop-controller`**, the foundation harness that picks the right primitive for the job — `/goal`, `/loop`, a Stop-hook, a bash "Ralph" loop, or a dynamic workflow — and wires in the guardrails so the loop *converges* instead of thrashing or running up the bill.
+
+**🟢 Build & verify — run until it's green:**
+
+| Loop | What it drives to "done" | Kick it off with |
+|------|--------------------------|------------------|
+| `fix-until-green` | tests + lint + typecheck all passing — and it can't cheat the gate | *"fix until the tests are green"* |
+| `contract-conformance-loop` | every authored-contract criterion holds, graded by a fresh-context evaluator | *"build until the contract is met"* |
+| `coverage-loop` | a coverage target, without gaming the metric | *"get coverage to 85%"* |
+| `perf-loop` | a metric under its budget, with no functional regression | *"optimize until p95 < 200ms"* |
+| `migration-loop` | an enumerated target set migrated, suite green, no legacy pattern left | *"migrate every file off the old API"* |
+
+**🗓️ Operate & maintain — run on a schedule:**
+
+| Loop | What it keeps healthy | Kick it off with |
+|------|-----------------------|------------------|
+| `babysit` | a PR rebased + green, auto-addressing review comments (HITL on anything irreversible) | `/loop 5m /babysit` |
+| `self-healing-loop` | logs/CI watched → root-caused → fixed → verified → PR (HITL before prod) | *"watch CI and self-heal"* |
+| `nightly-docs-and-changelog` | docs + changelog that don't rot after a release | `/schedule` nightly |
+| `dependency-health-loop` | dependencies audited + one gated bump per pass (HITL on majors) | `/schedule` weekly |
+| `repo-cleanup-loop` | branches / PRs / worktrees tidy — recover valuable work *before* deleting | `/schedule` weekly |
+
+**🔎 Understand & coordinate:**
+
+| Loop | What it produces | Kick it off with |
+|------|------------------|------------------|
+| `codebase-exploration-loop` | a written architecture summary that answers every seed question | *"map this codebase for me"* |
+| `orchestrator-task-loop` | the Agent Teams shared task board drained until every task passes its gate *(experimental)* | *"drain the task board"* |
+
+> 🛡️ **Loops are gated by design.** Every loop inherits `loop-controller`'s guardrails: a hard iteration cap, a token budget, a no-progress circuit breaker, and a stop condition checked by a *separate* fresh-context evaluator so the worker can't grade its own homework. Anything irreversible — pushing to prod, force-deleting work — pauses for a human. Read the harness: [`skills/loops/loop-controller/SKILL.md`](skills/loops/loop-controller/SKILL.md).
+
+---
+
 ## 🧰 Skill catalog
 
 67 skills organized into seven categories. All bodies under 500 lines, all frontmatter validated, zero ownership conflicts, zero broken cross-references.
@@ -289,53 +382,60 @@ flowchart TB
 | 11 | `code-review-agent` | role | Orchestrator-dispatched code review with scoring rubric |
 | 12 | `contract-author` | contract | Generates API / data / event contracts before any build |
 | 13 | `contract-auditor` | contract | Verifies implementations match contracts (static audit) |
-| 14 | `skill-writer` | meta | Generates new SKILL.md files with proper frontmatter |
-| 15 | `skill-explorer` | meta | Discover, recall, and route across the skill toolkit |
-| 16 | `skill-review` | meta | Bulk audit or single-skill deep review with scoring |
-| 17 | `skill-update` | meta | Apply a skill-review report — edit, lint, ship |
-| 18 | `git-commit` | git | Conventional commits + branch naming |
-| 19 | `git-pr` | git | PR title/body format and gh CLI workflow |
-| 20 | `git-pr-feedback` | git | Triage and address PR review comments |
-| 21 | `git-post-merge-cleanup` | git | Prune merged branches, dead remote refs, stale worktrees |
-| 22 | `plan-builder` | workflow | Research / PRDs → orchestrator-ready build plans |
-| 23 | `context-manager` | workflow | Compaction strategy, handoffs, token budgets |
-| 24 | `dependency-coordinator` | workflow | Cross-package dependency manifest before parallel dispatch |
-| 25 | `deployment-checklist` | workflow | Pre-deploy verification gates |
-| 26 | `project-profiler` | workflow | Codebase analysis → CLAUDE.md + profile.yaml |
-| 27 | `wiki-research` | workflow | Wiki-first protocol — read 3 pages before crawling source |
-| 28 | `setup-project-skills` | workflow | Bootstrap per-repo config that other Skill-Madness skills consume |
-| 29 | `work-item-brief` | workflow | Durable, agent-ready ticket — no paths, just acceptance criteria |
-| 30 | `maintain-context` | workflow | Keep CONTEXT.md glossary + ADR records up to date inline |
-| 31 | `zoom-out` | workflow | Step back — which modules are touched, what am I missing |
-| 32 | `grill-me` | workflow | Depth-first design interview — one question at a time |
-| 33 | `diagnose-loop` | workflow | Build the fast feedback loop first, then debug |
-| 34 | `architecture-rescue` | workflow | Find shallow modules + missing seams; deletion + two-adapter test |
-| 35 | `caveman` | workflow | Ultra-compressed responses, ~75% token cut, full accuracy |
-| 36 | `render-sanity` | workflow | "Tests pass but UI is broken" gate — click-through + stale-data scan |
-| 37 | `sync-skills` | workflow | Symlink/copy skills to `~/.claude/skills/` and Cursor |
-| 38 | `settings-consolidator` | workflow | Merge Claude Code permissions across projects |
-| 39 | `repo-deep-dive` | workflow | OSS repo → 12–14 doc technical reference series |
-| 40 | `llm-wiki` | workflow | Bootstrap + maintain LLM-powered knowledge bases |
-| 41 | `interactive-doc` | workflow | Paired Obsidian `.md` + self-contained `.html` companion |
-| 42 | `ui-brief` | workflow | Opinionated UI design briefs (greenfield + rebuild) |
-| 43 | `claude-design-brief` | workflow | Paste-ready prompts for Claude Design mockup canvas |
-| 44 | `mermaid-charts` | workflow | Expert-quality diagrams (15–30+ node systems) |
-| 45 | `nano-banana` | workflow | Google Gemini Imagen image generation + batch ops |
-| 46 | `playwright` | workflow | Browser-based E2E + screenshots with visible Chrome |
-| 47 | `railway-deploy` | workflow | Deploy to Railway (Dockerfile, multi-service, GraphQL API) |
-| 48 | `loop-controller` | loop | Foundation harness: 5-part contract + guardrail stack every loop composes on |
-| 49 | `fix-until-green` | loop | Drive tests+lint+typecheck green without cheating the gate |
-| 50 | `orchestrator-task-loop` | loop | Outer loop draining the Agent Teams shared task board (experimental) |
-| 51 | `contract-conformance-loop` | loop | Build-until-spec: implement until contract criteria hold, fresh-context evaluator |
-| 52 | `babysit` | loop | Scheduled review-and-revise: keep a PR rebased + green via `/loop` |
-| 53 | `coverage-loop` | loop | Grow the test suite to a coverage target without gaming the metric |
-| 54 | `perf-loop` | loop | Profile → optimize → re-benchmark a metric under budget, no regression |
-| 55 | `self-healing-loop` | loop | Watch logs/CI → root-cause → fix → verify → PR on a poll cadence |
-| 56 | `migration-loop` | loop | Migrate an enumerated target set until done + suite green + no legacy pattern |
-| 57 | `nightly-docs-and-changelog` | loop | Nightly `/schedule` sweep keeping docs + changelog from rotting |
-| 58 | `dependency-health-loop` | loop | Scheduled audit + gated update + green gate; HITL on majors |
-| 59 | `codebase-exploration-loop` | loop | Fan-out read-only mappers until seed questions are answered |
-| 60 | `repo-cleanup-loop` | loop | Weekly evidence-gated branch/PR/worktree hygiene, recover-before-delete |
+| 14 | `madness` | meta | The front-door router — reads intent, launches the right starting skill |
+| 15 | `skill-writer` | meta | Generates new SKILL.md files with proper frontmatter |
+| 16 | `skill-explorer` | meta | Discover, recall, and route across the skill toolkit |
+| 17 | `skill-review` | meta | Bulk audit or single-skill deep review with scoring |
+| 18 | `skill-update` | meta | Apply a skill-review report — edit, lint, ship |
+| 19 | `skill-catalog` | meta | Catalog-as-CI-invariant — counts derived from disk, gated on every push |
+| 20 | `git-commit` | git | Conventional commits + branch naming |
+| 21 | `git-pr` | git | PR title/body format and gh CLI workflow |
+| 22 | `git-pr-feedback` | git | Triage and address PR review comments |
+| 23 | `git-post-merge-cleanup` | git | Prune merged branches, dead remote refs, stale worktrees |
+| 24 | `plan-builder` | workflow | Research / PRDs → orchestrator-ready build plans |
+| 25 | `plan-intake` | workflow | Turn any report into tracked living-plan ledger entries |
+| 26 | `living-plan` | workflow | Set up the living-plan convention (front door + strategic / tactical / frontier docs) |
+| 27 | `context-manager` | workflow | Compaction strategy, handoffs, token budgets |
+| 28 | `dependency-coordinator` | workflow | Cross-package dependency manifest before parallel dispatch |
+| 29 | `deployment-checklist` | workflow | Pre-deploy verification gates |
+| 30 | `project-profiler` | workflow | Codebase analysis → CLAUDE.md + profile.yaml |
+| 31 | `wiki-research` | workflow | Wiki-first protocol — read 3 pages before crawling source |
+| 32 | `setup-project-skills` | workflow | Bootstrap per-repo config that other Skill-Madness skills consume |
+| 33 | `work-item-brief` | workflow | Durable, agent-ready ticket — no paths, just acceptance criteria |
+| 34 | `maintain-context` | workflow | Keep CONTEXT.md glossary + ADR records up to date inline |
+| 35 | `zoom-out` | workflow | Step back — which modules are touched, what am I missing |
+| 36 | `grill-me` | workflow | Depth-first design interview — one question at a time |
+| 37 | `diagnose-loop` | workflow | Build the fast feedback loop first, then debug |
+| 38 | `architecture-rescue` | workflow | Find shallow modules + missing seams; deletion + two-adapter test |
+| 39 | `caveman` | workflow | Ultra-compressed responses, ~75% token cut, full accuracy |
+| 40 | `render-sanity` | workflow | "Tests pass but UI is broken" gate — click-through + stale-data scan |
+| 41 | `design-token-guard` | workflow | Block inline styles / hardcoded CSS from bypassing the design-token system |
+| 42 | `sync-skills` | workflow | Symlink/copy skills to `~/.claude/skills/` and Cursor |
+| 43 | `settings-consolidator` | workflow | Merge Claude Code permissions across projects |
+| 44 | `repo-deep-dive` | workflow | OSS repo → 12–14 doc technical reference series |
+| 45 | `llm-wiki` | workflow | Bootstrap + maintain LLM-powered knowledge bases |
+| 46 | `interactive-doc` | workflow | Paired Obsidian `.md` + self-contained `.html` companion |
+| 47 | `ui-brief` | workflow | Opinionated UI design briefs (greenfield + rebuild) |
+| 48 | `claude-design-brief` | workflow | Paste-ready prompts for Claude Design mockup canvas |
+| 49 | `mermaid-charts` | workflow | Expert-quality diagrams (15–30+ node systems) |
+| 50 | `nano-banana` | workflow | Google Gemini image generation + batch ops |
+| 51 | `playwright` | workflow | Browser-based E2E + screenshots with visible Chrome |
+| 52 | `website-walkthrough-video` | workflow | Smooth scrolling walkthrough mp4 of a whole site (desktop + mobile) |
+| 53 | `railway-deploy` | workflow | Deploy to Railway (Dockerfile, multi-service, GraphQL API) |
+| 54 | `use-freellmapi` | workflow | Wire a project to FreeLLMAPI — a local free-model OpenAI-compatible proxy |
+| 55 | `loop-controller` | loop | Foundation harness: 5-part contract + guardrail stack every loop composes on |
+| 56 | `fix-until-green` | loop | Drive tests+lint+typecheck green without cheating the gate |
+| 57 | `contract-conformance-loop` | loop | Build-until-spec: implement until contract criteria hold, fresh-context evaluator |
+| 58 | `coverage-loop` | loop | Grow the test suite to a coverage target without gaming the metric |
+| 59 | `perf-loop` | loop | Profile → optimize → re-benchmark a metric under budget, no regression |
+| 60 | `migration-loop` | loop | Migrate an enumerated target set until done + suite green + no legacy pattern |
+| 61 | `babysit` | loop | Scheduled review-and-revise: keep a PR rebased + green via `/loop` |
+| 62 | `self-healing-loop` | loop | Watch logs/CI → root-cause → fix → verify → PR on a poll cadence |
+| 63 | `nightly-docs-and-changelog` | loop | Nightly `/schedule` sweep keeping docs + changelog from rotting |
+| 64 | `dependency-health-loop` | loop | Scheduled audit + gated update + green gate; HITL on majors |
+| 65 | `codebase-exploration-loop` | loop | Fan-out read-only mappers until seed questions are answered |
+| 66 | `orchestrator-task-loop` | loop | Outer loop draining the Agent Teams shared task board (experimental) |
+| 67 | `repo-cleanup-loop` | loop | Weekly evidence-gated branch/PR/worktree hygiene, recover-before-delete |
 
 </details>
 
@@ -349,11 +449,11 @@ flowchart TB
 ├── CLAUDE.md                         # project guidance for Claude Code
 ├── AGENTS.md                         # shared instructions for AI agents
 │
-├── skills/                           # the canonical skill library (66)
+├── skills/                           # the canonical skill library (67)
 │   ├── orchestrator/                 # 1 — entry point
 │   ├── roles/                        # 10 — implementation agents
 │   ├── contracts/                    # 2 — contract-author / contract-auditor
-│   ├── meta/                         # 5 — skills that manage skills
+│   ├── meta/                         # 6 — skills that manage skills (incl. madness)
 │   ├── git/                          # 4 — git workflow conventions
 │   ├── workflows/                    # 31 — cross-cutting process skills
 │   └── loops/                        # 13 — autonomous-loop skills
@@ -586,6 +686,8 @@ Set the override env var documented in `scripts/README.md` (e.g. `CURSOR_RULES_D
 - [x] **Contract-first specs** — OpenAPI / AsyncAPI / Pydantic / TypeScript / JSON Schema templates
 - [x] **QA gate** — `qa-report.json` schema with critical / high / medium / low blockers
 - [x] **Two-runtime degradation** — Agent Teams → subagents → sequential, host-detected
+- [x] **Autonomous-loop library** — 13 loops on one `loop-controller` guardrail harness
+- [x] **`/madness` front door** — one router that reads intent and launches the right skill
 - [ ] **Image assets** — README hero, architecture diagram, host matrix illustration ⏳
 - [ ] **End-to-end multi-agent verification on non-Claude-Code hosts** ⏳
 - [ ] **Skill marketplace / registry** — discoverable installs, version pinning ⏳
