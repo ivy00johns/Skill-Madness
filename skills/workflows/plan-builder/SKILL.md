@@ -43,6 +43,7 @@ The orchestrator is powerful but needs a well-structured plan to work from. This
 - **Plan-builder** (this skill) synthesizes known inputs into a build plan. It works when you have source material, a clear goal, or a spec from brainstorming. It asks at most 3 clarifying questions before producing a draft — bias toward action.
 - **Writing-plans** produces TDD-level implementation detail (exact file paths, test code, commit messages) for single-agent sequential execution. Plan-builder produces architecture-level plans for multi-agent parallel execution.
 - **Orchestrator** consumes the plan this skill produces. It sizes teams, authors contracts, and spawns agents.
+- **Living-plan** is for *maintaining* an existing plan over time — a front door, a tactical ledger, and a report-intake loop so work stays tracked instead of rotting. Use plan-builder (this skill) to *create* a plan from source material once; use living-plan when the project already has a plan and you need to keep it alive as new reports and work items arrive.
 
 ```text
 brainstorming (vague idea) → plan-builder (structured plan) → orchestrator (agent army)

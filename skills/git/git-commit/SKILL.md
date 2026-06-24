@@ -107,6 +107,12 @@ PRs merge with a **squash merge** by default unless the branch has a meaningful 
 
 ---
 
+## Co-Authored-By Trailer
+
+Commits in this repo end with a `Co-Authored-By: Claude ... <noreply@anthropic.com>` trailer and a `Claude-Session:` line. These are applied automatically from the agent's environment/system instructions — do **not** hand-type them into the message body, and do not invent or alter the email or session URL. Write your `type: description` subject and optional body as normal; the trailers are appended below the body, separated by a blank line, as the last lines of the message.
+
+---
+
 ## Quick Checklist
 
 - [ ] Subject line: `type: description` (lowercase, imperative, no scope, no period)

@@ -23,6 +23,8 @@ Produce opinionated, design-leading UI briefs that survive contact with implemen
 
 The default failure mode for LLM-driven UI work is converging on the same shadcn-default-card-grid for every product. This skill exists to write a brief so opinion-dense and reference-specific that the implementing agent cannot drift back into that default. The output is a standalone Markdown file the user (or an orchestrator + frontend-agent) can paste into a fresh Claude Code session and execute against.
 
+**ui-brief vs its siblings.** Reach for `ui-brief` when the deliverable is a written spec to hand to a *Claude Code production build*; use `claude-design-brief` instead when you want hi-fi mockups or A/B/C directions drawn on the *Claude Design canvas* at claude.ai, and `frontend-design` (or `frontend-agent`) when you want the UI actually built rather than briefed.
+
 **Announce at start:** "Using ui-brief to write an opinionated design brief for [project]."
 
 ## Two Modes — Greenfield vs Rebuild

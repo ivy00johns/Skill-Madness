@@ -74,10 +74,10 @@ $SCRIPT --dry-run --link --to-all
 
 Creates symlinks from global locations pointing to repo directories. This is the development workflow — edit skills in the repo and they're instantly live in Claude Code and Cursor.
 
-- **Claude Code**: Skills are **flattened** — each individual skill gets its own symlink directly under `~/.claude/skills/` (e.g., `~/.claude/skills/skill-audit` → `repo/skills/meta/skill-audit`). This is required because Claude Code only discovers skills at `~/.claude/skills/<skill-name>/SKILL.md`.
+- **Claude Code**: Skills are **flattened** — each individual skill gets its own symlink directly under `~/.claude/skills/` (e.g., `~/.claude/skills/skill-review` → `repo/skills/meta/skill-review`). This is required because Claude Code only discovers skills at `~/.claude/skills/<skill-name>/SKILL.md`.
 - **Cursor**: Symlinks are created at the **category level** (e.g., `~/.cursor/skills-cursor/meta` → `repo/skills/meta`)
 - Non-repo skills in global locations (e.g., `~/.claude/skills/builtWithAgent/`) are untouched
-- If a copy already exists where a symlink would go, the script warns and asks before replacing
+- If a copy already exists where a symlink would go, the script reports it and replaces the copy with a symlink (use `--dry-run` to preview first)
 
 ### Copy Mode (`--copy`)
 
@@ -118,7 +118,7 @@ $SCRIPT --from-cursor shell              # Pull only the shell skill
 
 ## How It Works
 
-**Linking:** For Claude Code, discovers every individual skill within category directories and creates a flattened symlink for each (e.g., `~/.claude/skills/skill-audit` → `repo/skills/meta/skill-audit`). For Cursor, creates category-level symlinks. If the target already exists as a real directory, warns before replacing.
+**Linking:** For Claude Code, discovers every individual skill within category directories and creates a flattened symlink for each (e.g., `~/.claude/skills/skill-review` → `repo/skills/meta/skill-review`). For Cursor, creates category-level symlinks. If the target already exists as a real directory, warns before replacing.
 
 **Status detection:** Checks each expected location and reports whether it's a symlink (and where it points), a copy, or missing. Also detects broken symlinks.
 

@@ -28,6 +28,8 @@ spawned_by: ["orchestrator"]
 
 Verify that implementations match contracts, integrations connect, and edge cases are handled. Your job is to find problems — not to fix them.
 
+> **qe-agent vs contract-auditor.** `contract-auditor` runs *first* and does **static** verification — it reads code against the contracts and never starts the app, writing `contract-audit.md`. `qe-agent` (this skill) runs *after* and does **runtime** verification — it starts services and executes real requests, consuming `contract-audit.md` in its Phase 1 and owning the `qa-report.json` build gate. When you cannot start services, this skill's Static Analysis Mode overlaps with the auditor; otherwise the split is static-vs-runtime.
+
 ## When this skill applies
 
 This skill assumes a contract-first multi-agent build model:

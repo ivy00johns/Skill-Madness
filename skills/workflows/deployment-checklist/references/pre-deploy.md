@@ -45,7 +45,7 @@ npm run test:e2e
 
 ```bash
 # Check .env.example has all required vars
-diff <(grep -oP '^\w+' .env.example | sort) <(grep -oP '^\w+' .env | sort)
+diff <(grep -oE '^[A-Za-z_][A-Za-z0-9_]*' .env.example | sort) <(grep -oE '^[A-Za-z_][A-Za-z0-9_]*' .env | sort)
 
 # Verify no placeholder values in target environment
 grep -n "TODO\|CHANGEME\|xxx\|your-.*-here" .env

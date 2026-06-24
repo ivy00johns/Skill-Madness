@@ -31,7 +31,7 @@ This skill is the sibling of `ui-brief` (which targets Claude Code / production 
 
 ## Coverage Guide — What Needs To Be In The Brief
 
-These are the decisions Claude Design is likely to lack if you don't address them. Cover each one in whatever form fits the project — as prose, per-direction blocks, embedded in the opening framing, or wherever it lands most naturally. They do not need to be labeled or in any fixed order. The test is not "did I address all 13 categories by name" — it is "does this brief leave Claude Design nothing to ask."
+These are the decisions Claude Design is likely to lack if you don't address them. Cover each one in whatever form fits the project — as prose, per-direction blocks, embedded in the opening framing, or wherever it lands most naturally. They do not need to be labeled or in any fixed order. The test is not "did I address all 12 categories by name" — it is "does this brief leave Claude Design nothing to ask."
 
 | Decision area | What to commit |
 |---|---|

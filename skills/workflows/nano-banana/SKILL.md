@@ -42,10 +42,10 @@ The bundled script uses `gemini-2.5-flash-image` — Google's current image gene
 
 ## Setup
 
-The script requires a `GEMINI_API_KEY` environment variable. It looks for the key in this order: process env → current project's repo-root `.env` → `~/.config/nano-banana/.env` as a user-wide fallback. If not set, direct the user to:
+The script requires a `GEMINI_API_KEY` environment variable. It looks for the key in this order: process env → the skills repo-root `.env` (`Skill-Madness/.env`) → the nano-banana skill's own `.env`. If not set, direct the user to:
 
 1. Get a key at https://aistudio.google.com/apikey
-2. Add it to the current project's repo-root `.env` (see `.env.example` for the template), or to `~/.config/nano-banana/.env` for a user-wide default
+2. Add it to the skills repo-root `.env` (`Skill-Madness/.env`; see `.env.example` for the template)
 
 ## Generating Images
 

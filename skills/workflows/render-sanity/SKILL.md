@@ -156,7 +156,7 @@ This skill catches one specific failure mode: **the app renders, but renders bro
 
 ## When invoked by other skills
 
-- **`orchestrator`** is the primary invoker. It calls render-sanity at Phase 12 (post-build verification) BEFORE `ux-review` — render-sanity catches broken-content failures; ux-review then assesses polish on a known-good shell. A render-sanity FAIL blocks the build's Definition of Done.
+- **`orchestrator`** is the primary invoker. It calls render-sanity during post-build verification, BEFORE `ux-review` — render-sanity catches broken-content failures; ux-review then assesses polish on a known-good shell. A render-sanity FAIL blocks the build's Definition of Done.
 - **`ux-review`** MAY invoke render-sanity as a precondition. When it does, the render-sanity report becomes the "Critical Issues" section of the ux-review report.
 - **`feature-dev:feature-dev`** SHOULD invoke render-sanity after a feature is wired end-to-end, before declaring "the feature works."
 - **The user** can invoke this skill directly any time they want a fast objective answer to "is the UI actually working" — typically after a build claims done, after a refactor, after auth was added, or after seeing a screenshot with `?` / `Couldn't load` / dead links.
