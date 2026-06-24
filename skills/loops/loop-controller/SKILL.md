@@ -38,9 +38,20 @@ coverage percentage, an empty queue, a fresh evaluator's verdict. They *diverge*
 judgment the agent grades itself on. Agents are pathological optimists about
 their own work; left to self-assess, they declare victory early.
 
+There is a subtler failure an objective proof does **not** cure: a signal that
+is mechanical, default-FAIL, and un-gameable can still measure the **wrong
+thing**. A test suite green against a mock, a stub, or a fixture is all three of
+those — and proves nothing about whether the real product works. That is
+*convergence on a fiction*, and because it wears the costume of rigor (an exit
+code! a number!) it slips past review more easily than a subjective claim would.
+65 green tests against a mocked backend look exactly like 65 green tests against
+the real one. So the proof must measure the **real goal**, not a stand-in for it
+(Step 2) — un-gameable *and* pointed at the thing that actually matters.
+
 So the entire job of this skill is to turn a fuzzy "keep working on X" into a
-**convergent** loop: a mechanical proof, the right execution primitive, and a
-guardrail stack that stops the loop whether or not the proof is ever met.
+**convergent** loop: a mechanical proof *of the real goal*, the right execution
+primitive, and a guardrail stack that stops the loop whether or not the proof is
+ever met.
 
 Everything else here — fix-until-green, coverage-loop, perf-loop — is a *config*
 of this harness: a specific proof plugged into the same machinery. Author new
@@ -102,6 +113,17 @@ A convergent loop needs a proof signal the agent cannot rationalize past.
   rewrite a JSON `"passed": false` than to soften a sentence. (Anthropic's
   long-running-agent harness stores the feature list as JSON for exactly this
   reason.)
+- **Measure the goal, not a stand-in.** An objective signal is necessary but not
+  sufficient — it also has to exercise the *real* thing the loop is for. If the
+  goal depends on a real dependency (a live service, real data, an integration, a
+  deploy) and the proof only touches a mock / stub / fixture of it, the loop will
+  converge — green, confident, and wrong. Either the proof exercises the real
+  path at least once, or it is *explicitly* labelled scaffold-level ("the mocked
+  build is internally consistent") with a separate goal-level proof named. A
+  green that came from measuring the stand-in instead of the goal is a coverage
+  gap wearing a green badge — the same class of bug as a green that came from
+  moving the number instead of fixing the cause (Step 3, guardrail 6), and just
+  as much a *finding*.
 - **Separate the grader from the doer for any subjective bar.** When "done"
   can't be reduced to an exit code (UI quality, doc clarity, API ergonomics),
   the proof is a **fresh-context evaluator subagent** — spawned with **no

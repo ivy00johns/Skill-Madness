@@ -83,7 +83,7 @@ The briefs that work follow a specific shape. Each section earns its presence:
 7. **Motion / Sound / Notifications** — usually missing from briefs; including this section prevents drift toward over-animation or zero animation.
 8. **Accessibility & Responsive Baseline** — explicit, not aspirational. axe AA, specific viewports (default 375 × 667 mobile + 1440 × 900 desktop), mobile-first with `min-width` queries, the canonical breakpoint tokens (sm/md/lg/xl/2xl), no hardcoded `width: <px>` on layout containers, no inline `style=` for layout. These are contract clauses for the implementing agent — see `skills/roles/frontend-agent/references/mobile-responsive.md` for the playbook they will execute against.
 9. **Implementation Discipline** — which skills compose during the build (brainstorming → orchestrator → frontend-agent → playwright → ux-review).
-10. **Definition of Done** — verifiable items. Must include "loads in a browser with zero console errors" and a screenshot-diff item (vs old screenshot for rebuilds, vs target reference for greenfield).
+10. **Definition of Done** — verifiable items. Must include "loads in a browser with zero console errors" and a screenshot-diff item (vs old screenshot for rebuilds, vs target reference for greenfield). **And — whenever the product's moat depends on live data, a real service, or an integration — a "the moat is real" item that exercises the actual value path end-to-end against the real thing once (a real call, real data flowing), not a mock of it.** The whole brief leads with the moat (§2); a DoD that only checks render + screenshots is a DoD a mock can satisfy, and a mock-satisfiable DoD ships a fiction — a "watch real LLMs compete" product that never calls an LLM, a live dashboard wired to a fixture. Mocks are the right way to *build* the UI before the backend lands; the DoD's job is to force graduating from them. If the brief deliberately scopes the backend out, mark it a **SHELL spec** in one line at the top — so a green shell is never mistaken for a finished product.
 11. **Notes for the Operator** — guardrails to prevent drift back to generic defaults during the build.
 
 The voice matters. Brief bullet points and bare specifications produce bland UIs. Opinion-dense paragraphs with rationale produce good ones. **Explain the why** for every non-obvious decision.
@@ -146,6 +146,7 @@ Before reporting done, check:
 - [ ] The brief mentions 2+ libraries already installed in the project (proves discovery happened, where applicable).
 - [ ] The brief has both positive AND negative reference points (proves opinion).
 - [ ] The DoD includes "loads in a browser with zero console errors" and a screenshot-diff item — vs old screenshot for rebuilds, vs target reference / mockup for greenfield.
+- [ ] If the moat depends on live data / a real service / an integration, the DoD has a "the moat is real" item that exercises the real path once (not a mock). If the brief is deliberately UI-only, it declares itself a SHELL spec at the top.
 - [ ] The brief lists which skills should compose during the build.
 - [ ] The brief is under 400 lines (or you have a defensible reason for going longer).
 
@@ -164,6 +165,7 @@ Then summarize for the user in 3–5 sentences: the diagnosis-or-vision, the cho
 | Treating the brief as a contract | It is a *brief*. The implementing agent should bring judgment. Anchor numbers are starting points — say so. |
 | Library-blind | If you do not read package.json, you will recommend installing things that are already there. The user will lose trust. |
 | Forgetting the screenshot-diff DoD | "Tests pass" is not the bar for UI work. Side-by-side comparison vs current (or vs target) is the only proof the brief produced what was asked for. |
+| A DoD a mock can satisfy | When the moat is live/real-data and the DoD only checks render + console + screenshots, a fixture-backed shell passes every item — "it renders" gets mistaken for "the moat works." Add the "moat is real" item (a real call / real data, observed), or, if the build is intentionally UI-only, declare the brief a SHELL spec. A mock is a build accelerator, not a finish line. |
 | One-size-fits-all reference points | A reference app that fits one product fits another badly — Bloomberg suits a trading dashboard but not a kids' drawing app; Arc suits a consumer browser but not an enterprise admin. Pick references that match the product's gravity. |
 | Writing in passive voice | Briefs that work read like an opinionated colleague telling you what to build. Active voice. First-person plural ("we", "the user") sparingly. |
 

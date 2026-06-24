@@ -222,10 +222,13 @@ A checklist of verifiable items. **Must include:**
 - [ ] Keyboard shortcuts work; `?` shows the cheat sheet.
 - [ ] axe-core passes on every route.
 - [ ] **Screenshot comparison item** — *Rebuild*: side-by-side old vs new shows visibly different product, not a recolor. *Greenfield*: side-by-side vs the target reference apps named in §"Design Language" shows the new UI captures the target language, not a generic shadcn fallback.
+- [ ] **The moat is real** *(required whenever the product's value depends on live data, a real service, or an integration — i.e. the moat named in §"The Thesis")* — the value path runs end-to-end against the **real** thing at least once, observed, not a mock of it: [concrete real-path proof — e.g. "a real `<provider>` call returns a turn that renders in the arena", "the dashboard shows a row that just changed in the source DB", "`<service>` traffic appears in its own dashboard"]. A mock/fixture/stub is the right way to *build* the UI before the backend lands — but a checklist a mock can satisfy ships a fiction (a "watch real X" product that never calls X). Omit this item only for genuinely static / presentational products.
 - [ ] [Project-specific verifiable item.]
-- [ ] Unit + E2E tests pass.
+- [ ] Unit + E2E tests pass — **and the suite exercises the real value path**, not only the mock. Green against a fixture proves the mock works, not the product.
 
-The **screenshot comparison item is non-negotiable.** Without it, "tests pass" becomes the bar and the build quietly reverts to defaults.
+The **screenshot comparison and — where the moat is live — the "moat is real" items are non-negotiable.** Without them, "tests pass" / "it renders" becomes the bar: the build either reverts to a generic default or ships a beautiful shell wired to a fixture.
+
+> **Shell specs.** If this brief *deliberately* scopes the backend / real-data path OUT (a UI-only handoff, the real `<X>` built separately), say so in ONE line at the very top — "This is a **SHELL** spec: UI surfaces only; the real `<X>` path is a separate build." Then the "moat is real" item belongs to that other build's DoD, not this one — but nobody mistakes a green shell for a finished product.
 
 ---
 

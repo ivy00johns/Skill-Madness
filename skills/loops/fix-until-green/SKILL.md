@@ -125,6 +125,16 @@ caps this loop sets:
   spot. If a test is genuinely wrong, that's a human decision — surface it, don't
   unilaterally delete it. (Anthropic's harness, verbatim: *"It is unacceptable to
   remove or edit tests."*)
+- **Green against a mock is green-on-a-proxy — not the same as done.** This one
+  isn't cheating (you weakened nothing) — but `test+lint+typecheck` exiting 0
+  against a stubbed DB, a fake API, or a mock provider proves the *mocked* build
+  is internally consistent, not that the product works. That's a real result
+  worth having (it compiles, the wiring type-checks), and a perfectly good gate
+  for *this* loop. It is **not** "done" for anything whose value depends on the
+  real path. When that's the situation, say so out loud — "three exit codes green
+  **against the mock**; the real `<X>` path is unexercised" — and route the gap to
+  `qe-agent` / `coverage-loop`; don't let a green badge imply the product runs.
+  See [`loop-controller`] Step 2, *measure the goal, not a stand-in*.
 - **AFK-safe only within the reversible boundary.** Editing source + running the
   gate is reversible and has a hard verifier — fine unattended. If a fix would
   touch something irreversible (a migration against a real DB, an external API,
