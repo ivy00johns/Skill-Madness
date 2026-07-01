@@ -1,6 +1,6 @@
 ---
 name: plan-intake
-version: 1.0.0
+version: 1.1.0
 description: |
   Turn any report (repo-deep-dive output, audit, skill-review, QA findings, design audit) into approved entries in a project's living-plan ledger. Use when the user says "intake this report", "add findings to the plan", "turn this audit into work items", "update the ledger from this report", "feed the deep-dive into the plan", or has a finished report and wants it tracked instead of rotting. Format-agnostic: adopts the target project's existing entry format.
 requires_agent_teams: false
@@ -112,6 +112,16 @@ After writing, report back:
 - The branch name and which files were modified.
 - Any candidates that were dropped as duplicates, with pointers to the existing entries they matched.
 
+### Step 8 — Sweep completed items out of the open ledger
+
+Intake adds open work; the same pass should remove finished work, so the open ledger never bloats with `done` rows (the `living-plan` **completion sweep**). After writing the new entries, scan the open ledger for rows whose status is `done`:
+
+1. If the project keeps a completed archive (`docs/COMPLETED-WORK.md` or the path its ledger header names), **move** each `done` row there, verbatim, in ID order — append-only, never summarized. Remove it from the open ledger.
+2. If no archive exists yet but the open ledger has accumulated `done` rows, propose creating one (same fail-closed gate as intake — show the human the plan: "N done rows would move to `docs/COMPLETED-WORK.md`"). Don't invent an archive silently.
+3. Confirm the strategic closure log (`BUILD-PLAN.md`) carries the wave/milestone one-liner for what shipped; add it if a wave closed and it's missing.
+
+This is pure relocation — reversible, git-tracked, no detail lost — so it doesn't need the per-row approval that *creating* entries does; just **report what moved** (how many rows, their IDs, source → destination). If the ledger explicitly documents a "leave done rows in place" convention, honor it and skip this step.
+
 ## Behavior rules
 
 - **Fail-closed.** No approval from the human, no writes to the ledger. This is non-negotiable.
@@ -121,6 +131,7 @@ After writing, report back:
 - **Infer, don't invent.** If the ledger has no documented format, infer from existing entries and state the inference explicitly in the proposal table. Do not silently impose a format.
 - **Conservative deduplication.** When unsure if a candidate duplicates an existing entry, flag it rather than silently dropping it. The human sees the flag and decides.
 - **One skill, one ledger.** Process one target ledger per invocation. If the user wants findings distributed across multiple ledgers, run the skill once per ledger.
+- **Sweep on the way out.** Keep the open ledger lean: relocate `done` rows to the completed archive as a final step (Step 8) so finished work never bloats the to-do list. Relocation preserves rows verbatim and is reversible, so it's reported, not gated — but creating a new archive *is* gated, like any other write.
 
 ## Relation to other skills
 
