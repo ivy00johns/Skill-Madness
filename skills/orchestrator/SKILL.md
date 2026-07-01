@@ -23,7 +23,7 @@ composes_with: [
   "nano-banana", "claude-api", "feature-dev:feature-dev",
   "git-commit", "git-pr", "git-pr-feedback", "git-post-merge-cleanup",
   "claude-mem:mem-search", "claude-mem:timeline-report", "claude-mem:knowledge-agent",
-  "skill-writer", "skill-review", "skill-update",
+  "skill-writer", "skill-review", "skill-update", "model-adaptation",
   "railway-deploy", "loop", "schedule",
   "loop-controller", "fix-until-green", "orchestrator-task-loop"
 ]
@@ -145,6 +145,16 @@ wait for the ultracode system-reminder or an explicit ask, same as before. The p
 keyword is `ultracode` (renamed from `workflow` in v2.1.160); a natural-language "use a
 workflow" counts as the same opt-in in any version.
 
+**Effort is a per-role dial, not only the ultracode gate.** Separate from gating Workflow
+mode, `/effort` (and, in Workflow mode, each `agent()`'s `effort` option) is the primary
+intelligence/latency/cost control — set it to the *work*, not one global level. Lean
+`xhigh`/`high` on the capability-sensitive roles (contract authoring, the security pass,
+adversarial verification) and `low`/`medium` on the routine ones (docs, mechanical edits,
+formatting). On the Claude 5 family (Fable 5 / Mythos 5) a lower-effort agent often matches
+`xhigh` on prior models, so default agents to `high` and spend `xhigh` only where the work
+is hardest — that's how a wide fan-out stays affordable without losing quality on the parts
+that carry the build. See the `model-adaptation` skill (Bucket C).
+
 **Sequential mode**: When neither Agent Teams nor subagent spawning is available, work through each role one at a time within a single session. Apply the relevant role skill as your own instructions for that phase. The user may need to coordinate context resets between roles. Contracts and validation still apply — only the parallelism changes.
 
 ## Dynamic Workflows (ultracode)
@@ -181,6 +191,14 @@ Directory ownership takes precedence over pattern ownership. Subdirectory carve-
 
 - **Never implement code yourself** — you are coordination only
 - **All inter-agent communication goes through you**
+- **Async, long-lived subagents where the build allows (Claude 5 family).** "Communication
+  goes through you" governs *contract and shared-file changes* — it is not a mandate to block
+  on every subagent reply. Fable 5 / Mythos 5 dispatch and sustain parallel subagents readily,
+  so prefer launching independent work and continuing over waiting turn-by-turn, and prefer
+  long-lived subagents that keep context across subtasks (cache reuse, no slowest-agent
+  bottleneck) over one-shot spawns. In Workflow mode that's `pipeline()` over a barrier wherever
+  a stage doesn't need all prior results. The wave gate and file-ownership rules are unchanged —
+  async changes *when you collect results*, not *whether the contract holds*.
 - **Contract changes require the full protocol**: pause → update → version → notify → confirm
 - **Shared file changes go through you** — relay to the owning agent
 - **Circuit breaker at 3 failures** — see `references/circuit-breaker.md`. This *is* `loop-controller`'s no-progress / oscillation guardrail applied to agent dispatch (same set of failures surviving 3 consecutive iterations → stop and escalate). Every bounded-retry loop in this build — the wave gate, the QA gate, this circuit breaker, and the Agent Teams outer task-list loop (`orchestrator-task-loop`) — is a `loop-controller` configuration, so one stop-condition vocabulary (max iterations, no-progress detection, enforced budget, escalate-to-human) governs them all instead of ad-hoc loops. `orchestrator-task-loop`'s no-progress guardrail *is* this 3-failure breaker (board/task unchanged across 3 passes, or a task ping-ponging completed→gate-fail→pending ≥3×).
