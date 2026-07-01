@@ -1,7 +1,7 @@
 # Skill-Madness — Start Here
 
 > The one place to land. If you're lost, read this first.
-> **Last updated:** 2026-06-24
+> **Last updated:** 2026-07-01
 
 ## Status at a glance
 
@@ -23,7 +23,8 @@ The library, its tooling, the autonomous-loop library (13 loops + `madness`), an
 
 **Canonical — the living plan (edit these):**
 - [`PLAN.md`](PLAN.md) — strategic roadmap: milestones + closure log
-- [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md) — tactical ledger: every open item, ID'd + prioritized
+- [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md) — tactical ledger: every **open** item, ID'd + prioritized (stays lean)
+- [`docs/COMPLETED-WORK.md`](docs/COMPLETED-WORK.md) — tactical archive: every **closed** item, verbatim (append-only; fed by the completion sweep)
 - [`docs/FUTURE.md`](docs/FUTURE.md) — frontier: explicitly out of scope
 
 **Active reference (read, edit as the library evolves):**
