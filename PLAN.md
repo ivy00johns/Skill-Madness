@@ -1,8 +1,8 @@
 # Skill-Madness — Plan
 
 > **Created:** 2026-05-26
-> **Last updated:** 2026-06-24
-> **Companions:** [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md) (tactical ledger), [`docs/FUTURE.md`](docs/FUTURE.md) (frontier, out of scope)
+> **Last updated:** 2026-07-01
+> **Companions:** [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md) (open ledger), [`docs/COMPLETED-WORK.md`](docs/COMPLETED-WORK.md) (completed archive), [`docs/FUTURE.md`](docs/FUTURE.md) (frontier, out of scope)
 
 > **Editing this doc?**
 > 1. If you closed an item, also update the partner doc (closure log here, status in `docs/REMAINING-WORK.md`).
