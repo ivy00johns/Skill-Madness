@@ -1,6 +1,6 @@
 ---
 name: living-plan
-version: 1.0.0
+version: 1.1.0
 description: |
   Document and set up the living-plan convention: a front door (START-HERE.md), a
   strategic doc, a tactical ledger, and a frontier doc, wired to an intake loop so
@@ -43,9 +43,9 @@ Keep it to one screen. If it grows longer, something belongs in one of the canon
 
 The roadmap: waves or milestones with their scope and exit criteria, plus a **closure log** that records what shipped and when. The strategic doc answers "where are we going and what have we finished?"
 
-### 3. Tactical ledger — `docs/REMAINING-WORK.md`
+### 3. Tactical ledger — `docs/REMAINING-WORK.md` (+ `docs/COMPLETED-WORK.md`)
 
-Every open item, ID'd, prioritized, and sourced. Must document its own entry format and ID scheme at the top so new items are formatted consistently. The tactical ledger answers "what exactly needs to be done?"
+Every **open / in-progress** item, ID'd, prioritized, and sourced. Must document its own entry format and ID scheme at the top so new items are formatted consistently. The tactical ledger answers "what exactly needs to be done **next**?"
 
 Entry shape (adapt to project conventions):
 
@@ -53,6 +53,13 @@ Entry shape (adapt to project conventions):
 |----|----------|------|------|--------|---------|--------|-------|
 
 IDs are stable and never reused. Priority (P0–P3 or equivalent), Wave/Phase, and Source are the minimum useful columns.
+
+**Keep the open ledger lean.** Completed rows are the single biggest source of bloat — a mature project accumulates hundreds of `done` rows, and every session that reads the ledger pays for all of them in tokens for zero planning value. So the tactical layer is **two files**:
+
+- `docs/REMAINING-WORK.md` — open + in-progress only (the to-do list, stays short and cheap to load).
+- `docs/COMPLETED-WORK.md` — the **completed archive**: every `done` row, verbatim, append-only. History is preserved in full; it just lives where it doesn't tax the working doc.
+
+The archive is the *tactical* record (every EM-### row). It complements — does not duplicate — the strategic **closure log** in the build plan (one line per wave/milestone close). Both exist: the closure log is the digest, the archive is the detail. The open ledger's header points to both so nothing feels lost. See **The Completion Sweep** below for how rows move.
 
 ### 4. Frontier doc — `docs/FUTURE.md`
 
@@ -73,6 +80,29 @@ report  →  plan-intake skill  →  proposed entries  →  human approval  → 
 The rule: **every report-producing workflow ends by proposing entries.** `repo-deep-dive` invokes `plan-intake` on its gap/integration findings. Audit and skill-review outputs go through `plan-intake` before they're filed. Nothing is "done" until it has either landed in the ledger or been explicitly dismissed.
 
 `plan-intake` is fail-closed: nothing writes to the ledger without explicit human approval.
+
+## The Completion Sweep (the other load-bearing rule)
+
+Intake is one half of keeping the ledger honest; the **completion sweep** is the other. Intake brings open work *in*; the sweep moves finished work *out*. Without it, the open ledger grows without bound and every future read gets more expensive for less signal — the exact failure the two-file split exists to prevent.
+
+The rule: **when an item reaches `done`, it does not stay in the open ledger.** It moves to the completed archive in the same motion that marks it done.
+
+```
+item ships  →  flip status to done  →  move the row to docs/COMPLETED-WORK.md
+            →  add/confirm a one-line entry in the closure log (BUILD-PLAN.md)
+```
+
+Three places update, each with a distinct job:
+
+1. **`docs/REMAINING-WORK.md`** — the row is *removed* (it's no longer "remaining").
+2. **`docs/COMPLETED-WORK.md`** — the row is *appended*, verbatim, in ID order. The full detail (what shipped, commit, caveats) is preserved here, not deleted.
+3. **`BUILD-PLAN.md` closure log** — gets the strategic one-liner (date · wave/item · result) if this completion closes a wave or is otherwise worth the digest. Per-item rows don't each need a closure-log line; wave closes do.
+
+**When to run the sweep:** batch it, don't thrash. Sweep at a natural close — when a wave/PR lands, when `plan-intake` runs (it sweeps as a final step — see that skill), or whenever the open ledger has accumulated a handful of `done` rows. A row may sit `done` in the open ledger briefly between ship and sweep; that's fine. What's not fine is `done` rows accumulating there permanently.
+
+**Preserve, don't summarize.** The archive keeps each row *as written* — the same fail-closed honesty as intake. Don't compress a completed item's detail on the way out; that detail is exactly why the archive exists. Trimming happens by *relocation*, never by deletion.
+
+If a project is small enough that one ledger never gets long, the sweep can be deferred — but document that choice, because "the ledger is short" is a property that quietly stops being true.
 
 ## Setting It Up on a New Project
 
@@ -111,12 +141,15 @@ Install or sync the `plan-intake` skill so it's available in the project's skill
 | Role | File |
 |------|------|
 | Front door | `START-HERE.md` |
-| Strategic doc | `BUILD-PLAN.md` |
-| Tactical ledger | `docs/REMAINING-WORK.md` |
+| Strategic doc | `BUILD-PLAN.md` (with the closure log) |
+| Tactical ledger (open) | `docs/REMAINING-WORK.md` |
+| Tactical archive (done) | `docs/COMPLETED-WORK.md` |
 | Frontier doc | `docs/FUTURE.md` |
-| Intake skill | `plan-intake` (invoked after every deep dive or audit) |
+| Intake skill | `plan-intake` (invoked after every deep dive or audit; sweeps done → archive) |
 
-The Hive's `docs/REMAINING-WORK.md` header documents its ID scheme (prefixed, stable, never reused), priority labels (P0–P3), wave labels (A/B/C/—), and area taxonomy — the exact information `plan-intake` needs to format new entries correctly.
+The reference ledger's header documents its ID scheme (prefixed, stable, never reused), priority labels (P0–P3), wave labels, and area taxonomy — the exact information `plan-intake` needs to format new entries correctly — and points at the completed archive + closure log so a reader who lands on the open ledger can find finished work without it bloating the to-do list.
+
+**Worked example (PetriDishOfMadness, 2026-06-27):** the open ledger had grown to 502 lines / 226 rows, **185 of them `done`** — every session re-read the whole wall of shipped work. The completion sweep relocated those 185 rows (plus the historical status narrative and stale intake notes) to `docs/COMPLETED-WORK.md`, leaving a **89-line** open ledger of just the 41 open/in-progress items. Nothing was lost; the working doc got ~80% cheaper to load.
 
 ## Relation to Other Skills
 
