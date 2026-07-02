@@ -3,9 +3,9 @@
 **Last updated:** 2026-07-01
 **Companions:** [`PLAN.md`](../PLAN.md) (strategic roadmap + closure log), [`docs/COMPLETED-WORK.md`](COMPLETED-WORK.md) (completed archive — every closed item, verbatim), [`docs/FUTURE.md`](FUTURE.md) (frontier overflow)
 
-> ## ✅ Backlog clear — ready for new work (as of 2026-07-01)
+> ## Nearly clear — one small open follow-up (as of 2026-07-01)
 >
-> **There is no open work in this ledger.** Every tracked item is closed — the whole detail lives in [`docs/COMPLETED-WORK.md`](COMPLETED-WORK.md) (tactical archive) with the strategic digest in the [`PLAN.md`](../PLAN.md) closure log. The autonomous-loop library (DEEP-RESEARCH-LOOPS §10, 13 loops + `madness`) shipped via PRs #24–#30; the entire **pre-loops backlog** — doc-polish/process (RF/TM/PR/CL) + the reports-v2 functional-fidelity audit (FA1–FA8) — is resolved. Catalog is at **68 skills / 7 categories**, all gates green.
+> **The pre-loops backlog is fully closed** — that detail lives in [`docs/COMPLETED-WORK.md`](COMPLETED-WORK.md) (tactical archive) with the strategic digest in the [`PLAN.md`](../PLAN.md) closure log. The autonomous-loop library (DEEP-RESEARCH-LOOPS §10, 13 loops + `madness`) shipped via PRs #24–#30; the entire **pre-loops backlog** — doc-polish/process (RF/TM/PR/CL) + the reports-v2 functional-fidelity audit (FA1–FA8) — is resolved. On 2026-07-01 the `model-adaptation` skill shipped (catalog **68 → 69**, meta 6 → 7), leaving **one small open follow-up, `MA-1`**, below. All gates green.
 >
 > Add new items by running the `plan-intake` skill on a report (audit, deep-dive, skill-review) — don't hand-add. See the `living-plan` skill for the convention.
 
@@ -15,13 +15,15 @@
 
 ## ID convention
 
-ID prefixes are stable and never reused: `RF` (reference-file gaps), `TM` (thinking-move additions), `PR` (process additions), `CL` (cleanup), `FA` (functional-audit findings). Source short-links: `[IP]` → `docs/archive/superseded-plans/IMPROVEMENT_PLAN.md`; `[FAUDIT]` → `audit/reports-v2/00-MASTER-AUDIT.md` (gitignored — local working tree only).
+ID prefixes are stable and never reused: `RF` (reference-file gaps), `TM` (thinking-move additions), `PR` (process additions), `CL` (cleanup), `FA` (functional-audit findings), `MA` (model-adaptation follow-ups). Source short-links: `[IP]` → `docs/archive/superseded-plans/IMPROVEMENT_PLAN.md`; `[FAUDIT]` → `audit/reports-v2/00-MASTER-AUDIT.md` (gitignored — local working tree only).
 
 ---
 
 ## Open / in-progress
 
-_None. Backlog is clear — see [`docs/COMPLETED-WORK.md`](COMPLETED-WORK.md) for what shipped._
+### 2026-07-01 — model-adaptation follow-ups (`MA`)
+
+- **MA-1** `[open]` — **`skill-writer/references/performance-notes.md` still teaches the prior-model "anti-laziness" tactic as a broadly-recommended default.** The 2026-07-01 `model-adaptation` work added a `skill-review` anti-pattern that flags over-eager "do not truncate / produce it in full" nagging on the Claude 5 family (Fable 5 / Mythos 5), where output laziness is far less common — but `performance-notes.md` itself, a skill-writer reference, still frames the `## Performance Notes` block as a generally-good pattern. Update it to mark the tactic as prior-model / apply-sparingly (keep only where a *measured* truncation failure exists for that specific skill), closing the skill-writer ↔ skill-review tension. Small; deferred out of the approved edit scope (skill-review / loop-controller / orchestrator). Source: the `model-adaptation` skill + Anthropic's *Prompting Claude Fable 5* guide.
 
 When the next batch of work arrives, add it below under a new dated section with fresh IDs (continuing the stable-prefix scheme). Completed rows move out to the archive via the completion sweep, so this section stays scoped to what's actually left to do.
 

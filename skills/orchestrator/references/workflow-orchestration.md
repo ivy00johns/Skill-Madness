@@ -205,10 +205,22 @@ circuit breaker) so a stubborn failure surfaces to the human instead of spinning
   each session — yesterday's ultracode doesn't carry over. Resume is same-session only too: if
   Claude Code exits mid-run, the next session starts the workflow fresh. Don't park a wave gate
   across a session boundary.
-- **Fable 5 reroutes flagged agents.** Fable 5 runs safety classifiers for cybersecurity and
-  biology content; a security-review or pentest-flavored agent prompt can trip them and reroute
-  that request to Opus. That's expected routing, not a build failure — note it in the run log
-  and carry on.
+- **Flagged agents reroute via a refusal (Claude 5 family).** Fable 5 / Mythos 5 run safety
+  classifiers for offensive-cybersecurity and biology/life-sciences content; a security-review
+  or pentest-flavored agent prompt can trip them. The API returns `stop_reason: "refusal"`, and
+  the request should reroute to **Opus 4.8** — but that fallback is *configured*, not automatic.
+  Set up server-side or client-side fallback to Opus 4.8 **before** a long unattended run, or a
+  mid-wave refusal stalls the workflow (a harness that only handles `end_turn`/`tool_use` misreads
+  the refusal as a hang). Treat a handled refusal as expected routing, not a build failure — note
+  it in the run log and carry on; don't rewrite a legitimate defensive prompt to dodge the
+  classifier, route around it with the fallback. Full contract + config:
+  `model-adaptation/references/refusal-and-fallback.md`.
+- **Set effort per agent, not one global level.** A workflow `agent()` takes an `effort` option
+  (and `model`); use it — `xhigh`/`high` for the hardest stages (contract-shaped implementation,
+  adversarial verify), `low`/`medium` for routine ones (docs, mechanical edits). On the Claude 5
+  family a lower-effort agent often matches `xhigh` on prior models, so spending `xhigh` only
+  where the work is hardest keeps a large fan-out affordable without dropping quality where it
+  counts. See `model-adaptation` (Bucket C).
 - **Save the run.** Once an implement or verify workflow does what you want, save it from
   `/workflows` (`s`) into `.claude/workflows/` — the next build of the same shape reruns the
   identical orchestration as a `/command` instead of re-authoring the script.

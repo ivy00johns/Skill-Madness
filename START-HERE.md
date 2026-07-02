@@ -5,7 +5,7 @@
 
 ## Status at a glance
 
-A mature library of **68 skills** (contracts · git · loops · meta · orchestrator · roles · workflows), all PSFS-validated, full Ubuntu + macOS lint matrix on every push.
+A mature library of **69 skills** (contracts · git · loops · meta · orchestrator · roles · workflows), all PSFS-validated, full Ubuntu + macOS lint matrix on every push.
 
 | Effort | State |
 |--------|-------|
@@ -16,8 +16,9 @@ A mature library of **68 skills** (contracts · git · loops · meta · orchestr
 | **Doc-polish / process backlog** (reference files + thinking-move docs — IMPROVEMENT_PLAN Phases 2–4) | ✅ Complete — RF1–RF5 + TM1–TM3, PR1/PR2, CL1/CL2/CL3 all closed (#32, #34) |
 | **Autonomous-loop library** (13 loops + `madness` router — DEEP-RESEARCH-LOOPS §10) | ✅ Complete — #24–#30, catalog 50 → 67, all CI green |
 | **class-extraction-guard gate + backlog clear** (styling-organization gate + the final FA/PR/CL items) | ✅ Complete — #31–#34, catalog → 68, backlog cleared |
+| **model-adaptation skill** (cross-model prompting/scaffolding owner — Fable 5 / Mythos 5 — + checks wired into skill-review / loop-controller / orchestrator) | ✅ Shipped 2026-07-01 — catalog → 69, meta 6 → 7; one small follow-up open (MA-1) |
 
-The library, its tooling, the autonomous-loop library (13 loops + `madness`), and now the **entire pre-loops backlog are all complete**. As of **2026-06-24 the backlog is cleared — 0 open items, ready for new work**: the functional-fidelity audit (FA1–FA8) and the doc-polish / process items (RF/TM/PR/CL) all closed across PRs #31–#34, catalog now **68**. Add the next batch via the `plan-intake` skill. Full narrative in [`PLAN.md`](PLAN.md) § "Where we are"; closed-item detail in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md).
+The library, its tooling, the autonomous-loop library (13 loops + `madness`), and the **entire pre-loops backlog are all complete** (as of 2026-06-24: FA1–FA8 + RF/TM/PR/CL all closed across PRs #31–#34). On **2026-07-01** the `model-adaptation` skill shipped — the cross-model prompting/scaffolding owner (Fable 5 / Mythos 5), built from Anthropic's Fable 5 prompting guide, with its top checks wired into skill-review / loop-controller / orchestrator — taking the catalog to **69** (meta 6 → 7) and leaving **one small open follow-up (MA-1)**. Add the next batch via the `plan-intake` skill. Full narrative in [`PLAN.md`](PLAN.md) § "Where we are"; open + closed item detail in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md).
 
 ## Which doc is which (ownership map)
 

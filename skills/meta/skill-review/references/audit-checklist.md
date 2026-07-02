@@ -87,6 +87,35 @@ Flag any of these in Mode B; aggregate counts in Mode A.
 - [ ] "Kitchen sink" — trying to do too many things in one skill
 - [ ] Assuming tools or environment features that aren't declared in `allowed-tools`, `compatibility`, or `requires_*`
 
+### Model-adaptation anti-patterns (Claude 5 family)
+
+These check whether a skill is written for the model actually running it. See the
+`model-adaptation` skill for the full rationale and the migration audit.
+
+- [ ] **Reasoning-extraction refusal risk (high severity).** Instructs the model to
+  reproduce, echo, transcribe, or narrate its internal reasoning **in the response**
+  ("show your thinking step by step in the output", "narrate your reasoning", "explain
+  your chain of thought before answering"). On the Claude 5 family (Fable 5 / Mythos 5)
+  this can trip the `reasoning_extraction` refusal category and *silently* elevate
+  fallbacks to Opus 4.8 — so the skill quietly loses the frontier model. Flag every hit
+  that routes reasoning to the response; a skill *doc* explaining "why" to the human, or
+  an instruction to *think* internally without emitting it, is fine and stays. Rewrite
+  risky hits to read structured `thinking` blocks or use a send-to-user tool. Detail:
+  `model-adaptation/references/refusal-and-fallback.md`. Sweep with:
+  `grep -riE "show your (thinking|reasoning)|narrate.*(reasoning|thinking)|reproduce.*(reasoning|thought)|chain[ -]of[ -]thought" <skill>`
+- [ ] **Prior-model over-prescription.** The over-prescription smells above (excessive
+  MUST/NEVER, overly rigid templates, fighting natural behavior) are *also* a
+  model-migration signal: a stronger model needs less scaffolding, and prescription that
+  helped a weaker model now measurably degrades output. On a skill that predates the
+  current model, treat a dense enumeration of behaviors as a **prune** candidate — one
+  brief instruction plus the *why* usually replaces the list. Don't carry the frontmatter
+  `description`'s intentional "pushy / over-enumerate" style into the body's behavioral
+  instructions; that boundary is deliberate (over-enumerate the *trigger*, not the *behavior*).
+- [ ] **Anti-laziness nagging on a model that doesn't need it.** A `## Performance Notes`
+  / "do not truncate, produce it in full" block is a prior-model tactic; on the Claude 5
+  family output laziness is far less common, so keep the block only where a *measured*
+  truncation failure exists for this skill, not by default.
+
 ## Bulk Scoring Quick Reference
 
 For per-skill scores in the Mode A report, use simplified triage:
