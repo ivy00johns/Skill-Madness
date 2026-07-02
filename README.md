@@ -6,7 +6,7 @@
 
 **Most AI coding setups give you one agent, one context window, one shot. Skill Madness gives you a coordinated fleet — plus the autonomous loops to keep it working until the job is provably done.**
 
-A multi-agent orchestration toolkit for Claude Code: **67 portable skills** that turn a one-line ask into a contract-first parallel build, run **autonomous loops** until your tests are actually green, and install into **eleven AI coding tools** from a single `SKILL.md` source.
+A multi-agent orchestration toolkit for Claude Code: **69 portable skills** that turn a one-line ask into a contract-first parallel build, run **autonomous loops** until your tests are actually green, and install into **eleven AI coding tools** from a single `SKILL.md` source.
 
 <p align="center">
   <a href="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml"><img src="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml/badge.svg" alt="Skill Lint" /></a>
@@ -60,7 +60,7 @@ Author once in `SKILL.md`; install the same library into **eleven** AI coding to
 </tr>
 </table>
 
-> 🚪 **New here, or not sure which skill to reach for?** Type **`/madness`** in Claude Code and just say what you want. It reads your intent, picks the right starting skill out of all 67, confirms before anything expensive, and launches it — so you never have to memorize the catalog. One front door for the whole toolkit.
+> 🚪 **New here, or not sure which skill to reach for?** Type **`/madness`** in Claude Code and just say what you want. It reads your intent, picks the right starting skill out of all 69, confirms before anything expensive, and launches it — so you never have to memorize the catalog. One front door for the whole toolkit.
 
 <sub><b>Maintainers / agents:</b> see <a href="START-HERE.md"><code>START-HERE.md</code></a> for current status and which docs are canonical.</sub>
 
@@ -77,10 +77,10 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 - 🤖 **Ten role agents, exclusive ownership** — backend, frontend, infrastructure, QE, security, docs, observability, db-migration, performance, code-review. Each declares `owns.directories` / `owns.files` in its frontmatter. No two agents touch the same path. Conflicts get resolved before spawn, not after.
 - 🛡️ **QA gate that blocks** — `qe-agent` emits a `qa-report.json` with critical / high / medium / low findings plus contract-conformance and security scores. The orchestrator gates the merge on the report. Agents can't self-declare "done."
 - 🔁 **Autonomous loops that converge** — 13 loop skills keep Claude working until something is *provably* true: `fix-until-green` won't stop until tests + lint + typecheck pass (and can't cheat the gate), `coverage-loop` grows the suite to a target without gaming it, `contract-conformance-loop` builds until a fresh-context evaluator agrees the spec is met, and `babysit` / `self-healing-loop` / `nightly-docs-and-changelog` run on a schedule. Every one is a configuration of `loop-controller`'s guardrail stack — iteration cap, token budget, no-progress breaker, stop condition — so they finish instead of thrashing. [See the loops →](#autonomous-loops)
-- 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 67 and launches it. The cure for "which skill was that again?" across a 69-skill library.
+- 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 69 and launches it. The cure for "which skill was that again?" across a 69-skill library.
 - 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 69-skill library stays cheap to host.
 - 🔁 **Two-runtime degradation** — Agent Teams (parallel tmux) → subagents (Task tool) → sequential. The orchestrator picks the highest mode the host supports; role skills work standalone in any of them.
-- 🧰 **69 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 6 meta-skills (including `madness`, the front-door router), 4 git-workflow skills, 32 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
+- 🧰 **69 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 7 meta-skills (including `madness`, the front-door router, and `model-adaptation`), 4 git-workflow skills, 32 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
 - 🌐 **Portable across eleven hosts** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The orchestrator's parallel-dispatch metadata is Claude-Code-specific, but everything else (role definitions, contracts, workflows, git conventions, meta-skills) ports cleanly. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
 
 > **Status — read before you pitch this to anyone:**
@@ -248,7 +248,7 @@ flowchart TB
         mc[mermaid-charts]
         rs[render-sanity]
         dl[diagnose-loop]
-        more["+ 18 more"]
+        more["+ 19 more"]
     end
 
     subgraph loops["🔁 loops/ — 13 skills"]
@@ -259,7 +259,7 @@ flowchart TB
         ccl[contract-conformance-loop]
         bs[babysit]
         cov[coverage-loop]
-        perf[perf-loop]
+        pfl[perf-loop]
         shl[self-healing-loop]
         mig[migration-loop]
         ndc[nightly-docs-and-changelog]
@@ -452,11 +452,11 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 ├── CLAUDE.md                         # project guidance for Claude Code
 ├── AGENTS.md                         # shared instructions for AI agents
 │
-├── skills/                           # the canonical skill library (67)
+├── skills/                           # the canonical skill library (69)
 │   ├── orchestrator/                 # 1 — entry point
 │   ├── roles/                        # 10 — implementation agents
 │   ├── contracts/                    # 2 — contract-author / contract-auditor
-│   ├── meta/                         # 6 — skills that manage skills (incl. madness)
+│   ├── meta/                         # 7 — skills that manage skills (incl. madness, model-adaptation)
 │   ├── git/                          # 4 — git workflow conventions
 │   ├── workflows/                    # 32 — cross-cutting process skills
 │   └── loops/                        # 13 — autonomous-loop skills

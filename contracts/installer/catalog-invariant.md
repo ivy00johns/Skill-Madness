@@ -1,6 +1,6 @@
 # Contract: Catalog-as-CI-Invariant (P1-A)
 
-**Version:** 1.1.0
+**Version:** 1.2.0
 **Status:** ACTIVE — orchestrator, AllTheSkills P1
 **Source plan:** `DeepResearch/The-Hive/ecc_deepdive/source-material/14-alltheskills-frontier.md` (P1)
 **Models:** ECC's `scripts/ci/catalog.js` (counts asserted vs disk, build fails on drift, `--sync`).
@@ -34,10 +34,11 @@ scripts/catalog.sh [--check | --sync | --text] [--help]
 
 The check must compare disk truth against every place a count is hard-coded:
 
-- `README.md`: the shields badge (`badge/skills-<N>-…`), the "**N skills, six categories**" line, the "installs all N skills" line, the "N skills organized into six categories" line, the "doesn't see all N skills" line, the "Skill library — N skills" line, and the mermaid per-category subgraph labels (`contracts/ — N skills`, `roles/ — N agents`, `meta/ — N skills`, `git/ — N skills`, `workflows/ — N skills`).
+- `README.md`: the shields badge (`badge/skills-<N>-…`), the "**N skills, six categories**" line, the "installs all N skills" line, the "N skills organized into six categories" line, the "doesn't see all N skills" line, the "Skill library — N skills" line, and the mermaid per-category subgraph labels (`contracts/ — N skills`, `roles/ — N agents`, `meta/ — N skills`, `git/ — N skills`, `workflows/ — N skills`). As of 1.2.0 also: the "**N portable skills**" hero tagline, the "out of all N" front-door phrasings, the "skill library (N)" project-tree comment, the per-category badges/prose ("N role agents", "N contract skills", "N git-workflow skills", "N meta-skills", "N cross-cutting workflow skills", "N autonomous-loop skills", "N loop skills", "N autonomous loops"), the one-row-per-skill **catalog table** (row count + skill names == disk; `--check` only — rows are hand-maintained), and the **architecture-diagram boxes** (named nodes + the `"+ N more"` overflow == disk per category box; node ids unique per mermaid block; `--sync` repairs only the overflow number).
 - `.claude-plugin/plugin.json`: the "<N> skills" phrase in `description`, AND the `skills` array itself — every on-disk skill registered, no entry pointing at a skill that no longer exists. Array reconciliation is delegated to `scripts/sync-catalog-skills.py`, which preserves the existing curated order and appends new skills to their category group. *(v1.0.0 deliberately left the array alone, assuming "existing tooling" verified it; nothing did — that is the drift this version closes.)*
-- `.claude-plugin/marketplace.json`: any "<N> skills" phrase.
-- `CLAUDE.md`: the "N OSS-publishable skills" line.
+- `.claude-plugin/marketplace.json`: any "<N> skills" phrase; as of 1.2.0 also the plugin description's per-category breakdown ("N role agents", "N contract skills", …).
+- `CLAUDE.md`: the "N OSS-publishable skills" line; as of 1.2.0 also the per-category "- **`skills/<cat>/`** (N)" breakdown lines.
+- `PLAN.md` (additional, 1.2.0): the "**N-skill autonomous-loop library**" phrase.
 - `PLAN.md`: the "**N-skill** library" line.
 - `START-HERE.md`: the "library of **N skills**" line.
 
@@ -58,6 +59,9 @@ A new job/step (orchestrator wires it into `.github/workflows/lint-skills.yml` �
 - `--check` FAILS (exit 1) on a temp fixture where a README count is wrong by one.
 - `--sync` makes a failing fixture pass (`--sync` then `--check` → 0).
 - archive/ and in-progress/ skills are excluded from the count.
+- (1.2.0) catalog-table check: pass on a matching table, fail on a missing row and on a stale row.
+- (1.2.0) previously-unguarded phrasings (hero / "out of all N" / tree comment), CLAUDE.md per-category lines, and the marketplace breakdown: `--check` fails on drift, `--sync` repairs.
+- (1.2.0) mermaid boxes: `--check` fails on box math drift and duplicate node ids; `--sync` repairs the overflow node.
 
 ## Ownership (P1-A agent)
 
@@ -69,5 +73,6 @@ MUST NOT touch: `.github/workflows/` (orchestrator wires CI), `scripts/install*.
 `catalog.sh --check` reflects true disk counts; running `--sync` then `--check` is clean and leaves README + plugin.json + marketplace.json internally consistent (the existing 46/47 drift resolved to the real disk number). `bash -n` clean. bats pass. **No git operations.**
 
 ## Changelog
+- 1.2.0 — close the drift classes that bit three times while `--check` stayed green: guard the README hero ("N portable skills"), "out of all N", and tree-comment ("skill library (N)") phrasings; per-category phrases across README badges/prose, `plugin.json`, and the `marketplace.json` breakdown; CLAUDE.md's per-category "(N)" lines; PLAN.md's loops-library phrase. New architecture-diagram box check (named nodes + "+ N more" == disk per category, node ids unique; `--sync` repairs only the overflow). Single-pass cached disk inventory (`_inventory`) replaces the per-file subshell loops — `--check` drops ~4.4s → ~0.7s. Also retroactively records the README catalog-table check (row count + names vs disk) that landed unversioned in PR #34 (CL3).
 - 1.1.0 — extend count coverage to `CLAUDE.md` / `PLAN.md` / `START-HERE.md` (live phrasings only); reconcile the `plugin.json` `skills` array from disk via `scripts/sync-catalog-skills.py` (register missing, drop stale); exclude `node_modules` via `-maxdepth 3`; add the `catalog-sync` pre-commit hook (auto-fix + re-stage) and the `skill-catalog` skill. `sed_replace` treats a missing file as a no-op.
 - 1.0.0 — initial (orchestrator, P1-A).

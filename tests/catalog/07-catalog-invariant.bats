@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 # 07-catalog-invariant.bats — Validate scripts/catalog.sh.
 #
-# Contract: contracts/installer/catalog-invariant.md v1.1.0
+# Contract: contracts/installer/catalog-invariant.md v1.2.0
 #
 # Builds a self-contained fake repo in a temp dir (scripts/catalog.sh + libs,
 # a skills/ tree, README.md, plugin.json, marketplace.json) so the count
@@ -283,4 +283,180 @@ EOF
   run env NO_COLOR=1 bash "$FCATALOG" --sync
   [ "$status" -eq 0 ]
   ! grep -q 'ghost' "$FAKE/.claude-plugin/plugin.json"
+}
+
+# ---------------------------------------------------------------------------
+# README catalog TABLE check (CL3): one row per on-disk skill.
+# ---------------------------------------------------------------------------
+
+# _append_readme_table <file> <skill...> — append a catalog table with one
+# row per named skill (the header is what keys the check).
+_append_readme_table() {
+  local f="$1"; shift
+  {
+    printf '\n| # | Skill | Category | What it does |\n'
+    printf '|---|-------|----------|--------------|\n'
+    local i=1 s
+    for s in "$@"; do
+      printf '| %d | `%s` | cat | stuff |\n' "$i" "$s"
+      i=$(( i + 1 ))
+    done
+  } >> "$f"
+}
+
+@test "catalog --check passes when the README catalog table matches disk" {
+  _append_readme_table "$FAKE/README.md" \
+    orchestrator backend-agent frontend-agent plan-builder mermaid-charts
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 0 ]
+}
+
+@test "catalog --check fails when the README catalog table is missing a row" {
+  # 4 rows vs 5 disk skills (mermaid-charts has no row).
+  _append_readme_table "$FAKE/README.md" \
+    orchestrator backend-agent frontend-agent plan-builder
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "missing row for on-disk skill 'mermaid-charts'"
+}
+
+@test "catalog --check fails on a stale README catalog table row" {
+  _append_readme_table "$FAKE/README.md" \
+    orchestrator backend-agent frontend-agent plan-builder mermaid-charts ghost-skill
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "stale row 'ghost-skill'"
+}
+
+# ---------------------------------------------------------------------------
+# Previously-unguarded README count phrasings: "N portable skills",
+# "out of all N", "skill library (N)" — the 67-vs-68 drift class.
+# ---------------------------------------------------------------------------
+@test "catalog checks + syncs hero / out-of-all / tree count phrasings" {
+  printf -- '**9 portable skills**; out of all 9; skills/  # the canonical skill library (9)\n' \
+    >> "$FAKE/README.md"
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q 'portable skills'
+
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+  grep -q '\*\*5 portable skills\*\*'  "$FAKE/README.md"
+  grep -q 'out of all 5'               "$FAKE/README.md"
+  grep -q 'skill library (5)'          "$FAKE/README.md"
+
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# CLAUDE.md per-category "(N)" breakdown.
+# ---------------------------------------------------------------------------
+@test "catalog checks + syncs CLAUDE.md per-category counts" {
+  printf -- '— 5 OSS-publishable skills in `skills/`.\n- **`skills/roles/`** (9) — backend, frontend.\n' \
+    > "$FAKE/CLAUDE.md"
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q 'CLAUDE.md category skills/roles'
+
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+  grep -qF -- '- **`skills/roles/`** (2) —' "$FAKE/CLAUDE.md"
+
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# Marketplace per-category breakdown (the 41-era-counts drift class): every
+# category number in the plugin description is asserted, not just the total.
+# ---------------------------------------------------------------------------
+@test "catalog checks + syncs the marketplace per-category breakdown" {
+  cat > "$FAKE/.claude-plugin/marketplace.json" <<'EOF'
+{
+  "metadata": { "description": "the 5-skill library it draws from." },
+  "plugins": [
+    { "description": "Install all 5 Skill-Madness skills: 9 role agents, 3 contract skills, 5 git workflow skills, 9 meta/skill-management skills, 13 cross-cutting workflows, and 4 autonomous-loop skills." }
+  ]
+}
+EOF
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q 'role agents'
+
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+  # Disk: roles=2 contracts=0 git=0 meta=0 workflows=2 loops=0.
+  grep -q '2 role agents'               "$FAKE/.claude-plugin/marketplace.json"
+  grep -q '0 contract skills'           "$FAKE/.claude-plugin/marketplace.json"
+  grep -q '0 git workflow skills'       "$FAKE/.claude-plugin/marketplace.json"
+  grep -q '0 meta/skill-management'     "$FAKE/.claude-plugin/marketplace.json"
+  grep -q '2 cross-cutting workflows'   "$FAKE/.claude-plugin/marketplace.json"
+  grep -q '0 autonomous-loop skills'    "$FAKE/.claude-plugin/marketplace.json"
+
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# Architecture-diagram boxes: named nodes + "+ N more" must equal disk, and
+# node ids must be unique within a mermaid block.
+# ---------------------------------------------------------------------------
+@test "catalog checks + syncs the mermaid box overflow node" {
+  cat >> "$FAKE/README.md" <<'EOF'
+
+```mermaid
+flowchart TB
+    subgraph workflows["⚙️ workflows/ — 2 skills"]
+        direction TB
+        pb[plan-builder]
+        more["+ 3 more"]
+    end
+```
+EOF
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q 'workflows/ box: 1 named + 3 more'
+
+  run env NO_COLOR=1 bash "$FCATALOG" --sync
+  [ "$status" -eq 0 ]
+  grep -qF 'more["+ 1 more"]' "$FAKE/README.md"
+
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 0 ]
+}
+
+@test "catalog --check fails when a mermaid box's named nodes miss disk" {
+  cat >> "$FAKE/README.md" <<'EOF'
+
+```mermaid
+flowchart TB
+    subgraph roles["🤖 roles/ — 2 agents · exclusive file ownership"]
+        direction TB
+        be[backend-agent]
+    end
+```
+EOF
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q 'roles/ box: 1 named nodes, disk says 2'
+}
+
+@test "catalog --check flags duplicate mermaid node ids" {
+  cat >> "$FAKE/README.md" <<'EOF'
+
+```mermaid
+flowchart TB
+    subgraph roles["🤖 roles/ — 2 agents · exclusive file ownership"]
+        be[backend-agent]
+        perf[frontend-agent]
+    end
+    subgraph workflows["⚙️ workflows/ — 2 skills"]
+        perf[plan-builder]
+        mc[mermaid-charts]
+```
+EOF
+  run env NO_COLOR=1 bash "$FCATALOG" --check
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "node id 'perf' defined more than once"
 }

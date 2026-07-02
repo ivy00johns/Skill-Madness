@@ -15,7 +15,7 @@
     {
       "name": "skill-madness",
       "source": "./",
-      "description": "Install all 69 Skill-Madness skills: the 14-phase orchestrator, 9 role agents with exclusive file ownership, 3 contract skills (OpenAPI/AsyncAPI/Pydantic/TS/JSON Schema), 5 git workflow skills, 9 meta/skill-management skills, 13 cross-cutting workflows (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, llm-wiki, …), and the interactive-doc workflow.",
+      "description": "Install all 69 Skill-Madness skills: the 14-phase orchestrator, 10 role agents with exclusive file ownership, 2 contract skills (OpenAPI/AsyncAPI/Pydantic/TS/JSON Schema), 4 git workflow skills, 7 meta/skill-management skills, 32 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, llm-wiki, …), and 13 autonomous-loop skills (fix-until-green, babysit, coverage-loop, …).",
       "version": "0.1.0",
       "author": {
         "name": "ivy00johns"

@@ -8,14 +8,19 @@
 # table (--text). It covers:
 #   - the count phrases in README.md, plugin.json, marketplace.json,
 #     CLAUDE.md, PLAN.md, and START-HERE.md (live phrasings only — historical
-#     "47 skills" notes are left alone);
+#     "47 skills" notes are left alone), including per-category phrases
+#     ("N role agents", "N meta-skills", the marketplace category breakdown,
+#     CLAUDE.md's "skills/<cat>/ (N)" lines);
 #   - the README one-row-per-skill catalog table: row count + skill names must
 #     equal disk (--check only; the table's descriptions are hand-maintained so
 #     --sync deliberately does not rewrite it — fix reported rows by hand);
+#   - the README architecture-diagram boxes: named nodes + the "+ N more"
+#     overflow must equal disk per category, node ids unique per graph
+#     (--sync repairs only the overflow number);
 #   - the plugin.json `skills` array itself (every on-disk skill registered,
 #     no stale entries) — delegated to scripts/sync-catalog-skills.py.
 #
-# Contract: contracts/installer/catalog-invariant.md v1.1.0
+# Contract: contracts/installer/catalog-invariant.md v1.2.0
 #
 # Usage:
 #   scripts/catalog.sh [--check | --sync | --text] [--help]
@@ -65,60 +70,44 @@ CATEGORIES="orchestrator roles contracts git meta workflows loops"
 # Disk inventory
 # ---------------------------------------------------------------------------
 
-# category_of <SKILL.md path relative-or-absolute>
-# Echoes the category for a SKILL.md file.
-category_of() {
-  local f="$1" d parent
-  d="$(dirname "$f")"
-  parent="$(basename "$(dirname "$d")")"
-  if [[ "$parent" == "skills" ]]; then
-    basename "$d"
-  else
-    echo "$parent"
+# _inventory <skills_root> — one find+awk pass over the tree, emitting
+# "category|skill-name" per active skill ("orchestrator|orchestrator" for the
+# top-level skill). Cached per process: every count/list below derives from
+# this single pass instead of re-walking the tree with per-file subshells
+# (the old per-file dirname/basename loop cost ~3 forks per skill per call,
+# which multiplied badly once per-category assertions landed).
+_INVENTORY_CACHE=""
+_inventory() {
+  local root="$1"
+  if [[ -z "$_INVENTORY_CACHE" ]]; then
+    _INVENTORY_CACHE="$(find "$root" -maxdepth 3 -name SKILL.md -type f 2>/dev/null \
+      | grep -v "$root/archive/" \
+      | grep -v "$root/in-progress/" \
+      | awk -F/ '{
+          if ($(NF-2) == "skills") print $(NF-1) "|" $(NF-1)
+          else                     print $(NF-2) "|" $(NF-1)
+        }')"
   fi
+  [[ -n "$_INVENTORY_CACHE" ]] && printf '%s\n' "$_INVENTORY_CACHE"
+  return 0
 }
 
 # count_total <skills_root>  — total active skills.
 count_total() {
-  local root="$1"
-  find "$root" -maxdepth 3 -name SKILL.md -type f 2>/dev/null \
-    | grep -v "$root/archive/" \
-    | grep -v "$root/in-progress/" \
-    | wc -l \
-    | tr -d ' '
+  _inventory "$1" | grep -c . || true
 }
 
 # count_category <skills_root> <category> — active skills in one category.
 count_category() {
-  local root="$1" cat="$2" n=0 f c
-  while IFS= read -r f; do
-    [[ -z "$f" ]] && continue
-    c="$(category_of "$f")"
-    [[ "$c" == "$cat" ]] && n=$(( n + 1 ))
-  done < <(find "$root" -maxdepth 3 -name SKILL.md -type f 2>/dev/null \
-             | grep -v "$root/archive/" \
-             | grep -v "$root/in-progress/")
-  echo "$n"
+  _inventory "$1" | grep -c "^$2|" || true
 }
 
 # list_skills <skills_root> — print each active skill's name (the directory
 # basename, or "orchestrator" for the top-level skill), one per line, sorted.
-# Uses the SAME -maxdepth 3 + archive/in-progress filter as count_total so the
-# README-table check sees exactly the inventory the counts are derived from.
+# Derives from the SAME inventory pass as count_total so the README-table
+# check sees exactly the inventory the counts are derived from.
 list_skills() {
-  local root="$1" f d
-  while IFS= read -r f; do
-    [[ -z "$f" ]] && continue
-    d="$(dirname "$f")"
-    if [[ "$(basename "$(dirname "$d")")" == "skills" && "$(basename "$d")" == "orchestrator" ]]; then
-      echo "orchestrator"
-    else
-      basename "$d"
-    fi
-  done < <(find "$root" -maxdepth 3 -name SKILL.md -type f 2>/dev/null \
-             | grep -v "$root/archive/" \
-             | grep -v "$root/in-progress/") \
-    | LC_ALL=C sort
+  _inventory "$1" | cut -d'|' -f2 | LC_ALL=C sort
 }
 
 # ---------------------------------------------------------------------------
@@ -269,6 +258,129 @@ EOF
 }
 
 # ---------------------------------------------------------------------------
+# README architecture-diagram BOX check.
+#
+# The category subgraph labels ("⚙️ workflows/ — 32 skills") are kept fresh by
+# the MERMAID_LABELS assertions below, but the box CONTENTS are hand-drawn:
+# named nodes plus an optional overflow node (`more["+ N more"]`). Both have
+# drifted silently — 13 named + "+ 18 more" = 31 under a "32 skills" label,
+# and a node id reused across two boxes made one box render a node short
+# (mermaid node ids are global per graph). Per category box this asserts:
+# named nodes + overflow == disk count, and no node id is defined twice inside
+# one mermaid block. Boxes with no nodes at all are skipped (fixture READMEs
+# carry bare subgraph headers), so a README without drawn boxes is a no-op.
+#
+# --sync repairs only the overflow number; named nodes are hand-maintained,
+# like the catalog table — add/remove those by hand.
+
+# _mermaid_boxes <file> — emit "BOX|<subgraph-id>|<category>|<named>|<overflow-or-->"
+# per category box and "DUP|<node-id>" per duplicated node id.
+_mermaid_boxes() {
+  awk '
+    function flushbox() {
+      if (box != "") print "BOX|" box "|" cat "|" named "|" over
+      box = ""
+    }
+    /^```mermaid[[:space:]]*$/ { inm = 1; box = ""; delete seen; next }
+    inm && /^```/ {
+      flushbox()
+      for (id in seen) if (seen[id] > 1) print "DUP|" id
+      inm = 0
+      next
+    }
+    !inm { next }
+    /^[[:space:]]*subgraph[[:space:]]/ {
+      flushbox()
+      cat = ""
+      line = $0
+      sub(/^[[:space:]]*subgraph[[:space:]]+/, "", line)
+      id = line; sub(/\[.*$/, "", id)
+      # Category boxes carry a "<dir>/ — N skills|agents" label.
+      if (match(line, /[A-Za-z0-9_-]+\/ — [0-9]+ (skills|agents)/)) {
+        cat = substr(line, RSTART, RLENGTH)
+        sub(/\/.*$/, "", cat)
+        box = id; named = 0; over = "-"
+      }
+      next
+    }
+    /^[[:space:]]*end[[:space:]]*$/ { flushbox(); next }
+    match($0, /^[[:space:]]*[A-Za-z][A-Za-z0-9_]*\[/) {
+      id = $0
+      sub(/^[[:space:]]*/, "", id); sub(/\[.*$/, "", id)
+      seen[id]++
+      if (box != "") {
+        if ($0 ~ /\[" *\+ *[0-9]+ more *"\]/) {
+          over = $0
+          sub(/^.*\[" *\+ */, "", over); sub(/ more.*$/, "", over)
+        } else {
+          named++
+        }
+      }
+      next
+    }
+  ' "$1"
+}
+
+check_readme_mermaid_boxes() {
+  local file="$1"
+  [[ -f "$file" ]] || return 0
+  local kind id cat named over disk
+  while IFS='|' read -r kind id cat named over; do
+    case "$kind" in
+      DUP)
+        MISMATCHES+=("README mermaid: node id '$id' defined more than once (one box renders short — rename one id)")
+        ;;
+      BOX)
+        [[ "$named" == "0" && "$over" == "-" ]] && continue
+        disk="$(count_category "$SKILLS_ROOT" "$cat")"
+        if [[ "$over" == "-" ]]; then
+          if (( named != disk )); then
+            MISMATCHES+=("README mermaid ${cat}/ box: $named named nodes, disk says $disk (add/remove nodes by hand)")
+          fi
+        else
+          if (( named + over != disk )); then
+            MISMATCHES+=("README mermaid ${cat}/ box: $named named + $over more = $(( named + over )), disk says $disk")
+          fi
+        fi
+        ;;
+    esac
+  done < <(_mermaid_boxes "$file")
+}
+
+# sync_readme_mermaid_overflow <file> — rewrite each box's "+ N more" node so
+# named + N == disk. Boxes without an overflow node are left for --check.
+sync_readme_mermaid_overflow() {
+  local file="$1"
+  [[ -f "$file" ]] || return 0
+  local kind id cat named over disk expect tmp
+  while IFS='|' read -r kind id cat named over; do
+    [[ "$kind" == "BOX" ]] || continue
+    [[ "$over" == "-" ]] && continue
+    disk="$(count_category "$SKILLS_ROOT" "$cat")"
+    expect=$(( disk - named ))
+    (( expect < 1 )) && continue
+    if (( named + over != disk )); then
+      tmp="$(mktemp "${TMPDIR:-/tmp}/ats-mermaid.XXXXXX")"
+      awk -v sg="$id" -v n="$expect" '
+        /^[[:space:]]*subgraph[[:space:]]/ {
+          line = $0
+          sub(/^[[:space:]]*subgraph[[:space:]]+/, "", line)
+          cur = line; sub(/\[.*$/, "", cur)
+          inbox = (cur == sg)
+        }
+        /^[[:space:]]*end[[:space:]]*$/ { inbox = 0 }
+        inbox && /\[" *\+ *[0-9]+ more *"\]/ {
+          sub(/\[" *\+ *[0-9]+ more *"\]/, "[\"+ " n " more\"]")
+        }
+        { print }
+      ' "$file" > "$tmp"
+      cat "$tmp" > "$file"
+      rm -f "$tmp"
+    fi
+  done < <(_mermaid_boxes "$file")
+}
+
+# ---------------------------------------------------------------------------
 # Per-category README mermaid label config.
 # Maps the README label token -> category -> noun (skills|agents).
 # Format: "<label-prefix>|<category>|<noun>"
@@ -336,6 +448,97 @@ for_each_assertion() {
     '[0-9]+-skill library' "$total" \
     's/.*[^0-9]([0-9]+)-skill library.*/\1/' \
     "s/[0-9]+(-skill library)/${total}\1/g"
+
+  # "N portable skills" — the hero tagline (~9). Drifted 67-vs-68 unguarded.
+  "$cb" "$README" "README hero (N portable skills)" \
+    '[0-9]+ portable skills' "$total" \
+    's/.*[^0-9]([0-9]+) portable skills.*/\1/' \
+    "s/[0-9]+( portable skills)/${total}\1/g"
+
+  # "out of all N" — the madness-router blurb (~63) and front-door bullet (~80).
+  "$cb" "$README" "README prose (out of all N)" \
+    'out of all [0-9]+' "$total" \
+    's/.*out of all ([0-9]+).*/\1/' \
+    "s/(out of all )[0-9]+/\1${total}/g"
+
+  # "skill library (N)" — the project-structure tree comment (~453).
+  "$cb" "$README" "README tree (skill library (N))" \
+    'skill library \([0-9]+\)' "$total" \
+    's/.*skill library \(([0-9]+)\).*/\1/' \
+    "s/(skill library \()[0-9]+(\))/\1${total}\2/g"
+
+  # --- Per-category prose/badge phrases (README + plugin/marketplace) --------
+  # These carry per-category numbers that the total-only sync used to strand
+  # (the marketplace breakdown shipped 41-era counts at a 68-skill HEAD).
+  local n_roles n_contracts n_git n_meta n_workflows n_loops f
+  n_roles="$(count_category "$SKILLS_ROOT" roles)"
+  n_contracts="$(count_category "$SKILLS_ROOT" contracts)"
+  n_git="$(count_category "$SKILLS_ROOT" git)"
+  n_meta="$(count_category "$SKILLS_ROOT" meta)"
+  n_workflows="$(count_category "$SKILLS_ROOT" workflows)"
+  n_loops="$(count_category "$SKILLS_ROOT" loops)"
+
+  for f in "$README" "$PLUGIN_JSON" "$MARKETPLACE_JSON"; do
+    "$cb" "$f" "per-category (N role agents)" \
+      '[0-9]+ role agents' "$n_roles" \
+      's/.*[^0-9]([0-9]+) role agents.*/\1/' \
+      "s/[0-9]+( role agents)/${n_roles}\1/g"
+    "$cb" "$f" "per-category (N contract skills)" \
+      '[0-9]+ contract skills' "$n_contracts" \
+      's/.*[^0-9]([0-9]+) contract skills.*/\1/' \
+      "s/[0-9]+( contract skills)/${n_contracts}\1/g"
+    "$cb" "$f" "per-category (N git workflow skills)" \
+      '[0-9]+ git[- ]workflow skills' "$n_git" \
+      's/.*[^0-9]([0-9]+) git[- ]workflow skills.*/\1/' \
+      "s/[0-9]+( git[- ]workflow skills)/${n_git}\1/g"
+    "$cb" "$f" "per-category (N meta skills)" \
+      '[0-9]+ meta[-/]s' "$n_meta" \
+      's@.*[^0-9]([0-9]+) meta[-/]s.*@\1@' \
+      "s@[0-9]+( meta[-/]s)@${n_meta}\1@g"
+    "$cb" "$f" "per-category (N cross-cutting workflow)" \
+      '[0-9]+ cross-cutting workflow' "$n_workflows" \
+      's/.*[^0-9]([0-9]+) cross-cutting workflow.*/\1/' \
+      "s/[0-9]+( cross-cutting workflow)/${n_workflows}\1/g"
+    "$cb" "$f" "per-category (N autonomous-loop skills)" \
+      '[0-9]+ autonomous-loop skills' "$n_loops" \
+      's/.*[^0-9]([0-9]+) autonomous-loop skills.*/\1/' \
+      "s/[0-9]+( autonomous-loop skills)/${n_loops}\1/g"
+  done
+
+  # README-only per-category phrasings: badges + loop prose.
+  "$cb" "$README" "README badge (role%20agents-N)" \
+    'role%20agents-[0-9]+-' "$n_roles" \
+    's/.*role%20agents-([0-9]+)-.*/\1/' \
+    "s/(role%20agents-)[0-9]+(-)/\1${n_roles}\2/g"
+  "$cb" "$README" "README badge (autonomous%20loops-N)" \
+    'autonomous%20loops-[0-9]+-' "$n_loops" \
+    's/.*autonomous%20loops-([0-9]+)-.*/\1/' \
+    "s/(autonomous%20loops-)[0-9]+(-)/\1${n_loops}\2/g"
+  "$cb" "$README" "README prose (N autonomous loops)" \
+    '[0-9]+ autonomous loops' "$n_loops" \
+    's/.*[^0-9]([0-9]+) autonomous loops.*/\1/' \
+    "s/[0-9]+( autonomous loops)/${n_loops}\1/g"
+  "$cb" "$README" "README prose (N loop skills)" \
+    '[0-9]+ loop skills' "$n_loops" \
+    's/.*[^0-9]([0-9]+) loop skills.*/\1/' \
+    "s/[0-9]+( loop skills)/${n_loops}\1/g"
+
+  # PLAN.md "a **13-skill autonomous-loop library**".
+  "$cb" "$PLAN_MD" "PLAN.md (N-skill autonomous-loop library)" \
+    '[0-9]+-skill autonomous-loop library' "$n_loops" \
+    's/.*[^0-9]([0-9]+)-skill autonomous-loop library.*/\1/' \
+    "s/[0-9]+(-skill autonomous-loop library)/${n_loops}\1/g"
+
+  # --- CLAUDE.md per-category "(N)" breakdown --------------------------------
+  # "- **`skills/<cat>/`** (N) — ..." — the always-loaded instruction file's
+  # category counts drifted silently after #33 (workflows said 31 at a 32 disk).
+  for cat in $CATEGORIES; do
+    n="$(count_category "$SKILLS_ROOT" "$cat")"
+    "$cb" "$CLAUDE_MD" "CLAUDE.md category skills/${cat}/ (N)" \
+      "\\*\\*\`skills/${cat}/\`\\*\\* \\([0-9]+\\)" "$n" \
+      "s@.*\`skills/${cat}/\`\\*\\* \\(([0-9]+)\\).*@\\1@" \
+      "s@(\`skills/${cat}/\`\\*\\* \\()[0-9]+(\\))@\\1${n}\\2@"
+  done
 
   # --- README per-category mermaid labels ("contracts/ — 2 skills") ---------
   for spec in "${MERMAID_LABELS[@]}"; do
@@ -410,6 +613,9 @@ cmd_check() {
   # Additionally assert the README's one-row-per-skill catalog table matches
   # disk (row count + skill names). No-op on READMEs without the table header.
   check_readme_table "$README"
+  # And the architecture-diagram boxes: named nodes + "+ N more" == disk per
+  # category, no duplicate node ids. No-op on READMEs without drawn boxes.
+  check_readme_mermaid_boxes "$README"
 
   local total rc=0
   total="$(count_total "$SKILLS_ROOT")"
@@ -448,6 +654,8 @@ _sync_cb() {
 
 cmd_sync() {
   for_each_assertion _sync_cb
+  # Repair the architecture-diagram overflow nodes ("+ N more") from disk.
+  sync_readme_mermaid_overflow "$README"
   # Reconcile the plugin.json `skills` array (register new, drop stale).
   if [[ -f "$SKILLS_SYNC" ]] && command -v python3 >/dev/null 2>&1; then
     python3 "$SKILLS_SYNC" --sync
