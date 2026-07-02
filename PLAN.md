@@ -1,7 +1,7 @@
 # Skill-Madness — Plan
 
 > **Created:** 2026-05-26
-> **Last updated:** 2026-07-01
+> **Last updated:** 2026-07-02
 > **Companions:** [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md) (open ledger), [`docs/COMPLETED-WORK.md`](docs/COMPLETED-WORK.md) (completed archive), [`docs/FUTURE.md`](docs/FUTURE.md) (frontier, out of scope)
 
 > **Editing this doc?**
@@ -23,7 +23,7 @@ Skill-Madness is a mature **69-skill** library across **seven categories** — a
 
 **What's left: nothing — the backlog is cleared (2026-06-24).** The entire *pre-loops* backlog closed across three PRs after the loop library landed: PR #31 (living-plan reconcile + reality-gate), PR #32 (the FA-fidelity sweep — FA1/FA2/FA4/FA5 + CL1), PR #33 (the `class-extraction-guard` gate + orchestrator port conventions, catalog 67 → 68), and PR #34 (the backlog-clear pass — FA7 metadata drop, PR1/PR2 process guidance, CL3 catalog-table check, and the FA8/CL2 decisions). Both audits, the runtime layer, the loop library, and every doc-polish/process/functional-fidelity item are now resolved.
 
-Since then (2026-07-01) the **`model-adaptation`** skill shipped — the owner for cross-model prompting/scaffolding guidance (Fable 5 / Mythos 5), built from Anthropic's Fable 5 prompting guide, with its top checks wired into skill-review, loop-controller, and orchestrator (catalog 68 → **69**, meta 6 → 7). See the closure log. That leaves **one small open follow-up (MA-1)** — otherwise the backlog is clear. See [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md) (add the next batch via the `plan-intake` skill).
+Since then (2026-07-01) the **`model-adaptation`** skill shipped — the owner for cross-model prompting/scaffolding guidance (Fable 5 / Mythos 5), built from Anthropic's Fable 5 prompting guide, with its top checks wired into skill-review, loop-controller, and orchestrator (catalog 68 → **69**, meta 6 → 7). See the closure log. That leaves **one small open follow-up (MA-1)**. On 2026-07-02 the **offline-window review** (74-agent adversarial review of PRs #31–#37) was intaken: the count-drift/guard, tooling-bug, and model-adaptation-content fixes ship in **PRs #38/#39/#40**, and 16 residual findings are tracked as **RV1–RV16** — headlined by **RV1 (P1)**, living-plan's Reference Implementation misattributing the archive convention to The Hive. See [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md).
 
 ## Milestones
 
