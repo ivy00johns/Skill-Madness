@@ -27,7 +27,8 @@ when it's cheap, instead of a human refactoring 40 sites later.
 ## Existing codebase (ratchet — stop the bleeding, burn down over time)
 
 ```bash
-python3 scripts/check_class_extraction.py --root . --write-baseline
+python3 ~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py \
+  --root . --write-baseline
 git add .class-guard-baseline.json
 ```
 

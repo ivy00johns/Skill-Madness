@@ -35,7 +35,8 @@ test + `design-token-guard` — add this check for any wave that touched UI. Sam
 deterministic, parse-once shape, same failure routing:
 
 ```bash
-python3 scripts/check_class_extraction.py --root . --json > /tmp/ceg.json
+python3 ~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py \
+  --root . --json > /tmp/ceg.json
 ERRORS=$(python3 -c "import json;print(json.load(open('/tmp/ceg.json'))['summary']['errors'])")
 # ERRORS > 0  →  block the wave (only when a rule is "error"), route findings back
 #               to the owning frontend-agent by file (each finding has file/line).

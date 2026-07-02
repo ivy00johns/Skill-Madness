@@ -46,7 +46,7 @@ discover_skills() {
     cat="$(basename "$cat_dir")"
     _is_skipped_category "$cat" && continue
 
-    # Check for skill subdirectories (e.g., meta/skill-audit/SKILL.md)
+    # Check for skill subdirectories (e.g., meta/skill-review/SKILL.md)
     local has_subdirs=""
     for skill_dir in "$cat_dir"/*/; do
       [[ -d "$skill_dir" && -f "$skill_dir/SKILL.md" ]] || continue

@@ -14,12 +14,26 @@ set -euo pipefail
 ROOT="$(git rev-parse --show-toplevel)"
 GUARD="${CLASS_GUARD:-$HOME/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py}"
 OUT="$(mktemp)"
+trap 'rm -f "$OUT"' EXIT
 
 python3 "$GUARD" --root "$ROOT" --staged --json > "$OUT" || true
 ERRORS="$(python3 -c "import json;print(json.load(open('$OUT'))['summary']['errors'])")"
 
 if [ "$ERRORS" -gt 0 ]; then
-  python3 "$GUARD" --root "$ROOT" --staged   # human-readable detail
+  # Render the human-readable detail from the JSON already captured above —
+  # a second full scan here doubled the wait exactly when the commit blocks.
+  python3 - "$OUT" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
+for f in sorted(data["findings"], key=lambda x: (-x["count"], x["file"])):
+    tag = "ERROR" if f["severity"] == "error" else "warn "
+    print(f"[{tag}] {f['rule']}  {f['file']}:{f['line']}  (×{f['count']})")
+    print(f"        {f['string']}")
+    print(f"        → {f['suggestion']}")
+    if f["count"] > 1:
+        sites = ", ".join(f["occurrences"][:8]) + (" …" if len(f["occurrences"]) > 8 else "")
+        print(f"        sites: {sites}")
+PY
   echo "class-extraction-guard: $ERRORS error-severity finding(s) in staged files."
   echo "Extract the repeated combos into a named class/component, or adjust .class-guard.json."
   exit 1

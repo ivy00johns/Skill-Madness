@@ -1,6 +1,6 @@
 ---
 name: class-extraction-guard
-version: 1.0.0
+version: 1.0.1
 composes_with: ["orchestrator", "frontend-agent", "design-token-guard", "render-sanity", "code-review-agent", "sync-skills"]
 description: >-
   Source-level gate that catches utility-class soup — the same long run of
@@ -51,10 +51,11 @@ None subsumes the others. A UI build wants all three.
 
 ```bash
 # Human-readable report
-python3 scripts/check_class_extraction.py --root .
+python3 ~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py --root .
 
-# JSON for a gate (mirrors design-token-guard's contract exactly)
-python3 scripts/check_class_extraction.py --root . --json
+# JSON for a gate (same gate contract as design-token-guard: exit codes +
+# .summary.errors / .summary.warnings — the JSON key shapes differ)
+python3 ~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py --root . --json
 #   -> { "summary": { "errors": 0, "warnings": 12, "files_scanned": 98 },
 #        "findings": [ { "rule": "...", "file": "...", "line": 93, "count": 9,
 #                        "string": "...", "occurrences": [...], "suggestion": "..." } ] }
@@ -85,8 +86,9 @@ which is why the default is non-blocking. To adopt without drowning in
 pre-existing debt, record a baseline and only flag **new** duplication:
 
 ```bash
-python3 scripts/check_class_extraction.py --root . --write-baseline   # snapshot today's soup
-python3 scripts/check_class_extraction.py --root . --json             # now reports only NEW combos
+CEG=~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py
+python3 "$CEG" --root . --write-baseline   # snapshot today's soup
+python3 "$CEG" --root . --json             # now reports only NEW combos
 ```
 
 The baseline (`.class-guard-baseline.json`) is a set of normalized combo keys.
