@@ -29,6 +29,7 @@ orchestrator wave-gate snippet unchanged.)
 from __future__ import annotations
 
 import argparse
+import bisect
 import hashlib
 import json
 import os
@@ -129,19 +130,32 @@ def _has_interpolation(value: str) -> bool:
     return "${" in value or "{{" in value
 
 
-def _line_of(text: str, pos: int) -> int:
-    return text.count("\n", 0, pos) + 1
+def _newline_positions(text: str) -> List[int]:
+    """Every newline offset, computed once per file. Recounting from position 0
+    per match (`text.count("\\n", 0, pos)`) made the scan O(matches × file-size)
+    — one big generated file stalled the pre-commit hook for tens of seconds."""
+    out: List[int] = []
+    i = text.find("\n")
+    while i != -1:
+        out.append(i)
+        i = text.find("\n", i + 1)
+    return out
+
+
+def _line_of(newlines: List[int], pos: int) -> int:
+    return bisect.bisect_left(newlines, pos) + 1
 
 
 def extract_class_strings(text: str, rel_path: str) -> List[ClassString]:
     out: List[ClassString] = []
     seen_spans: List[Tuple[int, int]] = []
+    newlines = _newline_positions(text)
 
     for m in _ATTR_RE.finditer(text):
         val = m.group("val")
         if _has_interpolation(val) or not _looks_like_classes(val):
             continue
-        out.append(ClassString(val.strip(), rel_path, _line_of(text, m.start())))
+        out.append(ClassString(val.strip(), rel_path, _line_of(newlines, m.start())))
         seen_spans.append((m.start(), m.end()))
 
     for call in _COMBINATOR_CALL_RE.finditer(text):
@@ -155,7 +169,7 @@ def extract_class_strings(text: str, rel_path: str) -> List[ClassString]:
             # call are normal composition, not soup.
             if len([t for t in val.split() if t]) < 2:
                 continue
-            out.append(ClassString(val.strip(), rel_path, _line_of(text, base + sm.start())))
+            out.append(ClassString(val.strip(), rel_path, _line_of(newlines, base + sm.start())))
 
     return out
 
@@ -195,14 +209,35 @@ def iter_files(root: str, cfg: dict, paths: List[str], staged: bool) -> List[str
     ignore = set(cfg["ignoreDirs"])
 
     if staged:
+        # `git diff --cached --name-only` emits paths relative to the repo
+        # TOPLEVEL regardless of -C, so they must be joined onto the toplevel,
+        # not onto --root — joining onto a subdirectory --root built paths like
+        # web/web/src/E.tsx that silently failed to open (false green). With a
+        # subdirectory --root, only staged files under it are scanned; and the
+        # ignoreDirs config applies here just like in the walk branch.
         try:
+            top = subprocess.run(
+                ["git", "-C", root, "rev-parse", "--show-toplevel"],
+                capture_output=True, text=True, check=True,
+            ).stdout.strip()
             out = subprocess.run(
                 ["git", "-C", root, "diff", "--cached", "--name-only", "--diff-filter=ACM"],
                 capture_output=True, text=True, check=True,
             ).stdout.split("\n")
         except (subprocess.CalledProcessError, FileNotFoundError):
-            out = []
-        return [os.path.join(root, p) for p in out if p.strip().endswith(exts)]
+            return []
+        root_real = os.path.realpath(root)
+        staged_files: List[str] = []
+        for p in out:
+            p = p.strip()
+            if not p or not p.endswith(exts):
+                continue
+            if set(p.split("/")) & ignore:
+                continue
+            ap = os.path.realpath(os.path.join(top, p))
+            if ap == root_real or ap.startswith(root_real + os.sep):
+                staged_files.append(ap)
+        return staged_files
 
     targets = paths or [root]
     found: List[str] = []
@@ -351,11 +386,13 @@ def main(argv: Optional[List[str]] = None) -> int:
     files = iter_files(root, cfg, args.paths, args.staged)
 
     all_strings: List[ClassString] = []
+    scanned = 0
     for fp in files:
         try:
             text = open(fp, encoding="utf-8", errors="replace").read()
         except OSError:
             continue
+        scanned += 1
         rel = os.path.relpath(fp, root)
         all_strings.extend(extract_class_strings(text, rel))
 
@@ -370,7 +407,8 @@ def main(argv: Optional[List[str]] = None) -> int:
 
     errors = sum(1 for f in findings if f.severity == "error")
     warnings = sum(1 for f in findings if f.severity == "warning")
-    summary = {"errors": errors, "warnings": warnings, "files_scanned": len(files)}
+    # scanned, not len(files): a path that failed to open was not scanned.
+    summary = {"errors": errors, "warnings": warnings, "files_scanned": scanned}
 
     if args.json:
         print(json.dumps({

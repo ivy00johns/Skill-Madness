@@ -243,9 +243,30 @@ PYEOF
 # ---------------------------------------------------------------------------
 # Collect SKILL.md files to lint
 # ---------------------------------------------------------------------------
+
+# _drop_gitignored — filter stdin, dropping paths git ignores. Gitignored
+# SKILL.md files (skill-creator / skill-review eval workspaces, `*-workspace/`
+# debris) are not part of the tree, but the discovery find used to pick them
+# up and fail the lint (+ the bats regression test) after every local
+# skill-creator run. Outside a git repo this is a pass-through. Explicitly
+# passed files are NOT filtered — asking for a file means lint that file.
+_drop_gitignored() {
+  local all ignored
+  all="$(cat)"
+  [[ -z "$all" ]] && return 0
+  if git -C "$REPO_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    ignored="$(printf '%s\n' "$all" | git -C "$REPO_ROOT" check-ignore --stdin 2>/dev/null || true)"
+    if [[ -n "$ignored" ]]; then
+      printf '%s\n' "$all" | grep -vxF -f <(printf '%s\n' "$ignored") || true
+      return 0
+    fi
+  fi
+  printf '%s\n' "$all"
+}
+
 collect_files() {
   if [[ ${#LINT_PATHS[@]} -eq 0 ]]; then
-    find "$SKILLS_ROOT" -name "SKILL.md" -type f | sort
+    find "$SKILLS_ROOT" -name "SKILL.md" -type f | sort | _drop_gitignored
     return
   fi
   local p
@@ -253,7 +274,7 @@ collect_files() {
     if [[ -f "$p" ]]; then
       printf '%s\n' "$p"
     elif [[ -d "$p" ]]; then
-      find "$p" -name "SKILL.md" -type f | sort
+      find "$p" -name "SKILL.md" -type f | sort | _drop_gitignored
     else
       printf '%s: not a file or directory\n' "$p" >&2
     fi

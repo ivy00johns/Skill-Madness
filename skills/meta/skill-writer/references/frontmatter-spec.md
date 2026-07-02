@@ -120,6 +120,13 @@ See `description-patterns.md` for templates and worked examples.
     tags: [planning, multi-agent]
   ```
 
+> **Repo convention (FA7, PR #34): this repo does not use `metadata:`.** The
+> block was dropped from every skill that carried it — the directory conveys
+> the category and the description carries the discovery keywords. It stays
+> spec-legal for external consumers, but new Skill-Madness skills should omit
+> it (the first skill authored after FA7 reintroduced it because this spec
+> still presented the block without the decision).
+
 ### disable-model-invocation
 
 - **Type:** boolean
@@ -219,7 +226,7 @@ These rules come from Anthropic's spec. `skill-review` enforces them.
 | `description` ≤200 char target | Soft guidance | Forces concise triggers; 1024 is the hard ceiling per Anthropic spec |
 | `allowed-tools` (hyphen) | Canonical from this version | Aligns with Anthropic spec; `allowed_tools` accepted as deprecated alias |
 | `compatibility` | Added | Cross-platform parsers use this string; `requires_*` booleans complement for programmatic gating |
-| `metadata` | Adopted (optional) | Free-form attribution; nested form matches Anthropic spec |
+| `metadata` | Spec-legal, unused here (FA7) | Nested form matches Anthropic spec, but PR #34 dropped it from all skills — directory conveys category, description carries keywords |
 | `requires_agent_teams` | Explicit boolean | Native teams need env var; skills must declare this for runtime gating |
 | `requires_claude_code` | Explicit boolean | Some skills are CLI-only; users need to know |
 | `owns.directories` | Enforced by orchestrator | Core to zero-conflict parallel builds |

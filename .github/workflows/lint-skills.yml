@@ -51,6 +51,11 @@ jobs:
       - name: Run lint (enforce pass/fail)
         run: scripts/lint-skills.sh skills/
 
+      # Scanner regressions for the class-extraction-guard skill (staged-mode
+      # path resolution, ignoreDirs in staged mode, line-number correctness).
+      - name: Run class-extraction-guard bats suite
+        run: bats tests/class-extraction-guard
+
       # Upload the JUnit XML even when the job fails so reviewers can
       # inspect which rules fired without re-running locally.
       - name: Upload lint results

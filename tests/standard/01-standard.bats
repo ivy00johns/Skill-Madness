@@ -226,3 +226,34 @@ Body content long enough to clear the stub-length check with plenty of real word
   [ "$status" -eq 0 ]
   [[ "$output" != *"unknown skill 'superpowers:brainstorming'"* ]]
 }
+
+@test "linter: gitignored workspace SKILL.md debris is skipped by the directory walk" {
+  _has_pyyaml || skip "python3 pyyaml not installed"
+  command -v git >/dev/null 2>&1 || skip "git not available"
+  # Self-contained fixture repo: a copied linter (so its REPO_ROOT is the
+  # fixture), one tracked valid skill, and a broken SKILL.md inside a
+  # gitignored *-workspace/ dir — the skill-creator debris that used to fail
+  # the lint (name mismatch + duplicate name) after every local eval run.
+  local fix="$BATS_TEST_TMPDIR/lintfix"
+  mkdir -p "$fix/scripts" "$fix/spec" "$fix/skills/meta/good-skill" \
+           "$fix/skills/meta/skill-review-workspace/iteration-1/broken"
+  cp -R "$REPO_ROOT/scripts/lib" "$fix/scripts/lib"
+  cp "$REPO_ROOT/scripts/lint-skills.sh" "$fix/scripts/lint-skills.sh"
+  cp "$REPO_ROOT/spec/frontmatter.schema.json" "$fix/spec/frontmatter.schema.json" 2>/dev/null || true
+  git -C "$fix" init -q
+  printf '*-workspace/\n' > "$fix/.gitignore"
+  cat > "$fix/skills/meta/good-skill/SKILL.md" <<'EOF'
+---
+name: good-skill
+version: 1.0.0
+description: A clean Core skill used as the tracked fixture in the gitignore test.
+---
+Body content long enough to clear the stub-length check with plenty of real words here.
+EOF
+  printf -- '---\nname: totally-different-name\nversion: nope\ndescription: x\n---\nstub\n' \
+    > "$fix/skills/meta/skill-review-workspace/iteration-1/broken/SKILL.md"
+
+  run "$fix/scripts/lint-skills.sh" "$fix/skills/"
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"skill-review-workspace"* ]]
+}

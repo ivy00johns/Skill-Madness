@@ -1,9 +1,10 @@
 # Port conventions — collision-free local dev
 
 This is the single source of truth for which ports a generated project uses and
-how it picks them. Every skill that names a localhost port (orchestrator,
-agent-spawning, workspace-bootstrap, deployment-checklist, render-sanity,
-playwright, infrastructure-agent) points here instead of hardcoding its own.
+how it picks them. The orchestrator docs that name localhost ports (the
+orchestrator SKILL.md, agent-spawning, workspace-bootstrap) and the playwright
+skill point here instead of hardcoding their own; any other skill that needs a
+dev port should do the same.
 
 ## Why this exists
 
@@ -84,8 +85,10 @@ free_port() {
   return 1
 }
 
-export API_PORT=$(free_port 8000 8049) || exit 1
-export WEB_PORT=$(free_port 5173 5199) || exit 1
+# Assign and export separately: `export VAR=$(cmd) || exit 1` never exits —
+# export masks the command substitution's status (shellcheck SC2155).
+API_PORT=$(free_port 8000 8049) || exit 1; export API_PORT
+WEB_PORT=$(free_port 5173 5199) || exit 1; export WEB_PORT
 echo "→ API  http://localhost:$API_PORT"
 echo "→ web  http://localhost:$WEB_PORT"
 # e.g.  concurrently "uvicorn app:api --port $API_PORT"  "vite --port $WEB_PORT"
