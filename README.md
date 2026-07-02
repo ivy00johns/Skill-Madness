@@ -458,7 +458,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 │   ├── contracts/                    # 2 — contract-author / contract-auditor
 │   ├── meta/                         # 7 — skills that manage skills (incl. madness, model-adaptation)
 │   ├── git/                          # 4 — git workflow conventions
-│   ├── workflows/                    # 32 — cross-cutting process skills
+│   ├── workflows/                    # 33 — cross-cutting process skills
 │   └── loops/                        # 13 — autonomous-loop skills
 │
 ├── scripts/                          # multi-tool installer

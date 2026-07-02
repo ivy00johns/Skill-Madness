@@ -7,7 +7,7 @@ allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
-composes_with: ["llm-wiki", "wiki-research", "docs-agent"]
+composes_with: ["llm-wiki", "wiki-research", "docs-agent", "artifact-publish"]
 spawned_by: []
 ---
 
@@ -170,6 +170,10 @@ Full reference in `references/house-style.md`. The non-negotiables:
 ## Optional: index page
 
 Once the user has 3+ docs, offer to generate `index.html` — a landing page linking all docs, grouped by type, with the same house style. Great for an Obsidian vault folder you want to share externally.
+
+## Optional: publish the HTML as a hosted Artifact
+
+When the user wants a *shareable link* rather than a file they open locally, the `.html` companion is a ready-made Claude Code Artifact — hand it to `artifact-publish` to render it to a hosted, default-private claude.ai page. The one rule that carries over: **the `.md` stays canonical**; the published Artifact is a shared *view* of it, never the source of truth. (The HTML is already self-contained, which is exactly what the Artifact CSP requires — one fewer thing to fix.)
 
 ## Anti-patterns
 
