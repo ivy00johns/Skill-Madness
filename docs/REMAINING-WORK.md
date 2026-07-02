@@ -1,11 +1,11 @@
 # Remaining Work — Tactical Ledger
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-02
 **Companions:** [`PLAN.md`](../PLAN.md) (strategic roadmap + closure log), [`docs/COMPLETED-WORK.md`](COMPLETED-WORK.md) (completed archive — every closed item, verbatim), [`docs/FUTURE.md`](FUTURE.md) (frontier overflow)
 
-> ## Nearly clear — one small open follow-up (as of 2026-07-01)
+> ## Open: the offline-window review batch (RV1–RV16) + MA-1 (as of 2026-07-02)
 >
-> **The pre-loops backlog is fully closed** — that detail lives in [`docs/COMPLETED-WORK.md`](COMPLETED-WORK.md) (tactical archive) with the strategic digest in the [`PLAN.md`](../PLAN.md) closure log. The autonomous-loop library (DEEP-RESEARCH-LOOPS §10, 13 loops + `madness`) shipped via PRs #24–#30; the entire **pre-loops backlog** — doc-polish/process (RF/TM/PR/CL) + the reports-v2 functional-fidelity audit (FA1–FA8) — is resolved. On 2026-07-01 the `model-adaptation` skill shipped (catalog **68 → 69**, meta 6 → 7), leaving **one small open follow-up, `MA-1`**, below. All gates green.
+> **The pre-loops backlog is fully closed** — that detail lives in [`docs/COMPLETED-WORK.md`](COMPLETED-WORK.md) (tactical archive) with the strategic digest in the [`PLAN.md`](../PLAN.md) closure log. The autonomous-loop library (DEEP-RESEARCH-LOOPS §10, 13 loops + `madness`) shipped via PRs #24–#30; the entire **pre-loops backlog** — doc-polish/process (RF/TM/PR/CL) + the reports-v2 functional-fidelity audit (FA1–FA8) — is resolved. On 2026-07-01 the `model-adaptation` skill shipped (catalog **68 → 69**, meta 6 → 7), leaving `MA-1` below. On 2026-07-02 the **offline-window review** (a 74-agent adversarial review of everything landed in PRs #31–#37) was intaken: the major/code findings are fixed in **PRs #38 / #39 / #40**; the 16 residual findings are tracked below as **RV1–RV16**. All gates green.
 >
 > Add new items by running the `plan-intake` skill on a report (audit, deep-dive, skill-review) — don't hand-add. See the `living-plan` skill for the convention.
 
@@ -15,7 +15,7 @@
 
 ## ID convention
 
-ID prefixes are stable and never reused: `RF` (reference-file gaps), `TM` (thinking-move additions), `PR` (process additions), `CL` (cleanup), `FA` (functional-audit findings), `MA` (model-adaptation follow-ups). Source short-links: `[IP]` → `docs/archive/superseded-plans/IMPROVEMENT_PLAN.md`; `[FAUDIT]` → `audit/reports-v2/00-MASTER-AUDIT.md` (gitignored — local working tree only).
+ID prefixes are stable and never reused: `RF` (reference-file gaps), `TM` (thinking-move additions), `PR` (process additions), `CL` (cleanup), `FA` (functional-audit findings), `MA` (model-adaptation follow-ups), `RV` (offline-window review findings). Source short-links: `[IP]` → `docs/archive/superseded-plans/IMPROVEMENT_PLAN.md`; `[FAUDIT]` → `audit/reports-v2/00-MASTER-AUDIT.md` (gitignored — local working tree only); `[REV]` → the 2026-07-01 offline-window review (74-agent adversarial review of PRs #31–#37; report delivered in-session, fixes in PRs #38/#39/#40, residuals intaken here 2026-07-02).
 
 ---
 
@@ -24,6 +24,27 @@ ID prefixes are stable and never reused: `RF` (reference-file gaps), `TM` (think
 ### 2026-07-01 — model-adaptation follow-ups (`MA`)
 
 - **MA-1** `[open]` — **`skill-writer/references/performance-notes.md` still teaches the prior-model "anti-laziness" tactic as a broadly-recommended default.** The 2026-07-01 `model-adaptation` work added a `skill-review` anti-pattern that flags over-eager "do not truncate / produce it in full" nagging on the Claude 5 family (Fable 5 / Mythos 5), where output laziness is far less common — but `performance-notes.md` itself, a skill-writer reference, still frames the `## Performance Notes` block as a generally-good pattern. Update it to mark the tactic as prior-model / apply-sparingly (keep only where a *measured* truncation failure exists for that specific skill), closing the skill-writer ↔ skill-review tension. Small; deferred out of the approved edit scope (skill-review / loop-controller / orchestrator). Source: the `model-adaptation` skill + Anthropic's *Prompting Claude Fable 5* guide.
+
+### 2026-07-02 — offline-window review residuals (`RV`)
+
+The review's majors + code bugs were fixed directly (PRs #38 catalog-guards, #39 tooling, #40 model-adaptation content); these are the residual confirmed findings. All `[open]`, Owner: —, Source: `[REV]`.
+
+- **RV1** `[open · P1]` — **living-plan's Reference Implementation misattributes the archive convention.** `skills/workflows/living-plan/SKILL.md:146` credits The Hive ("the canonical example") with `docs/COMPLETED-WORK.md`, a done-sweeping intake, and an archive-pointing ledger header — The Hive has none of these (its ledger keeps ~83 done rows inline). The project that actually implements the layout is PetriDishOfMadness, demoted to a worked-example paragraph. Re-attribute the rows or split the reference section.
+- **RV2** `[open · P2]` — **LICENSE file missing while MIT is claimed everywhere.** README badge (:13) and `[MIT](LICENSE)` (:~724) link a file that has never existed in any branch; plugin.json + marketplace.json declare `"license": "MIT"`; the "keep the notice" clause has no notice to keep. Human decision: add an MIT LICENSE at the root (copyright line) or repoint/remove the claims.
+- **RV3** `[open · P3]` — **README emoji-heading anchors don't resolve.** `:26` and `:79` link `#autonomous-loops`, but `## 🔁 Autonomous loops` slugs to `#-autonomous-loops` on GitHub; the file carries both anchor conventions (`:84` dash form vs nav `:29` bare form). Normalize to GitHub's slugs.
+- **RV4** `[open · P3]` — **reality-gate proposal cites uncommitted evidence.** `docs/proposals/2026-06-23-reality-gate-mock-as-done.md:56/:67` cite `ui-brief-workspace/` paths that exist only as local gitignored debris, and the "DONE — eval green" status line contradicts its own unchecked final checkbox. Inline the eval outcome (or commit an excerpt) and reconcile the status.
+- **RV5** `[open · P3]` — **claude-design-brief 13→12 sweep incomplete.** FA5 fixed one of seven "13 categories" mentions; residuals at `SKILL.md:107`, `references/anti-patterns.md:12/:26/:33`, `references/usage-modes.md:14/:40` (leave `anti-patterns.md:20`'s "13 frames" — artboard math, correct).
+- **RV6** `[open · P3]` — **nano-banana `.env` lookup order misdescribed.** `SKILL.md:45` documents process env → repo-root `.env` → skill-local `.env`, but `generate_image.py` breaks after the FIRST existing `.env` file, so the skill-local fallback is never read when a repo-root `.env` exists. Drop the per-file `break` (the per-key `os.environ` guard already preserves precedence) or fix the doc.
+- **RV7** `[open · P3]` — **use-freellmapi lost its only upstream URL.** FA7's metadata removal deleted `documentation: https://github.com/tashfeenahmed/freellmapi` while `SKILL.md:81` still says "see the repo README's *Local development* section". Re-add the URL in the body.
+- **RV8** `[open · P3]` — **PR #34's behavior additions shipped without version bumps.** contract-author (1.4.0), skill-writer (1.3.0), skill-review (1.2.0) gained new behavior with no MINOR bump — the same commit bumped orchestrator for a one-line cross-link — evading skill-health version-drift detection. Bump all three.
+- **RV9** `[open · P3]` — **living-plan leaks the `EM-###` prefix.** `SKILL.md:62` "(every EM-### row)" is PetriDishOfMadness's project-specific ID scheme, unexplained at that point and mismatching the named reference. Replace with a generic phrase ("every ID'd row").
+- **RV10** `[open · P3]` — **living-plan Setup never creates the archive.** `:57` mandates a two-file tactical layer, but Setup Step 2 (`:117-119`) still says "three canonical docs" and never creates `docs/COMPLETED-WORK.md` nor mentions lazy creation (documented only in plan-intake Step 8). Add the archive to Step 2 or state lazy creation explicitly.
+- **RV11** `[open · P3]` — **START-HERE points at the wrong doc for closed-item detail.** `START-HERE.md:20` still says "closed-item detail in `docs/REMAINING-WORK.md`"; #36 moved it to `docs/COMPLETED-WORK.md`. One-line repoint.
+- **RV12** `[open · P3]` — **PLAN.md's editing note prescribes the pre-sweep procedure.** `PLAN.md:8` says closing an item means flipping status in REMAINING-WORK; the completion sweep (#35/#36) replaced that with row relocation to the archive. Rewrite the note.
+- **RV13** `[open · P3]` — **COMPLETED-WORK date range excludes its own row.** `docs/COMPLETED-WORK.md:36` heading "Closed 2026-05-26 → 2026-06-01" includes FA3, which PLAN.md dates 2026-06-02. Extend the range or drop the end date.
+- **RV14** `[open · P3]` — **README references a nonexistent template.** `:~629` says copy `skills/meta/skill-writer/references/skill-template.md`, which never existed in any branch. Point at `body-template.md` or add the template.
+- **RV15** `[open · P3]` — **living-plan description missing sweep triggers.** v1.1.0 added the completion sweep without touching the description, so "my ledger is full of done rows"-type asks won't trigger the skill — violating the repo's own pushy-descriptions convention. Append sweep vocabulary.
+- **RV16** `[open · P3]` — **orchestrator body over the word guideline.** Body grew 5,177 → ~6,110 words (#31–#37) vs the ≤5,000 guideline, largely triplicated sibling-gate / reality-gate prose. Keep one canonical statement each + pointers to the existing references.
 
 When the next batch of work arrives, add it below under a new dated section with fresh IDs (continuing the stable-prefix scheme). Completed rows move out to the archive via the completion sweep, so this section stays scoped to what's actually left to do.
 
