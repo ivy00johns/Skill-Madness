@@ -10,28 +10,33 @@ and the [Fable 5 prompting guide](https://platform.claude.com/docs/en/build-with
 
 ## Contents
 
-- The three classifier domains
+- The four classifier domains
 - The `reasoning_extraction` landmine (the one that bites a skill toolkit)
 - The `stop_reason: "refusal"` contract
 - Configuring fallback to Opus 4.8
 - Toolkit implications (security-agent, skill authoring)
 - Audit recipe
 
-## The three classifier domains
+## The four classifier domains
 
 Fable 5 and Mythos 5 run safety classifiers that can decline a request and return
-`stop_reason: "refusal"`. Three domains matter for this toolkit:
+`stop_reason: "refusal"`. All four domains matter for this toolkit:
 
 1. **Offensive cybersecurity** — building exploits, malware, or attack tooling. *Benign*
    security work (a `security-agent` doing defensive review, a pentest-flavored prompt in
    an authorized engagement) can also trip it. This is expected routing, not a bug.
 2. **Biology & life sciences** — lab methods, molecular mechanisms. Beneficial
    life-sciences tasks may also trigger it. Rare in this toolkit, but real.
-3. **Reasoning extraction** — attempts to extract the model's *summarized thinking*. This
+3. **Frontier-LLM development** (`frontier_llm`) — requests that could assist the
+   development of competing AI models. Anthropic's docs note *benign machine-learning
+   work can also trigger this category* — and this toolkit does exactly that kind of
+   work (model layers like `use-freellmapi`, LLM-judge evals, multi-agent harnesses),
+   so treat a refusal here as expected routing too.
+4. **Reasoning extraction** — attempts to extract the model's *summarized thinking*. This
    is the one a skill-authoring toolkit provokes by accident (next section).
 
-The first two are content-driven and mostly unavoidable for legitimate work in those
-domains — the answer is fallback configuration, not prompt surgery. The third is
+The first three are content-driven and mostly unavoidable for legitimate work in those
+domains — the answer is fallback configuration, not prompt surgery. The fourth is
 **self-inflicted** and fully in your control.
 
 ## The `reasoning_extraction` landmine

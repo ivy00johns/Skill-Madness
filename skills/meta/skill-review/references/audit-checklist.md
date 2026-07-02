@@ -100,9 +100,9 @@ These check whether a skill is written for the model actually running it. See th
   fallbacks to Opus 4.8 — so the skill quietly loses the frontier model. Flag every hit
   that routes reasoning to the response; a skill *doc* explaining "why" to the human, or
   an instruction to *think* internally without emitting it, is fine and stays. Rewrite
-  risky hits to read structured `thinking` blocks or use a send-to-user tool. Detail:
-  `model-adaptation/references/refusal-and-fallback.md`. Sweep with:
-  `grep -riE "show your (thinking|reasoning)|narrate.*(reasoning|thinking)|reproduce.*(reasoning|thought)|chain[ -]of[ -]thought" <skill>`
+  risky hits to read structured `thinking` blocks or use a send-to-user tool. Sweep
+  with the **audit recipe** in `model-adaptation/references/refusal-and-fallback.md`
+  — that file owns the canonical grep (inlined variants of it drift; one already did).
 - [ ] **Prior-model over-prescription.** The over-prescription smells above (excessive
   MUST/NEVER, overly rigid templates, fighting natural behavior) are *also* a
   model-migration signal: a stronger model needs less scaffolding, and prescription that

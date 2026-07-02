@@ -7,10 +7,6 @@ requires_claude_code: false
 min_plan: starter
 compatibility: "Claude Code or Claude.ai; reference/advisory skill. No special tools required — WebFetch is optional, only to re-pull the live Anthropic guide."
 allowed-tools: ["Read", "Grep", "Glob", "Edit", "WebFetch"]
-metadata:
-  author: ivy00johns
-  category: meta
-  tags: [model-migration, prompting, fable-5, mythos-5, refusals, effort, long-running-agents]
 composes_with: ["skill-writer", "skill-review", "skill-update", "loop-controller", "orchestrator", "claude-api"]
 spawned_by: []
 ---
@@ -53,8 +49,9 @@ So migration is mostly **subtraction**:
 - **A brief instruction now beats an enumeration.** Where you once listed every bad
   behavior by name ("don't survey options, don't over-explain root causes, don't write
   narrating comments…"), one short instruction plus the *reason* now steers the whole
-  cluster. Fewer words, better result. (This is why `skill-writer`'s "explain the why,
-  not a wall of MUSTs" was already the right instinct — the newer model rewards it more.)
+  cluster. Fewer words, better result. (This is why `skill-review`'s long-standing
+  anti-pattern — *"Excessive MUST / NEVER / ALWAYS without explaining why"* in its
+  audit checklist — was already the right instinct; the newer model rewards it more.)
 - **Some old instructions now actively backfire.** The sharpest example: telling the
   model to reproduce, echo, or explain its internal reasoning *in the response* can trip
   a **`reasoning_extraction` refusal** on the Claude 5 family and silently elevate
@@ -75,7 +72,7 @@ This is the *only* part meant to age. The patterns below it are durable; these f
 
 | Model | Role today | What to know for adaptation |
 |---|---|---|
-| **Fable 5** | Frontier (Claude 5 family) | Long-horizon autonomy (multi-day runs), strong first-shot correctness, dispatches parallel subagents readily, high bug-finding recall. Runs safety classifiers (offensive cyber, bio/life-sciences, reasoning-extraction) → can return `stop_reason: "refusal"`. Adaptive thinking only; no extended-thinking budgets; summarized-only thinking output. |
+| **Fable 5** | Frontier (Claude 5 family) | Long-horizon autonomy (multi-day runs), strong first-shot correctness, dispatches parallel subagents readily, high bug-finding recall. Runs safety classifiers (offensive cyber, bio/life-sciences, frontier-LLM development, reasoning-extraction) → can return `stop_reason: "refusal"`. Adaptive thinking only; no extended-thinking budgets; summarized-only thinking output. |
 | **Mythos 5** | Frontier sibling (Claude 5 family) | Same family, same prompting patterns and refusal behavior as Fable 5. Everything here that says "Fable 5" applies to Mythos 5 unless a future note says otherwise. |
 | **Opus 4.8** | Prior baseline **and the fallback target** | The model a refused Claude 5 request should reroute to. Prompts/skills tuned for it are the ones this skill helps you prune. |
 
@@ -93,7 +90,7 @@ Depth lives in the two reference files; this is the map.
 |---|---|---|---|
 | **Prune over-prescription** | Prior-model prescription degrades Claude 5 output | On migration, delete enumerations/rigid templates the model no longer needs; keep the *why*, drop the MUSTs | `skill-review` anti-pattern checklist (*"Excessive MUST/NEVER/ALWAYS"*, *"Overly rigid templates"*) — now flagged as a **model-driven** re-review trigger, not just static smell |
 | **Reasoning-extraction refusal** | Telling the model to narrate/echo its reasoning as response text now trips a refusal | Never instruct "show your thinking / explain your reasoning in the output"; read structured `thinking` blocks or use a send-to-user tool instead | `skill-review` audit checklist (new anti-pattern) → detail in `references/refusal-and-fallback.md` |
-| **Brief instruction > enumeration** | One instruction + the reason steers a whole behavior cluster | Prefer a short "why" over naming every behavior; don't carry the *description* field's "pushy / over-enumerate" style into *behavioral* instructions | `skill-writer` body guidance; `references/long-run-hygiene.md` has the drop-in brevity instruction |
+| **Brief instruction > enumeration** | One instruction + the reason steers a whole behavior cluster | Prefer a short "why" over naming every behavior; don't carry the *description* field's "pushy / over-enumerate" style into *behavioral* instructions | `skill-review` audit checklist (*"Excessive MUST/NEVER/ALWAYS"* + the prior-model over-prescription trigger); `references/long-run-hygiene.md` has the drop-in brevity instruction |
 | **Give the reason, not only the request** | The model connects the task to context better when it knows intent | Already a scored `skill-review` rubric dimension (*"explains WHY, not just WHAT"*) — the Claude 5 family rewards it more | `skill-review` deep-review rubric |
 
 The one boundary to hold explicit: the **"pushy / over-enumerate"** philosophy is correct
@@ -141,8 +138,9 @@ The danger is that a skill-authoring toolkit can bake this into *every* skill it
 chain of thought"). If your app needs reasoning visibility, read the structured `thinking`
 blocks from adaptive thinking, or surface progress with a send-to-user tool — never ask
 the model to reproduce its reasoning in the response. `skill-review` now audits for this;
-the full mechanics, the other classifier domains (offensive cyber, bio/life-sciences), and
-the fallback configuration are in **`references/refusal-and-fallback.md`**.
+the full mechanics, the other classifier domains (offensive cyber, bio/life-sciences,
+frontier-LLM development), and the fallback configuration are in
+**`references/refusal-and-fallback.md`**.
 
 ## When a new model lands: the migration audit
 
@@ -153,9 +151,11 @@ Run this checklist against an existing skill/harness (or the whole toolkit) on a
 2. **Subtract first.** For each skill, ask per instruction: *does the new model already do
    this well without being told?* If yes, cut it. Rigid templates, anti-laziness nags, and
    long enumerations are the first candidates.
-3. **Hunt the refusal landmine.** Grep for reasoning-narration instructions
-   (`grep -riE "show your (thinking|reasoning)|narrate|reproduce.*reasoning|chain of thought"`).
-   Every hit that routes to the *response* is a refusal risk — rewrite it.
+3. **Hunt the refusal landmine.** Run the **audit recipe** in
+   `references/refusal-and-fallback.md` — that file owns the canonical grep (don't
+   inline a variant here; divergent copies of the sweep are exactly the drift this
+   skill exists to prevent). Every hit that routes reasoning to the *response* is a
+   refusal risk — rewrite it.
 4. **Check the long-run scaffolding.** For any loop/autonomous skill, confirm the
    `references/long-run-hygiene.md` patterns are wired: evidence-backed progress, the
    last-paragraph check, context-budget reassurance, effort selection, send-to-user.
@@ -167,7 +167,7 @@ Run this checklist against an existing skill/harness (or the whole toolkit) on a
 
 ## Reference files
 
-- `references/refusal-and-fallback.md` — the three Claude 5 classifier domains, the
+- `references/refusal-and-fallback.md` — the four Claude 5 classifier domains, the
   `reasoning_extraction` landmine in depth (what trips it, the symptom, the fix, how to
   audit for it), the `stop_reason: "refusal"` contract, and server-side vs client-side
   fallback to Opus 4.8. Read when a skill gets refused, when writing security-agent
