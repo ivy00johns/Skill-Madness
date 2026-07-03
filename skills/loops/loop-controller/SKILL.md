@@ -1,6 +1,6 @@
 ---
 name: loop-controller
-version: 1.0.0
+version: 1.1.0
 description: >-
   Wrap any task in a verifiable stop condition plus a mandatory guardrail stack
   so an autonomous loop converges instead of thrashing or burning the budget —
@@ -17,7 +17,7 @@ requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "Workflow"]
-composes_with: ["orchestrator", "fix-until-green", "orchestrator-task-loop", "contract-conformance-loop", "babysit", "coverage-loop", "perf-loop", "self-healing-loop", "migration-loop", "nightly-docs-and-changelog", "dependency-health-loop", "codebase-exploration-loop", "repo-cleanup-loop", "qe-agent", "contract-auditor", "diagnose-loop", "context-manager", "model-adaptation", "loop", "schedule"]
+composes_with: ["orchestrator", "fix-until-green", "orchestrator-task-loop", "contract-conformance-loop", "babysit", "coverage-loop", "perf-loop", "self-healing-loop", "migration-loop", "nightly-docs-and-changelog", "dependency-health-loop", "codebase-exploration-loop", "repo-cleanup-loop", "qe-agent", "contract-auditor", "diagnose-loop", "context-manager", "model-adaptation", "find-unknowns", "loop", "schedule"]
 spawned_by: ["orchestrator"]
 ---
 
@@ -56,6 +56,28 @@ ever met.
 Everything else here — fix-until-green, coverage-loop, perf-loop — is a *config*
 of this harness: a specific proof plugged into the same machinery. Author new
 loops against this skill; don't reinvent the loop engine.
+
+## Step 0 — Should this even be a loop?
+
+A loop has real setup cost and its own failure modes; the mistake is looping
+things that don't earn one. Before building anything, put the task through four
+questions — a "no" on any of them is a strong signal to just do the work manually
+(or once) instead:
+
+1. **Does it repeat?** A one-off is usually faster by hand. Loops pay off on work
+   that comes back — every PR, every night, every new ticket.
+2. **Can "done" be verified mechanically?** If nothing but a human can reject a
+   bad result, the human is still the real gate and the loop saves little. This is
+   the same requirement as Step 2 — no mechanical proof, no convergent loop.
+3. **Can the agent act end-to-end?** If it must stop for permission or missing
+   context every few minutes, that's assisted manual work, not a loop.
+4. **Is "done" objective?** "Tests pass" / "queue empty" loops; "the design feels
+   right" / "the strategy is sound" does not. Subjective, high-stakes, judgment-
+   heavy work (architecture rewrites, auth, payments, prod deploys) is where a
+   human stays in the driver's seat — keep it manual, or gate it hard (guardrail 4).
+
+Pass all four and the 5-part contract below will fill in cleanly. Fail one and
+the honest move is to not build the loop.
 
 ## The 5-part loop contract (required)
 
@@ -147,7 +169,12 @@ termination is.
    loop, not just warns. `/goal` has no built-in budget — embed a turn cap and
    watch `/cost`; dynamic workflows take an explicit token budget; bash loops
    need an external counter. A 50-iteration run on a large codebase can cost
-   $50–100+.
+   $50–100+. The number that actually tells you whether the loop is worth running
+   is **cost per *accepted* result**, not tokens spent or iterations run: a loop
+   that opens five PRs where you merge one, or emits a daily report no one reads,
+   can cost more than doing the work by hand. Track yield, not spend — a low
+   accept rate means the loop is manufacturing review debt, and the fix is a
+   tighter proof (Step 2), not a bigger budget.
 3. **No-progress / oscillation detection.** Stop if iterations stop changing
    state, or if output repeats (≥~90% similarity to a recent iteration), or if
    token use grows quadratically rather than linearly. Thrashing and budget
@@ -239,6 +266,27 @@ loop needs:
 The fresh-context evaluator (Step 2) is itself one of these patterns — the guide's
 "fresh verifiers beat self-critique" — so it's already wired; just run it *periodically*
 on a long build, not only at the end.
+
+## Comprehension debt — the human-side stop condition
+
+Steps 1–6 keep the *machine* honest. There is one failure they don't catch,
+because it lands on the human, not the loop: a loop that ships correct, green
+diffs faster than anyone reads them. Each merge feels like progress, but the
+codebase starts moving faster than the team's understanding of it — the tests
+pass, yet nobody can say *why* the code is shaped the way it is. That's
+**comprehension debt**, and it's the antidote's mirror image of convergence-on-a-
+fiction: there the proof was too weak, here the proof was fine but human
+understanding silently fell behind. The bill arrives at the next bug, in a module
+no one can reason about.
+
+The guardrails don't fix this because it isn't a convergence problem — it's a
+review problem. Keep it in check by keeping loops on **small, readable diffs**,
+having a human actually read the diff a red→green flip produced (guardrail 6
+already asks for this), and — for any substantial or fully agent-driven change —
+running a **comprehension quiz before merge**: `find-unknowns` owns that move
+(explain the diff and what it touches, then test that you can pass a quiz on the
+non-obvious behavior). Autonomy that outruns understanding isn't a faster team;
+it's a deferred debugging session.
 
 ## Using it as the harness other loops compose on
 
