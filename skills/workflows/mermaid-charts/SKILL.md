@@ -21,6 +21,7 @@ composes_with:
   - infrastructure-agent
   - contract-author
   - observability-agent
+  - artifact-publish
 spawned_by: []
 ---
 
@@ -71,6 +72,10 @@ For diagrams above ~10 nodes, ecosystem maps, or multi-diagram document structur
 ## Advanced Patterns
 
 For sophisticated needs — multi-diagram document structure, complex flowcharts with 15-30+ nodes, sequence patterns, `block-beta` system maps, theming/branding, the full rendering pipeline — read `references/advanced-patterns.md`.
+
+## Sharing a diagram as a hosted page
+
+To hand someone a *link* to a diagram rather than a code block or an image file, render the diagram to SVG, inline that SVG in a self-contained HTML page, and pass it to `artifact-publish` for a hosted, default-private claude.ai page. Inline the **rendered SVG** — do not load `mermaid.js` from a CDN in the page, since the Artifact CSP blocks external scripts.
 
 ## Checklist Before Delivering
 
