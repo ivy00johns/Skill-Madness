@@ -1,0 +1,989 @@
+{
+ "schema_version": "1.0.0",
+ "tool": "skill-review",
+ "mode": "all",
+ "reviewed_at": "2026-07-03T23:30:00Z",
+ "scope": "all",
+ "summary": {
+  "skills_scanned": 71,
+  "issues_total": 24,
+  "issues_by_severity": {
+   "critical": 0,
+   "high": 2,
+   "medium": 10,
+   "low": 12
+  },
+  "ownership_conflicts": 0
+ },
+ "bulk": {
+  "inventory": [
+   {
+    "name": "contract-auditor",
+    "category": "contracts",
+    "version": "1.2.1",
+    "description_length": 250,
+    "body_lines": 165,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "contract-author",
+    "category": "contracts",
+    "version": "1.4.0",
+    "description_length": 818,
+    "body_lines": 223,
+    "refs_count": 7,
+    "status": "PASS"
+   },
+   {
+    "name": "git-commit",
+    "category": "git",
+    "version": "1.3.0",
+    "description_length": 502,
+    "body_lines": 105,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "git-post-merge-cleanup",
+    "category": "git",
+    "version": "1.1.0",
+    "description_length": 826,
+    "body_lines": 171,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "git-pr-feedback",
+    "category": "git",
+    "version": "1.3.0",
+    "description_length": 554,
+    "body_lines": 172,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "git-pr",
+    "category": "git",
+    "version": "1.3.0",
+    "description_length": 553,
+    "body_lines": 114,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "babysit",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 962,
+    "body_lines": 130,
+    "refs_count": 1,
+    "status": "WARN"
+   },
+   {
+    "name": "codebase-exploration-loop",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 894,
+    "body_lines": 155,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "contract-conformance-loop",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 915,
+    "body_lines": 161,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "coverage-loop",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 883,
+    "body_lines": 171,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "dependency-health-loop",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 930,
+    "body_lines": 176,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "fix-until-green",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 841,
+    "body_lines": 158,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "loop-controller",
+    "category": "loops",
+    "version": "1.1.0",
+    "description_length": 801,
+    "body_lines": 297,
+    "refs_count": 3,
+    "status": "PASS"
+   },
+   {
+    "name": "migration-loop",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 983,
+    "body_lines": 168,
+    "refs_count": 1,
+    "status": "WARN"
+   },
+   {
+    "name": "nightly-docs-and-changelog",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 954,
+    "body_lines": 164,
+    "refs_count": 1,
+    "status": "WARN"
+   },
+   {
+    "name": "orchestrator-task-loop",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 1017,
+    "body_lines": 215,
+    "refs_count": 2,
+    "status": "WARN"
+   },
+   {
+    "name": "perf-loop",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 920,
+    "body_lines": 172,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "repo-cleanup-loop",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 995,
+    "body_lines": 169,
+    "refs_count": 1,
+    "status": "WARN"
+   },
+   {
+    "name": "self-healing-loop",
+    "category": "loops",
+    "version": "1.0.0",
+    "description_length": 909,
+    "body_lines": 154,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "madness",
+    "category": "meta",
+    "version": "1.0.0",
+    "description_length": 910,
+    "body_lines": 157,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "model-adaptation",
+    "category": "meta",
+    "version": "1.0.0",
+    "description_length": 987,
+    "body_lines": 167,
+    "refs_count": 2,
+    "status": "WARN"
+   },
+   {
+    "name": "skill-catalog",
+    "category": "meta",
+    "version": "1.0.0",
+    "description_length": 772,
+    "body_lines": 132,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "skill-explorer",
+    "category": "meta",
+    "version": "1.1.0",
+    "description_length": 752,
+    "body_lines": 139,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "skill-review",
+    "category": "meta",
+    "version": "1.2.0",
+    "description_length": 550,
+    "body_lines": 144,
+    "refs_count": 3,
+    "status": "PASS"
+   },
+   {
+    "name": "skill-update",
+    "category": "meta",
+    "version": "1.2.0",
+    "description_length": 502,
+    "body_lines": 139,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "skill-writer",
+    "category": "meta",
+    "version": "1.3.0",
+    "description_length": 346,
+    "body_lines": 129,
+    "refs_count": 7,
+    "status": "PASS"
+   },
+   {
+    "name": "backend-agent",
+    "category": "roles",
+    "version": "1.2.0",
+    "description_length": 177,
+    "body_lines": 148,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "code-review-agent",
+    "category": "roles",
+    "version": "1.3.0",
+    "description_length": 348,
+    "body_lines": 139,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "db-migration-agent",
+    "category": "roles",
+    "version": "1.2.0",
+    "description_length": 193,
+    "body_lines": 104,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "docs-agent",
+    "category": "roles",
+    "version": "1.2.0",
+    "description_length": 192,
+    "body_lines": 103,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "frontend-agent",
+    "category": "roles",
+    "version": "1.5.0",
+    "description_length": 208,
+    "body_lines": 162,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "infrastructure-agent",
+    "category": "roles",
+    "version": "1.2.0",
+    "description_length": 201,
+    "body_lines": 114,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "observability-agent",
+    "category": "roles",
+    "version": "1.2.0",
+    "description_length": 176,
+    "body_lines": 114,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "performance-agent",
+    "category": "roles",
+    "version": "1.3.0",
+    "description_length": 192,
+    "body_lines": 120,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "qe-agent",
+    "category": "roles",
+    "version": "1.4.0",
+    "description_length": 232,
+    "body_lines": 109,
+    "refs_count": 5,
+    "status": "PASS"
+   },
+   {
+    "name": "security-agent",
+    "category": "roles",
+    "version": "1.2.0",
+    "description_length": 232,
+    "body_lines": 149,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "architecture-rescue",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 595,
+    "body_lines": 51,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "artifact-publish",
+    "category": "workflows",
+    "version": "1.0.0",
+    "description_length": 980,
+    "body_lines": 81,
+    "refs_count": 1,
+    "status": "WARN"
+   },
+   {
+    "name": "caveman",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 492,
+    "body_lines": 43,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "class-extraction-guard",
+    "category": "workflows",
+    "version": "1.0.1",
+    "description_length": 984,
+    "body_lines": 103,
+    "refs_count": 4,
+    "status": "WARN"
+   },
+   {
+    "name": "claude-design-brief",
+    "category": "workflows",
+    "version": "1.4.0",
+    "description_length": 786,
+    "body_lines": 104,
+    "refs_count": 6,
+    "status": "PASS"
+   },
+   {
+    "name": "context-manager",
+    "category": "workflows",
+    "version": "1.2.0",
+    "description_length": 427,
+    "body_lines": 89,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "dependency-coordinator",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 238,
+    "body_lines": 103,
+    "refs_count": 3,
+    "status": "PASS"
+   },
+   {
+    "name": "deployment-checklist",
+    "category": "workflows",
+    "version": "1.2.0",
+    "description_length": 372,
+    "body_lines": 65,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "design-token-guard",
+    "category": "workflows",
+    "version": "1.0.1",
+    "description_length": 964,
+    "body_lines": 150,
+    "refs_count": 3,
+    "status": "WARN"
+   },
+   {
+    "name": "diagnose-loop",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 523,
+    "body_lines": 70,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "find-unknowns",
+    "category": "workflows",
+    "version": "1.0.0",
+    "description_length": 1001,
+    "body_lines": 128,
+    "refs_count": 0,
+    "status": "WARN"
+   },
+   {
+    "name": "grill-me",
+    "category": "workflows",
+    "version": "1.1.1",
+    "description_length": 528,
+    "body_lines": 12,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "interactive-doc",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 794,
+    "body_lines": 186,
+    "refs_count": 5,
+    "status": "PASS"
+   },
+   {
+    "name": "living-plan",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 456,
+    "body_lines": 148,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "llm-wiki",
+    "category": "workflows",
+    "version": "1.2.0",
+    "description_length": 491,
+    "body_lines": 177,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "maintain-context",
+    "category": "workflows",
+    "version": "1.2.0",
+    "description_length": 528,
+    "body_lines": 76,
+    "refs_count": 3,
+    "status": "PASS"
+   },
+   {
+    "name": "mermaid-charts",
+    "category": "workflows",
+    "version": "2.4.0",
+    "description_length": 554,
+    "body_lines": 75,
+    "refs_count": 4,
+    "status": "PASS"
+   },
+   {
+    "name": "nano-banana",
+    "category": "workflows",
+    "version": "1.3.0",
+    "description_length": 433,
+    "body_lines": 114,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "plan-builder",
+    "category": "workflows",
+    "version": "1.4.0",
+    "description_length": 405,
+    "body_lines": 104,
+    "refs_count": 3,
+    "status": "PASS"
+   },
+   {
+    "name": "plan-intake",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 461,
+    "body_lines": 131,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "playwright",
+    "category": "workflows",
+    "version": "1.4.0",
+    "description_length": 463,
+    "body_lines": 64,
+    "refs_count": 3,
+    "status": "PASS"
+   },
+   {
+    "name": "project-profiler",
+    "category": "workflows",
+    "version": "1.2.0",
+    "description_length": 370,
+    "body_lines": 109,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "railway-deploy",
+    "category": "workflows",
+    "version": "1.3.0",
+    "description_length": 356,
+    "body_lines": 71,
+    "refs_count": 3,
+    "status": "PASS"
+   },
+   {
+    "name": "render-sanity",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 834,
+    "body_lines": 141,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "repo-deep-dive",
+    "category": "workflows",
+    "version": "1.4.0",
+    "description_length": 745,
+    "body_lines": 85,
+    "refs_count": 4,
+    "status": "PASS"
+   },
+   {
+    "name": "settings-consolidator",
+    "category": "workflows",
+    "version": "1.3.0",
+    "description_length": 635,
+    "body_lines": 91,
+    "refs_count": 3,
+    "status": "PASS"
+   },
+   {
+    "name": "setup-project-skills",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 514,
+    "body_lines": 110,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "sync-skills",
+    "category": "workflows",
+    "version": "2.1.0",
+    "description_length": 470,
+    "body_lines": 120,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "ui-brief",
+    "category": "workflows",
+    "version": "1.2.0",
+    "description_length": 792,
+    "body_lines": 174,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "use-freellmapi",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 913,
+    "body_lines": 184,
+    "refs_count": 2,
+    "status": "PASS"
+   },
+   {
+    "name": "website-walkthrough-video",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 992,
+    "body_lines": 138,
+    "refs_count": 1,
+    "status": "WARN"
+   },
+   {
+    "name": "wiki-research",
+    "category": "workflows",
+    "version": "2.2.0",
+    "description_length": 648,
+    "body_lines": 151,
+    "refs_count": 1,
+    "status": "PASS"
+   },
+   {
+    "name": "work-item-brief",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 576,
+    "body_lines": 76,
+    "refs_count": 3,
+    "status": "PASS"
+   },
+   {
+    "name": "zoom-out",
+    "category": "workflows",
+    "version": "1.1.0",
+    "description_length": 445,
+    "body_lines": 14,
+    "refs_count": 0,
+    "status": "PASS"
+   },
+   {
+    "name": "orchestrator",
+    "category": "orchestrator",
+    "version": "1.14.2",
+    "description_length": 1023,
+    "body_lines": 285,
+    "refs_count": 11,
+    "status": "WARN"
+   }
+  ],
+  "ownership_conflicts": [],
+  "cross_skill_issues": [
+   {
+    "type": "dead_reference_link",
+    "from": "skill-writer",
+    "to": "references/validation-checklist.md"
+   },
+   {
+    "type": "category_omission",
+    "from": "skill-explorer",
+    "to": "loops"
+   },
+   {
+    "type": "unattributed_cross_reference",
+    "from": "self-healing-loop",
+    "to": "loop-controller/references/primitives.md"
+   },
+   {
+    "type": "external_composes_with_unverifiable",
+    "from": "artifact-publish",
+    "to": "artifact-design, dataviz"
+   },
+   {
+    "type": "path_prefix_inconsistency",
+    "from": "orchestrator, context-manager",
+    "to": "skills/-prefixed paths"
+   }
+  ],
+  "coverage_gaps": [
+   {
+    "capability": "hook authoring across all event types (deterministic enforcement for the library's advisory gates)",
+    "source": "capability-gap agent"
+   },
+   {
+    "capability": "building MCP servers (library only consumes)",
+    "source": "capability-gap agent"
+   },
+   {
+    "capability": "headless/Agent-SDK packaging of loops as CI/cron jobs",
+    "source": "capability-gap agent"
+   },
+   {
+    "capability": "auto-memory directory curation",
+    "source": "capability-gap agent"
+   },
+   {
+    "capability": "PushNotification / notify-on-HITL-gate wiring",
+    "source": "capability-gap agent"
+   },
+   {
+    "capability": "measured skill-trigger evals (skill-review outsources to external /skill-creator)",
+    "source": "capability-gap + ecosystem agents (converged)"
+   },
+   {
+    "capability": "authed real-browser flows via claude-in-chrome",
+    "source": "capability-gap agent"
+   },
+   {
+    "capability": "scoped permission profiles for unattended loops",
+    "source": "capability-gap agent"
+   },
+   {
+    "capability": "scheduled-routine management/observability",
+    "source": "capability-gap agent"
+   },
+   {
+    "capability": "contract mocking (serve a fake from the authored spec)",
+    "source": "ecosystem agent"
+   },
+   {
+    "capability": "release cutting / version bumping / release notes",
+    "source": "ecosystem agent + internal evidence RV8/LOW-1"
+   },
+   {
+    "capability": "incident response + postmortems (human operate layer)",
+    "source": "ecosystem agent"
+   },
+   {
+    "capability": "WCAG/a11y auditing; license/SBOM; load testing; threat modeling; ADR authoring; feature flags; i18n; seed data; human onboarding",
+    "source": "ecosystem agent"
+   }
+  ]
+ },
+ "single": null,
+ "issues": [
+  {
+   "id": "HIGH-1",
+   "severity": "high",
+   "skill": "(repo)",
+   "dimension": "cross_skill",
+   "location": "README.md:9,57,84,663 + frontmatter of 57 skills",
+   "description": "README claims the library 'ports cleanly to eleven hosts' but 57/71 skills carry requires_claude_code: true, which convert.sh:664-682 skips for all 10 non-Claude-Code hosts \u2014 only 14 skills convert; all roles, both contracts, all 13 loops and the orchestrator port to zero hosts.",
+   "suggestion": "Audit requires_claude_code across the 57 flagged skills (drop it where the body is host-agnostic) and rewrite README's portability claims to match the audit result."
+  },
+  {
+   "id": "HIGH-2",
+   "severity": "high",
+   "skill": "(repo)",
+   "dimension": "completeness",
+   "location": ".github/workflows/lint-skills.yml",
+   "description": "CI names 6 test dirs; tests/installer (172 tests) and tests/skill-health (17 tests) are never run \u2014 189 of 317 bats tests do not gate merges.",
+   "suggestion": "Add both suites to the workflow (or run bats -r tests/) after fixing convert.sh performance (MEDIUM-2) so the job stays fast."
+  },
+  {
+   "id": "MEDIUM-1",
+   "severity": "medium",
+   "skill": "(repo)",
+   "dimension": "completeness",
+   "location": "scripts/skill-health.sh:60; scripts/install.sh:343-382",
+   "description": "skill-health telemetry is inert: the skill-usage PostToolUse hook is never merged into ~/.claude/settings.json (installer prints a paste-snippet only), so skill-events.jsonl is never written and report --json returns 0 skills; even wired, outcomes are always 'unknown'.",
+   "suggestion": "Add an opt-in installer step that merges the PostToolUse entry, and print 'telemetry inactive \u2014 hook not wired' in the report when the log is absent."
+  },
+  {
+   "id": "MEDIUM-2",
+   "severity": "medium",
+   "skill": "(repo)",
+   "dimension": "completeness",
+   "location": "scripts/convert.sh; scripts/lib/frontmatter.sh:30",
+   "description": "convert.sh takes ~86s because get_field/get_array spawn a fresh python3 (importing PyYAML) per frontmatter field read, multiplied across fields x 71 skills x 11 tools; bats -r tests/ consequently takes >10 min.",
+   "suggestion": "Parse each SKILL.md once into a cached structure instead of once per field."
+  },
+  {
+   "id": "MEDIUM-3",
+   "severity": "medium",
+   "skill": "(repo)",
+   "dimension": "completeness",
+   "location": "scripts/install-plan.sh:165-166; scripts/install-apply.sh",
+   "description": "Plan/apply install path writes Copilot skills only to ~/.github/agents/, never mirroring to ~/.copilot/agents/, contradicting contracts/installer/install-locations.md:17, install.sh:403-419, and lib/install-state.sh:119's own comment.",
+   "suggestion": "Add the mirror write to install-apply.sh (or emit both paths in the plan)."
+  },
+  {
+   "id": "MEDIUM-4",
+   "severity": "medium",
+   "skill": "(repo)",
+   "dimension": "completeness",
+   "location": "tests/",
+   "description": "bats tests/ (non-recursive) runs zero tests and prints 1..0, which reads as green; all .bats files live in subdirectories.",
+   "suggestion": "Add tests/run-all.sh (bats -r tests/) or a Makefile target and document it in scripts/README.md."
+  },
+  {
+   "id": "MEDIUM-5",
+   "severity": "medium",
+   "skill": "skill-explorer",
+   "dimension": "consistency",
+   "location": "skills/meta/skill-explorer/SKILL.md:51; evals/evals.json:15",
+   "description": "Skill-location map omits the loops category from its brace list, so enumeration from the map silently misses all 13 loop skills; the eval fixture encodes the same omission.",
+   "suggestion": "Add loops to the brace list and to the eval's expected_output."
+  },
+  {
+   "id": "MEDIUM-6",
+   "severity": "medium",
+   "skill": "skill-writer",
+   "dimension": "completeness",
+   "location": "skills/meta/skill-writer/SKILL.md:88,102",
+   "description": "Dead link cited twice: references/validation-checklist.md does not exist (directory has quick-checklist.md and validation-script-pattern.md).",
+   "suggestion": "Repoint both citations at the intended existing file."
+  },
+  {
+   "id": "MEDIUM-7",
+   "severity": "medium",
+   "skill": "(repo)",
+   "dimension": "completeness",
+   "location": "README.md:531,532,541,558,634,635,663",
+   "description": "CLI reference documents flags that exit 2: --only, --skip-claude-only, --verbose (convert.sh uses --tool), --skill (lint-skills.sh takes a positional path); scripts/README.md has the correct usage.",
+   "suggestion": "Sync the root README's CLI examples to scripts/README.md."
+  },
+  {
+   "id": "MEDIUM-8",
+   "severity": "medium",
+   "skill": "(repo)",
+   "dimension": "completeness",
+   "location": "README.md:578-597",
+   "description": "README documents 'the four hooks' but hooks/hooks.manifest.json registers six (adds catalog-sync, skill-usage); the profile map is wrong (standard=5, strict=6).",
+   "suggestion": "Update the hooks section and profile map to the manifest."
+  },
+  {
+   "id": "MEDIUM-9",
+   "severity": "medium",
+   "skill": "(repo)",
+   "dimension": "consistency",
+   "location": "START-HERE.md:19,21; PLAN.md:26,67",
+   "description": "Narrative prose is stale at catalog 69 \u2014 artifact-publish (#42) and find-unknowns (skills 70/71) are unrecorded; PLAN's closure log violates its own rule at :8-9 for both ships.",
+   "suggestion": "Refresh both narratives and add the two closure-log entries."
+  },
+  {
+   "id": "MEDIUM-10",
+   "severity": "medium",
+   "skill": "(repo)",
+   "dimension": "description_quality",
+   "location": "scripts/lint-skills.sh",
+   "description": "No lint warning band before the 1024-char description hard ceiling: 12 skills are >950 chars and orchestrator is at 1023 \u2014 one edit from a hard FAIL.",
+   "suggestion": "Add a WARN at >950 chars to lint-skills.sh; trim the orchestrator description."
+  },
+  {
+   "id": "LOW-1",
+   "severity": "low",
+   "skill": "interactive-doc",
+   "dimension": "consistency",
+   "location": "skills/workflows/interactive-doc/SKILL.md; skills/workflows/mermaid-charts/SKILL.md; skills/meta/model-adaptation/SKILL.md",
+   "description": "Three new instances of the RV8 no-version-bump pattern: #42 added new sections to interactive-doc (1.1.0) and mermaid-charts (2.4.0); #40 changed model-adaptation content (1.0.0) \u2014 no bumps.",
+   "suggestion": "Bump all three (MINOR for the section additions, PATCH/MINOR for model-adaptation) and see recommendation 4 (release-cut / lint check) for the root cause."
+  },
+  {
+   "id": "LOW-2",
+   "severity": "low",
+   "skill": "skill-writer",
+   "dimension": "completeness",
+   "location": "skills/meta/skill-writer/references/body-template.md",
+   "description": "Orphan reference file \u2014 never mentioned in skill-writer's SKILL.md (Reference Files list enumerates 6 others).",
+   "suggestion": "Add it to the Reference Files section (RV14 also wants README pointed here)."
+  },
+  {
+   "id": "LOW-3",
+   "severity": "low",
+   "skill": "madness",
+   "dimension": "consistency",
+   "location": "skills/meta/madness/SKILL.md:135; evals/evals.json:36",
+   "description": "Stale total: 'not all 60 skills' \u2014 the library has 71.",
+   "suggestion": "Use a phrasing without a hardcoded count, or 71."
+  },
+  {
+   "id": "LOW-4",
+   "severity": "low",
+   "skill": "orchestrator",
+   "dimension": "consistency",
+   "location": "skills/orchestrator/SKILL.md:225; skills/workflows/context-manager/SKILL.md:24,35,90",
+   "description": "Cross-skill paths drop the skills/ prefix used everywhere else (roles/qe-agent/..., orchestrator/references/...) and don't resolve from repo root.",
+   "suggestion": "Add the skills/ prefix."
+  },
+  {
+   "id": "LOW-5",
+   "severity": "low",
+   "skill": "self-healing-loop",
+   "dimension": "consistency",
+   "location": "skills/loops/self-healing-loop/SKILL.md:151",
+   "description": "Bare references/primitives.md citation without the loop-controller qualifier \u2014 reads as a missing local file.",
+   "suggestion": "Qualify as loop-controller's references/primitives.md like sibling loops."
+  },
+  {
+   "id": "LOW-6",
+   "severity": "low",
+   "skill": "frontend-agent",
+   "dimension": "coordination",
+   "location": "skills/roles/frontend-agent + skills/roles/qe-agent owns.patterns",
+   "description": "Semantic glob intersection: *.tsx/*.jsx (frontend) vs *.test.*/*.spec.* (qe) both match Button.test.tsx; lint only checks string uniqueness.",
+   "suggestion": "State the tiebreak in the ownership map and add a glob-intersection check to lint."
+  },
+  {
+   "id": "LOW-7",
+   "severity": "low",
+   "skill": "mermaid-charts",
+   "dimension": "consistency",
+   "location": "skills/workflows/mermaid-charts/evals/evals.json:101",
+   "description": "Eval fixture describes the library as '17 skills'.",
+   "suggestion": "Update or genericize the fixture text."
+  },
+  {
+   "id": "LOW-8",
+   "severity": "low",
+   "skill": "(repo)",
+   "dimension": "completeness",
+   "location": "README.md:100",
+   "description": "'bash >=4' prerequisite contradicts the bash-3.2-safe idioms and the macOS CI job that exists to keep bash 3.2 working.",
+   "suggestion": "Lower the stated minimum to 3.2 or document why 4 is required."
+  },
+  {
+   "id": "LOW-9",
+   "severity": "low",
+   "skill": "(repo)",
+   "dimension": "completeness",
+   "location": "README.md:451-484",
+   "description": "Project-structure tree omits hooks/ and spec/, both documented in their own README sections.",
+   "suggestion": "Add the two directories to the tree."
+  },
+  {
+   "id": "LOW-10",
+   "severity": "low",
+   "skill": "(repo)",
+   "dimension": "consistency",
+   "location": "contracts/installer/plan-apply.md:21-28",
+   "description": "Contract documents the full profile with 6 categories (no loops); manifests/profiles.json correctly has 7.",
+   "suggestion": "Update the contract doc."
+  },
+  {
+   "id": "LOW-11",
+   "severity": "low",
+   "skill": "(repo)",
+   "dimension": "completeness",
+   "location": "scripts/install-plan.sh:43",
+   "description": "Tools whose convert.sh sources are missing yield a silent empty plan (resolver continues) instead of an error.",
+   "suggestion": "Error (or warn loudly) when a requested tool has no src_root."
+  },
+  {
+   "id": "LOW-12",
+   "severity": "low",
+   "skill": "artifact-publish",
+   "dimension": "coordination",
+   "location": "scripts/lint-skills.sh; skills/workflows/artifact-publish/SKILL.md",
+   "description": "No allowlist mechanism for non-namespaced external/host skills in composes_with \u2014 artifact-design/dataviz warn forever while colon-namespaced externals are skipped by design (test 316).",
+   "suggestion": "Add a known_external allowlist entry mechanism to lint-skills.sh."
+  }
+ ],
+ "recommendations": [
+  {
+   "priority": 1,
+   "skill": "(repo)",
+   "action": "Close the CI dark-test gap: add tests/installer + tests/skill-health to lint-skills.yml (or bats -r) and fix convert.sh parse-once performance so the job stays fast (HIGH-2, MEDIUM-2, MEDIUM-4)."
+  },
+  {
+   "priority": 2,
+   "skill": "(repo)",
+   "action": "Resolve the portability contradiction: audit requires_claude_code across 57 skills, then rewrite README's eleven-hosts claims to match (HIGH-1; feeds FUTURE F1)."
+  },
+  {
+   "priority": 3,
+   "skill": "skill-review",
+   "action": "Make skill-health telemetry real or honest: opt-in settings.json merge for the emitter hook, plus an 'inactive \u2014 hook not wired' banner in reports (MEDIUM-1)."
+  },
+  {
+   "priority": 4,
+   "skill": "(repo)",
+   "action": "Kill the version-drift pattern with tooling: build the release-cut skill and/or a lint check flagging SKILL.md body diffs without a version bump (LOW-1 + RV8 \u2014 six known instances)."
+  },
+  {
+   "priority": 5,
+   "skill": "(repo)",
+   "action": "One mechanical cleanup PR for MEDIUM-5..10 and LOW-2..12; then run plan-intake on the report's Appendix to seed the new-build backlog (skill-eval, mock-from-contract, hook-forge, release-cut, autonomy-profile first)."
+  }
+ ]
+}
