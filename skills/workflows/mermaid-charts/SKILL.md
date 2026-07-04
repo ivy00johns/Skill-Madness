@@ -1,6 +1,6 @@
 ---
 name: mermaid-charts
-version: 2.4.0
+version: 2.5.0
 description: |
   Create expert-quality mermaid diagrams — flowcharts, sequence, state, ER, Gantt, mindmap, block-beta and more — including dense 15-30+ node architecture maps that stay readable. Use whenever the user wants to visualize a system, process, workflow, architecture, data model, timeline, or relationship, or when another skill needs an embedded mermaid diagram. Trigger on "diagram this", "draw this", "show me how X works", "map the architecture", "chart the flow", "visualize this", or any request for a technical visual — even without the word "mermaid".
 requires_agent_teams: false

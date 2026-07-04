@@ -57,9 +57,18 @@ usage() {
 # ---------------------------------------------------------------------------
 # Walk skills in deterministic ASCII order.
 # Prints absolute paths of all SKILL.md files, sorted by category/slug.
+# Mirrors catalog.sh's inventory filter exactly (the single source of truth for
+# "what counts as a shippable skill"): -maxdepth 3 drops bundled node_modules /
+# *-workspace SKILL.md scaffolds nested below a skill root, and archive/ +
+# in-progress/ are excluded so deprecated and WIP skills never convert to hosts.
+# Keep this in lockstep with catalog.sh:_inventory — a divergence is how the
+# advertised convertible-skill count drifts from what actually ships.
 # ---------------------------------------------------------------------------
 collect_skills() {
-  find "$SKILLS_ROOT" -name "SKILL.md" -type f | sort
+  find "$SKILLS_ROOT" -maxdepth 3 -name "SKILL.md" -type f 2>/dev/null \
+    | grep -v "$SKILLS_ROOT/archive/" \
+    | grep -v "$SKILLS_ROOT/in-progress/" \
+    | sort
 }
 
 # ---------------------------------------------------------------------------
@@ -788,9 +797,11 @@ main() {
     [[ "$tool" == "windsurf" ]] && _DO_WINDSURF=1
   fi
 
-  # Initialize accumulator temp files (needed before worker dispatch)
+  # Initialize accumulator temp files (needed before worker dispatch).
+  # This trap replaces the one lib/frontmatter.sh registered at source time,
+  # so it must also clear the frontmatter parse cache.
   init_accumulators
-  trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"' EXIT
+  trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"; fm_cache_clear' EXIT
 
   ats_header "Skill Madness — Converting skills to tool-specific formats"
   printf '  Repo:    %s\n' "$REPO_ROOT"

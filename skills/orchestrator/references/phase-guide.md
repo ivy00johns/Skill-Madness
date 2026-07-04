@@ -62,7 +62,7 @@ Order:
 3. **Data layer contract** — function signatures, storage semantics, indexes
 4. **Cross-cutting concerns** — assign each to exactly one agent
 
-Use the contract-author skill and templates in `contracts/contract-author/references/`.
+Use the contract-author skill and templates in `skills/contracts/contract-author/references/`.
 
 For monorepos where ≥2 implementation agents will each write a package manifest (`package.json`, `pyproject.toml`, `Cargo.toml`), also invoke the `dependency-coordinator` skill in this same phase. It authors the cross-package dependency contract so parallel agents don't produce transitive version drift that breaks `install` after the wave completes.
 
@@ -163,7 +163,7 @@ If smoke tests fail, fix integration issues before wasting QE agent context on a
 
 ## Phase 13: QA Gate
 
-Spawn the QE agent for thorough verification. QE handles contract conformance, integration testing, adversarial probing, and produces `qa-report.json` per the schema in `roles/qe-agent/references/qa-report-schema.json`.
+Spawn the QE agent for thorough verification. QE handles contract conformance, integration testing, adversarial probing, and produces `qa-report.json` per the schema in `skills/roles/qe-agent/references/qa-report-schema.json`.
 
 Before parsing scores, validate the report conforms to the schema (scores are `{score, notes}` objects, all required fields present). Send non-conformant reports back to QE for correction.
 

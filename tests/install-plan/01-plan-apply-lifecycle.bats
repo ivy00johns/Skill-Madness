@@ -280,6 +280,75 @@ print('\n'.join('%s=%d'%(k,v) for k,v in sorted(c.items())))
   [ "$(printf '%s\n' "$disk")" = "$(printf '%s\n' "$output")" ]
 }
 
+# ---------------------------------------------------------------------------
+# Copilot mirror (SR5): plan/apply/uninstall must cover BOTH ~/.github/agents
+# and ~/.copilot/agents (install-locations.md:17 + install.sh install_copilot).
+# ---------------------------------------------------------------------------
+
+@test "plan: copilot emits mirror operations for BOTH ~/.github and ~/.copilot" {
+  plan --profile git --tool copilot --out "$ROOT/plan.json"
+  run python3 -c "
+import json
+ops=json.load(open('$ROOT/plan.json'))['operations']
+gh=[o for o in ops if '/.github/agents/' in o['dest']]
+cp=[o for o in ops if '/.copilot/agents/' in o['dest']]
+assert gh, 'no ~/.github/agents ops'
+assert len(gh)==len(cp), (len(gh), len(cp))
+# same source files land in both trees, with matching hashes
+assert {o['source'] for o in gh}=={o['source'] for o in cp}
+by_src_gh={o['source']:o['sha256'] for o in gh}
+by_src_cp={o['source']:o['sha256'] for o in cp}
+assert by_src_gh==by_src_cp
+"
+  [ "$status" -eq 0 ]
+}
+
+@test "apply+uninstall: copilot mirror files land in and clear from BOTH trees" {
+  plan --profile git --tool copilot --out "$ROOT/plan.json"
+  bash "$SCRIPTS/install-apply.sh" --plan "$ROOT/plan.json" --root "$ROOT" >/dev/null 2>&1
+  run bash -c "find '$ROOT/.github/agents' -type f 2>/dev/null | wc -l | tr -d ' '"
+  [ "$output" != "0" ]
+  run bash -c "find '$ROOT/.copilot/agents' -type f 2>/dev/null | wc -l | tr -d ' '"
+  [ "$output" != "0" ]
+  # State records the mirror, so uninstall removes both trees.
+  bash "$SCRIPTS/install-state.sh" uninstall --root "$ROOT" >/dev/null 2>&1
+  run bash -c "find '$ROOT/.github/agents' '$ROOT/.copilot/agents' -type f 2>/dev/null | wc -l | tr -d ' '"
+  [ "$output" = "0" ]
+}
+
+# ---------------------------------------------------------------------------
+# Missing sources (SR23): a requested tool whose convert output is absent must
+# warn loudly (naming the path); if ALL requested tools are missing, exit != 0.
+# ---------------------------------------------------------------------------
+
+@test "plan: only tool has no source -> warns loudly and exits non-zero" {
+  # An integrations dir that exists but contains no antigravity/ source.
+  local integ2; integ2="$(mktemp -d "${TMPDIR:-/tmp}/ats-pa-empty.XXXXXX")"
+  run bash "$SCRIPTS/install-plan.sh" --integrations "$integ2" --root "$ROOT" \
+        --profile git --tool antigravity
+  [ "$status" -ne 0 ]
+  echo "$output" | grep -q "missing source for tool 'antigravity'"
+  echo "$output" | grep -qi "all requested tools have missing sources\|no installable sources"
+  rm -rf "$integ2"
+}
+
+@test "plan: partial-missing warns but still emits the present tool, exit 0" {
+  # integ2 has claude-code but NOT antigravity.
+  local integ2; integ2="$(mktemp -d "${TMPDIR:-/tmp}/ats-pa-partial.XXXXXX")"
+  cp -R "$INTEG/claude-code" "$integ2/claude-code"
+  run bash "$SCRIPTS/install-plan.sh" --integrations "$integ2" --root "$ROOT" \
+        --profile git --tool claude-code --tool antigravity --out "$ROOT/plan.json"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -q "missing source for tool 'antigravity'"
+  run python3 -c "
+import json
+ops=json.load(open('$ROOT/plan.json'))['operations']
+assert ops and all(o['tool']=='claude-code' for o in ops)
+"
+  [ "$status" -eq 0 ]
+  rm -rf "$integ2"
+}
+
 @test "unknown profile exits 2" {
   run plan --profile no-such-profile --tool claude-code
   [ "$status" -eq 2 ]

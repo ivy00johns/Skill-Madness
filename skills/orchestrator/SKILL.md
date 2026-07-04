@@ -1,8 +1,8 @@
 ---
 name: orchestrator
-version: 1.14.2
+version: 1.15.0
 description: |
-  Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow"/"workflows" ask, it drives the implement + verify phases with the Workflow tool — fanning out the role-agents (`agent({agentType})`) against the contracts and adversarially verifying — instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, splitting work across Claude sessions, "workflow"/"dynamic workflow", or ultracode mode. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
+  Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow" ask, it drives the implement + verify phases with the Workflow tool — fanning out role-agents against the contracts and adversarially verifying instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, or splitting work across Claude sessions. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
@@ -145,15 +145,21 @@ wait for the ultracode system-reminder or an explicit ask, same as before. The p
 keyword is `ultracode` (renamed from `workflow` in v2.1.160); a natural-language "use a
 workflow" counts as the same opt-in in any version.
 
-**Effort is a per-role dial, not only the ultracode gate.** Separate from gating Workflow
-mode, `/effort` (and, in Workflow mode, each `agent()`'s `effort` option) is the primary
-intelligence/latency/cost control — set it to the *work*, not one global level. Lean
-`xhigh`/`high` on the capability-sensitive roles (contract authoring, the security pass,
-adversarial verification) and `low`/`medium` on the routine ones (docs, mechanical edits,
-formatting). On the Claude 5 family (Fable 5 / Mythos 5) a lower-effort agent often matches
-`xhigh` on prior models, so default agents to `high` and spend `xhigh` only where the work
-is hardest — that's how a wide fan-out stays affordable without losing quality on the parts
-that carry the build. See the `model-adaptation` skill (Bucket C).
+**Model and effort are per-role dials, not only the ultracode gate.** Separate from gating
+Workflow mode, every dispatch takes both a `model` and an `effort` — set them to the *work*,
+not one global level, per the model & effort tiering policy in `model-adaptation` (the
+canonical home: task→tier map, priced Anthropic ladder, provider-relativity rule). Load-bearing
+reasoning roles (contract authoring, the security pass, adversarial verification) get the top
+tier at `xhigh`/`high`; standard implementation gets the mid tier; mechanical/high-volume roles
+(docs, formatting, mechanical edits, broad research crawl) tier down to the cheapest model that
+clears the bar at `low`/`medium` (no `effort` param on Haiku — it 400s). On the Claude 5 family
+(Fable 5 / Mythos 5) a lower-effort agent often matches `xhigh` on prior models, so default
+agents to `high` and spend `xhigh` only where the work is hardest — that's how a wide fan-out
+stays affordable without losing quality on the parts that carry the build. Stay inside ONE
+provider's ladder (Anthropic by default; `use-freellmapi` projects are the only multi-provider
+carve-out), and **pass `model` and `effort` explicitly on every spawn** — per-agent defaults
+resolve to the session-start model, which goes stale after `/model`. See `model-adaptation`
+(*Model & effort tiering* + its `references/model-effort-tiering.md`).
 
 **Sequential mode**: When neither Agent Teams nor subagent spawning is available, work through each role one at a time within a single session. Apply the relevant role skill as your own instructions for that phase. The user may need to coordinate context resets between roles. Contracts and validation still apply — only the parallelism changes.
 
@@ -222,7 +228,7 @@ Any project with more than a single source file requires a root `README.md` and 
 
 ## QA Gate Rules
 
-The QE agent outputs structured JSON per `roles/qe-agent/references/qa-report-schema.json`. Before reading scores, **validate the report conforms to the schema** — check that `scores` contains objects with `score` and `notes` fields (not bare integers), that all required top-level fields exist (`schema_version`, `status`, `scores`, `test_results`, `blockers`, `issues`, `gate_decision`), and that `gate_decision` has `proceed` and `reason`. A non-conformant report should be sent back to the QE agent for correction.
+The QE agent outputs structured JSON per `skills/roles/qe-agent/references/qa-report-schema.json`. Before reading scores, **validate the report conforms to the schema** — check that `scores` contains objects with `score` and `notes` fields (not bare integers), that all required top-level fields exist (`schema_version`, `status`, `scores`, `test_results`, `blockers`, `issues`, `gate_decision`), and that `gate_decision` has `proceed` and `reason`. A non-conformant report should be sent back to the QE agent for correction.
 
 Build is blocked when:
 

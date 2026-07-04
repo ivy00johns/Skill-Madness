@@ -1,6 +1,6 @@
 ---
 name: living-plan
-version: 1.1.0
+version: 1.1.1
 description: |
   Document and set up the living-plan convention: a front door (START-HERE.md), a
   strategic doc, a tactical ledger, and a frontier doc, wired to an intake loop so
@@ -9,7 +9,7 @@ description: |
   project a planning front door", "stop my docs from rotting", or wants to establish
   a report-to-ledger intake loop on a project.
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: []

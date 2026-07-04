@@ -12,7 +12,7 @@
       "id": 1,
       "name": "catalog-by-category",
       "prompt": "give me a quick rundown of all my skills grouped by what they do — i want to actually see the catalog instead of guessing names every time",
-      "expected_output": "A grouped list (orchestration / roles / contracts / meta / git / workflows or similar), one short line per skill, scannable. Includes plugin skills only if it separates them clearly from repo skills, or just sticks to the repo skills.",
+      "expected_output": "A grouped list (orchestration / roles / contracts / meta / git / workflows / loops or similar), one short line per skill, scannable. Includes plugin skills only if it separates them clearly from repo skills, or just sticks to the repo skills.",
       "files": []
     },
     {

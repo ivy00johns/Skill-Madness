@@ -7,6 +7,7 @@ This table is the **canonical** ownership map for the whole Skill-Madness toolki
 1. **Directory ownership takes precedence over pattern ownership.** If a pattern (e.g. `docs/adr/**`) would land inside a directory owned by another skill, the more specific directory owner wins.
 2. **Subdirectory carve-outs are explicit.** A deeper-nested directory can be carved out of a broader owner (e.g. `performance-agent` owns `tests/performance/` carved out of qe-agent's `tests/`; `setup-project-skills` owns `docs/agents/` and `maintain-context` owns `docs/adr/`, both carved out of docs-agent's `docs/`).
 3. **No path has two owners.** Every owned directory/pattern below resolves to exactly one skill. Skills not listed here own nothing — their write capability (if any) comes from `allowed-tools`, not ownership.
+4. **Test/spec files beat UI-extension patterns (glob-intersection tiebreak).** One filename can match two *pattern* owners at once — e.g. `Button.test.tsx` matches both frontend-agent's `*.tsx` and qe-agent's `*.test.*`. The more specific test/spec pattern wins: any file matching `*.test.*` or `*.spec.*` belongs to **qe-agent**, even when it also carries a UI extension (`.tsx`, `.jsx`, `.vue`, `.svelte`, `.css`). `lint-skills.sh` surfaces cross-skill `owns.patterns` intersections as a WARN; this frontend/qe pair is the one documented tiebreak on its allowlist (add a pair to that allowlist only after stating its tiebreak here).
 
 ## Build-time role agents
 

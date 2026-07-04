@@ -1,10 +1,10 @@
 ---
 name: work-item-brief
-version: 1.1.0
+version: 1.1.1
 description: |
   Produce a durable, agent-ready work-item brief that captures intent precisely enough for an autonomous agent to grab and finish unattended. The brief excludes brittle references (file paths, line numbers, "the file we just edited") and instead names behavioral acceptance criteria, types/signatures, and explicit out-of-scope. Pairs with Beads or any ticket tracker. Use after grill-me or plan-builder, before dispatching. Trigger on "make a work-item brief", "write the agent brief", "agent-ready ticket", "make this dispatchable", "package this for an agent", "brief this".
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: []

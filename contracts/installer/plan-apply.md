@@ -1,6 +1,6 @@
 # Contract: Plan/Apply Install + Install-State + Profiles (P1-B)
 
-**Version:** 1.0.0
+**Version:** 1.0.1
 **Status:** ACTIVE — orchestrator, AllTheSkills P1
 **Source plan:** `DeepResearch/The-Hive/ecc_deepdive/source-material/14-alltheskills-frontier.md` (P1)
 **Models:** ECC's `install-plan.js` / `install-apply.js` / `list-installed.js` / `uninstall.js` (pure resolution → serializable plan → executor → recorded install-state with content hashes).
@@ -20,7 +20,7 @@ Named subsets of skills selected by category (resolved against disk the same way
 
 ```json
 {
-  "full":               { "categories": ["orchestrator","roles","contracts","meta","git","workflows"] },
+  "full":               { "categories": ["orchestrator","roles","contracts","meta","git","workflows","loops"] },
   "orchestration-only": { "categories": ["orchestrator","contracts"] },
   "roles":              { "categories": ["orchestrator","roles","contracts"] },
   "git":                { "categories": ["git"] },
@@ -65,3 +65,4 @@ plan→apply→list→drift→uninstall→repair all work against a temp root; i
 
 ## Changelog
 - 1.0.0 — initial (orchestrator, P1-B).
+- 1.0.1 — `full` profile updated to 7 categories (added `loops`), matching `manifests/profiles.json` (SR22).

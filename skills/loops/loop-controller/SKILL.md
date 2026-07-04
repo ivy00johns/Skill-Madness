@@ -1,6 +1,6 @@
 ---
 name: loop-controller
-version: 1.1.0
+version: 1.1.1
 description: >-
   Wrap any task in a verifiable stop condition plus a mandatory guardrail stack
   so an autonomous loop converges instead of thrashing or burning the budget —
@@ -253,10 +253,12 @@ loop needs:
   offer to hand off, or trim its own work. Read the budget from externalized state (Step 4)
   and decide in the harness; if a count must be visible, add the "you have ample context,
   continue" reassurance.
-- **Effort per iteration.** Effort is the primary intelligence/latency/cost dial: `high`
+- **Model & effort per iteration.** Effort is the primary intelligence/latency/cost dial: `high`
   default, `xhigh` for the hardest proof/verify steps, `medium`/`low` for routine passes.
   Lower effort on the Claude 5 family often beats `xhigh` on prior models — reduce it if a
-  loop converges but each iteration runs longer than the work needs.
+  loop converges but each iteration runs longer than the work needs. Model tiers the same
+  way — pick both per `model-adaptation`'s *Model & effort tiering* policy: workers and
+  routine passes tier down, but the fresh-context evaluator (Step 2) stays on the top tier.
 - **Send-to-user for verbatim mid-turn output.** A loop otherwise only speaks by *ending*
   its turn for HITL. For long async loops that must surface a deliverable or a direct answer
   *without* stopping, give the agent a client-side `send_to_user` tool plus the elicitation

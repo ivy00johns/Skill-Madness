@@ -1,10 +1,10 @@
 ---
 name: claude-design-brief
-version: 1.4.0
+version: 1.4.1
 description: |
   Generate paste-ready prompts for Claude Design (the artifact / design-canvas tool at claude.ai, NOT Claude Code) that are committed enough to skip its Q&A loop and start drawing on message one. Use when the user wants hi-fi mockups, an interactive prototype, multiple directions on a canvas, or a safe / bold / experimental comparison inside Claude. Trigger on: "build mockups in Claude Design", "design canvas prompt", "hi-fi design mockup", "interactive prototype in claude", "claude design prompt", "I want directions A/B/C in claude", "stop letting claude design ask me 15 questions", "claude design keeps asking", "compare safe / bold / experimental". Sibling skill `ui-brief` targets Claude Code production builds — this one targets the design canvas. Works for any product type.
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: []

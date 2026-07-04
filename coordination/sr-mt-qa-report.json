@@ -1,0 +1,94 @@
+{
+  "schema_version": "1.0.0",
+  "timestamp": "2026-07-04T02:55:00Z",
+  "agent_role": "qe",
+  "build_session_id": "sr-mt-backlog-sweep-wave3",
+  "status": "PASS",
+  "scores": {
+    "correctness": {
+      "score": 5,
+      "notes": "All four gates green from live runs: catalog.sh --check OK (71 skills, plugin.json matches disk); lint-skills.sh skills/ exit 0 (0 errors, 123 warnings across 77 skills incl. archive); lint-skills.sh --changed main exit 0 (30 changed SKILL.md, 0 version drifts); bash tests/run-all.sh 343/343 pass, 0 fail, 0 skip (~3 min). Adversarial behavioral checks all passed: frontmatter.sh cache reads byte-match an independent PyYAML hand-parse (scalar/bool/array fields on orchestrator, loop-controller, use-freellmapi); convert.sh --tool cursor completes in 5.7s (SR4 perf fix confirmed; was part of an ~86s-per-run pathology); install.sh --wire-hooks merge verified in a throwaway HOME (backup created, unrelated 'theme' key and a pre-existing user hook preserved, idempotent on second run: hook count 7 -> 7 with 'already wired'); default install leaves settings.json byte-identical; install-plan.sh copilot emits mirror ops for BOTH ~/.github/agents and ~/.copilot/agents (6/6, identical sources+hashes); missing-source tools warn loudly naming the path and an all-missing plan exits 2 instead of emitting an empty plan; the >950-char description WARN and the --changed version-drift ERROR both fire on throwaway fixtures outside the repo and clear on the fix."
+    },
+    "completeness": {
+      "score": 5,
+      "notes": "All 25 ledger rows (SR1-SR24 + MT-1) have implementing hunks in git diff main...HEAD, each matching the row's stated requirement (not relocations): SR1 flag audit (20 skills flipped to false; catalog now 37 true / 32 false / 2 flag-less = 34 convertible, matching the rewritten README '34 of 71' claim) + README claims trued at :9/:57/:84/:498/:663; SR2 CI runs the full suite via tests/run-all.sh in the Installer+Catalog job (blocking) and macOS smoke (non-blocking), job display names preserved for branch protection; SR3 opt-in --wire-hooks merge + telemetry-inactive banner (both verified live); SR4 parse-once frontmatter cache; SR5 dests_for copilot mirror; SR6 tests/run-all.sh + scripts/README docs; SR7 loops in skill-explorer brace map + eval; SR8 both dead links repointed to files that exist, 0 residual refs; SR9 README CLI flags now match real flags (--tool, positional lint path); SR10 six hooks documented, profile map matches hooks.manifest.json (minimal 1 / standard 5 / strict 6 — verified against the manifest); SR11 START-HERE + PLAN record artifact-publish (#42) and find-unknowns (#43) with closure-log entries; SR12 >950 WARN band + orchestrator description trimmed 1023 -> 935; SR13 all three bumps (interactive-doc, mermaid-charts, model-adaptation) + the --changed drift guard with 5 new bats tests; SR14 body-template.md listed; SR15 madness count-free phrasing + eval; SR16 skills/ prefixes fixed in orchestrator, phase-guide, workflow-orchestration, context-manager; SR17 loop-controller qualifier added; SR18 glob-intersection WARN + documented frontend/qe tiebreak as file-ownership rule 4 + allowlist; SR19 eval fixture count-free; SR20 bash 3.2+; SR21 hooks/ + spec/ in the tree; SR22 contract at 7 categories with changelog entry; SR23 loud warn + exit-2 on all-missing sources; SR24 known_external allowlist with artifact-design/dataviz. MT-1: model-adaptation v1.1.0 gains the 'Model & effort tiering' section (task->tier map, provider-relativity rule, FreeLLMAPI carve-out, Haiku-rejects-effort guardrail) + new references/model-effort-tiering.md (priced ladder, billing-surface table, consumer wiring); orchestrator dispatch paragraph + workflow-orchestration.md show per-role/per-stage model+effort; loop-controller Step 6 pointer added with evaluator-stays-top-tier; cross-links wired both directions (model-adaptation <-> use-freellmapi composes_with, orchestrator/loop-controller references); subagent-model-follows-user-choice footgun and the intentional tension with the Workflow tool's omit-opts.model guidance are both stated. 27 new bats tests accompany the script changes (suite 317 -> 343)."
+    },
+    "code_quality": {
+      "score": 5,
+      "notes": "New script code is disciplined: bash-3.2-safe idioms throughout; the frontmatter cache documents its invariants (process-scoped keying, no-mutate-and-reread, failed parses never cached, bats tmpdir handling) and convert.sh's EXIT trap was updated to call fm_cache_clear; the glob-intersection detector is deliberately conservative (two documented glob shapes, false-negatives-only) with the tradeoff stated in comments; install-plan.sh's SR23 handling distinguishes all-missing (exit 2) from partial-missing (warn + emit present tools); every behavior change ships with bats coverage modeled on existing suites (07-install-hooks-wire uses a throwaway HOME, setup_file fixture reuse). CI workflow comments explain the pinned-job-name constraint."
+    },
+    "security": {
+      "score": 5,
+      "notes": "No secrets or keys in the diff (grepped). settings.json merge safety verified live: opt-in only (default run leaves the file byte-identical), timestamped backup before first mutating write, refuses malformed JSON / non-object top level / non-object hooks key, preserves unrelated keys and user hooks, idempotent, all JSON handling in stdlib python with paths passed via env (no shell interpolation into code). No unsafe eval anywhere; frontmatter cache rm -rf is bounded to a per-process $TMPDIR/ats-fm-cache.$$.$RANDOM dir with sanitized single-segment keys; lint --changed only runs git rev-parse/diff/show on user-supplied refs. scan-skills suite passed within the 343."
+    },
+    "contract_conformance": {
+      "score": 4,
+      "notes": "25/25 ledger rows conform to their stated requirements — none partial, none relocated or papered over. Docked one point for an SR1-adjacent residual: skills/archive/git-branch-cleanup and git-clean-worktrees are TRACKED, carry requires_claude_code: false (pre-existing on main), and convert.sh has no archive exclusion — so on a clean checkout a non-CC host actually receives 36 artifacts, not the README's freshly-trued '34 of the 71', and two deprecated skills leak to all ten hosts. Verified live: cursor output contains git-branch-cleanup.mdc / git-clean-worktrees.mdc; zero requires_claude_code:true skills leak (the flag mechanism itself works — spot-read grill-me.mdc and plan-builder.mdc contain nothing Claude-Code-specific). This is exactly the claims-vs-converter-behavior drift class SR1 existed to close, so it is recorded as issue SRQA-1 rather than waved through."
+    }
+  },
+  "test_results": {
+    "unit": { "pass": 343, "fail": 0, "skip": 0 },
+    "integration": { "pass": 20, "fail": 0, "skip": 0 },
+    "e2e": { "pass": 0, "fail": 0, "skip": 0 },
+    "contract": { "pass": 25, "fail": 0, "skip": 0 },
+    "security_scan": { "pass": 4, "fail": 0, "skip": 0 }
+  },
+  "blockers": [],
+  "issues": [
+    {
+      "id": "SRQA-1",
+      "severity": "MEDIUM",
+      "category": "contract_violation",
+      "file": "scripts/convert.sh",
+      "line": 674,
+      "description": "Archived-skill leak vs the trued-up SR1 claim: skills/archive/{git-branch-cleanup,git-clean-worktrees}/SKILL.md are tracked in git with requires_claude_code: false, and convert.sh's walk has no skills/archive/ exclusion, so every non-Claude-Code host receives 36 artifacts (the 34 claimed catalog skills + 2 deprecated archived ones). Pre-existing on main (same flags there), so not a regression introduced by this diff — but the README's new '34 of the 71 skills today' portability claim is not strictly true of converter output on a clean checkout, and deprecated content ships to ten hosts.",
+      "suggested_fix": "Either add a skills/archive/ exclusion to convert.sh's SKILL.md walk (mirroring lint-skills.sh's debris skip) or set requires_claude_code: true on both archived skills; then regenerate integrations/ where present."
+    },
+    {
+      "id": "SRQA-2",
+      "severity": "LOW",
+      "category": "tooling",
+      "file": "scripts/convert.sh",
+      "line": null,
+      "description": "convert.sh also emits gitignored local workspace debris when present (observed: skills/meta/skill-review-workspace/.../deep-explainer converted to cursor output as deep-explainer.mdc). lint-skills.sh gained a gitignored-debris skip in this very diff (bats test 343) but convert.sh did not get the same treatment. Local-machine noise only — CI checkouts never contain the debris.",
+      "suggested_fix": "Apply the same gitignore-aware skip (or an explicit workspace-dir exclusion list) to convert.sh's file walk."
+    },
+    {
+      "id": "SRQA-3",
+      "severity": "INFO",
+      "category": "tooling",
+      "file": "scripts/lib/frontmatter.sh",
+      "line": 34,
+      "description": "Cache cleanup depends on cooperation: the EXIT trap is registered only when the sourcing script has no EXIT trap of its own, and scripts that later install one (as convert.sh does) must remember to call fm_cache_clear from it. A future script that sets an EXIT trap after sourcing and forgets will silently leak ats-fm-cache.* dirs in TMPDIR. The header documents this; noting it as a maintenance tripwire.",
+      "suggested_fix": "None required now; consider a lint-hooks-style grep asserting any script that both sources frontmatter.sh and sets 'trap ... EXIT' also references fm_cache_clear."
+    },
+    {
+      "id": "SRQA-4",
+      "severity": "INFO",
+      "category": "process",
+      "file": "scripts/lint-skills.sh",
+      "line": null,
+      "description": "The SR13 version-drift guard (--changed) is deliberately not wired into CI, so it only fires when someone runs it locally (it was run as a gate for this build and passed: 30 changed SKILL.md, 0 drifts). The RV8/SR13 drift pattern it exists to kill was a recurring-miss class; an unwired guard can silently stop being run.",
+      "suggested_fix": "Follow-up: add a PR-only CI step running scripts/lint-skills.sh --changed origin/main (needs fetch-depth to see the base ref)."
+    },
+    {
+      "id": "SRQA-5",
+      "severity": "INFO",
+      "category": "process",
+      "file": "coordination/MISSION_SKILLS.md",
+      "line": null,
+      "description": "The rewritten mission manifest's Wave 1/2/3 checkboxes (orchestrator, fix-until-green, skill-review conventions, qe-agent, code-review) are still unchecked, and the file's own rule says every box must end the build checked-or-annotated ('Empty boxes are bugs').",
+      "suggested_fix": "Lead ticks the wave boxes with artifact paths (this report = coordination/sr-mt-qa-report.json) when closing the build."
+    }
+  ],
+  "recommendations": [
+    "Proceed to merge: all four gates green from live runs, 343/343 bats, and every one of the 25 ledger rows verified against its implementing hunks.",
+    "Credit where due: the frontmatter parse-once cache is byte-compatible with the old accessors under an independent hand-parse and cuts a single-host convert to ~5.7s; the settings.json merge is genuinely safe (opt-in, backed-up, idempotent, refuses malformed input) — verified in a throwaway HOME, never the real one.",
+    "Before or shortly after merge, resolve SRQA-1 (archive leak) so the README's new 34-of-71 claim is exactly true of converter output — it is a two-line fix in convert.sh or two frontmatter flips.",
+    "Consider the SRQA-4 follow-up (CI wiring for --changed) so the version-drift guard cannot rot into an unused local tool."
+  ],
+  "gate_decision": {
+    "proceed": true,
+    "reason": "PASS. All 25 contracts (SR1-SR24 + MT-1) implemented as specified and verified hunk-by-hunk; catalog --check OK (71), full lint 0 errors (exit 0), --changed main 0 drifts, full bats suite 343/343 with 0 skips; adversarial behavioral checks (frontmatter cache parity, convert perf + skip-list honesty, wire-hooks merge safety/idempotency in a temp HOME, copilot dual-dest plan, missing-source loudness, both new lint guards firing on fixtures) all passed. No CRITICAL or HIGH findings; the one MEDIUM (pre-existing archived-skill leak that makes the trued-up 34-of-71 claim off by two on clean checkouts) does not block merge but should be fixed as a fast follow."
+  }
+}

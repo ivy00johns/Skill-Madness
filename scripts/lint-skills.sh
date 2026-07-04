@@ -15,6 +15,10 @@
 #   --format FORMAT  Output format: text (default) or junit
 #   --standard       Print the PSFS standard + version this linter implements
 #                    and the canonical schema path, then exit 0
+#   --changed [REF]  Version-drift guard (opt-in, git-based): ERROR when a
+#                    skill's SKILL.md body changed vs REF (default origin/main,
+#                    then main) but its frontmatter version: did not. Ignores
+#                    PATH args. Not part of the static lint; not wired into CI.
 #   --help           Print this and exit
 #
 # PATH may be a directory (recurse) or an individual SKILL.md.
@@ -56,6 +60,10 @@ VERBOSE=false
 FIX_TRIVIAL=false
 FORMAT="text"
 LINT_PATHS=()
+# --changed mode (SR13 version-drift guard): opt-in, git-based. CHANGED_BASE=""
+# means "auto-detect base ref" (origin/main, then main).
+CHANGED_MODE=false
+CHANGED_BASE=""
 
 # ---------------------------------------------------------------------------
 # Issue tracking
@@ -404,6 +412,11 @@ lint_one() {
   # ---------------------------------------------------------------------------
   if (( desc_len == 0 )); then
     emit_issue ERROR "$file" "1" "required field 'description' is missing or empty"
+  elif (( desc_len > 950 )); then
+    # Ceiling-approach band (SR12): the schema hard-fails description >1024 chars.
+    # WARN once a description crosses 950 so it gets trimmed BEFORE one more edit
+    # pushes it over and turns a clean tree red. WARN-only — never touches exit.
+    emit_issue WARN "$file" "" "description is ${desc_len} chars — within $(( 1024 - desc_len )) of the 1024 hard ceiling; trim trigger text (move detail to body/references) before an edit pushes it over and FAILs the schema check"
   elif (( desc_len > 500 )); then
     emit_issue WARN "$file" "" "description is ${desc_len} chars (consider whether some trigger context belongs in body/references)"
   elif (( desc_len > 200 )); then
@@ -460,6 +473,85 @@ lint_one() {
 }
 
 # ---------------------------------------------------------------------------
+# _glob_intersections <patterns_map_file> <allowlist>
+# ---------------------------------------------------------------------------
+# owns.patterns glob-intersection detector for cross_validate (SR18). Reads a
+# TSV of "pattern<TAB>skill-name" lines and prints one line per cross-owner pair
+# of patterns that can both match a single filename, EXCLUDING pairs whose two
+# owners are in <allowlist> (newline-separated, sorted '::'-joined name pairs
+# with a documented tiebreak). Output columns: ownerA<TAB>ownerB<TAB>patA<TAB>patB
+# (owners sorted; each owner/pattern pair emitted once).
+#
+# Heuristic, NOT full glob algebra — it understands exactly two glob shapes:
+#   extension  `*.EXT`      (e.g. *.tsx)      -> matches files ending .EXT
+#   infix      `*.TOKEN.*`  (e.g. *.test.*)   -> matches files containing .TOKEN.
+# and flags a pair as intersecting when: the patterns are identical; an
+# extension meets an infix (a file like x.TOKEN.EXT matches both — the
+# frontend `*.tsx` vs qe `*.test.*` case); or two infixes meet (x.A.B.y matches
+# both). Any pattern that is NOT one of those two shapes (concrete filenames,
+# prefix globs like `Dockerfile*`, char classes, `?`, braces, path-scoped
+# globs) is conservatively treated as non-intersecting: this can miss real
+# overlaps (false negatives) but never invents one (no false positives).
+_glob_intersections() {
+  local map_file="$1" allow="$2"
+  python3 - "$map_file" "$allow" <<'PYEOF'
+import sys, re
+
+map_file = sys.argv[1]
+allow = set(x for x in sys.argv[2].split('\n') if x.strip())
+
+pairs = []
+with open(map_file) as f:
+    for line in f:
+        line = line.rstrip('\n')
+        if '\t' not in line:
+            continue
+        pat, owner = line.split('\t', 1)
+        if pat and owner:
+            pairs.append((pat, owner))
+
+def ext(p):
+    m = re.match(r'^\*\.([A-Za-z0-9]+)$', p)
+    return m.group(1) if m else None
+
+def infix(p):
+    m = re.match(r'^\*\.([A-Za-z0-9]+)\.\*$', p)
+    return m.group(1) if m else None
+
+def intersect(p1, p2):
+    if p1 == p2:
+        return True
+    e1, e2 = ext(p1), ext(p2)
+    f1, f2 = infix(p1), infix(p2)
+    if (e1 and f2) or (e2 and f1):   # extension meets infix
+        return True
+    if f1 and f2:                    # infix meets infix
+        return True
+    return False
+
+seen = set()
+n = len(pairs)
+for i in range(n):
+    for j in range(i + 1, n):
+        p1, o1 = pairs[i]
+        p2, o2 = pairs[j]
+        if o1 == o2:
+            continue
+        if not intersect(p1, p2):
+            continue
+        key = '::'.join(sorted([o1, o2]))
+        if key in allow:
+            continue
+        dedup = (key, tuple(sorted([p1, p2])))
+        if dedup in seen:
+            continue
+        seen.add(dedup)
+        a, b = sorted([o1, o2])
+        print('\t'.join([a, b, p1, p2]))
+PYEOF
+}
+
+# ---------------------------------------------------------------------------
 # Cross-skill validation (requires all files)
 # ---------------------------------------------------------------------------
 cross_validate() {
@@ -471,10 +563,12 @@ cross_validate() {
   name_map_file="$(mktemp "${TMPDIR:-/tmp}/ats-lint-names.XXXXXX")"
   local owns_map_file
   owns_map_file="$(mktemp "${TMPDIR:-/tmp}/ats-lint-owns.XXXXXX")"
+  local patterns_map_file
+  patterns_map_file="$(mktemp "${TMPDIR:-/tmp}/ats-lint-pats.XXXXXX")"
   # shellcheck disable=SC2064 # capture current values of temp files
-  trap "rm -f '$name_map_file' '$owns_map_file'" RETURN
+  trap "rm -f '$name_map_file' '$owns_map_file' '$patterns_map_file'" RETURN
 
-  local f name owns_dirs dir
+  local f name owns_dirs dir owns_pats pat
 
   # First pass: collect names and ownership
   for f in "${files[@]}"; do
@@ -489,6 +583,15 @@ cross_validate() {
         [[ -z "$dir" ]] && continue
         printf '%s\t%s\n' "$dir" "$f" >> "$owns_map_file"
       done <<< "$owns_dirs"
+    fi
+
+    # Collect owns.patterns keyed by skill NAME (for the glob-intersection check)
+    owns_pats="$(get_owns_patterns "$f")"
+    if [[ -n "$owns_pats" ]]; then
+      while IFS= read -r pat; do
+        [[ -z "$pat" ]] && continue
+        printf '%s\t%s\n' "$pat" "$name" >> "$patterns_map_file"
+      done <<< "$owns_pats"
     fi
   done
 
@@ -514,6 +617,28 @@ cross_validate() {
     fi
   done < <(awk -F'\t' '{print $1}' "$owns_map_file" | sort | uniq)
 
+  # Check owns.patterns glob intersections across DIFFERENT skills (SR18). The
+  # directory/uniqueness checks above only compare pattern strings for equality;
+  # two DIFFERENT strings can still both match one file (e.g. frontend `*.tsx`
+  # and qe `*.test.*` both match Button.test.tsx). WARN, don't fail — an
+  # intersection is a design smell, not always a defect, and some are resolved
+  # by a documented tiebreak.
+  #
+  # Documented-tiebreak allowlist: newline-separated, sorted '::'-joined skill
+  # name pairs whose overlap is intentional and stated in
+  # skills/orchestrator/references/file-ownership.md. Seed = frontend/qe:
+  # test/spec files (qe-agent) win over UI-extension patterns (frontend-agent),
+  # so Button.test.tsx belongs to qe-agent. Add a pair here only after recording
+  # the tiebreak in that ownership map.
+  local glob_tiebreak_allow="frontend-agent::qe-agent"
+  if [[ -s "$patterns_map_file" ]]; then
+    while IFS=$'\t' read -r g_owner_a g_owner_b g_pat_a g_pat_b; do
+      [[ -z "$g_owner_a" ]] && continue
+      emit_issue WARN "(cross-skill)" "" \
+        "owns.patterns overlap — '$g_pat_a' ($g_owner_a) and '$g_pat_b' ($g_owner_b) can both match one file; assign the overlap to exactly one skill or document a tiebreak"
+    done < <(_glob_intersections "$patterns_map_file" "$glob_tiebreak_allow")
+  fi
+
   # Check composes_with references exist
   local all_names
   all_names="$(awk -F'\t' '{print $1}' "$name_map_file" | sort)"
@@ -521,8 +646,13 @@ cross_validate() {
   # Known bare external refs: skills that live outside this collection (a global
   # ~/.claude/skills/ skill, or a bare-invoked plugin skill) or Claude Code
   # built-in slash commands. Bare is their invocable form, so they are legitimate
-  # and must not flag as "unknown". Only add genuinely-verified externals. See FA6.
-  local known_external=" ux-review ui-ux-pro-max claude-api loop schedule "
+  # and must not flag as "unknown". This is the allowlist mechanism for
+  # non-namespaced externals in BOTH composes_with and spawned_by (colon-namespaced
+  # refs like `plugin:name` are skipped separately, by design). Only add
+  # genuinely-verified externals. See FA6, SR24.
+  #   artifact-design, dataviz — host-global design skills that artifact-publish
+  #   composes_with; they ship with the Claude Code host, not this collection.
+  local known_external=" ux-review ui-ux-pro-max claude-api loop schedule artifact-design dataviz "
 
   for f in "${files[@]}"; do
     while IFS= read -r ref_name; do
@@ -546,6 +676,91 @@ cross_validate() {
       fi
     done < <(get_array "spawned_by" "$f")
   done
+}
+
+# ---------------------------------------------------------------------------
+# lint_changed [base-ref]   (SR13: version-bump-drift guard)
+# ---------------------------------------------------------------------------
+# Opt-in, git-based check: ERROR when a skill's SKILL.md BODY (everything after
+# the closing frontmatter ---) changed versus a base ref but its frontmatter
+# `version:` did NOT. Frontmatter-only edits (e.g. a description tweak) do not
+# require a bump — only body changes do.
+#
+# Compares the base ref against the WORKING TREE (staged + unstaged), so it
+# catches local edits before they are committed. New files (absent in the base)
+# and deletions are skipped: drift needs a prior version to compare against.
+# base-ref defaults to origin/main, then main. This is NOT part of the static
+# lint (it needs git) and is deliberately NOT wired into CI here.
+# bash-3.2-safe. Exits 0 (no drift) / 1 (drift) / 2 (git/base-ref error).
+lint_changed() {
+  local base_ref="$1"
+
+  if ! git -C "$REPO_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    ats_err "--changed: not inside a git work tree"
+    exit 2
+  fi
+
+  if [[ -z "$base_ref" ]]; then
+    if git -C "$REPO_ROOT" rev-parse --verify -q origin/main >/dev/null 2>&1; then
+      base_ref="origin/main"
+    elif git -C "$REPO_ROOT" rev-parse --verify -q main >/dev/null 2>&1; then
+      base_ref="main"
+    else
+      ats_err "--changed: no base ref found (tried origin/main, main); pass one explicitly"
+      exit 2
+    fi
+  fi
+
+  if ! git -C "$REPO_ROOT" rev-parse --verify -q "${base_ref}^{commit}" >/dev/null 2>&1; then
+    ats_err "--changed: base ref '$base_ref' does not resolve to a commit"
+    exit 2
+  fi
+
+  # Changed SKILL.md paths (repo-relative). Filter with grep rather than relying
+  # on git pathspec magic, so nested paths are always matched.
+  local changed
+  changed="$(git -C "$REPO_ROOT" diff --name-only "$base_ref" 2>/dev/null | grep -E '(^|/)SKILL\.md$' || true)"
+
+  local n_drift=0 n_checked=0
+  local rel nowfile basecontent basetmp vbase vnow bbase bnow
+  if [[ -n "$changed" ]]; then
+    while IFS= read -r rel; do
+      [[ -z "$rel" ]] && continue
+      nowfile="$REPO_ROOT/$rel"
+      [[ -f "$nowfile" ]] || continue   # deleted in the work tree — skip
+      basecontent="$(git -C "$REPO_ROOT" show "${base_ref}:${rel}" 2>/dev/null || true)"
+      [[ -z "$basecontent" ]] && continue   # new file (absent in base) — no prior version
+      basetmp="$(mktemp "${TMPDIR:-/tmp}/ats-drift.XXXXXX")"
+      printf '%s\n' "$basecontent" > "$basetmp"
+      vbase="$(get_field version "$basetmp")"
+      vnow="$(get_field version "$nowfile")"
+      bbase="$(get_body "$basetmp")"
+      bnow="$(get_body "$nowfile")"
+      rm -f "$basetmp"
+      n_checked=$(( n_checked + 1 ))
+      if [[ "$bbase" != "$bnow" && "$vbase" == "$vnow" ]]; then
+        emit_issue ERROR "$rel" "" \
+          "SKILL.md body changed since ${base_ref} but its version stayed ${vnow:-unset} — bump the frontmatter version field"
+        n_drift=$(( n_drift + 1 ))
+      fi
+    done <<< "$changed"
+  fi
+
+  printf 'Version-drift check vs %s: %d changed SKILL.md file(s), %d drift(s).\n' \
+    "$base_ref" "$n_checked" "$n_drift"
+  local issue loc msg
+  for issue in "${ERRORS[@]+"${ERRORS[@]}"}"; do
+    msg="${issue##*:}"
+    loc="${issue%:*}"
+    printf '%-6s %s  %s\n' 'ERROR' "$loc" "$msg"
+  done
+
+  if (( n_drift > 0 )); then
+    printf '\nFAILED: bump the version: of each skill whose body changed.\n'
+    exit 1
+  fi
+  printf 'PASSED: no version-bump drift.\n'
+  exit 0
 }
 
 # ---------------------------------------------------------------------------
@@ -673,7 +888,7 @@ print_junit_report() {
 # Main
 # ---------------------------------------------------------------------------
 usage() {
-  sed -n '3,21p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '3,25p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -685,11 +900,29 @@ main() {
       --fix-trivial)  FIX_TRIVIAL=true; shift ;;  # future: implement trivial auto-fixes
       --format)       FORMAT="${2:?'--format requires a value'}"; shift 2 ;;
       --standard)     print_standard; exit 0 ;;
+      --changed)
+        CHANGED_MODE=true
+        # Optional base ref immediately follows if it is not another flag.
+        # --changed ignores PATH args, so consuming one non-flag token is safe.
+        if [[ $# -ge 2 && "$2" != -* ]]; then
+          CHANGED_BASE="$2"; shift 2
+        else
+          shift
+        fi
+        ;;
       --help|-h)      usage ;;
       -*)             ats_err "Unknown option: $1"; exit 2 ;;
       *)              LINT_PATHS+=("$1"); shift ;;
     esac
   done
+
+  # --changed is a distinct, git-based mode (SR13): run the version-drift guard
+  # and exit. It deliberately does not run the static per-file / cross-skill lint.
+  if $CHANGED_MODE; then
+    lint_changed "$CHANGED_BASE"
+    # lint_changed always exits; this is unreachable but keeps intent explicit.
+    exit $?
+  fi
 
   case "$FORMAT" in
     text|junit) ;;

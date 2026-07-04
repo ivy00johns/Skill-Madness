@@ -1,6 +1,6 @@
 ---
 name: skill-writer
-version: 1.3.0
+version: 1.3.1
 description: |
   Generate new SKILL.md files conforming to the ecosystem's frontmatter spec and structure conventions. Use when creating a new agent role, meta skill, workflow skill, or contract skill — anything that needs a SKILL.md scaffold. Trigger on "create a skill", "new agent", "write a SKILL.md", "scaffold a skill", "add a role to the skill ecosystem".
 requires_agent_teams: false
@@ -85,7 +85,7 @@ For agent role skills, also include:
 - **Ownership** — directories/files owned exclusively, with note that orchestrator prompt takes precedence over frontmatter defaults
 - **Off-limits** — what this agent must never touch
 - **Right-sizing** — guidance on adapting to project complexity
-- **Validation** — link to `references/validation-checklist.md`
+- **Validation** — link to `references/validation-script-pattern.md` for how to wire a validation step into the new skill's body
 
 ### Step 4: Create Reference Files
 
@@ -99,7 +99,7 @@ Move detailed content to `references/`:
 Reference files from the body with guidance on when to read:
 
 ```markdown
-For the complete validation procedure, read `references/validation-checklist.md`
+For the complete validation procedure, read `references/quick-checklist.md`
 before reporting done.
 ```
 
@@ -139,6 +139,7 @@ Optionally compare behavior with vs without the skill — a quick baseline eval 
 
 - `references/frontmatter-spec.md` — Complete field reference with types, rules, and examples
 - `references/description-patterns.md` — Templates for writing effective trigger descriptions
+- `references/body-template.md` — Anthropic's recommended SKILL.md body structure, plus per-skill-type deviations (agent roles, meta, orchestrator, workflow)
 - `references/patterns.md` — Five architectural skill patterns (Sequential Workflow, Multi-MCP Coordination, Iterative Refinement, Context-Aware Tool Selection, Domain-Specific Intelligence)
 - `references/quick-checklist.md` — Pre-ship checklist: frontmatter, description, body length, triggers, cross-references
 - `references/performance-notes.md` — When and how to add a Performance Notes section to combat model laziness

@@ -1,6 +1,6 @@
 ---
 name: self-healing-loop
-version: 1.0.0
+version: 1.0.1
 description: >-
   Watch a production or CI error signal on a cadence and, when an ACTIONABLE
   error appears, trace its root cause, fix it in a branch, verify the failing
@@ -148,8 +148,8 @@ rather than pushing one task to a finish line:
 - **Canonical — `/loop` poller.** `/loop 30m /self-healing-loop` (or the cadence
   the source warrants) runs one heal pass per tick. `/loop` is session-scoped,
   expires in ~3 days, and does no catch-up — re-arm it for a standing watcher
-  (`references/primitives.md`). For a true always-on schedule across sessions,
-  promote to a scheduled cloud routine.
+  (`loop-controller`'s `references/primitives.md`). For a true always-on schedule
+  across sessions, promote to a scheduled cloud routine.
 - **Inside a tick**, the *heal* step degenerates to a finish-line loop — that's
   where [`fix-until-green`] (a `/goal` or Stop-hook loop) drives the red build to
   green as this loop's verifier.

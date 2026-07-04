@@ -1,6 +1,6 @@
 # Completed Work — Tactical Archive
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-04
 **Companions:** [`docs/REMAINING-WORK.md`](REMAINING-WORK.md) (open ledger — the to-do list), [`PLAN.md`](../PLAN.md) (strategic roadmap + closure log)
 
 > **What this is.** The append-only tactical archive: every ledger item that reached
@@ -11,7 +11,42 @@
 > summarized on the way in, never deleted — trimming happens by relocation only.
 >
 > ID prefixes (stable, never reused): `RF` reference-file gaps · `TM` thinking-move
-> additions · `PR` process additions · `CL` cleanup · `FA` functional-audit findings.
+> additions · `PR` process additions · `CL` cleanup · `FA` functional-audit findings ·
+> `SR` full-library review findings · `MT` model & effort tiering.
+
+---
+
+## Closed 2026-07-04 — full-library review (`SR`) + model & effort tiering (`MT`)
+
+The 2026-07-03 full-library review (skill-review Mode A + five parallel review agents) and the approved model & effort tiering proposal, implemented 2026-07-04 by a nine-agent parallel sweep (branch `fix/sr-mt-backlog-sweep`) across three waves + a QE/adversarial gate. Source: `[SRR]` = `skill-review-report.{md,json}` (repo root); `[METP]` = `docs/proposals/2026-07-03-model-effort-tiering-policy.md`. All 25 items gate-verified: catalog 71, lint 0 errors, 343/343 bats, 0 version-drift.
+
+| ID | Finding | What shipped | Closed by |
+|----|---------|--------------|-----------|
+| **SR1** | H1 — portability claim contradicts frontmatter | Audited all 57 `requires_claude_code:true` flags; flipped 20 host-portable skills (14→**34 of 71** convert); rewrote README claims to match; `convert.sh` now excludes `archive/`+`in-progress/` so the count is exactly right | `fix/sr-mt-backlog-sweep` |
+| **SR2** | H2 — CI ran 128 of 317 bats tests | CI installer job runs the full suite via `tests/run-all.sh`; `tests/installer` (172) + `tests/skill-health` now gate merges; five required Ubuntu job names preserved | `fix/sr-mt-backlog-sweep` |
+| **SR3** | M1 — skill-health telemetry inert | `install.sh --wire-hooks` opt-in merges the emitter into settings.json (backup, idempotent, refuses malformed JSON); report banners "telemetry inactive" when unwired | `fix/sr-mt-backlog-sweep` |
+| **SR4** | M2 — python3 spawned per frontmatter field | `frontmatter.sh` parses each SKILL.md once per process (on-disk cache); full convert ~90s → ~25s (3.7×), byte-identical output on bash 3.2 | `fix/sr-mt-backlog-sweep` |
+| **SR5** | M3 — plan/apply under-installs Copilot | plan/apply emit + record the `~/.copilot/agents/` mirror alongside `~/.github/agents/`; uninstall/drift cover both | `fix/sr-mt-backlog-sweep` |
+| **SR6** | M4 — `bats tests/` runs zero tests | New `tests/run-all.sh` (`bats -r tests/`); the `1..0` footgun documented in `scripts/README.md` | `fix/sr-mt-backlog-sweep` |
+| **SR7** | M5 — skill-explorer omits `loops` | Added `loops` to the location-map brace list + eval fixture | `fix/sr-mt-backlog-sweep` |
+| **SR8** | M6 — skill-writer dead link ×2 (×3 found) | Repointed all three `validation-checklist.md` refs by context (SKILL.md:88/:102 + quick-checklist.md:62) | `fix/sr-mt-backlog-sweep` |
+| **SR9** | M7 — README documents nonexistent CLI flags | Synced README CLI reference to real script flags (`--tool`, positional path) verified against the scripts | `fix/sr-mt-backlog-sweep` |
+| **SR10** | M8 — README "four hooks" undercounts six | Renamed to six hooks + fixed the per-profile map (standard 5, strict 6) from the manifest | `fix/sr-mt-backlog-sweep` |
+| **SR11** | M9 — START-HERE/PLAN narrative stale | PLAN closure-log + START-HERE status table record artifact-publish (#42) + find-unknowns (#43) as skills 70/71 | `fix/sr-mt-backlog-sweep` |
+| **SR12** | M10 — no lint warn band before the 1024 ceiling | `lint-skills.sh` WARNs >950 chars; orchestrator description trimmed 1023→935 | `fix/sr-mt-backlog-sweep` |
+| **SR13** | L1 — version-bump drift ×3 | Bumped interactive-doc, mermaid-charts, model-adaptation; added opt-in `lint-skills.sh --changed` body-diff-without-bump guard | `fix/sr-mt-backlog-sweep` |
+| **SR14** | L2 — orphan `body-template.md` | Added to skill-writer's Reference Files list | `fix/sr-mt-backlog-sweep` |
+| **SR15** | L3 — madness stale "60 skills" | Count-free phrasing in SKILL.md + eval fixture | `fix/sr-mt-backlog-sweep` |
+| **SR16** | L4 — cross-skill paths drop `skills/` prefix | Prefixed context-manager + orchestrator SKILL.md + workflow-orchestration.md + phase-guide.md refs | `fix/sr-mt-backlog-sweep` |
+| **SR17** | L5 — self-healing-loop bare `primitives.md` | Added the `loop-controller`'s qualifier every sibling uses | `fix/sr-mt-backlog-sweep` |
+| **SR18** | L6 — frontend/qe glob intersection | Tiebreak stated in the ownership map + a glob-intersection WARN check with a documented allowlist | `fix/sr-mt-backlog-sweep` |
+| **SR19** | L7 — mermaid-charts eval stale count | Count-free phrasing in the eval fixture | `fix/sr-mt-backlog-sweep` |
+| **SR20** | L8 — README "bash ≥4" vs bash-3.2 support | Lowered to bash 3.2+ (matches the macOS CI job + the scripts' idioms) | `fix/sr-mt-backlog-sweep` |
+| **SR21** | L9 — README tree omits `hooks/`+`spec/` | Added both to the project-structure tree | `fix/sr-mt-backlog-sweep` |
+| **SR22** | L10 — plan-apply contract lags code | Contract's `full` profile updated to 7 categories (added `loops`) | `fix/sr-mt-backlog-sweep` |
+| **SR23** | L11 — install-plan silent on missing sources | Warns loudly per missing tool; exits non-zero when all sources absent; success path byte-identical | `fix/sr-mt-backlog-sweep` |
+| **SR24** | L12 — no `known_external` allowlist for composes_with | Extended the existing bare-externals allowlist to composes_with/spawned_by (+ artifact-design, dataviz) | `fix/sr-mt-backlog-sweep` |
+| **MT-1** | METP — model & effort tiering policy | Canonical section + `references/model-effort-tiering.md` in model-adaptation (priced Anthropic ladder, task→tier map, provider-relativity, guardrails); orchestrator dispatch + workflow-orchestration + loop-controller Step 6 + use-freellmapi all point at it; absorbs the review's `model-router` idea | `fix/sr-mt-backlog-sweep` |
 
 ---
 

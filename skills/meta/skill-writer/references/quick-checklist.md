@@ -59,7 +59,7 @@ For agent role skills, the body also includes:
 - [ ] Step 0: Read Contracts (before any implementation)
 - [ ] Ownership section listing owned and off-limits files
 - [ ] Right-sizing guidance
-- [ ] Link to `references/validation-checklist.md`
+- [ ] Link to `references/validation-script-pattern.md` for how to wire a validation step into the new skill's body
 
 ---
 
