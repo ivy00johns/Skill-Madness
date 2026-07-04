@@ -1,6 +1,6 @@
 ---
 name: context-manager
-version: 1.2.0
+version: 1.2.1
 description: |
   Manage context window usage, compaction strategy, and session handoffs for long-running multi-agent builds. Writes and validates structured handoff files so continuation agents can pick up cleanly. Trigger on: "compact this", "handoff this conversation", "we're running out of context", "save state", "transfer to a new session", "context is too full", "summarize this session for the next one", "continue in a fresh session".
 requires_agent_teams: false
@@ -21,7 +21,7 @@ Manage context window usage, compaction strategy, and session handoffs for long-
 
 This is a **user-invocable** helper. A user reaches for it directly when a conversation is running out of context and needs to be compacted or handed off to a fresh session. It is **not** spawned by the orchestrator during a build.
 
-> **During an orchestrated build, handoff validation is governed by `orchestrator/references/handoff-protocol.md`** (the protocol the orchestrator actually runs). This skill is for user-driven compaction/handoff outside that loop.
+> **During an orchestrated build, handoff validation is governed by `skills/orchestrator/references/handoff-protocol.md`** (the protocol the orchestrator actually runs). This skill is for user-driven compaction/handoff outside that loop.
 
 ## Role
 
@@ -32,7 +32,7 @@ You help a user manage their context window efficiently when a session is gettin
 - **You own (exclusive):** `.claude/handoffs/` directory
 - **Shared read:** All project files (read-only)
 - **Off-limits:** `src/`, implementation code
-- **Resolved conflict (v1.1):** `.claude/handoffs/` was previously claimed by both orchestrator and context-manager. Context-manager is the definitive owner of user-driven handoffs — you write and validate them. (Build-loop handoffs during an orchestrated build are governed separately by `orchestrator/references/handoff-protocol.md`.)
+- **Resolved conflict (v1.1):** `.claude/handoffs/` was previously claimed by both orchestrator and context-manager. Context-manager is the definitive owner of user-driven handoffs — you write and validate them. (Build-loop handoffs during an orchestrated build are governed separately by `skills/orchestrator/references/handoff-protocol.md`.)
 
 ## Inputs
 
@@ -87,7 +87,7 @@ suggested_first_action: [exact next step]
 
 After the handoff file is written, the user starts a fresh session and points it at the latest file in `.claude/handoffs/`. The continuation session reads `files_modified` and `files_created` to understand current state, then begins with `suggested_first_action`.
 
-> **Inside an orchestrated build, the read/validate/spawn behavior on a handoff is governed by `orchestrator/references/handoff-protocol.md` — not this skill.** This skill covers writing and quality-checking the user-driven handoff file; it does not duplicate the orchestrator's build-loop validation.
+> **Inside an orchestrated build, the read/validate/spawn behavior on a handoff is governed by `skills/orchestrator/references/handoff-protocol.md` — not this skill.** This skill covers writing and quality-checking the user-driven handoff file; it does not duplicate the orchestrator's build-loop validation.
 
 ## Context Efficiency Tips
 

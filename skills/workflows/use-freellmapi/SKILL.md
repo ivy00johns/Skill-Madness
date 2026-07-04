@@ -1,6 +1,6 @@
 ---
 name: use-freellmapi
-version: 1.1.0
+version: 1.1.1
 description: |
   Wire any project to FreeLLMAPI — a local OpenAI-compatible proxy that aggregates 19 free LLM provider
   tiers (~1.7B+ tokens/month) behind one endpoint — so you can prototype without paying for API calls.
@@ -19,7 +19,7 @@ owns:
   patterns: []
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
-composes_with: ["project-profiler"]
+composes_with: ["project-profiler", "model-adaptation"]
 spawned_by: []
 ---
 
@@ -31,6 +31,12 @@ Ollama Cloud, NVIDIA, Kilo, Pollinations, LLM7, OpenCode Zen, OVH, Agnes AI, Rek
 OpenAI-compatible endpoint. A router picks the best available model per request and fails over when one
 is rate-limited. The payoff: prototype against real models for free, with zero code changes beyond a
 base URL and a key.
+
+> **Tiering note:** a FreeLLMAPI project is the toolkit's one sanctioned multi-provider setup. The
+> model & effort tiering policy (`model-adaptation`, *Model & effort tiering*) is provider-relative —
+> within a normal build you pick tiers inside ONE provider's ladder and never mix vendors to save
+> tokens — and FreeLLMAPI is its explicit carve-out: here the aggregated free tiers ARE the ladder,
+> and the scarce resource is rate/quota headroom, not dollars.
 
 ## The whole integration, in three facts
 

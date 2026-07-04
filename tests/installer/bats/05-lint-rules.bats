@@ -217,3 +217,241 @@ EOF
   run bash "$LINT" --format markdown
   [ "$status" -eq 2 ]
 }
+
+# ---------------------------------------------------------------------------
+# SR12 — description ceiling-approach WARN band (>950 chars). WARN only,
+# never ERROR, never changes the exit code.
+# ---------------------------------------------------------------------------
+
+@test "lint: description >950 chars produces the ceiling WARN, exit 0" {
+  TMPSKILL_DIR="$TMPDIR_LINT/ceiling-band"
+  mkdir -p "$TMPSKILL_DIR"
+  # Deterministic ~980-char description (>950 band, <1024 schema hard max).
+  python3 - "$TMPSKILL_DIR/SKILL.md" <<'PY'
+import sys
+desc = ("Use ceiling-band to exercise the description ceiling-approach warning band. "
+        + "trigger context filler words " * 100)[:980]
+body = "This body has well over fifty words so the only interesting output is the ceiling warning. " * 3
+open(sys.argv[1], "w").write(
+    "---\nname: ceiling-band\nversion: 1.0.0\ndescription: %s\n---\n\n%s\n" % (desc, body))
+PY
+  run bash "$LINT" "$TMPSKILL_DIR/SKILL.md"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qi "hard ceiling"
+  ! echo "$output" | grep -q "^ERROR"
+}
+
+@test "lint: normal-length description does NOT produce the ceiling WARN" {
+  run bash "$LINT" "$VALID_SKILLS/roles/minimal-agent/SKILL.md"
+  [ "$status" -eq 0 ]
+  ! echo "$output" | grep -qi "hard ceiling"
+}
+
+# ---------------------------------------------------------------------------
+# SR18 — owns.patterns glob-intersection check across skills. WARN only.
+# ---------------------------------------------------------------------------
+
+# _mk_pattern_skill <name> <pattern> -> echoes the SKILL.md path
+_mk_pattern_skill() {
+  local name="$1" pat="$2"
+  local dir="$TMPDIR_LINT/$name"
+  mkdir -p "$dir"
+  cat > "$dir/SKILL.md" <<EOF
+---
+name: $name
+version: 1.0.0
+description: Apply $name when testing owns.patterns glob-intersection detection for lint.
+owns:
+  directories: []
+  patterns: ["$pat"]
+  shared_read: ["*"]
+---
+
+This fixture declares a single owns.patterns entry so the cross-skill glob check has something to compare. The body is padded well past the fifty-word stub threshold with additional filler words here for safety and clarity in the test.
+EOF
+  printf '%s\n' "$dir/SKILL.md"
+}
+
+@test "lint: intersecting owns.patterns across skills produce a WARN, exit 0" {
+  local a b
+  a="$(_mk_pattern_skill alpha-ui '*.tsx')"
+  b="$(_mk_pattern_skill beta-tests '*.test.*')"
+  run bash "$LINT" "$a" "$b"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qi "owns.patterns overlap"
+  echo "$output" | grep -q "alpha-ui"
+  echo "$output" | grep -q "beta-tests"
+}
+
+@test "lint: non-intersecting owns.patterns produce no overlap WARN" {
+  local a b
+  a="$(_mk_pattern_skill gamma-py '*.py')"
+  b="$(_mk_pattern_skill delta-js '*.js')"
+  run bash "$LINT" "$a" "$b"
+  [ "$status" -eq 0 ]
+  ! echo "$output" | grep -qi "owns.patterns overlap"
+}
+
+@test "lint: documented-tiebreak pair (frontend/qe) is NOT flagged as overlapping" {
+  local a b
+  a="$(_mk_pattern_skill frontend-agent '*.tsx')"
+  b="$(_mk_pattern_skill qe-agent '*.test.*')"
+  run bash "$LINT" "$a" "$b"
+  [ "$status" -eq 0 ]
+  ! echo "$output" | grep -qi "owns.patterns overlap"
+}
+
+# ---------------------------------------------------------------------------
+# SR24 — known_external allowlist covers artifact-design / dataviz so
+# non-namespaced host-global composes_with refs stop warning forever.
+# ---------------------------------------------------------------------------
+
+@test "lint: composes_with artifact-design/dataviz are NOT flagged unknown (allowlisted)" {
+  TMPSKILL_DIR="$TMPDIR_LINT/allowlisted-externals"
+  mkdir -p "$TMPSKILL_DIR"
+  cat > "$TMPSKILL_DIR/SKILL.md" <<'EOF'
+---
+name: allowlisted-externals
+version: 1.0.0
+description: Apply allowlisted-externals when testing that host-global composes refs do not warn.
+composes_with:
+  - artifact-design
+  - dataviz
+---
+
+This fixture composes with two host-global skills that live outside the collection. The lint script must not flag either as an unknown skill because both are on the known-external allowlist. Body padded past the fifty-word stub threshold with filler words here for safety.
+EOF
+  run bash "$LINT" "$TMPSKILL_DIR/SKILL.md"
+  [ "$status" -eq 0 ]
+  ! echo "$output" | grep -q "unknown skill 'artifact-design'"
+  ! echo "$output" | grep -q "unknown skill 'dataviz'"
+}
+
+@test "lint: composes_with a genuinely unknown skill still WARNs" {
+  TMPSKILL_DIR="$TMPDIR_LINT/unknown-external"
+  mkdir -p "$TMPSKILL_DIR"
+  cat > "$TMPSKILL_DIR/SKILL.md" <<'EOF'
+---
+name: unknown-external
+version: 1.0.0
+description: Apply unknown-external when testing that a bogus composes ref still warns for lint.
+composes_with:
+  - definitely-not-a-real-skill-xyz
+---
+
+This fixture composes with a skill that does not exist and is not on the allowlist, so the lint script must emit a WARN about the unknown reference. Body padded past the fifty-word stub threshold with additional filler words here for safety.
+EOF
+  run bash "$LINT" "$TMPSKILL_DIR/SKILL.md"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -q "unknown skill 'definitely-not-a-real-skill-xyz'"
+}
+
+# ---------------------------------------------------------------------------
+# SR13 — --changed version-bump-drift guard (git-based, opt-in). Builds a
+# self-contained fixture repo with a copied linter (so its REPO_ROOT is the
+# fixture), one committed skill at 1.0.0, then mutates the working tree.
+# ---------------------------------------------------------------------------
+
+# _mk_changed_fixture — sets FIX (repo), BASE (base commit SHA), SK (skill path).
+_mk_changed_fixture() {
+  FIX="$BATS_TEST_TMPDIR/changed"
+  mkdir -p "$FIX/scripts" "$FIX/spec" "$FIX/skills/meta/drift-skill"
+  cp -R "$REPO_ROOT/scripts/lib" "$FIX/scripts/lib"
+  cp "$REPO_ROOT/scripts/lint-skills.sh" "$FIX/scripts/lint-skills.sh"
+  cp "$REPO_ROOT/spec/frontmatter.schema.json" "$FIX/spec/frontmatter.schema.json" 2>/dev/null || true
+  SK="$FIX/skills/meta/drift-skill/SKILL.md"
+  cat > "$SK" <<'EOF'
+---
+name: drift-skill
+version: 1.0.0
+description: Apply drift-skill when testing the version-bump-drift guard for lint --changed mode.
+---
+
+Original body content. This baseline body is committed to the fixture repo before any drift is introduced by the individual test cases.
+EOF
+  git -C "$FIX" init -q
+  git -C "$FIX" config user.email "t@example.com"
+  git -C "$FIX" config user.name "t"
+  git -C "$FIX" add -A
+  git -C "$FIX" commit -qm base
+  BASE="$(git -C "$FIX" rev-parse HEAD)"
+}
+
+@test "lint --changed: body changed without a version bump is a drift ERROR (exit 1)" {
+  command -v git >/dev/null 2>&1 || skip "git not available"
+  _mk_changed_fixture
+  cat > "$SK" <<'EOF'
+---
+name: drift-skill
+version: 1.0.0
+description: Apply drift-skill when testing the version-bump-drift guard for lint --changed mode.
+---
+
+Rewritten body with substantial new material but deliberately NO version bump. This must trip the drift guard.
+EOF
+  run bash "$FIX/scripts/lint-skills.sh" --changed "$BASE"
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "ERROR"
+  echo "$output" | grep -qi "body changed"
+  echo "$output" | grep -q "drift-skill"
+}
+
+@test "lint --changed: body changed WITH a version bump passes (exit 0)" {
+  command -v git >/dev/null 2>&1 || skip "git not available"
+  _mk_changed_fixture
+  cat > "$SK" <<'EOF'
+---
+name: drift-skill
+version: 1.1.0
+description: Apply drift-skill when testing the version-bump-drift guard for lint --changed mode.
+---
+
+Rewritten body with substantial new material AND a version bump to 1.1.0. This must pass the drift guard.
+EOF
+  run bash "$FIX/scripts/lint-skills.sh" --changed "$BASE"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qi "PASSED"
+}
+
+@test "lint --changed: frontmatter-only change (body identical) needs no bump (exit 0)" {
+  command -v git >/dev/null 2>&1 || skip "git not available"
+  _mk_changed_fixture
+  # Edit ONLY the description; keep the body byte-identical; no version bump.
+  cat > "$SK" <<'EOF'
+---
+name: drift-skill
+version: 1.0.0
+description: Apply drift-skill with an EDITED description only and an unchanged body for lint --changed mode.
+---
+
+Original body content. This baseline body is committed to the fixture repo before any drift is introduced by the individual test cases.
+EOF
+  run bash "$FIX/scripts/lint-skills.sh" --changed "$BASE"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qi "PASSED"
+}
+
+@test "lint --changed: brand-new skill (absent in base) is skipped (exit 0)" {
+  command -v git >/dev/null 2>&1 || skip "git not available"
+  _mk_changed_fixture
+  mkdir -p "$FIX/skills/meta/brand-new"
+  cat > "$FIX/skills/meta/brand-new/SKILL.md" <<'EOF'
+---
+name: brand-new
+version: 1.0.0
+description: Apply brand-new when testing that a new skill is not treated as drift by lint --changed.
+---
+
+A brand-new skill file that did not exist in the base ref, so the drift guard has no prior version to compare and must skip it.
+EOF
+  run bash "$FIX/scripts/lint-skills.sh" --changed "$BASE"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qi "PASSED"
+}
+
+@test "lint --changed: unresolvable base ref exits 2" {
+  command -v git >/dev/null 2>&1 || skip "git not available"
+  _mk_changed_fixture
+  run bash "$FIX/scripts/lint-skills.sh" --changed no-such-ref-xyz
+  [ "$status" -eq 2 ]
+}

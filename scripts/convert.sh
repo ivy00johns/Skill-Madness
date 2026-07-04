@@ -788,9 +788,11 @@ main() {
     [[ "$tool" == "windsurf" ]] && _DO_WINDSURF=1
   fi
 
-  # Initialize accumulator temp files (needed before worker dispatch)
+  # Initialize accumulator temp files (needed before worker dispatch).
+  # This trap replaces the one lib/frontmatter.sh registered at source time,
+  # so it must also clear the frontmatter parse cache.
   init_accumulators
-  trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"' EXIT
+  trap 'rm -f "$AIDER_TMP" "$WINDSURF_TMP"; fm_cache_clear' EXIT
 
   ats_header "Skill Madness — Converting skills to tool-specific formats"
   printf '  Repo:    %s\n' "$REPO_ROOT"

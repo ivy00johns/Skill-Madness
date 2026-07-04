@@ -1,37 +1,40 @@
-# Mission skill manifest — AllTheSkills runtime layer (ECC deep-dive build list)
+# Mission skill manifest — SR/MT backlog sweep (full-library review + tiering)
 
-Source: `DeepResearch/The-Hive/ecc_deepdive/source-material/14-alltheskills-frontier.md` · Scanned: 2026-05-24
+Source: `docs/REMAINING-WORK.md` § "2026-07-03 — full-library review (`SR`) + model & effort tiering (`MT`)" · Scanned: 2026-07-03
+Branch: `fix/sr-mt-backlog-sweep` · Runtime: Agent Teams (parallel subagents + shared task board)
 
-This is a CLI / docs / tooling build (bash + python3 + JSON Schema + Markdown). It has
-**no UI surface**, so the creative and render-validation skills (`nano-banana`,
-`ui-ux-pro-max`, `frontend-design`, `ux-review`, `render-sanity`) do not apply and are
-recorded N/A below rather than left as empty boxes.
+Scope: **SR1–SR24 + MT-1** (the intaken ledger). `docs/FUTURE.md` F5–F18 are explicitly
+out of scope per FUTURE.md's own rule (frontier items enter only via a future intake).
+This is a CLI/docs/tooling build with **no UI surface** — the creative and render-validation
+skills (`nano-banana`, `ui-ux-pro-max`, `frontend-design`, `ux-review`, `render-sanity`,
+`design-token-guard`, `class-extraction-guard`) are N/A, recorded here rather than left empty.
 
-## Phase P0 — Hooks layer (shipped PR #8)
-- [x] `orchestrator` — ✅ coordinated; contracts under `contracts/hooks/`.
-- [x] `qe-agent` — ✅ `coordination/hooks-p0-qa-report.json`.
+`docs/agents/` is absent — proceeding with defaults (single-context, format-by-detection,
+local briefs); flagged to the user to run `/setup-project-skills` for durability.
 
-## Phase P1 — Plan/apply install + catalog invariant (shipped PR #8)
-- [x] `orchestrator` — ✅ coordinated; `contracts/installer/{catalog-invariant,plan-apply}.md`.
-- [x] `qe-agent` — ✅ `coordination/p1-qa-report.json`.
+Every box must end the build either ✅ (invoked, with the artifact path)
+or annotated with a one-line reason for deferral. Empty boxes are bugs.
 
-## Phase P2 — Skill-health telemetry + supply-chain scanner (shipped PR #8)
-- [x] `orchestrator` — ✅ coordinated; `contracts/installer/{skill-health,skill-scan}.md`.
-- [x] `qe-agent` — ✅ `coordination/p2-qa-report.json`.
+## Wave 1 — parallel file-disjoint fixes (A1–A5, B1–B4)
+- [ ] `orchestrator` — this build's coordinator; contracts = the ledger rows themselves.
+- [ ] `fix-until-green` — explicitly dispatched as the wave-gate driver (catalog --check + lint + bats red→green without cheating).
 
-## Phase P3 — Publish the frontmatter standard (this build)
-- [x] `orchestrator` — ✅ coordinated; contract `contracts/standards/psfs.md`.
-- [x] `contract-author` — ✅ folded into the lead (contract authored directly by orchestrator).
-- [x] `qe-agent` — ✅ `coordination/p3-qa-report.json` (PASS, 5/5 across the board).
-- [x] `repo-deep-dive` — ✅ invoked in the prior session; it produced the source material
-  (`ecc_deepdive/source-material/`) this entire build list derives from.
-- [x] `llm-wiki` / `wiki-research` — ✅ the deep-dive's findings were filed into the
-  DeepResearch Obsidian wiki (`wiki/comparisons/ecc-vs-alltheskills.md`) in the prior session.
+## Wave 2 — SR1 portability audit (`requires_claude_code` × 71 skills + README claims)
+- [ ] `skill-review` conventions — the audit consumes the review's H1 finding; no re-review needed.
+
+## Wave 3 — QE + adversarial verification
+- [ ] `qe-agent` — mandatory; produces `coordination/sr-mt-qa-report.json` per qa-report-schema.
+- [ ] `code-review` — adversarial diff pass on the script-heavy changes (B1/B2/B3, SR1).
+
+## Pre-build (already done, prior sessions)
+- [x] `skill-review` — ✅ produced `skill-review-report.{md,json}` (the SR source).
+- [x] `plan-intake` — ✅ PR #44 (the ledger entries this build implements).
+
+## Edited-not-invoked (MT-1 targets)
+- `model-adaptation`, `orchestrator`, `loop-controller`, `use-freellmapi` — these skills
+  are MT-1's edit targets (the tiering policy lands in their bodies), not invocations.
 
 ## N/A for this build (no UI surface)
-- `nano-banana`, `ui-ux-pro-max`, `frontend-design`, `ux-review`, `render-sanity` — N/A:
-  this build ships scripts, a JSON Schema, a Markdown standard, and bats tests; there is
-  nothing to render in a browser.
-- `code-review` / `security-review` — folded into the QE pass (the PSFS security surface —
-  the `^[^<>]*$` angle-bracket prohibition on frontmatter strings — was verified there and
-  scored security 5/5).
+- `nano-banana`, `ui-ux-pro-max`, `frontend-design`, `ux-review`, `render-sanity`,
+  `design-token-guard`, `class-extraction-guard` — nothing renders in a browser.
+- `contract-author` — the ledger rows are the contracts; no API surface to author.

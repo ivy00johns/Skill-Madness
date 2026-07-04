@@ -1,13 +1,13 @@
 ---
 name: model-adaptation
-version: 1.0.0
+version: 1.1.0
 description: |
-  Adapt prompts, skills, and agent scaffolding when the underlying Claude model changes — currently the Claude 5 family (Fable 5 + Mythos 5) versus Opus 4.x. A capability jump is a refactor trigger: stronger models need LESS scaffolding, so this skill says what to PRUNE, what now backfires (telling the model to narrate its reasoning trips a reasoning_extraction refusal), and what to add for long autonomous runs (async harness, evidence-backed progress, effort tiers, a send-to-user tool). Use when migrating a skill or harness to a new model, when a skill "worked before and got worse", when agents get refused or silently fall back to Opus, when tuning effort, or when writing/reviewing any skill for the current model. Trigger on "migrate to Fable", "adapt for the new model", "Fable 5", "Mythos 5", "model migration", "why is my agent getting refused", "reasoning_extraction", "prune the prompt", "the skill got worse on the new model", "tune effort", "long-running agent hygiene".
+  Adapt prompts, skills, and agent scaffolding when the underlying Claude model changes — currently the Claude 5 family (Fable 5 + Mythos 5) versus Opus 4.x. Stronger models need LESS scaffolding: this skill says what to PRUNE, what now backfires (narrating reasoning in the response trips a reasoning_extraction refusal), and what to add for long autonomous runs. Also the canonical home of the model & effort tiering policy: which model tier and effort level each task class gets (Anthropic ladder by default; never cross-vendor; FreeLLMAPI carve-out). Use when migrating a skill to a new model, when a skill "worked before and got worse", when agents get refused or fall back to Opus, or when picking model/effort per role, stage, or loop. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "model migration", "reasoning_extraction", "prune the prompt", "tune effort", "model tiering", "which model for which task", "tier down", "cut token costs", "cheaper model for bulk work", "long-running agent hygiene".
 requires_claude_code: false
 min_plan: starter
 compatibility: "Claude Code or Claude.ai; reference/advisory skill. No special tools required — WebFetch is optional, only to re-pull the live Anthropic guide."
 allowed-tools: ["Read", "Grep", "Glob", "Edit", "WebFetch"]
-composes_with: ["skill-writer", "skill-review", "skill-update", "loop-controller", "orchestrator", "claude-api"]
+composes_with: ["skill-writer", "skill-review", "skill-update", "loop-controller", "orchestrator", "use-freellmapi", "claude-api"]
 spawned_by: []
 ---
 
@@ -123,6 +123,67 @@ Full drop-in instructions and where each plugs into the 5-part loop contract:
 | **Refusal reroute contract** | A flagged agent returns `stop_reason: "refusal"` and reroutes to Opus 4.8 | Treat as expected routing; **configure** the server/client fallback rather than assuming it; note the security-agent implication | `orchestrator` + `references/refusal-and-fallback.md` |
 | **State the boundaries / don't over-refactor at high effort** | At high effort the model may tidy/refactor beyond the ask, or act when only asked to assess | When the ask is a question or a "thinking out loud", the deliverable is the assessment — report and stop; scope refactors to the task | `orchestrator` coordination rules |
 
+## Model & effort tiering (the cost doctrine)
+
+Buckets B and C treat *effort* as the primary capability dial. This section is the
+fuller doctrine — **model and effort chosen together, per task, not per project** —
+and it is canonical here: `orchestrator` (per-role dispatch and Workflow-mode
+stages), `loop-controller` (Step 6), and `use-freellmapi` point at this section
+rather than restating it.
+
+**The principle.** Cost leaks when a premium model does bulk work — fan-out
+crawls, boilerplate, mechanical edits, first drafts — that a cheaper model in
+the same family does just as well. Reserve the top tier for the load-bearing
+reasoning: architecture/contract design, adversarial verification, final
+synthesis, hard debugging. Two dials on the same call: `model` (the cheapest
+tier that clears the task's quality bar) and `effort` (`low`→`max`; lower it for
+routine passes, raise it only for the hardest reasoning). Output tokens cost
+~5× input across the Anthropic family, so moving bulk work down a tier and
+trimming output dominate every other cost lever.
+
+**The provider-relativity rule (load-bearing).** Stay within one provider —
+never reach cross-vendor to save tokens:
+
+- **Default = Anthropic-native.** The ladder is Haiku → Sonnet → Opus → Fable,
+  plus the effort dial. Read a project's declared provider from
+  `.claude/profile.yaml`; absent that, assume Anthropic.
+- **The doctrine is a shape** — cheapest-that-clears-the-bar for grunt work, top
+  tier for the reasoning gate — instantiated with whatever single provider the
+  project actually runs on, staying inside that provider's own ladder.
+- **FreeLLMAPI is the only multi-provider carve-out** (see `use-freellmapi`): it
+  deliberately aggregates free provider tiers behind one endpoint, the scarce
+  resource is rate/quota rather than dollars, and the aggregation *is* the ladder.
+
+**Task → tier map** (the durable part; the priced ladder lives in the reference):
+
+| Task class | Examples | Model | Effort |
+|---|---|---|---|
+| **Mechanical / high-volume** | file transforms, migration edits, formatting, lint-fix application, boilerplate, broad research crawl, first drafts | Haiku, or Sonnet if it needs light reasoning | low/medium (none on Haiku) |
+| **Standard implementation** | feature code, test authoring, straightforward role-agent build work | Sonnet | medium/high |
+| **Load-bearing reasoning** | architecture & contract design, adversarial verification / fresh-context evaluator, final synthesis, hard debugging, ambiguity resolution | Opus or Fable | high/xhigh (max only when correctness ≫ cost) |
+
+**Guardrails:**
+
+- **No `effort` param on Haiku 4.5** — the API returns a 400. Tier down to
+  Haiku *or* dial effort down, not both.
+- **Don't reflexively `max`.** On the Claude 5 family `high`/`xhigh` is the
+  sweet spot, and `low` effort often matches or beats prior-generation
+  `xhigh`/`max` — so `low`/`medium` is the correct setting for routine work,
+  not a compromise.
+- **Pass `model` and `effort` explicitly on every Agent/Workflow spawn.**
+  Per-agent defaults resolve to the *session-start* model, which goes stale the
+  moment the user runs `/model` — the subagent-model footgun. This deliberately
+  overrides the Workflow tool's generic "omit `opts.model` by default" guidance.
+- **Conciseness ≠ reasoning suppression.** Output-trimming (`caveman`-style) is
+  fine; instructing the model to expose its reasoning in the response trips the
+  `reasoning_extraction` refusal (see the landmine below).
+
+The priced Anthropic ladder (model IDs, $/1M, effort support), the
+billing-surface table, provider-relative instantiation, and the per-consumer
+wiring live in **`references/model-effort-tiering.md`** — like the *Current
+landscape* table above, its model and pricing facts age; update both when a new
+model ships.
+
 ## The refusal landmine (read this even if you read nothing else)
 
 For a toolkit that **authors** prompts and skills, the highest-consequence change in the
@@ -147,7 +208,9 @@ frontier-LLM development), and the fallback configuration are in
 Run this checklist against an existing skill/harness (or the whole toolkit) on a model change:
 
 1. **Re-fetch the guide.** Pull Anthropic's current prompting guide for the new model and
-   update the *Current landscape* table above. New behaviors = new audit items.
+   update the *Current landscape* table above **and the priced ladder in
+   `references/model-effort-tiering.md`** (models, pricing, effort support all age).
+   New behaviors = new audit items.
 2. **Subtract first.** For each skill, ask per instruction: *does the new model already do
    this well without being told?* If yes, cut it. Rigid templates, anti-laziness nags, and
    long enumerations are the first candidates.
@@ -177,3 +240,9 @@ Run this checklist against an existing skill/harness (or the whole toolkit) on a
   each plugs into `loop-controller`'s 5-part contract: async turns, evidence-backed
   progress, last-paragraph check, context-budget reassurance, the send-to-user tool,
   effort tiers, and user-facing readability. Read when authoring or migrating any loop.
+- `references/model-effort-tiering.md` — the aging half of the tiering doctrine: the
+  priced Anthropic ladder (model IDs, $/1M, effort support), the output-token asymmetry
+  and billing-surface table, provider-relative instantiation, and how each consumer
+  (orchestrator dispatch, Workflow-mode stages, loop-controller Step 6, use-freellmapi)
+  wires the policy in. Read when assigning model+effort to roles/stages/loops, or when
+  a new model ships and the ladder needs updating.

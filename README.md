@@ -97,7 +97,7 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 
 | You need | Why |
 |----------|-----|
-| **bash ≥4** + standard POSIX tools | The installer is pure shell |
+| **bash 3.2+** + standard POSIX tools | The installer is pure shell, written bash-3.2-safe — stock macOS bash works, no upgrade needed (CI runs a macOS job to keep it that way) |
 | **python3** | Frontmatter parsing in `lint-skills.sh` |
 | **git** | Cloning the repo and (optionally) symlinking into your global skills dir |
 | **Claude Code** (recommended) | Where the orchestrator + multi-agent QA gate actually run end-to-end |
@@ -470,6 +470,12 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 │   ├── lib/                          # frontmatter / platform / slug / term helpers
 │   └── README.md                     # per-host destinations and flags
 │
+├── hooks/                            # lifecycle-hook layer (Claude Code only, 6 hooks)
+│   ├── hooks.manifest.json           # registry: hook id, event, profiles, blocking
+│   ├── run-with-flags.sh             # single entrypoint; dispatches scripts/<hook-id>.sh
+│   ├── scripts/                      # per-hook implementations (qa-gate, catalog-sync, …)
+│   └── lib/                          # shared hook helpers
+│
 ├── integrations/                     # generated outputs (one dir per host)
 │   ├── claude-code/  copilot/  cursor/  aider/  windsurf/
 │   ├── opencode/  qwen/  openclaw/  gemini-cli/  antigravity/  kimi/
@@ -479,6 +485,10 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 │   ├── per-tool-output-spec.md       # per-host fidelity matrix
 │   ├── install-locations.md          # where each host expects skills
 │   └── lint-rules.md                 # what the linter enforces
+│
+├── spec/                             # the portable frontmatter standard
+│   ├── PSFS.md                       # Portable Skill Frontmatter Spec v1.1.0
+│   └── frontmatter.schema.json       # JSON Schema 2020-12 reference validator
 │
 ├── tests/installer/                  # bats-core tests for convert/install/lint
 └── .github/workflows/lint-skills.yml # Ubuntu + macOS CI matrix
@@ -528,8 +538,8 @@ Reads `skills/**/SKILL.md` and writes host-specific artifacts to `integrations/<
 
 ```bash
 ./scripts/convert.sh                     # all hosts
-./scripts/convert.sh --only cursor       # one host
-./scripts/convert.sh --skip-claude-only  # drop requires_claude_code skills early
+./scripts/convert.sh --tool cursor       # one host
+./scripts/convert.sh --parallel --jobs 8 # all hosts, concurrently
 ```
 
 ### `scripts/install.sh`
@@ -537,8 +547,8 @@ Reads `skills/**/SKILL.md` and writes host-specific artifacts to `integrations/<
 Reads `integrations/<host>/` and copies into the host's expected install location. Detects which hosts are present on the machine (presence of `~/.cursor`, `~/.config/aider`, etc.). Interactive when run in a TTY; auto-confirms in CI.
 
 ```bash
-./scripts/install.sh                     # all detected hosts
-./scripts/install.sh --only claude-code  # one host
+./scripts/install.sh                     # interactive TUI (TTY) or detected hosts (non-TTY)
+./scripts/install.sh --tool claude-code  # one host
 ./scripts/install.sh --dry-run           # show what would happen
 ```
 
@@ -554,9 +564,9 @@ Runs on every push to every branch (Ubuntu + macOS) via `.github/workflows/lint-
 Outputs JUnit XML for GitHub Actions test results.
 
 ```bash
-./scripts/lint-skills.sh                 # full lint
-./scripts/lint-skills.sh --skill orchestrator  # one skill
-./scripts/lint-skills.sh --standard      # report the frontmatter standard it validates
+./scripts/lint-skills.sh                          # full lint
+./scripts/lint-skills.sh skills/orchestrator/     # one skill (positional path, not a flag)
+./scripts/lint-skills.sh --standard               # report the frontmatter standard it validates
 ```
 
 ### Frontmatter standard — PSFS v1.1.0
@@ -575,13 +585,15 @@ The recommended path on Claude Code. Symlinks `skills/<category>/<skill>/` to `~
 
 Skill Madness ships a small **hooks layer** under `hooks/` that turns the orchestrator's doctrine — the QA gate, formatting, profile injection — into enforcement. Hooks are modeled on the gated-hook design but built in the repo's own bash + `python3` (stdlib-only) idiom. Today only **Claude Code** has a native lifecycle-hook runtime, so hooks are emitted for Claude Code and skipped (logged `unsupported`) for the other ten hosts.
 
-### The four hooks
+### The six hooks
 
 | Hook | Event | Profiles | Blocks? | What it does |
 |------|-------|----------|---------|--------------|
 | `qa-gate` | `Stop` | all | **yes** | Validates `qa-report.json` against the QE schema and applies the orchestrator gate rules; blocks the Stop on a gate failure. **(marquee)** |
 | `post-edit-format` | `PostToolUse(Edit\|Write)` | standard, strict | no | Formats the just-edited file if a matching formatter (prettier/black/shfmt/gofmt/rustfmt) is on `PATH`. |
 | `session-start-profile` | `SessionStart` | standard, strict | no | Injects a ≤8 KB summary of `CLAUDE.md` / `.claude/profile.yaml` into the session. |
+| `catalog-sync` | `PreToolUse(Bash git commit)` | standard, strict | no | If the skill catalog (README/CLAUDE/PLAN/START-HERE/plugin.json/marketplace.json counts) has drifted from disk, runs `catalog.sh --sync` and re-stages the corrected files; acts only on real drift, never blocks. |
+| `skill-usage` | `PostToolUse(Skill)` | standard, strict | no | Appends a coarse, best-effort usage-telemetry event via `skill-health.sh record`; degrades silently, never blocks. |
 | `pre-commit-lint` | `PreToolUse(Bash git commit)` | strict | no (warn) | Runs `lint-skills.sh` on staged skills and warns; never blocks the commit. |
 
 Everything routes through one entrypoint — `hooks/run-with-flags.sh <hook-id>` — which reads the gating env vars and `hooks.manifest.json`, then dispatches `hooks/scripts/<hook-id>.sh` (or no-ops `exit 0` if disabled).
@@ -591,9 +603,9 @@ Everything routes through one entrypoint — `hooks/run-with-flags.sh <hook-id>`
 Two env vars tune the whole graph:
 
 - `ATS_HOOK_PROFILE` ∈ `{minimal, standard, strict}` (default `standard`).
-  - `minimal` → `qa-gate` only.
-  - `standard` → `qa-gate` + `post-edit-format` + `session-start-profile`.
-  - `strict` → all four; `qa-gate` also treats a **missing** report as a block.
+  - `minimal` → `qa-gate` only (1 hook).
+  - `standard` → `qa-gate` + `post-edit-format` + `session-start-profile` + `catalog-sync` + `skill-usage` (5 hooks).
+  - `strict` → all six; `qa-gate` also treats a **missing** report as a block.
 - `ATS_DISABLED_HOOKS` → comma-separated hook ids to force-off, e.g. `post-edit-format,pre-commit-lint`.
 
 Only `qa-gate` ever blocks, and only on a real gate failure. It signals a block the Claude Code way — printing `{"decision":"block","reason":"…"}` to stdout and exiting `0`.
@@ -631,8 +643,8 @@ That's the same command CI runs. If it's green locally on macOS or Linux, the PR
 
 1. Use the `skill-writer` skill: `"Generate a new skill for X."` — it scaffolds frontmatter + body in the right category dir.
 2. Or copy `skills/meta/skill-writer/references/skill-template.md` and fill in by hand.
-3. Run `./scripts/lint-skills.sh --skill <your-skill>` until clean.
-4. Run `/sync-skills` (or `./scripts/install.sh --only claude-code`) so Claude Code picks it up.
+3. Run `./scripts/lint-skills.sh skills/<category>/<your-skill>/` until clean.
+4. Run `/sync-skills` (or `./scripts/install.sh --tool claude-code`) so Claude Code picks it up.
 5. PR — CI gates on full-ecosystem lint.
 
 ### Edit an existing skill
@@ -660,7 +672,7 @@ Almost always a `pyyaml` version skew. CI installs `pyyaml` explicitly on macOS 
 <details>
 <summary><b>"My non-Claude-Code host doesn't see all 71 skills"</b></summary>
 
-Expected. Skills with `requires_claude_code: true` (notably the `orchestrator` and most of `roles/`) are skipped for hosts that can't execute multi-agent dispatch. Run `./scripts/convert.sh --verbose` to see the skip list per host.
+Expected. Skills with `requires_claude_code: true` (notably the `orchestrator` and most of `roles/`) are skipped for hosts that can't execute multi-agent dispatch. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
 </details>
 
 <details>

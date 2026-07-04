@@ -109,6 +109,7 @@ PYEOF
 # relpath is the path of the source file relative to integrations/<tool>/.
 # ---------------------------------------------------------------------------
 resolve_dest() {
+  # shellcheck disable=SC2034  # category/slug kept for a stable signature; only tool/relpath/root are used
   local tool="$1" category="$2" slug="$3" relpath="$4" root="$5"
   case "$tool" in
     claude-code)
@@ -116,7 +117,11 @@ resolve_dest() {
       printf '%s/.claude/skills/%s\n' "$root" "$relpath"
       ;;
     copilot)
-      # ~/.github/agents/ AND ~/.copilot/agents/ — emit github path; apply mirrors.
+      # Copilot installs to BOTH ~/.github/agents/ AND ~/.copilot/agents/
+      # (install-locations.md:17). This helper returns only the primary
+      # (~/.github) path for callers that want one dest; the live plan resolver
+      # (install-plan.sh dests_for) emits a SEPARATE operation per mirror, so
+      # apply writes both and install-state records + uninstalls both.
       printf '%s/.github/agents/%s\n' "$root" "$relpath"
       ;;
     antigravity)

@@ -17,6 +17,9 @@
 #   --parallel           Run installations concurrently
 #   --jobs N             Worker count for --parallel (default: nproc / sysctl)
 #   --dry-run            Print what would be copied; do not write
+#   --wire-hooks         OPT-IN: merge the converted ats-hooks into
+#                        ~/.claude/settings.json (backs up first; idempotent).
+#                        Default is no-change: only the merge snippet is printed.
 #   --help               Print this and exit
 #
 # Exit codes: 0 success, 1 install error, 2 argument/preflight error
@@ -42,11 +45,19 @@ ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode cursor openclaw q
 
 DRY_RUN=false
 
+# OPT-IN: merge the converted ats-hooks (hooks.json) into ~/.claude/settings.json
+# during a claude-code install. Default OFF (no-change) — the installer only ever
+# prints the merge snippet unless the user asks. Set by --wire-hooks; also honored
+# via ATS_WIRE_HOOKS=1 so parallel workers (which bypass main's arg parsing)
+# inherit the choice. Read here, before the worker entry point below.
+WIRE_HOOKS=false
+[[ "${ATS_WIRE_HOOKS:-}" == "1" ]] && WIRE_HOOKS=true
+
 # ---------------------------------------------------------------------------
 # Usage
 # ---------------------------------------------------------------------------
 usage() {
-  sed -n '3,20p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '3,23p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
   exit 0
 }
 
@@ -353,6 +364,9 @@ install_hooks_claude_code() {
   if $DRY_RUN; then
     printf '  [dry-run] would install hooks: %s -> %s\n' "$hooks_src" "$dest"
     [[ -f "$hooks_json" ]] && printf '  [dry-run] would copy: %s -> %s/hooks.json\n' "$hooks_json" "$dest"
+    if $WIRE_HOOKS; then
+      printf '  [dry-run] would merge hooks.json into %s/.claude/settings.json (backup first)\n' "${HOME}"
+    fi
     ats_ok "Claude Code hooks: (dry-run) -> $dest"
     return 0
   fi
@@ -373,12 +387,145 @@ install_hooks_claude_code() {
 
   ats_ok "Claude Code hooks: installed -> $dest"
 
-  # Non-destructive: print the merge snippet, do not touch settings.json.
+  # Wiring hooks.json into ~/.claude/settings.json is OPT-IN; default is
+  # NO-CHANGE. With --wire-hooks (or ATS_WIRE_HOOKS=1) we merge non-destructively;
+  # on an interactive TTY we prompt (default no); otherwise we print the
+  # copy-paste snippet, preserving the original non-destructive behavior.
+  if [[ ! -f "$dest/hooks.json" ]]; then
+    return 0
+  fi
+  if $WIRE_HOOKS; then
+    merge_hooks_into_settings "$dest/hooks.json"
+  elif [[ -t 0 && "${ATS_INSTALL_WORKER:-}" != "1" ]]; then
+    printf '  Merge ats-hooks into ~/.claude/settings.json now? [y/N] '
+    local reply=''
+    read -r reply </dev/tty || true
+    case "$reply" in
+      y|Y|yes|YES) merge_hooks_into_settings "$dest/hooks.json" ;;
+      *)           print_hooks_merge_snippet "$dest" ;;
+    esac
+  else
+    print_hooks_merge_snippet "$dest"
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# print_hooks_merge_snippet <ats-hooks-dir>
+# The original non-destructive path: tell the user hooks are NOT auto-merged and
+# print the hooks.json indented for a hand copy-paste into settings.json.
+# ---------------------------------------------------------------------------
+print_hooks_merge_snippet() {
+  local dest="$1"
   ats_info "Claude Code hooks are NOT auto-merged into ~/.claude/settings.json."
-  ats_info "To enable, merge the contents of $dest/hooks.json into the \"hooks\" key of ~/.claude/settings.json:"
+  ats_info "To enable, re-run with --wire-hooks, or merge $dest/hooks.json into the \"hooks\" key of ~/.claude/settings.json:"
   if [[ -f "$dest/hooks.json" ]]; then
     sed 's/^/    /' "$dest/hooks.json"
   fi
+}
+
+# ---------------------------------------------------------------------------
+# merge_hooks_into_settings <hooks-json>
+# OPT-IN, non-destructive merge of the converted hooks.json into
+# ~/.claude/settings.json. Preserves every existing setting, backs the file up
+# before writing, and is idempotent — a hook whose command is already present is
+# never duplicated. Never touches settings.json when there is nothing to add.
+# All JSON handling is in python3 (stdlib) so escaping/merge is done in one place.
+# ---------------------------------------------------------------------------
+merge_hooks_into_settings() {
+  local hooks_json="$1"
+  local settings="${HOME}/.claude/settings.json"
+
+  if [[ ! -f "$hooks_json" ]]; then
+    ats_warn "no hooks.json at $hooks_json; nothing to wire"
+    return 0
+  fi
+
+  local out rc=0
+  out="$(
+    ATS_SETTINGS="$settings" ATS_HOOKS_JSON="$hooks_json" python3 - <<'PYEOF'
+import json, os, shutil, sys
+from datetime import datetime, timezone
+
+settings_path = os.environ["ATS_SETTINGS"]
+hooks_path = os.environ["ATS_HOOKS_JSON"]
+
+with open(hooks_path) as f:
+    incoming = json.load(f).get("hooks", {})
+
+if os.path.isfile(settings_path):
+    try:
+        with open(settings_path) as f:
+            settings = json.load(f)
+    except Exception as e:
+        sys.stderr.write("[wire-hooks] ERROR ~/.claude/settings.json is not valid JSON (%s); refusing to touch it\n" % e)
+        sys.exit(1)
+else:
+    settings = {}
+
+if not isinstance(settings, dict):
+    sys.stderr.write("[wire-hooks] ERROR settings.json top-level is not a JSON object; refusing to touch it\n")
+    sys.exit(1)
+
+hooks = settings.setdefault("hooks", {})
+if not isinstance(hooks, dict):
+    sys.stderr.write("[wire-hooks] ERROR settings.json 'hooks' is not an object; refusing to touch it\n")
+    sys.exit(1)
+
+def commands(entry):
+    if not isinstance(entry, dict):
+        return ()
+    return tuple(sorted(
+        h.get("command", "") for h in entry.get("hooks", []) if isinstance(h, dict)
+    ))
+
+added = 0
+skipped = 0
+for event, entries in incoming.items():
+    bucket = hooks.setdefault(event, [])
+    if not isinstance(bucket, list):
+        sys.stderr.write("[wire-hooks] WARN settings hooks['%s'] is not a list; leaving it untouched\n" % event)
+        continue
+    existing = set()
+    for e in bucket:
+        existing.update(commands(e))
+    for entry in entries:
+        cmds = commands(entry)
+        # Already wired iff every command in this entry is already present.
+        if cmds and all(c in existing for c in cmds):
+            skipped += 1
+            continue
+        bucket.append(entry)
+        existing.update(cmds)
+        added += 1
+
+if added == 0:
+    print("added=0 skipped=%d" % skipped)
+    sys.exit(0)
+
+# Back up the existing file before the first mutating write.
+os.makedirs(os.path.dirname(settings_path), exist_ok=True)
+if os.path.isfile(settings_path):
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+    backup = "%s.bak-%s" % (settings_path, ts)
+    shutil.copyfile(settings_path, backup)
+    sys.stderr.write("[wire-hooks] backed up settings -> %s\n" % backup)
+
+with open(settings_path, "w") as f:
+    json.dump(settings, f, indent=2)
+    f.write("\n")
+print("added=%d skipped=%d" % (added, skipped))
+PYEOF
+  )" || rc=$?
+
+  if [[ "$rc" -ne 0 ]]; then
+    ats_err "hook wiring skipped: could not safely merge into $settings"
+    return 1
+  fi
+
+  case "$out" in
+    added=0\ *) ats_ok "ats-hooks already wired into $settings (no change)" ;;
+    *)          ats_ok "ats-hooks wired into $settings ($out)" ;;
+  esac
 }
 
 install_copilot() {
@@ -718,6 +865,7 @@ main() {
       --parallel)      use_parallel=true; shift ;;
       --jobs)          parallel_jobs="${2:?'--jobs requires a value'}"; shift 2 ;;
       --dry-run)       DRY_RUN=true; shift ;;
+      --wire-hooks)    WIRE_HOOKS=true; shift ;;
       --help|-h)       usage ;;
       -*)              ats_err "Unknown option: $1"; exit 2 ;;
       *)               explicit_tools+=("$1"); shift ;;
@@ -800,6 +948,9 @@ main() {
     tools_list="$(ats_mktemp_file)"
     for t in "${SELECTED_TOOLS[@]}"; do printf '%s\n' "$t"; done > "$tools_list"
 
+    # Propagate the opt-in wiring choice: workers bypass main's arg parsing and
+    # read WIRE_HOOKS from ATS_WIRE_HOOKS at load time.
+    if $WIRE_HOOKS; then export ATS_WIRE_HOOKS=1; fi
     export ATS_INSTALL_WORKER=1 INTEGRATIONS DRY_RUN REPO_ROOT
     # shellcheck disable=SC2016 # single quotes: xargs shell expansion
     xargs -P "$parallel_jobs" -I {} sh -c \

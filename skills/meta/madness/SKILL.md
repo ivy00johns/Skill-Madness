@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.0.0
+version: 1.0.1
 description: >-
   The front door to the whole toolkit — one reliable entry point that reads what
   you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a
@@ -28,7 +28,7 @@ spawned_by: []
 # Madness — the front door
 
 This is the one entry point you can reach for when you don't want to think about
-which of 60-plus skills is the right one. You say what you're trying to do;
+which of the dozens of skills is the right one. You say what you're trying to do;
 `madness` figures out the correct *starting* skill, confirms if it's about to
 launch something heavy, and hands you off into it.
 
@@ -132,7 +132,7 @@ of one needless confirm is a sentence; the cost of an unwanted swarm is real.
 ## No args or vague intent -> the menu
 
 If you can't route confidently, don't pick at random — show the lay of the land
-and ask which door. Keep it to the front doors, not all 60 skills:
+and ask which door. Keep it to the front doors, not the whole library:
 
 ```
 Where do you want to go?
@@ -179,5 +179,5 @@ If the user wants to *do* the thing ("set up the tests and run them till green")
 | Routing everything to `orchestrator` | That's the exact crutch this skill exists to retire — most intents have a lighter, correcter front door |
 | Launching an expensive route with no confirm | A reflexive `/madness` must never silently spawn a swarm or start an overnight loop |
 | Naming the skill but not invoking it | That's `skill-explorer`'s contract; `madness` is the active half — it launches |
-| Duplicating the full 60-skill routing table here | The long-tail map lives in `skill-explorer/references/routing-table.md`; route to front doors and lean on it |
+| Duplicating the full routing table here | The long-tail map lives in `skill-explorer/references/routing-table.md`; route to front doors and lean on it |
 | Adding a hop in front of a clean trigger | If a request already fires the right skill on its own, get out of the way |

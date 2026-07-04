@@ -236,6 +236,22 @@ assert d["skills"]==[], d
   echo "$output" | grep -qi "no-data"
 }
 
+@test "report on absent/empty log warns telemetry is inactive (SR3)" {
+  # Absent log: the emitter hook is not wired, so the report must say so.
+  run bash "$ENGINE" report --log "$FAKE/nope.jsonl"
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qi "telemetry inactive"
+  echo "$output" | grep -qi "settings.json"
+}
+
+@test "report --json on absent log stays clean (no banner leaks into JSON)" {
+  # The human banner must never break the machine-readable JSON.
+  run bash "$ENGINE" report --json --log "$FAKE/nope.jsonl"
+  [ "$status" -eq 0 ]
+  echo "$output" | python3 -c 'import json,sys; json.load(sys.stdin)'
+  ! ( echo "$output" | grep -qi "telemetry inactive" )
+}
+
 # ---------------------------------------------------------------------------
 # robustness
 # ---------------------------------------------------------------------------

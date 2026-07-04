@@ -147,7 +147,7 @@ export const meta = {
   phases: [{ title: 'QA' }, { title: 'Review' }, { title: 'Verify' }],
 };
 
-const QA_REPORT = { /* mirror roles/qe-agent/references/qa-report-schema.json */ };
+const QA_REPORT = { /* mirror skills/roles/qe-agent/references/qa-report-schema.json */ };
 const FINDINGS = { type: 'object', required: ['findings'],
   properties: { findings: { type: 'array', items: {
     type: 'object', required: ['title', 'severity', 'file'],
@@ -215,12 +215,19 @@ circuit breaker) so a stubborn failure surfaces to the human instead of spinning
   it in the run log and carry on; don't rewrite a legitimate defensive prompt to dodge the
   classifier, route around it with the fallback. Full contract + config:
   `model-adaptation/references/refusal-and-fallback.md`.
-- **Set effort per agent, not one global level.** A workflow `agent()` takes an `effort` option
-  (and `model`); use it — `xhigh`/`high` for the hardest stages (contract-shaped implementation,
-  adversarial verify), `low`/`medium` for routine ones (docs, mechanical edits). On the Claude 5
-  family a lower-effort agent often matches `xhigh` on prior models, so spending `xhigh` only
-  where the work is hardest keeps a large fan-out affordable without dropping quality where it
-  counts. See `model-adaptation` (Bucket C).
+- **Set model AND effort per agent, not one global level.** A workflow `agent()` takes `model`
+  and `effort` options; set both per stage from the model & effort tiering policy in
+  `model-adaptation` (task→tier map in its SKILL.md; priced ladder in its
+  `references/model-effort-tiering.md`). Mechanical fan-out stages — finders, mappers,
+  transforms, first drafts — take the cheap tier (Haiku, which takes no `effort` param, or
+  Sonnet at `effort: 'low'`); verify/judge/synthesis stages take the top tier at
+  `high`/`xhigh` (e.g. the adversarial-verify agents above). On the Claude 5 family a
+  lower-effort agent often matches `xhigh` on prior models, so spending `xhigh` only where the
+  work is hardest keeps a large fan-out affordable without dropping quality where it counts.
+  This deliberately overrides the Workflow tool's generic "omit `opts.model` by default"
+  guidance: an omitted model resolves to the session-start model (stale after `/model`), so
+  this toolkit passes both explicitly on every `agent()` call. Stay inside one provider's
+  ladder — never mix vendors within a build (`use-freellmapi` projects are the sole carve-out).
 - **Save the run.** Once an implement or verify workflow does what you want, save it from
   `/workflows` (`s`) into `.claude/workflows/` — the next build of the same shape reruns the
   identical orchestration as a `/command` instead of re-authoring the script.

@@ -286,6 +286,8 @@ report_text() {
   ats_header "Skill health (deterministic; log: $log)"
   if [[ -z "$rows" ]]; then
     ats_info "no events recorded — every skill is no-data"
+    ats_warn "telemetry inactive — emitter hook not wired into ~/.claude/settings.json"
+    ats_dim  "  Wire it (opt-in): scripts/install.sh --tool claude-code --wire-hooks"
     printf '  %-22s %s\n' "STATUS" "no-data (empty/absent log)"
     return 0
   fi

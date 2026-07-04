@@ -17,6 +17,9 @@ concurrency:
   group: lint-skills-${{ github.ref }}
   cancel-in-progress: true
 
+# NOTE: the five Ubuntu job display names below are pinned as required status
+# checks in the main-branch protection rules. Renaming any of them strands the
+# PR gate on a check that never reports. Change steps, not names.
 jobs:
   # Primary blocking job. A non-zero exit from lint-skills.sh fails the PR.
   lint-ubuntu:
@@ -48,13 +51,10 @@ jobs:
 
       # Second pass: real gate. Exits non-zero on any lint violation,
       # which marks the job failed. No '|| true' here — intentional.
+      # (The class-extraction-guard bats suite that used to run here is
+      # covered by the full-suite run in 'Installer + Catalog (Ubuntu)'.)
       - name: Run lint (enforce pass/fail)
         run: scripts/lint-skills.sh skills/
-
-      # Scanner regressions for the class-extraction-guard skill (staged-mode
-      # path resolution, ignoreDirs in staged mode, line-number correctness).
-      - name: Run class-extraction-guard bats suite
-        run: bats tests/class-extraction-guard
 
       # Upload the JUnit XML even when the job fails so reviewers can
       # inspect which rules fired without re-running locally.
@@ -85,17 +85,17 @@ jobs:
 
       # Static lint of the hooks tree (manifest, executability, script headers,
       # profile validity). Non-zero exit fails the job.
+      # (The hooks bats suite that used to run here is covered by the
+      # full-suite run in 'Installer + Catalog (Ubuntu)'.)
       - name: Lint hooks layer
         run: scripts/lint-hooks.sh
 
-      # Behavioral bats suite for the wrapper, qa-gate, convert emission, and
-      # lint-hooks itself.
-      - name: Run hooks bats suite
-        run: bash tests/hooks/run-tests.sh
-
-  # Installer discipline (P1): assert the advertised skill counts match disk
-  # (catalog-as-CI-invariant) and run the plan/apply + catalog bats suites.
-  # Additive job — independent of the gates above. Static run commands only.
+  # Installer discipline (P1) + the single authoritative bats gate: assert the
+  # advertised skill counts match disk (catalog-as-CI-invariant), then run the
+  # ENTIRE bats suite via tests/run-all.sh (`bats -r tests/`). This is what
+  # makes tests/installer/ (convert.sh output for all 11 hosts) and
+  # tests/skill-health/ gate a merge — a plain `bats tests/` is non-recursive
+  # and silently runs zero tests. Static run commands only.
   installer-ubuntu:
     name: Installer + Catalog (Ubuntu)
     runs-on: ubuntu-latest
@@ -105,6 +105,12 @@ jobs:
 
       - name: Verify python3
         run: python3 --version
+
+      # jsonschema lets the tests/standard/ real-tree schema gate run
+      # authoritatively instead of SKIPping; pyyaml is the frontmatter parser.
+      # --break-system-packages is required on PEP 668 Pythons.
+      - name: Install jsonschema + pyyaml
+        run: python3 -m pip install --user --break-system-packages jsonschema pyyaml
 
       - name: Install bats-core
         run: |
@@ -116,13 +122,10 @@ jobs:
       - name: Catalog count check
         run: scripts/catalog.sh --check
 
-      # Behavioral bats: catalog (--check/--sync/--text) and the plan/apply
-      # install lifecycle (plan → apply → list → drift → repair → uninstall).
-      - name: Run catalog bats suite
-        run: bats tests/catalog
-
-      - name: Run plan/apply bats suite
-        run: bats tests/install-plan
+      # Every .bats file under tests/ — installer, catalog, install-plan,
+      # skill-health, hooks, standard, scan-skills, class-extraction-guard.
+      - name: Run full bats suite
+        run: bash tests/run-all.sh
 
   # Skill supply-chain / injection scan (P2): deterministic, LLM-free gate over
   # the skills tree (secrets, prompt-injection, zero-width unicode, untrusted
@@ -144,11 +147,10 @@ jobs:
 
       # Blocking: non-zero exit on any HIGH-severity finding (secrets, private
       # keys, zero-width unicode). MEDIUM/LOW are reported but do not fail.
+      # (The scan-skills bats suite that used to run here is covered by the
+      # full-suite run in 'Installer + Catalog (Ubuntu)'.)
       - name: Scan skills (block on HIGH)
         run: scripts/scan-skills.sh --check skills/
-
-      - name: Run scan-skills bats suite
-        run: bats tests/scan-skills
 
   # Frontmatter standard (P3): enforce the Portable Skill Frontmatter Spec
   # (PSFS) as a real gate. The main lint job's schema cross-check degrades to
@@ -182,13 +184,10 @@ jobs:
       # Authoritative gate: every real SKILL.md must validate against the
       # portable schema. With jsonschema installed, lint-skills.sh runs the
       # schema cross-check inline and fails on any structural violation.
+      # (The tests/standard/ bats suite runs — also with jsonschema installed —
+      # in the full-suite step of 'Installer + Catalog (Ubuntu)'.)
       - name: Lint with schema enforcement
         run: scripts/lint-skills.sh skills/
-
-      # Behavioral suite: --standard output, schema well-formedness, the
-      # real-tree gate, and the positive/negative fixtures.
-      - name: Run frontmatter-standard bats suite
-        run: bash tests/standard/run-tests.sh
 
   # Smoke-check on macOS to catch bash 3.2 compatibility quirks.
   # Not a merge gate — continue-on-error prevents macOS-only failures
@@ -208,9 +207,10 @@ jobs:
       # PyYAML is not preinstalled on macos-latest (it is on ubuntu-latest).
       # Without it, the linter falls back to a degraded check that flags
       # every skill — install it so the smoke job mirrors Ubuntu coverage.
+      # jsonschema keeps the tests/standard/ real-tree gate from SKIPping.
       # --break-system-packages is required on PEP 668-managed Pythons.
-      - name: Install pyyaml
-        run: python3 -m pip install --user --break-system-packages pyyaml
+      - name: Install pyyaml + jsonschema
+        run: python3 -m pip install --user --break-system-packages pyyaml jsonschema
 
       # brew is preinstalled on macos-latest. The package is 'bats-core'
       # (not 'bats') on Homebrew — distinct from the Ubuntu apt package name.
@@ -223,6 +223,11 @@ jobs:
 
       - name: Run lint (enforce pass/fail)
         run: scripts/lint-skills.sh skills/
+
+      # Full bats suite on macOS/BSD userland (sed/awk/find quirks, stock
+      # bash 3.2 at /bin/bash). Non-gating like the rest of this job.
+      - name: Run full bats suite
+        run: bash tests/run-all.sh
 
       - name: Upload lint results
         if: always()

@@ -1,6 +1,6 @@
 ---
 name: skill-explorer
-version: 1.1.0
+version: 1.1.1
 description: |
   Help the user discover, recall, understand, and pick the right skill from the available toolkit. Names the skill; does NOT invoke it. Use when the user is trying to find a skill ("I forgot the name of the one that does X", "what was that skill called"), asking what skills exist ("what skills do I have", "list all my skills", "show me the catalog"), asking what a specific skill does ("what does X do", "explain the X skill"), asking how skills relate ("how do these connect", "what does orchestrator spawn"), or asking for routing help ("which skill for this task", "what should I use to Y"). Also trigger when the user reaches for orchestrator on something that isn't a multi-agent build, or asks any meta-question about the skill ecosystem itself.
 requires_agent_teams: false
@@ -48,7 +48,7 @@ For the Skill Madness repo specifically, skills live in:
 
 ```
 skills/orchestrator/SKILL.md
-skills/{contracts,git,meta,roles,workflows}/<skill-name>/SKILL.md
+skills/{contracts,git,loops,meta,roles,workflows}/<skill-name>/SKILL.md
 ```
 
 Plugin skills come from `~/.claude/plugins/` and are visible in your session context but not in the repo tree.

@@ -392,14 +392,16 @@ Shared shell libraries sourced by convert.sh, install.sh, and lint-skills.sh. Al
 
 | Module | Provides |
 |---|---|
-| `lib/frontmatter.sh` | SKILL.md frontmatter parsing (YAML extraction via Python 3 or hand-rolled fallback). Functions: `get_field`, `get_field_raw`, `get_array`, `get_owns_dirs`, `get_body`, `fm_raw`, `fm_check`, `fm_has_field`. |
+| `lib/frontmatter.sh` | SKILL.md frontmatter parsing (YAML extraction via Python 3 or hand-rolled fallback). Functions: `get_field`, `get_field_raw`, `get_array`, `get_owns_dirs`, `get_body`, `fm_raw`, `fm_check`, `fm_has_field`, `fm_cache_clear`. Each file is parsed by python3 once per process; every subsequent field read is served from an on-disk cache in plain bash (this is what keeps a full convert.sh run at ~25s instead of ~90s). The cache is process-scoped: mutating a SKILL.md and re-reading it within one script run is not supported. |
 | `lib/slug.sh` | String utilities: `slugify` (converts "My Skill" → "my-skill" for deterministic filenames). |
 | `lib/term.sh` | Terminal/color helpers: ANSI color codes (respects `NO_COLOR` and `TERM=dumb`), box-drawing for the install.sh TUI. |
 | `lib/platform.sh` | Cross-platform shims: `nproc_count` (portable CPU core detection), portable `mktemp`, portable `cp -r`. |
 
 ## Testing
 
-The installer is covered by a 172-test bats suite. See `tests/installer/README.md` for setup, running, and test fixture details.
+**Run the whole suite with `bash tests/run-all.sh`.** It wraps `bats -r tests/`, which is the only correct whole-tree invocation: a plain `bats tests/` is NOT recursive, and because every `.bats` file lives in a subdirectory it runs zero tests while printing a green-looking `1..0`. Extra arguments are forwarded to bats (e.g. `bash tests/run-all.sh --filter 'convert'`).
+
+The suite spans eight directories: `tests/installer/` (172 tests — validates convert.sh output for all 11 hosts; see `tests/installer/README.md`), `tests/skill-health/`, `tests/catalog/`, `tests/install-plan/`, `tests/hooks/`, `tests/standard/`, `tests/scan-skills/`, and `tests/class-extraction-guard/`.
 
 Quick start:
 
@@ -408,14 +410,15 @@ Quick start:
 brew install bats-core  # macOS
 # or: sudo apt install bats  # Ubuntu
 
-# Run the full suite
+# Run everything (all suites)
+bash tests/run-all.sh
+
+# Run one suite
 bash tests/installer/run-tests.sh
+bats tests/catalog
 
 # Run a single test file
 bats tests/installer/bats/02-convert-per-tool.bats
-
-# Filter by prefix (e.g., all lint tests)
-bash tests/installer/run-tests.sh 05
 ```
 
 ## CI Integration
@@ -423,8 +426,9 @@ bash tests/installer/run-tests.sh 05
 `.github/workflows/lint-skills.yml` runs on every push and PR targeting `main`:
 
 - Runs `scripts/lint-skills.sh --format junit > lint-results.xml` on Ubuntu (blocking) and macOS (smoke-check, non-blocking)
+- Runs the **entire** bats suite via `bash tests/run-all.sh` in the `Installer + Catalog (Ubuntu)` job (blocking) and in the macOS smoke job (non-blocking)
 - Uploads JUnit results as a GitHub Actions artifact for easy inspection
 - Fails the job if lint exits non-zero on Ubuntu
 - Produces TAP-formatted output for structured test result display
 
-The workflow is the authoritative gate — all PRs must pass lint before merging to `main`.
+The five Ubuntu job names are pinned as required status checks in branch protection — change steps, not job names. The workflow is the authoritative gate — all PRs must pass lint and the full test suite before merging to `main`.

@@ -159,30 +159,34 @@ SRC_SUBDIR = {
     "cursor": "rules",
 }
 
-def dest_for(tool, relpath):
+def dests_for(tool, relpath):
+    """Return the list of destination paths for a source file. Most tools map
+    to a single dest; copilot mirrors into BOTH ~/.github/agents/ and
+    ~/.copilot/agents/ (install-locations.md:17 + install.sh install_copilot)."""
     if tool == "claude-code":
-        return os.path.join(root, ".claude", "skills", relpath)
+        return [os.path.join(root, ".claude", "skills", relpath)]
     if tool == "copilot":
-        return os.path.join(root, ".github", "agents", relpath)
+        return [os.path.join(root, ".github", "agents", relpath),
+                os.path.join(root, ".copilot", "agents", relpath)]
     if tool == "antigravity":
-        return os.path.join(root, ".gemini", "antigravity", "skills", relpath)
+        return [os.path.join(root, ".gemini", "antigravity", "skills", relpath)]
     if tool == "gemini-cli":
-        return os.path.join(root, ".gemini", "extensions", "alltheskills", relpath)
+        return [os.path.join(root, ".gemini", "extensions", "alltheskills", relpath)]
     if tool == "opencode":
-        return os.path.join(root, ".opencode", "agents", relpath)
+        return [os.path.join(root, ".opencode", "agents", relpath)]
     if tool == "cursor":
-        return os.path.join(root, ".cursor", "rules", relpath)
+        return [os.path.join(root, ".cursor", "rules", relpath)]
     if tool == "openclaw":
-        return os.path.join(root, ".openclaw", "alltheskills", relpath)
+        return [os.path.join(root, ".openclaw", "alltheskills", relpath)]
     if tool == "qwen":
-        return os.path.join(root, ".qwen", "agents", relpath)
+        return [os.path.join(root, ".qwen", "agents", relpath)]
     if tool == "kimi":
-        return os.path.join(root, ".config", "kimi", "agents", relpath)
+        return [os.path.join(root, ".config", "kimi", "agents", relpath)]
     if tool == "aider":
-        return os.path.join(root, "CONVENTIONS.md")
+        return [os.path.join(root, "CONVENTIONS.md")]
     if tool == "windsurf":
-        return os.path.join(root, ".windsurfrules")
-    return None
+        return [os.path.join(root, ".windsurfrules")]
+    return []
 
 def slug_of(tool, src_root, abspath):
     """Derive the canonical skill slug for a source file, for category filtering."""
@@ -205,6 +209,10 @@ def slug_of(tool, src_root, abspath):
     return None
 
 operations = []
+# Tools whose convert.sh output is absent. Warn loudly per tool (naming the
+# path that was missing); if EVERY requested tool is missing, exit non-zero so
+# a silent empty plan can never masquerade as success (SR23).
+missing_sources = []
 for tool in tools:
     tool_root = os.path.join(integ, tool)
     sub = SRC_SUBDIR.get(tool)
@@ -213,13 +221,31 @@ for tool in tools:
         # Single-file tools (aider/windsurf) live as files under tool_root.
         if tool == "aider":
             f = os.path.join(tool_root, "CONVENTIONS.md")
-            files = [f] if os.path.isfile(f) else []
             src_root = tool_root
+            if os.path.isfile(f):
+                files = [f]
+            else:
+                sys.stderr.write(
+                    "[plan] WARN missing source for tool '%s': %s "
+                    "(run scripts/convert.sh --tool %s)\n" % (tool, f, tool))
+                missing_sources.append(tool)
+                continue
         elif tool == "windsurf":
             f = os.path.join(tool_root, ".windsurfrules")
-            files = [f] if os.path.isfile(f) else []
             src_root = tool_root
+            if os.path.isfile(f):
+                files = [f]
+            else:
+                sys.stderr.write(
+                    "[plan] WARN missing source for tool '%s': %s "
+                    "(run scripts/convert.sh --tool %s)\n" % (tool, f, tool))
+                missing_sources.append(tool)
+                continue
         else:
+            sys.stderr.write(
+                "[plan] WARN missing source for tool '%s': %s "
+                "(run scripts/convert.sh --tool %s)\n" % (tool, src_root, tool))
+            missing_sources.append(tool)
             continue
     else:
         files = []
@@ -241,21 +267,29 @@ for tool in tools:
             if cat is None or cat not in cats:
                 continue
         rel = os.path.relpath(src, src_root)
-        dest = dest_for(tool, rel)
-        if dest is None:
+        dests = dests_for(tool, rel)
+        if not dests:
             continue
         digest = sha256(src)
-        if os.path.isfile(dest):
-            action = "skip" if sha256(dest) == digest else "overwrite"
-        else:
-            action = "create"
-        operations.append({
-            "tool": tool,
-            "source": src,
-            "dest": dest,
-            "action": action,
-            "sha256": digest,
-        })
+        for dest in dests:
+            if os.path.isfile(dest):
+                action = "skip" if sha256(dest) == digest else "overwrite"
+            else:
+                action = "create"
+            operations.append({
+                "tool": tool,
+                "source": src,
+                "dest": dest,
+                "action": action,
+                "sha256": digest,
+            })
+
+# Every requested tool lacked a source → refuse to emit an empty plan (SR23).
+if missing_sources and len(missing_sources) == len(tools):
+    sys.stderr.write(
+        "[plan] ERROR all requested tools have missing sources: %s\n"
+        % " ".join(missing_sources))
+    sys.exit(3)
 
 operations.sort(key=lambda o: (o["tool"], o["dest"]))
 plan = {
@@ -269,7 +303,10 @@ print(json.dumps(plan, indent=2))
 PYEOF
   )" || rc=$?
   rm -f "$slugcat_tmp"
-  if [[ "$rc" -ne 0 ]]; then
+  if [[ "$rc" -eq 3 ]]; then
+    ats_err "no installable sources for any requested tool (see warnings above); run scripts/convert.sh"
+    exit 2
+  elif [[ "$rc" -ne 0 ]]; then
     ats_err "plan resolution failed"
     exit 2
   fi

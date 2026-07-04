@@ -33,7 +33,7 @@
       "id": 5,
       "name": "vague-coldstart-shows-menu",
       "prompt": "/madness",
-      "expected_output": "Bare invocation with no intent: shows the short front-door menu and asks which door, rather than guessing a heavy route. Keeps the menu to front doors, not all 60 skills.",
+      "expected_output": "Bare invocation with no intent: shows the short front-door menu and asks which door, rather than guessing a heavy route. Keeps the menu to front doors, not the whole library.",
       "files": []
     }
   ]
