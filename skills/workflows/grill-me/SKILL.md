@@ -1,6 +1,6 @@
 ---
 name: grill-me
-version: 1.1.0
+version: 1.1.1
 description: |
   Get relentlessly interviewed about a plan, design, or change until every branch of the decision tree is resolved — depth-first, one question at a time, recommendation-attached, code-checked before user-asked. Use before any non-trivial change, when scope feels fuzzy, or to stress-test a plan before committing. Trigger on: 'grill me', 'interview me', 'challenge my plan', 'ask me questions', "I'm not sure what I want", 'help me think this through', 'is this the right approach', 'walk me through it', 'stress test this plan'.
 requires_agent_teams: false
@@ -11,7 +11,7 @@ owns:
   patterns: []
   shared_read: []
 allowed-tools: ["Read", "Grep", "Glob"]
-composes_with: ["architecture-rescue", "maintain-context", "plan-builder"]
+composes_with: ["architecture-rescue", "maintain-context", "plan-builder", "find-unknowns"]
 spawned_by: []
 ---
 
@@ -25,4 +25,4 @@ Walk the design tree depth-first. Resolve the current branch before backing out.
 
 **Exit condition:** every decision in the tree has a chosen answer plus your analysis attached. Output a final `Decisions` section the user can paste into a plan or brief — one bullet per decision, with the chosen answer and a one-line rationale.
 
-**Compose with:** `architecture-rescue` when grilling about an unfamiliar codebase; `maintain-context` to capture decisions as ADRs or glossary entries; `plan-builder` to turn the `Decisions` output into an executable plan.
+**Compose with:** `architecture-rescue` when grilling about an unfamiliar codebase; `maintain-context` to capture decisions as ADRs or glossary entries; `plan-builder` to turn the `Decisions` output into an executable plan. `find-unknowns` is the sibling for the other direction — this skill interrogates the *known* unknowns you already have opinions on; run its blindspot pass first when you don't yet know what to have opinions about.
