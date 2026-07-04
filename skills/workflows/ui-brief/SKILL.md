@@ -1,10 +1,10 @@
 ---
 name: ui-brief
-version: 1.2.0
+version: 1.2.1
 description: |
   Generate opinionated, design-led briefs for building or rebuilding UIs so they lead with the product's actual moat instead of converging on a generic shadcn-default SaaS dashboard. Use whenever the user wants a detailed UI prompt or spec to hand off — greenfield OR rebuild. Trigger on "write me a UI brief", "the current UI sucks, redesign it", "make this not look like every shadcn admin", "I need a prompt for the frontend", "design brief for X", "the design feels generic", "build a UI for [project] like [reference]", or before non-trivial UI work when the user names a reference app or named visual style. Output is a standalone Markdown file with positioning, design-language rules, page-by-page treatment, component primitives, motion discipline, and a verifiable Definition of Done.
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: []

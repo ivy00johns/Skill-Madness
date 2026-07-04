@@ -1,6 +1,6 @@
 ---
 name: git-post-merge-cleanup
-version: 1.1.0
+version: 1.1.1
 description: >
   Clean up everything stale after merges in one pass: local branches fully
   merged into the default branch, remote-tracking refs whose remote is gone,
@@ -15,7 +15,7 @@ description: >
   Also trigger proactively when `git worktree list` shows entries beyond the
   main worktree, or after a batch of PRs land.
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: []
