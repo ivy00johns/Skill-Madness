@@ -16,15 +16,15 @@ Every box must end the build either ✅ (invoked, with the artifact path)
 or annotated with a one-line reason for deferral. Empty boxes are bugs.
 
 ## Wave 1 — parallel file-disjoint fixes (A1–A5, B1–B4)
-- [ ] `orchestrator` — this build's coordinator; contracts = the ledger rows themselves.
-- [ ] `fix-until-green` — explicitly dispatched as the wave-gate driver (catalog --check + lint + bats red→green without cheating).
+- [x] `orchestrator` — ✅ coordinated all three waves; contracts = the ledger rows. Committed 461b72b.
+- [x] `fix-until-green` — ✅ wave-gate driver: catalog --check + lint + full bats run red→green each wave, no gate-cheating (verified by the version-drift + adversarial passes).
 
 ## Wave 2 — SR1 portability audit (`requires_claude_code` × 71 skills + README claims)
-- [ ] `skill-review` conventions — the audit consumes the review's H1 finding; no re-review needed.
+- [x] `skill-review` conventions — ✅ the audit consumed the review's H1 finding; 20 flags flipped, README trued up. Committed 3bb05fb.
 
 ## Wave 3 — QE + adversarial verification
-- [ ] `qe-agent` — mandatory; produces `coordination/sr-mt-qa-report.json` per qa-report-schema.
-- [ ] `code-review` — adversarial diff pass on the script-heavy changes (B1/B2/B3, SR1).
+- [x] `qe-agent` — ✅ `coordination/sr-mt-qa-report.json` (proceed=true; scores 5/5/5/5, contract_conformance 4). One MEDIUM (SRQA-1) fixed in cd516ab.
+- [x] `code-review` — ✅ adversarial pass run (Fable hit its cap mid-run → relaunched on Opus → Opus hit the session cap → completed inline by the lead). Frontmatter parallel-race cleared (process-per-tool isolation); SRQA-1/SRQA-2 fixed; diagnose-loop/scripts-dir noted as F1.
 
 ## Pre-build (already done, prior sessions)
 - [x] `skill-review` — ✅ produced `skill-review-report.{md,json}` (the SR source).
