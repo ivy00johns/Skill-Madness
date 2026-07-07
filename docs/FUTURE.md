@@ -63,3 +63,15 @@ Seven sibling gate/audit skills, each S–M, pick by appetite: `a11y-audit` (WCA
 
 ## F18 — Remaining tier-3 ideas (bundle)
 `browser-authed-flows` (claude-in-chrome for logged-in testing — all current browser skills are unauthed Playwright), `plugin-packager` (concrete packaging step under F2), `cache-optimizer` (prompt-cache-aware agent prompts + measured cost delta), `feature-flag`, `seed-data-forge`, `human-onboarding`, `i18n-audit`.
+
+---
+
+## Deferred borrows from the 2026-07-06 skills-comparative refresh (`CB-4`–`CB-8`)
+
+The lower-confidence tail of the skills-comparative intake (the committed borrows CB-1–CB-3 live in [`docs/REMAINING-WORK.md`](REMAINING-WORK.md)). Parked here — pulled into the ledger only if a future cycle prioritizes them. Source: the 2026-07-06 skills-comparative refresh (`../DeepResearch/skills-comparative_deepdive/source-material/11-delta-2026-07.md`).
+
+- **CB-4** — **`.out-of-scope/` tombstone KB for Skill-Madness itself.** One note per idea considered and rejected (with reasoning), checked during future intake for dedup-by-concept so rejected ideas aren't re-litigated. Cheap; low urgency. The concrete first step of the "anti-corpus" frontier (F5-adjacent).
+- **CB-5** — **ADRs about the library itself** (`.agents/adr/` or `docs/adr/`). `maintain-context` writes ADRs for *target* projects; Skill-Madness keeps none for its *own* design decisions (why 71 skills not 20, why the loops library, why exclusive file-ownership, why PSFS over a 100-line rule). Backfill the load-bearing ones. Overlaps F17's `adr-author` idea.
+- **CB-6** — **Enrich `madness` with `ask-matt`-style context-hygiene rules** — keep an alignment→dispatch flow in one unbroken window, name the "smart zone" token budget, distinguish fork (handoff) vs continue-in-place compaction. Minor router polish.
+- **CB-7** — **Full issue-tracker abstraction + `to-prd` (chat→PRD) + `to-issues` (vertical slices) + triage state machine** (mattpocock's daily-engineer flow). Big, and our tracker is Beads/Hive; we already have `work-item-brief` + `plan-intake`, so it's speculative — "does this need to exist yet?" If pursued, the tracker-indirection layer + vertical-slicing are the parts that compose with the orchestrator.
+- **CB-8** — **Distribution polish: changesets + a published docs site + `npx`-style installer.** Only matters if Skill-Madness goes public; consider publishing to the existing `skills.sh` registry rather than building our own. mattpocock's near-2× star growth rode partly on frictionless install.
