@@ -1,6 +1,6 @@
 ---
 name: plan-intake
-version: 1.1.1
+version: 1.2.0
 description: |
   Turn any report (repo-deep-dive output, audit, skill-review, QA findings, design audit) into approved entries in a project's living-plan ledger. Use when the user says "intake this report", "add findings to the plan", "turn this audit into work items", "update the ledger from this report", "feed the deep-dive into the plan", or has a finished report and wants it tracked instead of rotting. Format-agnostic: adopts the target project's existing entry format.
 requires_agent_teams: false
@@ -73,18 +73,23 @@ For each candidate entry, grep the ledger for existing entries covering the same
 
 ### Step 4 — Propose a review table
 
-Present all non-duplicate candidates as a table for human review before writing anything. The table columns match the project's ledger format. At minimum show:
+Present all non-duplicate candidates as a table for human review before writing anything. The table serves **the approver**, not the ledger — so it carries two summary columns, not one:
 
-| Proposed ID | Priority | Wave/Phase | Area | Source | Entry summary (one line) |
+| Proposed ID | Priority | Wave/Phase | Area | Source | What it does / what you'd notice | Ledger summary (one line) |
 
+- **What it does / what you'd notice** — one jargon-free sentence stating the *observable change* if this row ships, written for someone who has not read the report. No insider shorthand, no bare symbol names, no ticket codes — not "off-replay `computeBuildingMesh` CGA split" but "building shapes are computed once and reused, so the map loads faster." This column is the approval gate's real content: if the approver can't tell what a row would change from this sentence alone, the row is not ready to propose. **Required for every row.**
+- **Ledger summary** — the terse, project-native one-liner that actually gets written on approval (Step 6). It may use the ledger's house shorthand; the plain-language column is what makes it reviewable.
 - Assign proposed IDs using the project's ID scheme. For a new report source, use a fresh never-reused prefix bundle (check existing IDs to avoid collisions).
-- Keep each entry summary to one line.
 - If the ledger uses additional columns (Owner, Status, etc.), include them with appropriate defaults (e.g. Status: open, Owner: —).
 - Annotate any entry flagged as a possible duplicate with a note pointing to the existing entry.
+
+**Over-build pass (YAGNI).** Before presenting, run each candidate through one filter: *does this need to exist yet?* Don't file speculative or "might-want-later" directions at the same weight as concrete fixes. For each such candidate, either mark it **`[speculative]`** in the table (so the approver weighs it as a maybe, not a commitment) or route it to the project's deferred/parked backlog (e.g. `docs/FUTURE.md`) instead of the active ledger. A report proposing eleven items where two are cheap-and-certain and four overlap already-tracked work should reach the approver as *"2 to commit, 4 dups flagged, 5 speculative"* — not eleven equal rows. This is the `caveman`/`ponytail` lazy-senior-dev lens: reuse-or-defer beats build-because-listed.
 
 ### Step 5 — Gate: get explicit human approval
 
 Present the proposal table and **wait for explicit approval before writing anything.** This skill is fail-closed: no approval, no writes.
+
+The approver decides from the **What it does / what you'd notice** column — that plain-language sentence is what makes this gate real rather than a rubber-stamp. If any row's observable-change sentence is missing or still reads as shorthand, fix it *before* asking for approval: an approver who can only say "sure" or "no" to jargon is not actually gating.
 
 The human may:
 
@@ -99,7 +104,7 @@ Do not proceed until approval is unambiguous. If the response is ambiguous, ask 
 
 On a feature branch (never directly on the default branch):
 
-1. Insert each approved entry into the correct Area section of the ledger, maintaining the existing sort order within that section (typically by priority, then by ID).
+1. Insert each approved entry into the correct Area section of the ledger, maintaining the existing sort order within that section (typically by priority, then by ID). Write the **Ledger summary** (the project-native one-liner); the review table's plain-language column was an approval aid — fold its observable-change sentence into the entry's detail only if the ledger's format has room for it. The ledger's house format (Step 1) governs what gets written, not this skill's review table.
 2. If the project uses a strategic companion (e.g. `BUILD-PLAN.md`), and any approved entry is P0 or P1 priority (or the project's equivalent of high-urgency), add a brief note in the companion's open-items or closure-log section referencing the new IDs.
 3. Never modify documents marked frozen, archived, or read-only (e.g. a spec doc with a "Status: Frozen" header). If the report source is one of those docs, read it for findings but do not edit it.
 
@@ -125,6 +130,8 @@ This is pure relocation — reversible, git-tracked, no detail lost — so it do
 ## Behavior rules
 
 - **Fail-closed.** No approval from the human, no writes to the ledger. This is non-negotiable.
+- **Approver-readable proposals.** Every proposed row carries a jargon-free "what you'd notice" sentence written for someone who has not read the report. The fail-closed gate is only real if the approver can tell what each row would change; shorthand-only rows are not ready to propose.
+- **Filter for over-build.** Run candidates through "does this need to exist yet?" before proposing. Flag speculative directions as `[speculative]` or route them to the parked backlog rather than filing them at the same weight as concrete, certain work.
 - **Format-agnostic.** This skill has no opinion about what a ledger entry should look like. It adopts the project's existing format exactly. Two different projects may produce completely different entry shapes; that is correct.
 - **Never touch frozen docs.** A report source marked frozen, archived, or read-only is read-only for findings extraction. Do not edit it.
 - **Feature branch only.** All writes happen on a feature branch. Never write directly to the default branch (main/master).

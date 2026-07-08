@@ -1,6 +1,6 @@
 # Completed Work — Tactical Archive
 
-**Last updated:** 2026-07-04
+**Last updated:** 2026-07-07
 **Companions:** [`docs/REMAINING-WORK.md`](REMAINING-WORK.md) (open ledger — the to-do list), [`PLAN.md`](../PLAN.md) (strategic roadmap + closure log)
 
 > **What this is.** The append-only tactical archive: every ledger item that reached
@@ -12,9 +12,16 @@
 >
 > ID prefixes (stable, never reused): `RF` reference-file gaps · `TM` thinking-move
 > additions · `PR` process additions · `CL` cleanup · `FA` functional-audit findings ·
-> `SR` full-library review findings · `MT` model & effort tiering.
+> `SR` full-library review findings · `MT` model & effort tiering · `UF` user-feedback
+> findings.
 
 ---
+
+## Closed 2026-07-07 — plan-intake human-readability + over-build pass (`UF-1`)
+
+User feedback from a live `plan-intake` run on PetriDishOfMadness, hand-added to the open ledger 2026-07-06 and shipped 2026-07-07 on branch `feat/plan-intake-human-readable` (`version 1.1.1 → 1.2.0`). **What shipped:** `plan-intake` Step 4's review table now carries a required jargon-free "What it does / what you'd notice" column written *for the approver*, separate from the terse ledger-native summary written on approval; Step 5 ties the fail-closed gate to that plain-language sentence (shorthand-only rows aren't ready to propose); Step 6 clarifies the ledger-native summary is what lands; and a **YAGNI over-build pass** flags speculative candidates `[speculative]` or routes them to `docs/FUTURE.md` instead of filing them at equal weight. Two new behavior rules ("approver-readable proposals", "filter for over-build"). The `orchestrator role-agent report output` extension noted in the finding was left out of scope. Source: user, 2026-07-06.
+
+- **UF-1** `[done · P1]` — **plan-intake's review table (Step 4/5) is written in the target ledger's insider shorthand, so the human approving it can't tell what the items do.** On the PDoM research-v5 intake the proposed rows read as commit-message jargon ("pure `computeBuildingMesh(recipe,id_hash)` CGA split", "off-replay seam", "EM-155-gated"); the approver's verbatim response was *"none of those are human readable… not sure what any of this would do or change."* That makes the fail-closed approval gate (Step 5) theater — you can only rubber-stamp or bounce. **Fix:** the **review** table must carry a plain-language "what it does / what you'd see change" column written *for the approver*, kept separate from the terse ledger-native summary that gets *written* on approval (Step 6 still adopts the project's format). Require each proposed entry to state, in one jargon-free sentence, the observable change. **Bonus (YAGNI pass):** the user surfaced `DietrichGebert/ponytail` (a 75k-star "lazy senior dev / YAGNI" skill; a sibling `caveman` skill already ships in this library) as the lens — add an over-build check to intake so speculative shortlist directions are flagged *"does this need to exist yet?"* instead of filed at equal weight. The same run proposed 11 items where ~2 were cheap+committed and 4 overlapped already-tracked work. Affects `skills/workflows/plan-intake/SKILL.md` (Steps 4–6); the same readability gap likely applies to orchestrator role-agent report output.
 
 ## Closed 2026-07-04 — full-library review (`SR`) + model & effort tiering (`MT`)
 
