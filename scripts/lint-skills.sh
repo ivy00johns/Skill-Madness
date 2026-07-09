@@ -458,9 +458,9 @@ lint_one() {
     fi
 
     local allowed_tools
-    allowed_tools="$(get_field "allowed_tools" "$file")"
+    allowed_tools="$(get_field "allowed-tools" "$file")"
     if [[ -z "$allowed_tools" ]]; then
-      emit_issue WARN "$file" "" "role skill missing recommended 'allowed_tools' (prevents agents reaching outside their domain)"
+      emit_issue WARN "$file" "" "role skill missing recommended 'allowed-tools' (prevents agents reaching outside their domain)"
     fi
   fi
 

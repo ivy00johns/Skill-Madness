@@ -31,7 +31,12 @@
 #   get_body <file>                 — everything after the closing ---
 #   fm_raw <file>                   — raw YAML between the two --- markers
 #   fm_check <file>                 — exit 1 if frontmatter malformed
-#   fm_has_field <field> <file>     — exit 0 if field present, 1 if absent
+#   fm_has_field <field> <file>     — exit 0 if field has a non-empty value
+#                                     (works for dict fields like owns too)
+#
+# Field-name aliasing: `allowed-tools` is the canonical spelling and
+# `allowed_tools` its deprecated alias (frontmatter-spec). The parser mirrors
+# whichever one a file declares, so every accessor answers under either name.
 #   fm_cache_clear                  — delete this process's parse cache
 #
 # Usage:
@@ -146,17 +151,28 @@ try:
 except ImportError:
     yaml = None
 
+def alias_allowed_tools(mapping):
+    # 'allowed-tools' is canonical, 'allowed_tools' the deprecated alias
+    # (frontmatter-spec). Mirror whichever is present so shell callers find
+    # the value under either spelling — all catalog skills use the hyphen,
+    # while some callers historically asked for the underscore.
+    if 'allowed-tools' in mapping and 'allowed_tools' not in mapping:
+        mapping['allowed_tools'] = mapping['allowed-tools']
+    elif 'allowed_tools' in mapping and 'allowed-tools' not in mapping:
+        mapping['allowed-tools'] = mapping['allowed_tools']
+
 if yaml is None:
     # Hand-rolled fallback for simple scalars only (mirrors the old
     # get_field fallback; raw/array/owns stay empty, as before).
-    seen = set()
+    consumed = set()
+    scalars = {}
     for line in fm_text.split('\n'):
         if line.startswith((' ', '\t')):
             continue
         m = re.match(r'^([^:]+):\s*(.*)$', line)
-        if not m or m.group(1) in seen:
+        if not m or m.group(1) in consumed:
             continue
-        seen.add(m.group(1))
+        consumed.add(m.group(1))
         val = m.group(2).strip()
         if val in ('|', '>', '>-', '|-'):
             continue  # multiline -- can't parse without yaml
@@ -166,10 +182,16 @@ if yaml is None:
             out = val.lower()
         else:
             out = val
-        emit('scalar', m.group(1), out + '\n')
+        scalars[m.group(1)] = out
+    alias_allowed_tools(scalars)
+    for key, out in scalars.items():
+        emit('scalar', key, out + '\n')
+        if out:
+            emit('has', key, '1\n')
     sys.exit(0)
 
 data = yaml.safe_load(fm_text) or {}
+alias_allowed_tools(data)
 
 for key, val in data.items():
     if not isinstance(key, str):
@@ -178,13 +200,19 @@ for key, val in data.items():
         continue  # every accessor printed nothing for null values
     # scalar.<key> — get_field
     if isinstance(val, bool):
-        emit('scalar', key, ('true' if val else 'false') + '\n')
+        s = 'true' if val else 'false'
     elif isinstance(val, list):
-        emit('scalar', key, ','.join(str(v) for v in val) + '\n')
+        s = ','.join(str(v) for v in val)
     elif isinstance(val, dict):
-        pass  # dicts not useful as scalar
+        s = None  # dicts not useful as scalar (no scalar file, as before)
     else:
-        emit('scalar', key, ' '.join(str(val).split()) + '\n')
+        s = ' '.join(str(val).split())
+    if s is not None:
+        emit('scalar', key, s + '\n')
+    # has.<key> — fm_has_field marker: any non-empty value, dicts included
+    # (dicts have no scalar file, which is why presence needs its own marker)
+    if (s or (isinstance(val, dict) and val)):
+        emit('has', key, '1\n')
     # raw.<key> — get_field_raw
     if isinstance(val, bool):
         emit('raw', key, 'true' if val else 'false')
@@ -314,13 +342,12 @@ fm_check() {
 
 # ---------------------------------------------------------------------------
 # fm_has_field <field> <file>
-# Return 0 if the field is present and non-empty in frontmatter, 1 otherwise.
+# Return 0 if the field is present with a non-empty value, 1 otherwise.
+# Backed by the parser's has.<key> markers rather than the scalar cache, so
+# it also answers for dict-valued fields (owns) that have no scalar form.
 # ---------------------------------------------------------------------------
 fm_has_field() {
-  local field="$1" file="$2" f v=""
+  local field="$1" file="$2"
   _fm_load "$file" || return 1
-  f="$_FM_ENTRY/scalar.${field//\//_}"
-  [[ -f "$f" ]] || return 1
-  IFS= read -r v < "$f" || true
-  [[ -n "$v" ]]
+  [[ -f "$_FM_ENTRY/has.${field//\//_}" ]]
 }

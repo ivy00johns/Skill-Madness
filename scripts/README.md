@@ -58,7 +58,7 @@ See `contracts/installer/per-tool-output-spec.md` for the full specification. Su
 
 - Deterministic: same input → identical output (except `antigravity` which includes `date_added` field)
 - Idempotent: re-running produces byte-identical output
-- Lossy: Claude-Code-only frontmatter fields (`owns`, `allowed_tools`, `composes_with`, `spawned_by`) are stripped with a stderr warning per skill
+- Lossy: Claude-Code-only frontmatter fields (`owns`, `allowed-tools`, `composes_with`, `spawned_by`) are stripped with a stderr warning per skill
 - Skills marked `requires_claude_code: true` are skipped for non-Claude-Code targets
 - Stderr summary at end: `[convert] processed 46 skills across 11 tools (0 errors, 0 warnings)`
 
@@ -328,7 +328,7 @@ scripts/lint-skills.sh [OPTIONS] [PATH ...]
 **Rule Categories:**
 
 - **Required Frontmatter:** `name` (kebab-case, matches directory), `version` (semver), `description` (non-empty)
-- **Recommended Frontmatter (agent roles only):** `owns.directories`, `allowed_tools`
+- **Recommended Frontmatter (agent roles only):** `owns.directories`, `allowed-tools`
 - **Body Quality:** present (≥1 line), ≥50 words (WARN if stub), ≤500 lines (WARN if too long)
 - **Description Quality:** starts with action verb, mentions trigger context. Heuristic-based (no hard rule for trigger detection).
 - **Cross-Skill Validation:** unique names, no overlapping `owns.directories`, valid `composes_with`/`spawned_by` references
