@@ -521,7 +521,7 @@ The orchestrator and the multi-agent QA gate are Claude-Code-native — that's t
 | 🛰️  **Antigravity** | user | community-skill `SKILL.md` | generated |
 | 🌙 **Kimi Code** | user | YAML config + `system.md` | generated |
 
-**Lossy by design.** Claude-Code-specific orchestration fields (`allowed_tools`, `owns`, `composes_with`, `spawned_by`, `requires_agent_teams`) are stripped on conversion to the other ten hosts — those hosts don't run multi-agent dispatch with file-ownership exclusivity, so the metadata would be noise. You'll see one `[host] stripped allowed_tools/owns from <slug>` line per affected skill on stderr. Skills marked `requires_claude_code: true` are skipped entirely for non-Claude-Code targets.
+**Lossy by design.** Claude-Code-specific orchestration fields (`allowed-tools`, `owns`, `composes_with`, `spawned_by`, `requires_agent_teams`) are stripped on conversion to the other ten hosts — those hosts don't run multi-agent dispatch with file-ownership exclusivity, so the metadata would be noise. You'll see one `[host] stripped allowed-tools/owns from <slug>` line per affected skill on stderr. Skills marked `requires_claude_code: true` are skipped entirely for non-Claude-Code targets.
 
 > **Credit where it's due.** The eleven-host installer pattern, the `detect_<tool>()` probes, the interactive selection UI, the slug pipeline, and the OpenClaw soul/agents split are all adapted from [`msitarzewski/agency-agents`](https://github.com/msitarzewski/agency-agents) (MIT). Full attribution and the list of pieces that came across vs. were rewritten lives in [`ACKNOWLEDGMENTS.md`](ACKNOWLEDGMENTS.md). The orchestrator, role agents, contracts, QA gate, and the rest of the skill library are independent.
 
@@ -676,7 +676,7 @@ Expected. Skills with `requires_claude_code: true` — the `orchestrator`, all o
 </details>
 
 <details>
-<summary><b>"Stderr is full of <code>stripped allowed_tools/owns</code> lines"</b></summary>
+<summary><b>"Stderr is full of <code>stripped allowed-tools/owns</code> lines"</b></summary>
 
 That's by design — every Claude-Code-only frontmatter field that gets stripped on conversion to another host is announced. It's not an error; it's the installer being honest. Pipe stderr to a log file if it's noisy: `./scripts/convert.sh 2> convert.log`.
 </details>

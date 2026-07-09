@@ -241,8 +241,8 @@ convert_copilot() {
 
   # Emit per-skill stderr warning only when something was actually stripped
   # (avoids false-positive noise on minimal skills with neither field).
-  if fm_has_field "allowed_tools" "$file" || fm_has_field "owns" "$file"; then
-    printf '[copilot] stripped allowed_tools/owns from %s\n' "$slug" >&2
+  if fm_has_field "allowed-tools" "$file" || fm_has_field "owns" "$file"; then
+    printf '[copilot] stripped allowed-tools/owns from %s\n' "$slug" >&2
   fi
 
   # Copy references alongside
@@ -522,8 +522,9 @@ convert_qwen() {
 
   description="$(get_field_raw "description" "$file")"
   body="$(get_body "$file")"
-  # Map allowed_tools (comma-separated list from get_field) to qwen's tools field
-  allowed_tools_csv="$(get_field "allowed_tools" "$file")"
+  # Map allowed-tools (comma-separated list from get_field; the deprecated
+  # allowed_tools alias is honored by the parser) to qwen's tools field
+  allowed_tools_csv="$(get_field "allowed-tools" "$file")"
 
   {
     printf -- '---\n'

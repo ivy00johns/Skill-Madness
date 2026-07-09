@@ -372,6 +372,10 @@ EOF
   git -C "$FIX" init -q
   git -C "$FIX" config user.email "t@example.com"
   git -C "$FIX" config user.name "t"
+  # Neutralize inherited signing config (1Password/gpg) — a global
+  # commit.gpgsign=true otherwise fails these commits non-interactively.
+  git -C "$FIX" config commit.gpgsign false
+  git -C "$FIX" config tag.gpgsign false
   git -C "$FIX" add -A
   git -C "$FIX" commit -qm base
   BASE="$(git -C "$FIX" rev-parse HEAD)"

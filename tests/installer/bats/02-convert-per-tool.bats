@@ -55,8 +55,8 @@ teardown_file() {
   grep -q "owns:" "$OUTDIR/claude-code/roles/full-agent/SKILL.md"
 }
 
-@test "claude-code: allowed_tools preserved in output" {
-  grep -q "allowed_tools:" "$OUTDIR/claude-code/roles/full-agent/SKILL.md"
+@test "claude-code: allowed-tools preserved in output" {
+  grep -q "allowed-tools:" "$OUTDIR/claude-code/roles/full-agent/SKILL.md"
 }
 
 @test "claude-code: with-references references/ copied alongside" {
@@ -87,8 +87,8 @@ teardown_file() {
   grep -q "description:" "$OUTDIR/copilot/full-agent.md"
 }
 
-@test "copilot: full-agent output does NOT contain allowed_tools" {
-  ! grep -q "allowed_tools:" "$OUTDIR/copilot/full-agent.md"
+@test "copilot: full-agent output does NOT contain allowed-tools (either spelling)" {
+  ! grep -qE "allowed[-_]tools:" "$OUTDIR/copilot/full-agent.md"
 }
 
 @test "copilot: full-agent output does NOT contain owns" {
@@ -96,7 +96,7 @@ teardown_file() {
 }
 
 @test "copilot: stderr warning emitted for stripped fields" {
-  grep -q "stripped allowed_tools/owns from full-agent" "$OUTDIR/.stderr.copilot"
+  grep -q "stripped allowed-tools/owns from full-agent" "$OUTDIR/.stderr.copilot"
 }
 
 @test "copilot: cc-only is skipped with stderr warning" {
@@ -276,6 +276,55 @@ teardown_file() {
 
 @test "qwen: with-references contains inline-bundled Reference: guide" {
   grep -q "## Reference: guide" "$OUTDIR/qwen/agents/with-references.md"
+}
+
+# ---------------------------------------------------------------------------
+# allowed-tools alias + dict-owns warning — regression for the
+# hyphen/underscore blind spot (MR-3): the canonical hyphen spelling must
+# reach every consumer, the deprecated underscore alias must keep working,
+# and a dict-valued `owns` alone must still trigger the copilot strip
+# warning (dicts have no scalar cache entry, so presence needs its own path).
+# ---------------------------------------------------------------------------
+
+@test "qwen/copilot: underscore alias still maps to tools; owns alone still warns" {
+  local mini out
+  mini="$(mktemp -d /tmp/ats-mini.XXXXXX)"
+  out="$(mktemp -d /tmp/ats-miniout.XXXXXX)"
+  mkdir -p "$mini/scripts/lib" "$mini/skills/roles/alias-agent" "$mini/skills/roles/owns-only-agent"
+  cp "$FAKEREPO/scripts/convert.sh" "$mini/scripts/convert.sh"
+  cp "$FAKEREPO/scripts/lib/"*.sh "$mini/scripts/lib/"
+  cat > "$mini/skills/roles/alias-agent/SKILL.md" <<'EOF'
+---
+name: alias-agent
+version: 1.0.0
+description: Apply alias-agent when testing that the deprecated allowed_tools underscore spelling still maps to the qwen tools field through the parser alias.
+allowed_tools:
+  - Read
+---
+
+## Overview
+
+Alias fixture body with enough words to stand on its own as a converted skill for the regression test.
+EOF
+  cat > "$mini/skills/roles/owns-only-agent/SKILL.md" <<'EOF'
+---
+name: owns-only-agent
+version: 1.0.0
+description: Apply owns-only-agent when testing that a dict-valued owns field with no allowed-tools still triggers the copilot strip warning.
+owns:
+  directories:
+    - somewhere/
+---
+
+## Overview
+
+Owns-only fixture body with enough words to stand on its own as a converted skill for the regression test.
+EOF
+  bash "$mini/scripts/convert.sh" --tool qwen --out "$out" 2>/dev/null
+  grep -q "^tools: Read" "$out/qwen/agents/alias-agent.md"
+  bash "$mini/scripts/convert.sh" --tool copilot --out "$out" 2>"$out/.stderr.copilot.mini"
+  grep -q "stripped allowed-tools/owns from owns-only-agent" "$out/.stderr.copilot.mini"
+  rm -rf "$mini" "$out"
 }
 
 # ---------------------------------------------------------------------------
