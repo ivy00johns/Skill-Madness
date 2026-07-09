@@ -173,6 +173,19 @@ Gate rules:
 - Blocked when: any CRITICAL blocker, `contract_conformance.score < 3`, `security.score < 3`
 - The orchestrator does NOT override the QE gate
 
+### Optional build loops — dispatch when the mission calls for them
+
+All four are `loop-controller` configs and `disable-model-invocation: true`: they run only when you dispatch them, and the **mission text** is the trigger — never a failing check on its own.
+
+| Mission signal | Dispatch | When |
+|---|---|---|
+| A component must *converge on its authored contract* (build-until-spec) rather than one-shot it | `contract-conformance-loop` | Wraps that component's build (Phases 8–13); its fresh-context contract-auditor verdict feeds this QA gate |
+| A test-coverage target is set ("≥80% on the backend") | `coverage-loop` | After the QA gate passes — grow the suite to the target without gaming the metric |
+| A performance budget is set (p95 latency, bundle size, load time) | `perf-loop` | After the QA gate passes — profile → optimize → re-benchmark under repeatable conditions, no functional regression |
+| The plan contains an enumerated wide-refactor / transform set ("migrate all N call sites / files") | `migration-loop` | Plan it as its own work stream at Phases 2–3 — one file per iteration until the set is empty and the suite is green |
+
+`fix-until-green` (the wave/QA fix cycle) and `orchestrator-task-loop` (the Agent Teams outer loop) are already wired into the phases above; these four are the mission-conditional ones.
+
 ## Phase 14: Post-Build
 
 1. Spawn docs-agent to write README.md — provide full-system context (architecture summary, how to run, directory map). Docs-agent owns README.md.

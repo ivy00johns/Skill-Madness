@@ -118,6 +118,26 @@ Common user requests → recommended skill. Use this as a fallback when SKILL.md
 | "build a knowledge brain from past observations" | `claude-mem:knowledge-agent` |
 | "timeline report of this project's history" | `claude-mem:timeline-report` |
 
+### Autonomous loops
+
+All loop skills are `disable-model-invocation: true` — name them, then the user dispatches by slash command (or the orchestrator dispatches the build loops). `loop-controller` is the front door when no concrete loop fits.
+
+| User says... | Use |
+|---|---|
+| "make the tests/lint/typecheck pass", "run until green", red CI | `fix-until-green` |
+| "keep my PR green / rebased / address review comments while I'm away" | `babysit` |
+| "build until the contract/spec criteria hold" | `contract-conformance-loop` |
+| "raise coverage to N%" | `coverage-loop` |
+| "get this benchmark under budget / keep optimizing until X" | `perf-loop` |
+| "watch the logs/CI and fix what breaks" | `self-healing-loop` |
+| "migrate/transform every file matching X" | `migration-loop` |
+| "keep the docs and changelog fresh overnight" | `nightly-docs-and-changelog` |
+| "keep dependencies current / audited" | `dependency-health-loop` |
+| "explore/map this codebase until my questions are answered" | `codebase-exploration-loop` |
+| "clean up stale branches/PRs/worktrees weekly" | `repo-cleanup-loop` |
+| "drain the Agent-Teams task board until every task passes" | `orchestrator-task-loop` |
+| "loop until…" (nothing above fits), "author a new loop", "loop safely" | `loop-controller` |
+
 ### Settings / harness
 
 | User says... | Use |

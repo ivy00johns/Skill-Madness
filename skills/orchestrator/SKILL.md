@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-version: 1.15.0
+version: 1.16.0
 description: |
   Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow" ask, it drives the implement + verify phases with the Workflow tool — fanning out role-agents against the contracts and adversarially verifying instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, or splitting work across Claude sessions. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
@@ -25,7 +25,8 @@ composes_with: [
   "claude-mem:mem-search", "claude-mem:timeline-report", "claude-mem:knowledge-agent",
   "skill-writer", "skill-review", "skill-update", "model-adaptation",
   "railway-deploy", "loop", "schedule",
-  "loop-controller", "fix-until-green", "orchestrator-task-loop"
+  "loop-controller", "fix-until-green", "orchestrator-task-loop",
+  "contract-conformance-loop", "coverage-loop", "perf-loop", "migration-loop"
 ]
 spawned_by: []
 ---
@@ -53,6 +54,7 @@ The orchestrator is the conductor — not the only player. It composes with thre
 - **DELEGATES diff/code review to the external `/code-review` CLI:** during a build, the Phase 4 diff review pass is the external `/code-review` CLI, NOT a spawned `code-review-agent`. The in-repo `code-review-agent` skill is not a default build phase — invoke it only deliberately for a standalone, repo-aware review. See `references/mission-interpretation.md`.
 - **DOES NOT preempt:** `brainstorming`, `plan-builder`, `writing-plans`, `claude-design-brief`, `ui-brief`, `feature-dev`, `claude-mem:*`. If any of these belong before the build starts, let them run first — orchestrator picks up from the artifacts they produce.
 - **RUNS the validation phases AS LOOPS (not one-shot checks):** the wave gate and the QA gate are convergence loops. `fix-until-green` is the contract for driving install/typecheck/test/QA red→green *without cheating the gate* — it is the QE inner loop and the wave-gate driver; `loop-controller` is the underlying harness (iterate → evaluate → guardrail → stop) whose no-progress/oscillation guardrail *is* the 3-failure circuit breaker and whose iteration/budget caps bound wave-gate retries. Both are `disable-model-invocation: true`: you **explicitly dispatch** them, they never auto-trigger because a test happened to fail. They shape *how* the validation phases iterate rather than being invoked at a single phase. Under native Agent Teams, `orchestrator-task-loop` drives the whole-task-list OUTER loop (drain the shared task list until every task is completed + passing its `TaskCompleted` gate, feeding idle workers via `TeammateIdle`), and each task's gate can be driven by a `fix-until-green` INNER loop (inner/outer composition). All three are `disable-model-invocation: true` — explicitly dispatched, never auto-triggered. See `skills/loops/`.
+- **DISPATCHES four more build loops when the mission calls for them:** `contract-conformance-loop` (a component must *converge on its authored contract* — build-until-spec, graded by a fresh-context evaluator — rather than one-shot it), `coverage-loop` (the mission sets a test-coverage target), `perf-loop` (the mission sets a performance budget), and `migration-loop` (the plan contains an enumerated wide-refactor / transform set). All four are `loop-controller` configs and `disable-model-invocation: true` — the **mission text** is their trigger, and you are their dispatcher; nothing fires on a failing check alone. The phase-by-phase dispatch table is in `references/phase-guide.md` (Phase 13's *Optional build loops*).
 
 <what-to-do>
 
