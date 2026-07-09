@@ -1,6 +1,6 @@
 # Completed Work — Tactical Archive
 
-**Last updated:** 2026-07-07
+**Last updated:** 2026-07-09
 **Companions:** [`docs/REMAINING-WORK.md`](REMAINING-WORK.md) (open ledger — the to-do list), [`PLAN.md`](../PLAN.md) (strategic roadmap + closure log)
 
 > **What this is.** The append-only tactical archive: every ledger item that reached
@@ -13,9 +13,19 @@
 > ID prefixes (stable, never reused): `RF` reference-file gaps · `TM` thinking-move
 > additions · `PR` process additions · `CL` cleanup · `FA` functional-audit findings ·
 > `SR` full-library review findings · `MT` model & effort tiering · `UF` user-feedback
-> findings.
+> findings · `RV` offline-window review findings · `MR` maxed-out-window review findings.
 
 ---
+
+## Closed 2026-07-09 — maxed-out-window review fixes (`MR-1`–`MR-4`) + nano-banana key resolution (`RV6`)
+
+The 2026-07-08 maxed-out-window review's four P1/P2 fix rows plus one earlier offline-window residual, shipped 2026-07-09 across PRs **#49** (nano-banana v1.4.0 key resolution → RV6), **#51** (loop dispatch wiring + intent→loop routing → MR-1/MR-2; orchestrator 1.15.0→1.16.0, loop-controller 1.1.1→1.2.0, skill-explorer 1.1.1→1.2.0), and **#52** (allowed-tools tooling blind spot + signing-safe fixture → MR-3/MR-4; qwen conversions carry `tools:` in 32/34 files where before 0, copilot fires 34 strip warnings where before 0, lint drops 10 false role WARNs, local suite 344/344 with commit-signing config present). Source: `[MWR]` / `[REV]`.
+
+- **RV6** `[done · P3]` — **nano-banana `.env` lookup order misdescribed.** `SKILL.md:45` documents process env → repo-root `.env` → skill-local `.env`, but `generate_image.py` breaks after the FIRST existing `.env` file, so the skill-local fallback is never read when a repo-root `.env` exists. Drop the per-file `break` (the per-key `os.environ` guard already preserves precedence) or fix the doc. *(Closed by PR #49's broader rewrite: the script now walks every ancestor of the resolved script dir + cwd nearest-first until the key is found, and SKILL.md v1.4.0 documents the real behavior.)*
+- **MR-1** `[done · P1]` — **Four build loops claim orchestrator parentage the orchestrator never honors.** `contract-conformance-loop`, `coverage-loop`, `perf-loop`, and `migration-loop` declare `spawned_by: ["orchestrator"]` and their bodies say "or have the orchestrator dispatch it", but zero mentions exist anywhere in `skills/orchestrator/` (SKILL.md + all 11 references) — unlike fix-until-green / loop-controller / orchestrator-task-loop, which are fully wired. Since `disable-model-invocation` hides them from model invocation, an orchestrated build following the playbook never reaches them. Add dispatch text where each earns its keep (contract-conformance at the QA gate, coverage/perf in post-build validation, migration in phase-guide decomposition — the inner-loop story `loop-controller` already tells). Observable change: an orchestrated build can actually dispatch its QE/perf/migration inner loops.
+- **MR-2** `[done · P1]` — **No intent→loop routing table backs the front-door promise.** `madness` routes loop intents to `loop-controller` claiming "(it picks the specific loop + primitive)", but loop-controller's contract picks only the *primitive*, and `skill-explorer/references/routing-table.md` — which madness leans on for the long tail — has zero rows for any of the 13 loops. With trigger descriptions hidden by `disable-model-invocation`, roughly two-thirds of the library triggers only if the user already knows the slash name ("keep my PR green" has no documented path to `babysit`). Add a 12-row intent→loop table to loop-controller + matching rows in routing-table.md. Observable change: front-door loop requests land on the right concrete loop without the user knowing its name.
+- **MR-3** `[done · P1]` — **The canonical `allowed-tools` frontmatter form is invisible to the shell tooling**, which reads only the deprecated `allowed_tools` alias (all 71 skills use the hyphen). Verified: `convert.sh:526`'s qwen `tools:` mapping is dead code (0 of 34 converted qwen files carry a whitelist); `convert.sh:244`'s copilot strip-warning never fires (field-name mismatch, plus `fm_has_field "owns"` always false — dicts never cached as scalars); `lint-skills.sh:461` false-WARNs all 10 role skills on every run; the README FAQ (~:680) + `scripts/README.md:61` document stderr that cannot occur. Pre-existing since PR #6 — the SR sweep rewrote code on both sides without catching it. Read hyphen-canonical (accept the underscore alias), then truth the docs. Observable change: qwen conversions keep their tool whitelists; lint stops false-warning the roles.
+- **MR-4** `[done · P2]` — **SR13's test fixture breaks under commit signing** — the only defect the maxed-out window actually introduced. `tests/installer/bats/05-lint-rules.bats:356` (`_mk_changed_fixture`) sets `user.email`/`user.name` but never `commit.gpgsign false`, so a global 1Password signing config fails `git commit` non-interactively and all 5 `lint --changed` tests (261–265) fail locally (338/343); all 5 pass with `GIT_CONFIG_GLOBAL=/dev/null`. CI unaffected. One-line fixture fix. Observable change: local bats reads 343/343 on signing-configured machines.
 
 ## Closed 2026-07-07 — plan-intake human-readability + over-build pass (`UF-1`)
 
