@@ -18,21 +18,57 @@ import sys
 import urllib.request
 import urllib.error
 
-# Load .env from the skills repo root (Skill-Madness/.env)
-# Walk up from scripts/ -> nano-banana/ -> workflows/ -> skills/ -> repo root
+# Resolve GEMINI_API_KEY from a .env if it isn't already exported.
+#
+# WHY THIS IS CAREFUL: this skill directory is usually a *symlink* into a separate
+# repo (e.g. ~/.claude/skills/nano-banana -> ~/Repos/.../Skill-Madness/.../nano-banana),
+# and the key lives in that repo's ROOT .env — OUTSIDE ~/.claude/skills. Path(__file__)
+# .resolve() follows the symlink, so we search from the REAL on-disk location. We then
+# walk every ancestor of both the resolved script dir and the current working directory
+# (plus ~/.env), so the key is found no matter how the repo is laid out. The nearest
+# .env that defines the key wins; we never overwrite a key already in the environment.
 _SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
-_REPO_ROOT = _SCRIPT_DIR.parent.parent.parent.parent
-for _candidate in [_REPO_ROOT / ".env", _SCRIPT_DIR.parent / ".env"]:
-    if _candidate.exists():
-        for line in _candidate.read_text().splitlines():
-            line = line.strip()
-            if line and not line.startswith("#") and "=" in line:
+
+
+def _candidate_env_files():
+    """Yield .env paths to search, nearest-first, de-duplicated."""
+    seen = set()
+    roots = [_SCRIPT_DIR]
+    try:
+        roots.append(pathlib.Path.cwd().resolve())
+    except OSError:
+        pass
+    for root in roots:
+        for directory in [root, *root.parents]:
+            candidate = directory / ".env"
+            if candidate not in seen:
+                seen.add(candidate)
+                yield candidate
+    home_env = pathlib.Path.home() / ".env"
+    if home_env not in seen:
+        yield home_env
+
+
+# Record where we looked so a genuine miss produces an actionable error (not a mystery).
+_SEARCHED_ENV_FILES = []
+if not os.environ.get("GEMINI_API_KEY"):
+    for _candidate in _candidate_env_files():
+        _SEARCHED_ENV_FILES.append(str(_candidate))
+        if not _candidate.exists():
+            continue
+        try:
+            for line in _candidate.read_text().splitlines():
+                line = line.strip()
+                if line.startswith("#") or "=" not in line:
+                    continue
                 key, _, value = line.partition("=")
-                key = key.strip()
-                value = value.strip().strip("\"'")
-                if key and key not in os.environ:
-                    os.environ[key] = value
-        break
+                if key.strip() == "GEMINI_API_KEY":
+                    os.environ["GEMINI_API_KEY"] = value.strip().strip("\"'")
+                    break
+        except OSError:
+            continue
+        if os.environ.get("GEMINI_API_KEY"):
+            break
 
 MODELS = {
     "standard": "gemini-2.5-flash-image",
@@ -57,7 +93,12 @@ def generate_image(prompt: str, output_path: str, aspect_ratio: str = "3:4",
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         print("Error: GEMINI_API_KEY environment variable is not set.", file=sys.stderr)
-        print("Get a key at https://aistudio.google.com/apikey", file=sys.stderr)
+        if _SEARCHED_ENV_FILES:
+            print("Searched these .env files (nearest-first) and found no GEMINI_API_KEY:", file=sys.stderr)
+            for path in _SEARCHED_ENV_FILES:
+                print(f"  - {path}", file=sys.stderr)
+        print("Add GEMINI_API_KEY=... to one of the above (or export it), or get a key at "
+              "https://aistudio.google.com/apikey", file=sys.stderr)
         sys.exit(1)
 
     model_id = MODELS.get(model_key, model_key)
