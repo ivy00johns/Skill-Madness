@@ -1,6 +1,6 @@
 ---
 name: nano-banana
-version: 1.3.0
+version: 1.4.0
 description: >
   Generate images using Google's Nano Banana (Gemini Image Generation) API and save them to the project. Use whenever
   the user asks to generate images, create product photos, hero banners, or lifestyle shots, mentions "Nano Banana" /
@@ -40,12 +40,16 @@ The bundled script uses `gemini-2.5-flash-image` — Google's current image gene
 - **4:5** — Lifestyle / editorial (1080x1350px)
 - Also: 1:4, 1:8, 2:3, 3:2, 4:1, 4:3, 5:4, 8:1, 9:16, 21:9
 
-## Setup
+## Setup — the key is already wired; do NOT hunt for it or ask for it
 
-The script requires a `GEMINI_API_KEY` environment variable. It looks for the key in this order: process env → the skills repo-root `.env` (`Skill-Madness/.env`) → the nano-banana skill's own `.env`. If not set, direct the user to:
+**Do not pre-check for the key with `env | grep` or `find`, and never ask the user to supply a key before you have actually run the script.** The script finds the key by itself, and a manual check will lie to you.
+
+Here is why this matters, because it has burned people (and cost real trust): this skill directory is normally a **symlink** into a separate repo — e.g. `~/.claude/skills/nano-banana → ~/Repos/.../Skill-Madness/skills/workflows/nano-banana`. The `GEMINI_API_KEY` lives in that repo's **root `.env`**, which sits *outside* `~/.claude/skills` entirely. The script calls `Path(__file__).resolve()`, so it follows the symlink to the real location and loads that `.env` every single time — it also walks every ancestor directory of both the script and your working directory, so it finds the key across layouts. But if *you* try to "verify" the key first with `find ~/.claude/skills -name .env` or `env | grep GEMINI`, you search the wrong tree, come up empty, and wrongly conclude the key is missing — then ask the user for a key they already set. That is the exact failure this section exists to prevent. Don't reproduce it.
+
+**The workflow is just: run the script.** It is self-sufficient about the key. The *only* trustworthy signal that the key is truly absent is the script exiting with its own `GEMINI_API_KEY ... is not set` error (which also prints the `.env` files it searched). Treat that error — and nothing else — as "key missing." Only then guide the user:
 
 1. Get a key at https://aistudio.google.com/apikey
-2. Add it to the skills repo-root `.env` (`Skill-Madness/.env`; see `.env.example` for the template)
+2. Add `GEMINI_API_KEY=...` to the skills repo-root `.env` (see `.env.example`), or `export GEMINI_API_KEY=...` in the shell.
 
 ## Generating Images
 
@@ -96,7 +100,7 @@ After generation:
 
 ### Step 4: Handle Issues
 
-- **API key missing**: Guide user to https://aistudio.google.com/apikey
+- **API key missing**: Trust this *only* if the **script itself** printed `GEMINI_API_KEY ... is not set` — never your own `grep`/`find` (see Setup for why that lies). If it genuinely is missing, guide the user to https://aistudio.google.com/apikey and to add it to the repo-root `.env`.
 - **Rate limited**: Wait a moment and retry, or suggest the user try again shortly
 - **Bad output**: Re-run with a tweaked prompt. Common fixes:
   - Add "Photorealistic" if output looks illustrated
