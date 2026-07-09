@@ -1,6 +1,6 @@
 ---
 name: loop-controller
-version: 1.1.1
+version: 1.2.0
 description: >-
   Wrap any task in a verifiable stop condition plus a mandatory guardrail stack
   so an autonomous loop converges instead of thrashing or burning the budget —
@@ -56,6 +56,31 @@ ever met.
 Everything else here — fix-until-green, coverage-loop, perf-loop — is a *config*
 of this harness: a specific proof plugged into the same machinery. Author new
 loops against this skill; don't reinvent the loop engine.
+
+## First — does a concrete loop already exist?
+
+Twelve configs of this harness already ship in `skills/loops/`. Route the intent
+to one of them before authoring anything — Steps 0–6 below are for the loop that
+*doesn't* exist yet. (Every one of these is `disable-model-invocation: true`:
+dispatch it by its slash command, or let the orchestrator dispatch the build
+loops. None auto-fires.)
+
+| The intent is… | Dispatch |
+|---|---|
+| "make tests / lint / typecheck pass", red CI, "run until green" | `fix-until-green` |
+| Drain a multi-agent build's shared task list until every task passes its gate (Agent Teams) | `orchestrator-task-loop` |
+| Build until an authored contract's criteria all hold (build-until-spec) | `contract-conformance-loop` |
+| "Keep my PR green / rebased / answer review comments while I'm away" | `babysit` |
+| "Raise test coverage to N%" | `coverage-loop` |
+| "Get this metric under its budget" (latency, bundle size, memory) | `perf-loop` |
+| "Watch the logs / CI and fix what breaks" | `self-healing-loop` |
+| "Migrate / transform every file in this enumerated set" | `migration-loop` |
+| "Keep the docs + changelog from rotting" (nightly) | `nightly-docs-and-changelog` |
+| "Keep dependencies current and audited" | `dependency-health-loop` |
+| "Map this unfamiliar codebase until my questions are answered" | `codebase-exploration-loop` |
+| "Weekly repo hygiene — stale branches, PRs, worktrees" | `repo-cleanup-loop` |
+
+No row fits → continue below and author the new loop against this harness.
 
 ## Step 0 — Should this even be a loop?
 
@@ -302,11 +327,13 @@ contract* and inherit the machinery:
   The authoring walkthrough (with the loop taxonomy and a frontmatter template)
   is `references/authoring.md`.
 
-Under the **orchestrator**, loops slot in at two levels: an inner loop per role
-(QE runs fix-until-green; performance runs profile-optimize-reprofile) and an
-outer loop over the shared task list (re-assign until every task passes its
-gate). That orchestrator wiring is a separate, later skill — this foundation is
-what it will build on.
+Under the **orchestrator**, loops slot in at two levels — and both are built:
+`orchestrator-task-loop` is the outer loop over the shared task list (re-assign
+until every task passes its gate), while the inner loops run per role —
+`fix-until-green` at the wave/QA gates, and `contract-conformance-loop` /
+`coverage-loop` / `perf-loop` / `migration-loop` dispatched when the mission
+calls for them (see the orchestrator's `references/phase-guide.md`, *Optional
+build loops*).
 
 ## Reference files
 
