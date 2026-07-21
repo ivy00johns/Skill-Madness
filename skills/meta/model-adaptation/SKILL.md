@@ -1,8 +1,8 @@
 ---
 name: model-adaptation
-version: 1.2.0
+version: 1.3.0
 description: |
-  Adapt prompts, skills, and agent scaffolding when the underlying Claude model changes — currently the Claude 5 family (Fable 5 + Mythos 5) versus Opus 4.x. Stronger models need LESS scaffolding: this skill says what to PRUNE, what now backfires (narrating reasoning in the response trips a reasoning_extraction refusal), and what to add for long autonomous runs. Also the canonical home of the model & effort tiering policy: which model tier and effort level each task class gets (Anthropic ladder by default; never cross-vendor; FreeLLMAPI carve-out). Use when migrating a skill to a new model, when a skill "worked before and got worse", when agents get refused or fall back to Opus, or when picking model/effort per role, stage, or loop. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "model migration", "reasoning_extraction", "prune the prompt", "tune effort", "model tiering", "which model for which task", "tier down", "cut token costs", "cheaper model for bulk work", "long-running agent hygiene".
+  Adapt prompts, skills, and agent scaffolding when the underlying Claude model changes — currently the Claude 5 family (Fable 5 + Mythos 5) versus Opus 4.x. Stronger models need LESS scaffolding: this skill says what to PRUNE, what now backfires (narrating reasoning in the response trips a reasoning_extraction refusal), and what to add for long autonomous runs. Also the canonical home of the model & effort tiering policy (Anthropic ladder; never cross-vendor; FreeLLMAPI carve-out) and of the capability-handoff technique — extract an operating manual from a stronger model to run on a cheaper one. Use when migrating a skill to a new model, a skill "worked before and got worse", agents get refused or fall back to Opus, or picking model/effort per role or loop. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "model migration", "reasoning_extraction", "tune effort", "model tiering", "long-running agent hygiene", "fable handoff", "extract operating manual", "model leaving plan".
 requires_claude_code: false
 min_plan: starter
 compatibility: "Claude Code or Claude.ai; reference/advisory skill. No special tools required — WebFetch is optional, only to re-pull the live Anthropic guide."
@@ -192,6 +192,19 @@ billing-surface table, provider-relative instantiation, and the per-consumer
 wiring live in **`references/model-effort-tiering.md`** — like the *Current
 landscape* table above, its model and pricing facts age; update both when a new
 model ships.
+
+## Capability handoff (extract an operating manual)
+
+When a stronger model is leaving the plan — or you want a cheaper model to run
+with a stronger model's discipline — extract an **operating manual of working
+procedures** from the strong model and run it as the cheap model's system
+prompt. The mechanic is real but bounded: a manual ports *discipline*, not
+*capability* — the prompt-level cousin of the optimizer/target split above.
+The hardened extractor (`scripts/extract_operating_manual.py`), an
+already-extracted manual (`references/operating-manual.md`, reusable as-is —
+on-demand only, never injected into Claude Code sessions), the three
+refusal/continuation/framing hardenings, and the corrected cost note live in
+**`references/capability-handoff.md`**.
 
 ## The refusal landmine (read this even if you read nothing else)
 
