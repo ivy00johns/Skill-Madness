@@ -89,7 +89,7 @@ Read `SKILL.md` and every file in `references/`. Score these dimensions against 
 4. **Instruction clarity** — imperative voice, logical flow, no ambiguity, explains "why" not just "what"
 5. **Coordination** — ownership declarations, `composes_with` accuracy, no overlaps
 6. **Completeness** — referenced files exist, no dead links, validation checklists where needed
-7. **Anti-patterns** — see the anti-pattern checklist in `references/audit-checklist.md`, including the model-adaptation checks (reasoning-extraction refusal risk, prior-model over-prescription) that flag a skill written for a superseded model. When a skill scores poorly there or "worked before and got worse," hand off to the `model-adaptation` skill's migration audit.
+7. **Anti-patterns** — see the anti-pattern checklist in `references/audit-checklist.md`, including the model-adaptation checks (reasoning-extraction refusal risk, prior-model over-prescription) that flag a skill written for a superseded model, and the writing-craft checks (leading-word anchor, no-op-sentence deletion, positive-prompting lint). When a skill scores poorly there or "worked before and got worse," hand off to the `model-adaptation` skill's migration audit.
 
 #### B2. Live Trigger Testing
 
