@@ -110,8 +110,8 @@ def extract_handover():
         model=HEIR, system=manual, messages=[{"role": "user", "content": "x"}]
     ).input_tokens
     print(f"Saved {len(manual):,} chars (~{tokens:,} tokens as an Opus 4.8 system prompt) to {HANDOVER_PATH}")
-    if tokens < 4096:
-        print("Note: below Opus 4.8's 4,096-token prompt-cache minimum — it rides uncached (fine at this size).")
+    if tokens < 1024:
+        print("Note: below Opus 4.8's 1,024-token prompt-cache minimum — it rides uncached (fine at this size).")
     return manual
 
 

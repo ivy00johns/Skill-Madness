@@ -48,18 +48,25 @@ bills per token regardless of any subscription plan — "free inside your plan"
 applies only to claude.ai / Claude Code sessions. Fable 5 API access also
 requires the org to allow 30-day data retention.
 
-## Unverified claims (flagged, not asserted)
+## API claims — verified 2026-07-21 against live platform.claude.com docs
 
-Three API details baked into the script were reviewed as plausible but not
-confirmed against current docs — verify before relying on them:
+Three API details baked into the script were originally unconfirmed; all three
+are now resolved:
 
-1. `thinking: {"type": "adaptive"}` being accepted by Opus 4.8 (it may be
-   Claude-5-family-only).
-2. The `stop_details.category` / `stop_details.explanation` response shape on
-   refusals.
-3. The 4,096-token prompt-cache minimum the script's size note cites.
-
-If one turns out wrong, the script degrades loudly (an API 400), not silently.
+1. **`thinking: {"type": "adaptive"}` on Opus 4.8 — confirmed.** It is the
+   *only* supported thinking mode there (manual budgets 400); thinking is OFF
+   unless explicitly sent, unlike the Claude 5 family where it's always on.
+2. **`stop_details` shape — confirmed** as `{type, category, explanation}`, a
+   sibling of the string `stop_reason`, null for every stop reason except
+   `"refusal"` — and it can be null even on a refusal (batch results), so
+   branch on `stop_reason`, never on `stop_details`. The script already does
+   both. `category` ∈ cyber / bio / frontier_llm / reasoning_extraction / null;
+   `explanation` is human-readable and unstable — display, don't parse.
+3. **The prompt-cache minimum is model-dependent, not a flat 4,096**: 512
+   (Fable 5 / Mythos 5), **1,024 (Opus 4.8**, Sonnet 5), 2,048 (Opus 4.7,
+   Haiku 3.5), 4,096 (Opus 4.6/4.5, Haiku 4.5). The script's size note was
+   corrected to 1,024. (The bundled `claude-api` skill's cached table disagrees
+   with the live page here — flag for that skill's next refresh.)
 
 ## Portability note
 
