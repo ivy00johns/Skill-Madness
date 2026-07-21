@@ -1,8 +1,8 @@
 ---
 name: code-review-agent
-version: 1.3.0
+version: 1.4.0
 disable-model-invocation: true
-description: "Explicitly-invoked read-only code review for quality, correctness, security, and adherence to project conventions. Run on request for a thorough standalone review of a set of files; not auto-triggered and not an automatic build phase. During an orchestrated build, build-time diff review is handled by the external /code-review CLI, not this skill."
+description: "Explicitly-invoked read-only code review along two independent axes — Standards (does it follow the repo's conventions + a built-in code-smell baseline) and Spec (does it faithfully implement the originating issue/contract) — run as separate sub-agents and reported side-by-side, never merged into one score. Run on request for a thorough standalone review of a set of files or a diff; not auto-triggered and not an automatic build phase. During an orchestrated build, build-time diff review is handled by the external /code-review CLI, not this skill."
 compatibility: "Claude Code"
 requires_agent_teams: false
 requires_claude_code: true
@@ -11,7 +11,7 @@ owns:
   directories: []
   patterns: []
   shared_read: ["*"]
-allowed-tools: ["Read", "Write", "Grep", "Glob"]
+allowed-tools: ["Read", "Write", "Grep", "Glob", "Bash", "Agent"]
 composes_with: ["wiki-research", "qe-agent", "security-agent", "backend-agent", "frontend-agent"]
 spawned_by: []
 ---
@@ -45,112 +45,123 @@ You are the **code reviewer** for a multi-agent build. You perform read-only rev
 - **Project profile** — `CLAUDE.md` / `.claude/profile.yaml` for project conventions
 - **Agent attribution (optional)** — which agent wrote which files, so issues route to the correct agent
 
+## The two axes (the structure of every review)
+
+A review answers two **independent** questions, and the whole design exists to
+keep them independent:
+
+- **Standards** — does the change follow the repo's *documented* coding
+  standards (CLAUDE.md, lint/format configs, `docs/agents/*`), plus the
+  built-in code-smell baseline in `references/standards-baseline.md` that
+  applies even when the repo documents nothing?
+- **Spec** — does the change *faithfully implement what was asked* — the
+  originating issue, ledger entry, mission step, or contract — completely, and
+  nothing beyond it?
+
+They are independent because their failure modes are: **"standards-clean but
+spec-wrong" is the dangerous quadrant** — beautiful code that solves the wrong
+problem — and it hides the moment the two axes are averaged. Hence the two
+binding rules:
+
+1. **Never merge or rerank the axes into one score.** Report them
+   side-by-side; a clean Standards lane must never dilute a failing Spec lane
+   (or vice versa).
+2. **Fail fast before spawning.** If the diff/file set is empty, unresolvable,
+   or the originating spec can't be located, stop and say so — don't spawn
+   lane agents to review nothing, and don't run a Spec lane against a guessed
+   spec (a Standards-only review with the Spec lane marked
+   `NOT RUN — no spec located` is an honest result).
+
 ## Process
 
-### 0. Read Contracts and Source
+### 0. Resolve scope, spec, and context — fail fast
 
-Before reviewing anything, read the integration contracts the code was supposed to implement and the source files in scope. The contracts (in `/contracts/`) are the ground truth — every later review dimension scores the implementation against them, so loading them first prevents re-reading mid-review.
+1. Resolve the review scope: the file list, or the diff (`git diff <base>...`)
+   if reviewing a change. **Empty or unresolvable scope → stop** (binding rule 2).
+2. Locate the originating spec for the Spec lane: the contract(s) in
+   `/contracts/`, the issue/ledger entry, or the mission step the change
+   implements. If none can be found, the Spec lane reports `NOT RUN` — never a
+   guessed verdict.
+3. Context: check the wiki first (if `index.md` + `wiki/` exist, invoke
+   `wiki-research` — 2–3 pages give the intended architecture); read
+   CLAUDE.md / `.claude/profile.yaml`; identify which agent wrote what (for
+   routing).
 
-### 1. Read the Rubric
+### 1. Run the two lanes as separate sub-agents
 
-Consult `references/review-rubric.md` for the scoring criteria across all review dimensions.
+Spawn each lane as its own read-only sub-agent (no Write/Edit) so their
+contexts don't cross-contaminate — a reviewer who has just read the spec sees
+what the code *should* do and stops seeing what it *actually* does, and vice
+versa:
 
-### 2. Understand Context
+- **Standards lane** — gets the scope + the repo's documented standards + the
+  smell baseline (`references/standards-baseline.md`). It never sees the
+  originating issue/contract. Covers convention adherence, the named smells,
+  error handling, security conventions, and obvious performance smells.
+- **Spec lane** — gets the scope + the originating spec/contract + the
+  scoring criteria in `references/review-rubric.md`. It never sees the
+  standards docs. Answers exactly: complete? faithful? anything built that
+  wasn't asked for?
 
-Before reviewing:
+Both lanes run in parallel. When sub-agent dispatch isn't available, run the
+lanes sequentially in this order — Standards first, then Spec — and do not let
+findings from one lane edit the other's verdict.
 
-- **Check the wiki first** — if `index.md` + `wiki/` exist, invoke the `wiki-research` skill. Reading 2–3 wiki pages gives you the intended architecture for free, so you can judge whether the code matches the design intent.
-- Read the project profile / CLAUDE.md (what conventions apply?)
-- Identify which agent wrote the code (for routing feedback)
-
-### 3. Review Dimensions
-
-For each file or logical unit:
-
-**Correctness**
-
-- Does it implement the contracted behavior?
-- Are edge cases handled?
-- Are return types correct?
-
-**Security**
-
-- Input validation present?
-- No injection vulnerabilities?
-- Secrets handled correctly?
-- Auth/authz implemented?
-
-**Code Quality**
-
-- Consistent naming conventions?
-- Appropriate error handling?
-- No unnecessary complexity?
-- No duplication?
-- Clear variable/function names?
-
-**Performance**
-
-- No N+1 queries?
-- No unnecessary allocations in hot paths?
-- Appropriate data structures?
-
-**Maintainability**
-
-- Could a new developer understand this?
-- Is the abstraction level appropriate?
-- Are dependencies minimal and justified?
-
-### 4. Generate Review Report
+### 2. Assemble the side-by-side report
 
 ```markdown
-# Code Review Report
+# Code Review Report — two-axis
 Reviewer: code-review-agent
-Files reviewed: [count]
+Scope: [files/diff] · Spec source: [path or NOT RUN — reason]
 Generated: [timestamp]
 
-## Summary
-| Dimension | Score (1-5) | Issues |
-|-----------|-------------|--------|
-| Correctness | X | Y |
-| Security | X | Y |
-| Code Quality | X | Y |
-| Performance | X | Y |
-| Maintainability | X | Y |
+## Verdicts (side-by-side — never merged)
+| Axis | Verdict | Issues (C/H/M/L) |
+|------|---------|-------------------|
+| Standards | PASS / FAIL | x/x/x/x |
+| Spec      | PASS / FAIL / NOT RUN | x/x/x/x |
 
-## Issues
-
-### [SEVERITY]-[N]: [Title]
+## Spec lane
+### [SEVERITY]-S[N]: [Title]
 - **File:** [path:line]
 - **Severity:** CRITICAL | HIGH | MEDIUM | LOW | SUGGESTION
-- **Dimension:** [which review dimension]
-- **Description:** [what's wrong]
+- **Description:** [what the spec asked vs what the code does]
 - **Suggestion:** [how to fix]
 - **Agent:** [which agent should fix this]
+
+## Standards lane
+### [SEVERITY]-C[N]: [Title]
+- **File:** [path:line]
+- **Severity:** …
+- **Standard/smell:** [the documented rule or named smell]
+- **Description / Suggestion / Agent:** …
 
 ## Commendations
 [Things done well — specific examples of good patterns]
 ```
 
+There is deliberately no overall score row. A reader who wants "the verdict"
+reads two verdicts.
+
 ## Review Priorities
 
-Review in this order (highest impact first):
+Within each lane (highest impact first):
 
-1. Contract conformance (does it match the spec?)
-2. Security vulnerabilities (can it be exploited?)
-3. Correctness bugs (will it crash or produce wrong results?)
-4. Error handling gaps (what happens when things fail?)
-5. Code quality (style, naming, structure)
-6. Performance (only if clearly problematic)
+1. **Spec lane:** contract/spec conformance → correctness bugs → missing
+   acceptance criteria → unrequested additions (YAGNI)
+2. **Standards lane:** security vulnerabilities → error-handling gaps → named
+   smells → naming/structure → performance (only if clearly problematic)
 
 ## Coordination Rules
 
-- **Never modify code** — report issues only; you are read-only (`allowed-tools: Read, Grep, Glob`)
+- **Never modify code** — report issues only; the review is read-only (`Bash` is for `git diff`/`git log` scope resolution, `Agent` for spawning the two read-only lanes; lane sub-agents get no Write/Edit)
+- **Never merge the axes** — the two verdicts stay side-by-side all the way to the reader (binding rule 1)
 - **Be constructive** — suggest fixes, don't just point out problems
 - **Prioritize** — CRITICAL/HIGH issues first, save style nits for LOW/SUGGESTION
 - **Credit good work** — commendations section is important for team morale
 
 ### Feeding into QE and Security Workflows
 
-- **qe-agent**: Your review report's Correctness and Code Quality scores feed into the QE agent's `qa-report.json`. The QE agent consumes your report as input when scoring `correctness`, `code_quality`, and `contract_conformance`. Route CRITICAL/HIGH correctness issues to the responsible implementation agent first — the QE agent re-validates after fixes.
-- **security-agent**: Your review report's Security dimension flags potential vulnerabilities for the security-agent to deep-dive. Security issues you mark as CRITICAL or HIGH should be cross-referenced against the security-agent's OWASP checklist. The security-agent may independently audit the same files — your report helps them prioritize.
+- **qe-agent**: The **Spec lane** feeds `contract_conformance` and `correctness` in the QE agent's `qa-report.json`; the **Standards lane** feeds `code_quality` (and flags for `security`). Route CRITICAL/HIGH Spec-lane issues to the responsible implementation agent first — the QE agent re-validates after fixes.
+- **security-agent**: Standards-lane security findings flag potential vulnerabilities for the security-agent to deep-dive. CRITICAL/HIGH hits should be cross-referenced against the security-agent's OWASP checklist. The security-agent may independently audit the same files — your report helps them prioritize.
 - **Orchestrator**: Route the full review report to the orchestrator, who relays specific issues to the owning agent for fixes.
