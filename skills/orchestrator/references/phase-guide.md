@@ -186,6 +186,8 @@ All four are `loop-controller` configs and `disable-model-invocation: true`: the
 
 `fix-until-green` (the wave/QA fix cycle) and `orchestrator-task-loop` (the Agent Teams outer loop) are already wired into the phases above; these four are the mission-conditional ones.
 
+**Decomposing a wide-blast-radius refactor (expand–contract).** When one mechanical change would break thousands of call sites at once (rename a column, retype a shared symbol), don't plan it as a single vertical slice — decompose it into `migration-loop`'s **expand → migrate → contract** mode: land the new form beside the old (nothing breaks), migrate call sites in blast-radius-sized batches (each green because the old form still exists), then delete the old form once no caller remains. Plan the three stages as ordered tasks with the expand as a blocking dependency of every migrate batch; when batches can't stay green alone, fall back to a shared integration branch. See `migration-loop` § *Expand–contract mode*.
+
 ## Phase 14: Post-Build
 
 1. Spawn docs-agent to write README.md — provide full-system context (architecture summary, how to run, directory map). Docs-agent owns README.md.

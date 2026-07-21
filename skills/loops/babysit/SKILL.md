@@ -1,6 +1,6 @@
 ---
 name: babysit
-version: 1.0.0
+version: 1.1.0
 description: >-
   Keep one of your open PRs healthy on a schedule: poll for new review activity,
   auto-address bot/Copilot nits and routine rebases, re-run the project gate, and
@@ -140,6 +140,27 @@ clean, reversible change and re-checked the PR) is provable from `gh` output, so
 pass can run under auto mode unattended within the HITL boundary above. The loop
 as a whole has **no `/goal` finish line** — it watches until you stop it or a stop
 condition fires.
+
+## Long-run hygiene (wired per loop-controller Step 6)
+
+This loop runs unattended for days, so the Claude 5 long-run rules are part of
+its contract, not inherited ambience (drop-in text: `model-adaptation` →
+`references/long-run-hygiene.md`):
+
+- **Evidence-backed progress** — every per-pass report line (finding addressed,
+  rebase done, gate green) traces to a tool result from *that pass*: the `gh`
+  query output, the gate's exit code, the push result. Never narrate a fix the
+  re-fetch didn't confirm.
+- **Don't end a pass on a promise** — a pass ends with the change made and the
+  whole PR state re-checked, or at an explicit HITL stop; never with "I'll
+  rebase next pass" and no action. The autonomous-operation reminder applies
+  while the user is away — the HITL checkpoints above are the only sanctioned
+  pauses.
+- **Budget is a harness decision** — the cost ceiling reads from externalized
+  state (`.claude/profile.yaml`); don't surface a remaining-token countdown to
+  the working pass, and never summarize-and-quit on a phantom context worry.
+- **Effort per pass** — routine nit/rebase passes run at `medium`/`high`;
+  reserve `xhigh` for a genuinely hard finding (tiering: `model-adaptation`).
 
 ## Reference files
 
