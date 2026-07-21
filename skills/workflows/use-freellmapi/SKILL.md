@@ -1,8 +1,8 @@
 ---
 name: use-freellmapi
-version: 1.1.1
+version: 1.2.0
 description: |
-  Wire any project to FreeLLMAPI — a local OpenAI-compatible proxy that aggregates 19 free LLM provider
+  Wire any project to FreeLLMAPI — a local OpenAI-compatible proxy that aggregates ~20 free LLM provider
   tiers (~1.7B+ tokens/month) behind one endpoint — so you can prototype without paying for API calls.
   Use when a user wants to switch a project off paid OpenAI/Anthropic/etc. onto free models, point an app
   at a local LLM proxy, cut their LLM bill for prototyping, or stand up FreeLLMAPI itself. Detects the
@@ -25,12 +25,12 @@ spawned_by: []
 
 # use-freellmapi
 
-Point a project at **FreeLLMAPI** — a local proxy that aggregates the free tiers of 19 LLM providers
-(Google, Groq, Cerebras, Mistral, OpenRouter, GitHub Models, Cohere, Cloudflare, HuggingFace, Z.ai,
-Ollama Cloud, NVIDIA, Kilo, Pollinations, LLM7, OpenCode Zen, OVH, Agnes AI, Reka) behind a single
-OpenAI-compatible endpoint. A router picks the best available model per request and fails over when one
-is rate-limited. The payoff: prototype against real models for free, with zero code changes beyond a
-base URL and a key.
+Point a project at **FreeLLMAPI** — a local proxy that aggregates the free tiers of ~20 LLM providers
+(Google, Groq, Cerebras, NVIDIA, Mistral, OpenRouter, GitHub Models, Cohere, Cloudflare, HuggingFace,
+Z.ai, Ollama, Kilo, Pollinations, LLM7, OVH, OpenCode Zen, AI Horde, and more — the exact roster shifts
+as providers come and go and the model catalog self-updates) behind a single OpenAI-compatible endpoint.
+A router picks the best available model per request and fails over when one is rate-limited. The payoff:
+prototype against real models for free, with zero code changes beyond a base URL and a key.
 
 > **Tiering note:** a FreeLLMAPI project is the toolkit's one sanctioned multi-provider setup. The
 > model & effort tiering policy (`model-adaptation`, *Model & effort tiering*) is provider-relative —
@@ -55,9 +55,9 @@ key as the `x-api-key`). Everything past this point is about doing the swap *cle
 verified* — not about anything exotic.
 
 > Read `references/capabilities.md` for the exact supported surface (endpoints, the two virtual models
-> `auto` and `fusion`, embeddings families, vision/tools) and the short list of things FreeLLMAPI does
-> **not** do yet (image generation, audio, legacy `/v1/completions`, moderation, `n > 1`). Check it
-> before promising a capability.
+> `auto` and `fusion`, embeddings families, vision, tools, structured outputs, image generation + TTS,
+> the `/mcp` server, the opt-in response cache) and the short list of things it still does **not** do
+> (legacy `/v1/completions`, moderation, `n > 1`). Check it before promising a capability.
 
 ## Workflow
 
@@ -201,14 +201,16 @@ Tell the user, briefly: how to flip back (uncomment the original `.env` block), 
 (`http://localhost:3001` — manage keys, reorder the fallback chain or save named **routing profiles**
 that auto-sort by intelligence/speed/budget, watch analytics, use the playground), what `model:"auto"`
 does, that `model:"fusion"` blends a panel of models for a quality bump on hard prompts, and the
-relevant **not-supported** caveats from `references/capabilities.md` if their project uses image
-generation, audio, legacy completions, moderation, or `n > 1` (those won't route — they'll need the
-real provider for those calls).
+relevant **not-supported** caveats from `references/capabilities.md` if their project uses legacy
+completions, moderation, or `n > 1` (those won't route — they'll need the real provider for those
+calls). Image generation and text-to-speech now *do* route on current releases (a media-capable
+provider must be enabled on the dashboard).
 
 ## References
 
 - **`references/recipes.md`** — per-framework, copy-paste env-toggle wiring. Read the one section that
   matches the detected stack; ignore the rest.
 - **`references/capabilities.md`** — exact supported surface (chat, streaming, tools, vision,
-  embeddings + their families, the Responses API shim), plus the not-supported list and gotchas
-  (sticky sessions, fresh-install-has-no-keys, anonymous providers, the `X-Routed-Via` header).
+  structured outputs, embeddings + their families, the Responses API shim, image/audio media, the
+  `/mcp` server, the opt-in response cache), plus the not-supported list and gotchas (sticky sessions,
+  fresh-install-has-no-keys, anonymous providers, the `X-Routed-Via` / `X-Fallback-Trail` headers).

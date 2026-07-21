@@ -72,10 +72,12 @@ if not os.environ.get("GEMINI_API_KEY"):
 
 MODELS = {
     "standard": "gemini-2.5-flash-image",
-    # Flash and Pro model IDs are placeholders for future Google releases.
-    # As of 2026-03, only "standard" is confirmed working.
-    "flash": "gemini-2.5-flash-image",  # fallback to standard until a faster tier ships
-    "pro": "gemini-2.5-flash-image",    # fallback to standard until a pro tier ships
+    "flash": "gemini-2.5-flash-image",  # fallback to standard until a faster 2.5 tier ships
+    # Nano Banana Pro (Gemini 3 Pro Image), released 2025-11-20: SOTA text rendering,
+    # stronger prompt adherence, and native image editing (accepts input images).
+    # Same generativelanguage generateContent endpoint as 2.5 Flash.
+    "pro": "gemini-3-pro-image-preview",
+    "nano-banana-pro": "gemini-3-pro-image-preview",
 }
 
 VALID_ASPECT_RATIOS = [
@@ -86,9 +88,31 @@ VALID_ASPECT_RATIOS = [
 VALID_RESOLUTIONS = ["512", "1K", "2K", "4K"]
 
 
+def _image_part(path: str) -> dict:
+    """Build an inlineData part from a local image, sniffing mime by CONTENT.
+
+    Content-sniffing matters: this pipeline saves JPEG bytes into .png filenames,
+    so trusting the extension would mislabel the mime and the API would reject it.
+    """
+    data = pathlib.Path(path).read_bytes()
+    if data[:3] == b"\xff\xd8\xff":
+        mime = "image/jpeg"
+    elif data[:8] == b"\x89PNG\r\n\x1a\n":
+        mime = "image/png"
+    else:
+        mime = "image/jpeg" if pathlib.Path(path).suffix.lower() in (".jpg", ".jpeg") else "image/png"
+    return {"inlineData": {"mimeType": mime, "data": base64.b64encode(data).decode("ascii")}}
+
+
 def generate_image(prompt: str, output_path: str, aspect_ratio: str = "3:4",
-                   model_key: str = "standard", resolution: str = "2K") -> dict:
-    """Call Nano Banana API and save the resulting image."""
+                   model_key: str = "standard", resolution: str = "2K",
+                   input_images: list | None = None) -> dict:
+    """Call Nano Banana API and save the resulting image.
+
+    If input_images is given, they are sent as inlineData parts before the text
+    prompt (image editing / composition) — only image-capable models (e.g. pro /
+    nano-banana-pro = Gemini 3 Pro Image) honor them.
+    """
 
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
@@ -107,12 +131,13 @@ def generate_image(prompt: str, output_path: str, aspect_ratio: str = "3:4",
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent"
 
+    parts = [_image_part(p) for p in (input_images or [])]
+    parts.append({"text": prompt})
+
     payload = {
         "contents": [
             {
-                "parts": [
-                    {"text": prompt}
-                ]
+                "parts": parts
             }
         ],
         "generationConfig": {
@@ -209,11 +234,14 @@ def main():
     parser.add_argument("--output", required=True, help="Output file path (e.g., public/images/products/monk.jpg)")
     parser.add_argument("--aspect-ratio", default="3:4", help=f"Aspect ratio. Valid: {VALID_ASPECT_RATIOS}")
     parser.add_argument("--model", default="standard", choices=list(MODELS.keys()),
-                        help="Model tier: standard (2.5 Flash), flash (3.1 Flash), pro (3 Pro)")
+                        help="Model: standard/flash (Gemini 2.5 Flash Image), pro/nano-banana-pro (Gemini 3 Pro Image)")
     parser.add_argument("--resolution", default="2K", choices=VALID_RESOLUTIONS, help="Output resolution")
+    parser.add_argument("--input-image", action="append", dest="input_images", default=None,
+                        help="Input image to edit/compose from (repeatable). Only image-capable models "
+                             "(pro / nano-banana-pro) use them; ignored by 2.5 Flash.")
 
     args = parser.parse_args()
-    generate_image(args.prompt, args.output, args.aspect_ratio, args.model, args.resolution)
+    generate_image(args.prompt, args.output, args.aspect_ratio, args.model, args.resolution, args.input_images)
 
 
 if __name__ == "__main__":

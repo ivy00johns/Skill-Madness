@@ -11,6 +11,9 @@ list, those specific calls won't route through the proxy and still need the real
 | `POST /v1/chat/completions` | The main surface. Streaming + non-streaming. |
 | `POST /v1/responses` | OpenAI **Responses API** shim (the wire format current Codex CLI needs), translated over the same router. Image *input* not supported here yet — use chat completions for vision. |
 | `POST /v1/embeddings` | Family-based routing (see below). |
+| `POST /v1/images/generations` | Image generation — routes to providers serving media models (see **Media** below). Enable one on the dashboard's **Models → Image** tab first. |
+| `POST /v1/audio/speech` | Text-to-speech — same routing, dashboard **Models → Audio** tab. |
+| `POST /mcp` | **Model Context Protocol** (Streamable HTTP). MCP-capable agents can ask the router which models are usable right now (with per-model `supported_parameters`), check provider/key health + cooldowns, read usage/cache stats, and switch routing strategy mid-session. |
 | `GET  /v1/models` | Lists available models. |
 | `GET  /api/ping` | Unauthenticated liveness — `{"status":"ok"}`. Use this to detect "is it running". |
 
@@ -24,8 +27,9 @@ email+password session and are not what apps talk to.
   that's under its rate caps, then **fails over** to the next in the fallback chain on a 429/5xx/timeout
   (up to ~20 attempts). You can also pin a specific id like `gemini-2.5-flash`.
 - **`X-Routed-Via: <platform>/<model>`** response header tells you which provider actually served the
-  call; `X-Fallback-Attempts: N` appears if it fell over between providers. Great for debugging "why is
-  this answer weird" — check which model you actually got.
+  call; `X-Fallback-Attempts: N` appears if it fell over between providers, and `X-Fallback-Trail`
+  carries the ordered list of what was tried. Great for debugging "why is this answer weird" — check
+  which model you actually got. On exhaustion, the error body carries the same full attempt trail.
 - **Sticky sessions:** a multi-turn conversation keeps hitting the same model for 30 minutes (avoids
   the hallucination spike from mid-conversation model switches). Agent harnesses that manage their own
   conversation ids can pin affinity with an `X-Session-Id` header.
@@ -79,6 +83,18 @@ Google's `functionDeclarations` shape and back. Works with `stream: true`. A Gem
 tool named `google_search` (aliases `googlesearch` / `google_search_retrieval`) and the proxy maps it to
 Gemini's native Google Search grounding, so a Gemini route can answer with fresh web results.
 
+## Structured outputs & sampling params
+
+`response_format` passes through — both `json_object` and full `json_schema` (schema-constrained
+output, translated to Gemini's native `responseSchema` on Gemini routes). Extended sampling params ride
+along too: `seed`, `top_k`, `min_p`, presence/frequency/repetition penalties, `logit_bias`, `logprobs`,
+and the `max_completion_tokens` alias. Params a given provider is known to reject are **dropped
+per-platform** rather than failing the call (Mistral's strict API, Groq's logprobs family, …), and each
+model advertises its honest list in `/v1/models` under `supported_parameters`. If a structured-output
+or sampling feature silently no-ops, check that field — the model you were routed to may not honor it.
+When strict schema output matters, pin a model whose `supported_parameters` includes it rather than
+leaving it to `auto`.
+
 ## Vision
 
 Send images as standard OpenAI `image_url` content blocks (base64 `data:` URLs or `http(s)` URLs).
@@ -116,16 +132,26 @@ images as well as text — the only multimodal embedder in the catalog. The prox
 provider's native embedding quirks (NVIDIA's `input_type`, Cohere's `/v2/embed`, Hugging Face's
 feature-extraction shape) behind the OpenAI request format, so the client just sends `{model, input}`.
 
+## Media: image generation & text-to-speech
+
+`POST /v1/images/generations` (image gen) and `POST /v1/audio/speech` (TTS) route across providers that
+serve media models, including custom OpenAI-compatible media endpoints. Same **fresh-install-has-no-keys**
+rule as chat: they do nothing until you enable a media-capable provider/model on the dashboard's
+**Models → Image** / **Models → Audio** tabs. **Version-skew caveat:** these landed relatively recently,
+so a container image pulled before that will `404` on those paths — if a media call 404s on an older
+install, re-pull `:latest` (SKILL.md Step 1) and retry. Confirm the route exists before promising it to
+a project that pins an old image.
+
 ## Not supported yet
 
 These have no route — calls to them fail, so the project still needs the real provider for them:
 
-- **Image generation** (`/v1/images/*`)
-- **Audio / speech** (`/v1/audio/*`)
 - **Legacy completions** (`/v1/completions`) — only the *chat* endpoint exists
 - **Moderation** (`/v1/moderations`)
 - **`n > 1`** (multiple completions per request)
 - **Per-user billing / multi-tenant auth** — single-user by design
+
+*(Image generation and text-to-speech used to be on this list — they now route; see **Media** above.)*
 
 ## Gotchas worth saying out loud
 
@@ -139,5 +165,9 @@ These have no route — calls to them fail, so the project still needs the real 
   *prototyping* tool, not a production SLA.
 - **The unified key is per-install**, stored in the proxy's SQLite, shown on the dashboard Keys header.
   Regenerating it on the dashboard invalidates the old one — update the app's `.env` if you do.
+- **Opt-in response cache.** An exact-match in-memory LRU for identical *non-streaming* requests
+  (canonical SHA-256 over the full request, with TTL + temperature gates). **Off by default**; flip it
+  per-request with the `X-FreeLLM-Cache: on|off` header. Cache hits consume **zero provider quota** and
+  show up in the dashboard's saved-token stats — handy for a test suite that replays the same prompts.
 - **Localhost only by default.** The container binds `127.0.0.1`. To reach it from another device, start
   with `HOST_BIND=0.0.0.0` — only on a trusted LAN, since the proxy is single-user.
