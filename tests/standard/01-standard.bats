@@ -71,7 +71,10 @@ failures = []
 checked = 0
 for dp, dn, fn in os.walk(skills_root):
     parts = dp.split(os.sep)
-    if "archive" in parts or "in-progress" in parts:
+    # Mirror catalog.sh's inventory filter: archive/ + in-progress/ are not
+    # real skills, and node_modules/ under a skill's scripts/ dir carries
+    # third-party SKILL.md files that are not ours to validate.
+    if "archive" in parts or "in-progress" in parts or "node_modules" in parts:
         continue
     if "SKILL.md" not in fn:
         continue

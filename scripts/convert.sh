@@ -135,8 +135,9 @@ copy_scripts() {
     fi
     mkdir -p "$target"
     ats_cp_r "$scripts_src" "$target"
-    # Strip local build/debris dirs that have no business shipping.
-    find "$target" -type d -name '__pycache__' -prune -exec rm -rf {} + 2>/dev/null || true
+    # Strip local build/debris dirs that have no business shipping — a skill's
+    # scripts/ dir can accumulate npm installs and bytecode caches locally.
+    find "$target" -type d \( -name '__pycache__' -o -name 'node_modules' \) -prune -exec rm -rf {} + 2>/dev/null || true
     find "$target" -type f -name '.DS_Store' -delete 2>/dev/null || true
     find "$target" -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
   fi
