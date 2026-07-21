@@ -88,3 +88,41 @@ The final pre-loops backlog, cleared across the FA-fidelity sweep (PR #32), the 
 ## Closed 2026-05-26 → 2026-06-01 — earlier in this backlog
 
 Full detail in the [`PLAN.md`](../PLAN.md) closure log: **RF1–RF5** + **TM1–TM3** (reference files + thinking moves, 2026-05-26), **FA3** (catalog self-maintaining, PR #23), **FA6** (external namespace correctness, 2026-06-01).
+
+---
+
+## Closed 2026-07-21 — overnight drain (RV + MA + PF + CB + MR + SO)
+
+The user-authorized overnight run (scope: full drain minus human-gated RV2/CB-10; PRs open for morning review, nothing self-merged). 31 rows closed across six PRs — **#55** (doc polish + MR-8 + CB-2), **#56** (RV16), **#57** (PF1/PF4 + converter hardening), **#58** (MR-5/CB-9), **#59** (MR-6/MR-7/SO-4), **#60** (CB-1). CB-3 deferred with a written reason (new-skill catalog ripple + cross-PR conflicts + review-debt economics — deserves a focused session). Rows verbatim below, status updated:
+
+- **MA-1** `[done · PR #55]` — **`skill-writer/references/performance-notes.md` still teaches the prior-model "anti-laziness" tactic as a broadly-recommended default.** Reframed: prior-model tactic, apply only on a measured truncation failure for the specific skill on the current model; examples marked illustrative-only.
+- **MA-2** `[done · PR #55]` — **`model-adaptation`'s model/effort tiering lacks the optimizer/target split evidence.** Optimizer/target split + SkillOpt's ~2× weaker-executor evidence added to the SKILL.md task→tier map and `references/model-effort-tiering.md`; v1.3.0.
+- **RV1** `[done · PR #55]` — **living-plan's Reference Implementation misattributes the archive convention.** PetriDishOfMadness now the canonical full-convention example; The Hive re-scoped to front door + strategic doc + intake (predates the two-file split).
+- **RV3** `[done · PR #55]` — **README emoji-heading anchors don't resolve.** Nav + inline anchors normalized to GitHub's `#-slug` form; the two double-space emoji headings single-spaced.
+- **RV4** `[done · PR #55]` — **reality-gate proposal cites uncommitted evidence.** Workspace paths marked local/gitignored, the 4-run A/B eval outcome inlined, status line reconciled with the two open checkboxes.
+- **RV5** `[done · PR #55]` — **claude-design-brief 13→12 sweep incomplete.** Remaining four "13 categories" mentions fixed ("13 frames" artboard math kept); v1.4.2.
+- **RV7** `[done · PR #55]` — **use-freellmapi lost its only upstream URL.** Repo URL restored in the body's Local-development pointer; v1.2.1.
+- **RV8** `[done · PR #55]` — **PR #34's behavior additions shipped without version bumps.** contract-author → 1.5.0, skill-writer → 1.4.0, skill-review → 1.3.0 (the latter two also carry CB-2's additions under the same bump).
+- **RV9** `[done · PR #55]` — **living-plan leaks the `EM-###` prefix.** Now "(every ID'd row)".
+- **RV10** `[done · PR #55]` — **living-plan Setup never creates the archive.** Step 2 names `docs/COMPLETED-WORK.md` with the lazy-creation rule.
+- **RV11** `[done · PR #55]` — **START-HERE points at the wrong doc for closed-item detail.** Repointed to `docs/COMPLETED-WORK.md`.
+- **RV12** `[done · PR #55]` — **PLAN.md's editing note prescribes the pre-sweep procedure.** Rewritten to the completion-sweep relocation rule.
+- **RV13** `[done · PR #55]` — **COMPLETED-WORK date range excludes its own row.** Range extended to 2026-06-02.
+- **RV14** `[done · PR #55]` — **README references a nonexistent template.** Repointed to `body-template.md`.
+- **RV15** `[done · PR #55]` — **living-plan description missing sweep triggers.** Sweep vocabulary added at 1012/1024 chars; v1.2.0 (with RV1/9/10).
+- **RV16** `[done · PR #56]` — **orchestrator body over the word guideline.** 6,180 → 5,298 words by giving each triplicated concept one canonical seat (reality gate → DoD 4, source guards → DoD 12, loop mapping → Composition); v1.16.1.
+- **PF1** `[done · PR #57]` — **`convert.sh` never ships skills' `scripts/` dirs.** `copy_scripts` wired into all nine per-skill converters (exec bits kept; `__pycache__`/`node_modules`/`.DS_Store` stripped); nano-banana flipped convertible (34→35). website-walkthrough-video's flip deferred: its SKILL.md carries an unrelated uncommitted foreign edit.
+- **PF2** `[done · PR #55]` — **`frontmatter-spec.md` defines `requires_claude_code` by the wrong criterion.** Redefined by the runtime-machinery test convert.sh implements; table row matched.
+- **PF3** `[done · PR #55]` — **Two hand-maintained "34 of 71" numbers in README drift on any flag change.** `catalog.sh --check/--sync` now compute + guard/rewrite the convertible-subset count (both numbers per phrase).
+- **PF4** `[done · PR #57]` — **`madness` converts to non-CC hosts but routes to skills absent there.** On-other-hosts routing note added (route only to skills present; name missing CC-only front doors rather than dead-ending); v1.1.0.
+- **PF5** `[done · PR #55]` — **CLAUDE.md "role skills work standalone" reads oddly.** Clarified: standalone *of the runtime*, still orchestrator-dispatched.
+- **CB-1** `[done · PR #60]` — **`roles/code-review-agent` is single-lens; give it mattpocock's two-axis structure.** Standards + Spec lanes as isolated sub-agents, twelve named Fowler smells in `references/standards-baseline.md`, never-merge + fail-fast binding rules, QE/security handoffs remapped; v1.4.0.
+- **CB-2** `[done · PR #55]` — **Fold mattpocock's `writing-great-skills` craft doctrine into skill-writer + skill-review as checked rules.** Leading-word anchor, delete-no-op-sentences-whole, positive-prompting lint (with the Forbidden:-naming exception) added to skill-writer Step 3 and skill-review's audit checklist.
+- **CB-9** `[done · PR #58]` — **Expand–contract sequencing for wide refactors, into `migration-loop` + orchestrator decomposition.** Three-stage mode (expand → migrate in blast-radius batches → contract) with the integration-branch fallback in migration-loop; matching decomposition note in the orchestrator phase-guide.
+- **MR-5** `[done · PR #58]` — **Long-run hygiene is inherited only transitively, not wired per-loop.** babysit / self-healing-loop / migration-loop each carry a wired "Long-run hygiene (per loop-controller Step 6)" section; all → 1.1.0.
+- **MR-6** `[done · PR #59]` — **Record the caveman/zoom-out keep-despite-upstream-deletion decision durably in-repo.** `docs/adr/0001-keep-caveman-zoom-out.md` is the first ADR (CB-5 convention unparked); ACKNOWLEDGMENTS rows point at it.
+- **MR-7** `[done · PRs #58/#59]` — **Doc-drift batch.** (a) disable-model-invocation count 13→27 + disk-truth grep; (b) FUTURE.md CB-7 → `to-spec`/`to-tickets`; (c) caveman lineage contradiction resolved (concept karpathy, implementation mattpocock); (d) stale ACKNOWLEDGMENTS paths annotated + "examples reused" corrected; (e) all five near-ceiling loop descriptions trimmed for headroom.
+- **MR-8** `[done · PR #55]` — **Integrate the fable-handoff artifacts into `model-adaptation`.** `scripts/extract_operating_manual.py` + `references/operating-manual.md` + new `references/capability-handoff.md`; trigger keywords added; the three unconfirmed API claims resolved against live docs (adaptive-on-Opus confirmed, stop_details shape confirmed, flat 4,096 cache minimum refuted — Opus 4.8 is 1,024); model-adaptation v1.3.0.
+- **SO-4** `[done · PR #59]` — **No split-hygiene standard for any future skill scoring.** Shipped as `docs/standards/eval-split-hygiene.md` (stable hashing, touch-once test set, synthetic-train-only, multi-trial deltas); F5 points at it.
+- **SO-5** `[done · PR #55]` — **`loop-controller` guardrail docs lack the strongest cautionary case for accept/reject gates.** The −52.8pt ungated SearchQA collapse added as a named example in `references/safety.md`; v1.2.1.
+- **SO-6** `[done · PR #55]` — **Portability docs assert single-source-is-better without a cautionary counter-example.** SkillOpt's five-bespoke-integrations sprawl cited in the README portability section.
