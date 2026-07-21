@@ -1,6 +1,6 @@
 ---
 name: repo-deep-dive
-version: 1.4.0
+version: 1.5.0
 description: >-
   Perform a comprehensive technical deep dive on an open-source repository, combining
   a deep-research markdown document with hands-on codebase analysis to produce a structured
@@ -29,15 +29,26 @@ spawned_by: []
 
 Turn a Claude Deep Research document and a locally cloned repository into a comprehensive, structured technical reference — the kind of document set that lets someone understand a 100k+ LoC codebase in an afternoon.
 
+## First: figure out the target from where you are — don't interrogate
+
+You were launched in a specific working directory for a reason. Read that context **before asking a single question** — it answers most of what a menu would ask, and interrogating the user for what you could have read yourself is the friction to avoid.
+
+- **Check the working directory first: run `git rev-parse --show-toplevel`.** If it succeeds, you're inside a git repo, and that repo is your default target. A user who invokes `/repo-deep-dive` here — with words like "this", "this repo", "this codebase", "the lessons in this", or with no explicit target at all — means *this repo*. "this" points at the current context; take it literally and proceed.
+- **When you default to the current repo, say so in one line and keep going** — e.g. "Deep-diving the repo you're in: `<name>` — tell me if you meant a different one." A single correctable statement respects the user's time; a blocking multiple-choice menu does not.
+- **Only genuinely ambiguous cases deserve a question.** Ask which repo *only* when: (a) the working directory isn't a git repo, (b) the user explicitly names or points to a different project, path, or URL, or (c) their words clearly refer to something they were viewing elsewhere (a pasted repo URL, "this library I found"). Even then, ask once with the current repo pre-filled as the default — don't make them pick from scratch.
+- **A deep dive usually compares the target against a *reference* project.** When the target is an external clone, the repo you're invoked in is almost always that reference — infer it, don't ask twice.
+
+The rule of thumb: read the git root and the user's actual words first, state your assumption, and proceed. Reserve questions for what context genuinely can't resolve.
+
 ## What You Need
 
 1. **A deep-research document** — markdown from any deep-research session about the project (Claude Deep Research, ChatGPT Deep Research, Gemini Deep Research, or a hand-written brief). This provides landscape context, community perspective, and high-level understanding that code analysis alone can't give you.
 
-2. **A locally cloned repo** — the actual source code to trace, measure, and analyze.
+2. **A locally cloned repo** — the actual source code to trace, measure, and analyze. **Default to the repo you're invoked in** (see the section above); only ask when the target is genuinely elsewhere.
 
 3. **An output directory** — where the deep dive's document series should land. There is no built-in default — naming the location explicitly keeps deep dives from accumulating in a folder the user forgets about. **But don't just ask blind: first run vault detection (Phase 0).** Many users keep a dedicated deep-research / Obsidian "second-brain" vault with an established convention for where deep dives live. If one exists, offer it as the *recommended* target rather than asking from scratch. You still ask — detection sets a smart default, it doesn't override the user.
 
-If the deep-research document is missing, ask the user. It's critical — it grounds the analysis in why the project exists and where it sits in the landscape, not just what the code does. If the user doesn't have one, suggest they run a deep-research session first (it takes ~5 minutes and dramatically improves the output quality).
+The deep-research document is critical — it grounds the analysis in why the project exists and where it sits in the landscape, not just what the code does. **But look before you ask:** check whether one already exists — scan the repo's own `docs/` and any detected vault's research/sources area (see Phase 0) for a matching markdown brief. Ask the user only if none turns up. If the user doesn't have one, suggest they run a deep-research session first (it takes ~5 minutes and dramatically improves the output quality).
 
 ## The Process
 
