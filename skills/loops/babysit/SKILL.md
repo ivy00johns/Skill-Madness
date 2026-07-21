@@ -12,9 +12,9 @@ description: >-
   elsewhere, want review comments auto-handled on a cadence, or want a PR kept
   rebased and green. Trigger on "babysit my PR", "babysit prs", "watch this PR",
   "keep my PR green", "auto-address review comments on a schedule", "loop 5m
-  babysit", "keep the PR rebased", "poll the PR for new feedback", "tend this
-  pull request". Never auto-merges and never force-pushes a shared branch
-  unattended. A configuration of loop-controller.
+  babysit", "keep the PR rebased", "poll the PR for new feedback". Never
+  auto-merges and never force-pushes a shared branch unattended. A
+  configuration of loop-controller.
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

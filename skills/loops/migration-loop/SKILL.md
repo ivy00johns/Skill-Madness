@@ -10,8 +10,7 @@ description: >-
   target set whose proof is "no legacy pattern remains," not just "tests pass."
   Use for a codemod across a repo, a Jest-to-Vitest swap, an API version bump, a
   framework migration, an import/dependency rename, or any mechanical transform
-  applied to a finite list of files. Large sets may fan out via batch or a
-  dynamic workflow with worktree isolation. Trigger on "migrate everything from
+  applied to a finite list of files. Trigger on "migrate everything from
   X to Y", "run the codemod across the repo", "bump every call site", "swap the
   framework", "migrate all the tests", "finish the migration", "no old pattern
   left", "/migration-loop". A configuration of loop-controller.
