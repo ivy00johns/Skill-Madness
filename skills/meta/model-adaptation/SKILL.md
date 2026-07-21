@@ -1,6 +1,6 @@
 ---
 name: model-adaptation
-version: 1.1.0
+version: 1.2.0
 description: |
   Adapt prompts, skills, and agent scaffolding when the underlying Claude model changes — currently the Claude 5 family (Fable 5 + Mythos 5) versus Opus 4.x. Stronger models need LESS scaffolding: this skill says what to PRUNE, what now backfires (narrating reasoning in the response trips a reasoning_extraction refusal), and what to add for long autonomous runs. Also the canonical home of the model & effort tiering policy: which model tier and effort level each task class gets (Anthropic ladder by default; never cross-vendor; FreeLLMAPI carve-out). Use when migrating a skill to a new model, when a skill "worked before and got worse", when agents get refused or fall back to Opus, or when picking model/effort per role, stage, or loop. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "model migration", "reasoning_extraction", "prune the prompt", "tune effort", "model tiering", "which model for which task", "tier down", "cut token costs", "cheaper model for bulk work", "long-running agent hygiene".
 requires_claude_code: false
@@ -161,6 +161,15 @@ never reach cross-vendor to save tokens:
 | **Mechanical / high-volume** | file transforms, migration edits, formatting, lint-fix application, boilerplate, broad research crawl, first drafts | Haiku, or Sonnet if it needs light reasoning | low/medium (none on Haiku) |
 | **Standard implementation** | feature code, test authoring, straightforward role-agent build work | Sonnet | medium/high |
 | **Load-bearing reasoning** | architecture & contract design, adversarial verification / fresh-context evaluator, final synthesis, hard debugging, ambiguity resolution | Opus or Fable | high/xhigh (max only when correctness ≫ cost) |
+
+**The optimizer/target split.** When one model *authors or optimizes* an
+artifact (a skill, a prompt, a config) that another model then *executes
+under*, tier by **role**, not just task difficulty: author/optimize/review on
+the strong tier, execute/validate on the cheap tier. microsoft/SkillOpt's
+cross-model study measured why this is the economical direction — the same
+optimized skill gained roughly **2× more** on a weaker execution model (more
+headroom), so "cheap deployed target + one strong optimizer" beats "strong
+everywhere." Detail in `references/model-effort-tiering.md`.
 
 **Guardrails:**
 

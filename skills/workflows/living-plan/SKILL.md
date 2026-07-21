@@ -1,19 +1,19 @@
 ---
 name: living-plan
-version: 1.1.2
+version: 1.2.0
 description: |
   Document and set up the living-plan convention: a front door (START-HERE.md), a
   strategic roadmap, a tactical ledger of open work, a done-archive, and a frontier
   doc, wired to an intake loop so reports become tracked entries instead of rotting.
-  This ledger trio is often named by file — the "remaining" / "completed" / "future"
-  markdown set (remaining.md / completed.md / future.md, or REMAINING-WORK /
-  COMPLETED-WORK / FUTURE). Use when the user says "set up a living plan", "make this
-  plan a living doc", "stop my docs from rotting", "set up the remaining/completed/
-  future files", "where are my remaining/completed/future md
-  files", or wants a report-to-ledger intake loop. Key disambiguation: if the user
-  asks for their "remaining / completed / future" files and THIS project lacks them,
-  set the convention up HERE — never hunt for those files across other repos. If the
-  project already has the living plan and they just want to read or edit one existing
+  The ledger trio is often named by file — the "remaining" / "completed" / "future"
+  markdown set (REMAINING-WORK / COMPLETED-WORK / FUTURE, or remaining.md etc.).
+  Use when the user says "set up a living plan", "make this plan a living doc",
+  "stop my docs from rotting", "set up the remaining/completed/future files",
+  "where are my remaining/completed/future md files", "my ledger is full of done
+  rows", "sweep done rows to the archive", or wants a report-to-ledger intake loop.
+  Key disambiguation: if the user asks for their "remaining / completed / future"
+  files and THIS project lacks them, set the convention up HERE — never hunt for
+  those files across other repos. If they just want to read or edit one existing
   file, that's a normal file operation, not this skill.
 requires_agent_teams: false
 requires_claude_code: false
@@ -66,7 +66,7 @@ IDs are stable and never reused. Priority (P0–P3 or equivalent), Wave/Phase, a
 - `docs/REMAINING-WORK.md` — open + in-progress only (the to-do list, stays short and cheap to load).
 - `docs/COMPLETED-WORK.md` — the **completed archive**: every `done` row, verbatim, append-only. History is preserved in full; it just lives where it doesn't tax the working doc.
 
-The archive is the *tactical* record (every EM-### row). It complements — does not duplicate — the strategic **closure log** in the build plan (one line per wave/milestone close). Both exist: the closure log is the digest, the archive is the detail. The open ledger's header points to both so nothing feels lost. See **The Completion Sweep** below for how rows move.
+The archive is the *tactical* record (every ID'd row). It complements — does not duplicate — the strategic **closure log** in the build plan (one line per wave/milestone close). Both exist: the closure log is the digest, the archive is the detail. The open ledger's header points to both so nothing feels lost. See **The Completion Sweep** below for how rows move.
 
 ### 4. Frontier doc — `docs/FUTURE.md`
 
@@ -121,12 +121,13 @@ cp template/START-HERE.template.md START-HERE.md
 
 Open `START-HERE.md` and fill every `{{PLACEHOLDER}}`. The ownership map is the most important part: list every planning doc and classify it as canonical, frozen reference, or archived. This is the map new contributors (and future Claude sessions) use to navigate.
 
-### Step 2 — Ensure the three canonical docs exist
+### Step 2 — Ensure the canonical docs exist
 
 Check whether `BUILD-PLAN.md` (or `PLAN.md`), `docs/REMAINING-WORK.md`, and `docs/FUTURE.md` exist. If any are missing:
 
 - Use `plan-builder` to create a strategic doc + tactical ledger from scratch when none exist.
 - Create `docs/FUTURE.md` as a simple markdown list — it doesn't need a formal structure.
+- `docs/COMPLETED-WORK.md` (the completed archive) may be created lazily — `plan-intake`'s completion sweep creates it on the first sweep that finds `done` rows — but if you're setting up by hand, create it now with a short header pointing back at the open ledger.
 - If the project already has equivalent docs under different names, use those; update `START-HERE.md` to name them correctly.
 
 ### Step 3 — Point CLAUDE.md and README at START-HERE.md
@@ -141,9 +142,9 @@ Add a line near the top of `CLAUDE.md` (and optionally `README.md`) directing ne
 
 Install or sync the `plan-intake` skill so it's available in the project's skill set. Announce to the team (or to your future self in `START-HERE.md`) that reports go through `plan-intake` before being filed.
 
-## Reference Implementation
+## Reference Implementations
 
-**The Hive** (`/Users/johns/Repos/the-hive-ecosystem/The-Hive`) is the canonical example:
+**PetriDishOfMadness** is the canonical implementation of the full convention — including the two-file tactical layer and the completion sweep:
 
 | Role | File |
 |------|------|
@@ -154,7 +155,9 @@ Install or sync the `plan-intake` skill so it's available in the project's skill
 | Frontier doc | `docs/FUTURE.md` |
 | Intake skill | `plan-intake` (invoked after every deep dive or audit; sweeps done → archive) |
 
-The reference ledger's header documents its ID scheme (prefixed, stable, never reused), priority labels (P0–P3), wave labels, and area taxonomy — the exact information `plan-intake` needs to format new entries correctly — and points at the completed archive + closure log so a reader who lands on the open ledger can find finished work without it bloating the to-do list.
+Its open ledger's header documents the ID scheme (prefixed, stable, never reused), priority labels (P0–P3), wave labels, and area taxonomy — the exact information `plan-intake` needs to format new entries correctly — and points at the completed archive + closure log so a reader who lands on the open ledger can find finished work without it bloating the to-do list.
+
+**The Hive** (`/Users/johns/Repos/the-hive-ecosystem/The-Hive`) implements the front door, strategic doc, and intake loop, but predates the two-file tactical split — its single ledger keeps `done` rows inline. Read it as an example of the front door + roadmap + intake, not of the sweep.
 
 **Worked example (PetriDishOfMadness, 2026-06-27):** the open ledger had grown to 502 lines / 226 rows, **185 of them `done`** — every session re-read the whole wall of shipped work. The completion sweep relocated those 185 rows (plus the historical status narrative and stale intake notes) to `docs/COMPLETED-WORK.md`, leaving a **89-line** open ledger of just the 41 open/in-progress items. Nothing was lost; the working doc got ~80% cheaper to load.
 

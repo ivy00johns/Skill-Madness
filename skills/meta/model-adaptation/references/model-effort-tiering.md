@@ -44,6 +44,28 @@ output of prior-generation models — so `low`/`medium` is the correct setting
 for routine work, not a compromise. Reserve `max` for correctness-critical,
 latency-insensitive steps.
 
+## The optimizer/target split (role-based tiering)
+
+The ladder above tiers by *task difficulty*. There is a second, role-based rule
+for any setup where one model **authors or optimizes** an artifact (a skill, a
+prompt, a config) that another model then **executes under**: put the strong
+tier on the author/optimizer side and the cheap tier on the execution side.
+
+The evidence is microsoft/SkillOpt's cross-model study: the same optimized
+skill produced roughly **2× the score gain** on a weaker execution model than
+on a strong one — the weaker model has more headroom, so the optimization
+dollars land where they buy the most. The economical pattern is therefore
+"cheap deployed target + one strong optimizer," not "strong everywhere":
+
+- **Author / optimize / review** a skill or prompt on the top tier (it runs
+  once per revision).
+- **Execute and validate under** it on the cheap tier (it runs on every task,
+  and benefits most from the optimization).
+
+This composes with, and does not replace, the task-difficulty ladder — the
+fresh-context evaluator in a loop is still top-tier (it is a reasoning gate,
+not an execution pass).
+
 ## Provider-relative instantiation
 
 A project's provider should be discoverable, not guessed:

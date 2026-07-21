@@ -1,6 +1,6 @@
 ---
 name: skill-writer
-version: 1.3.1
+version: 1.4.0
 description: |
   Generate new SKILL.md files conforming to the ecosystem's frontmatter spec and structure conventions. Use when creating a new agent role, meta skill, workflow skill, or contract skill — anything that needs a SKILL.md scaffold. Trigger on "create a skill", "new agent", "write a SKILL.md", "scaffold a skill", "add a role to the skill ecosystem".
 requires_agent_teams: false

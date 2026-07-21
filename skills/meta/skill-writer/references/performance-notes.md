@@ -1,14 +1,23 @@
 # Performance Notes Pattern
 
-Documents the optional `## Performance Notes` section that can appear in any SKILL.md body. Use it when model laziness or output truncation is a known failure mode for the skill.
+Documents the optional `## Performance Notes` section that can appear in any SKILL.md body.
 
-Source: Anthropic Agent Skills guide (p.26) — "Add explicit encouragement for model laziness."
+> **Prior-model tactic — apply sparingly.** This pattern was developed against models where
+> output laziness ("[...continued]" placeholders, silently compressed later sections) was a
+> common failure mode. On the Claude 5 family (Fable 5 / Mythos 5) it rarely is, and
+> reflexive "do not truncate / produce it in full" nagging is now itself an anti-pattern —
+> `skill-review` flags it (see `model-adaptation`: prune scaffolding the model no longer
+> needs). Add this section only when a **measured** truncation failure exists for *this
+> specific skill* on the *current* model — a reproduced case of abbreviated output, not a
+> precaution. Default to leaving it out.
+
+Source: Anthropic Agent Skills guide (p.26) — "Add explicit encouragement for model laziness" — written for prior-generation models.
 
 ---
 
 ## When to Include It
 
-Add a `## Performance Notes` section when the skill asks for output that is:
+Only with a measured truncation failure on the current model (see the note above). When that bar is met, the failure usually involves output that is:
 
 - **Large and structured** — full JSON schemas, multi-section reports, complete code files, 50+ row tables. The model will abbreviate if not told otherwise.
 - **Multi-part** — the skill produces 3+ distinct artifacts in one run (e.g., a brief, a checklist, and a diagram). Without encouragement, later artifacts get compressed.
@@ -46,6 +55,8 @@ Adjust the language to match the specific failure mode. The goal is to name the 
 ---
 
 ## Examples from This Repo
+
+These illustrate the *shape* a section would take — none of these skills currently carries one, and none should gain one without the measured-failure bar above being met.
 
 ### `repo-deep-dive`
 

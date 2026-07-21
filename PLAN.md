@@ -5,7 +5,7 @@
 > **Companions:** [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md) (open ledger), [`docs/COMPLETED-WORK.md`](docs/COMPLETED-WORK.md) (completed archive), [`docs/FUTURE.md`](docs/FUTURE.md) (frontier, out of scope)
 
 > **Editing this doc?**
-> 1. If you closed an item, also update the partner doc (closure log here, status in `docs/REMAINING-WORK.md`).
+> 1. If you closed an item, run the completion sweep: move its row from `docs/REMAINING-WORK.md` to `docs/COMPLETED-WORK.md` (verbatim), and add/confirm the closure-log line here.
 > 2. If you changed a phase claim or milestone, update [`START-HERE.md`](START-HERE.md)'s status table to match.
 
 ---

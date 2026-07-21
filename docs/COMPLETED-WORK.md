@@ -85,6 +85,6 @@ The final pre-loops backlog, cleared across the FA-fidelity sweep (PR #32), the 
 | **PR1** | B2/B3/B4 process guidance — iterate-one-change-at-a-time, a required triggering-test, an optional perf-comparison — added to skill-writer + skill-review | PR #34 |
 | **PR2** | Changelog discipline — guardrail in contract-author (history → `CHANGELOG.md`, one-line `// — vX.Y.Z` marker only) + `typescript-template.ts` pointer; orchestrator already carried the matching anti-pattern (from #24), cross-linked | PR #34 |
 
-## Closed 2026-05-26 → 2026-06-01 — earlier in this backlog
+## Closed 2026-05-26 → 2026-06-02 — earlier in this backlog
 
 Full detail in the [`PLAN.md`](../PLAN.md) closure log: **RF1–RF5** + **TM1–TM3** (reference files + thinking moves, 2026-05-26), **FA3** (catalog self-maintaining, PR #23), **FA6** (external namespace correctness, 2026-06-01).
