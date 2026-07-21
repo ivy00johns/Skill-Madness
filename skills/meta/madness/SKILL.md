@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.0.1
+version: 1.1.0
 description: >-
   The front door to the whole toolkit — one reliable entry point that reads what
   you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a
@@ -170,6 +170,17 @@ If the user wants to *do* the thing ("set up the tests and run them till green")
   ("write the OpenAPI contract", "commit this") — those skills should fire
   directly. `madness` is for *routing confusion and cold starts*, not for adding a
   hop in front of triggers that already work.
+
+## On non-Claude-Code hosts
+
+Converted copies of this skill ship to other AI coding tools, but only the
+*portable subset* of the library ships with them — the Claude-Code-bound skills
+(`orchestrator`, every `loops/*` skill, the role agents, and the workflows bound
+to the Artifact tool or `~/.claude` config) don't exist there. On those hosts,
+route only to skills actually present (the git conventions and the planning /
+docs / review / debugging / contract workflows); when the right front door would
+be a missing Claude-Code-only skill, say so and name it rather than routing into
+a dead end.
 
 ## Anti-patterns
 

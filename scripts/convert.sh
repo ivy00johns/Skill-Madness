@@ -117,9 +117,36 @@ copy_references() {
 }
 
 # ---------------------------------------------------------------------------
+# copy_scripts <skill_file> <dest_dir> [prefix]
+# Copies skill's scripts/ dir into dest_dir/scripts/ — or dest_dir/<prefix>-scripts/
+# when a prefix is given (flat layouts) — preserving executable bits. A converted
+# skill whose body points at a bundled script must ship it (PF1); before this,
+# converted skills shipped dangling script references.
+# ---------------------------------------------------------------------------
+copy_scripts() {
+  local skill_file="$1" dest_dir="$2" prefix="${3:-}"
+  local scripts_src target
+  scripts_src="$(dirname "$skill_file")/scripts"
+  if [[ -d "$scripts_src" ]]; then
+    if [[ -n "$prefix" ]]; then
+      target="$dest_dir/${prefix}-scripts"
+    else
+      target="$dest_dir/scripts"
+    fi
+    mkdir -p "$target"
+    ats_cp_r "$scripts_src" "$target"
+    # Strip local build/debris dirs that have no business shipping.
+    find "$target" -type d -name '__pycache__' -prune -exec rm -rf {} + 2>/dev/null || true
+    find "$target" -type f -name '.DS_Store' -delete 2>/dev/null || true
+    find "$target" -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+  fi
+}
+
+# ---------------------------------------------------------------------------
 # inline_references <skill_file>
 # Print each reference file under a ## Reference: <name> header.
-# Used by cursor, qwen, kimi.
+# Used by cursor, qwen, kimi. Bundled scripts/ can't be inlined into markdown —
+# those converters ship them as a <slug>-scripts/ sibling via copy_scripts.
 # ---------------------------------------------------------------------------
 inline_references() {
   local skill_file="$1"
@@ -145,6 +172,7 @@ convert_claude_code() {
   mkdir -p "$dest_dir"
   cp "$file" "$dest_file"
   copy_references "$file" "$dest_dir"
+  copy_scripts "$file" "$dest_dir"
 }
 
 # ---------------------------------------------------------------------------
@@ -245,12 +273,13 @@ convert_copilot() {
     printf '[copilot] stripped allowed-tools/owns from %s\n' "$slug" >&2
   fi
 
-  # Copy references alongside
+  # Copy references + scripts alongside
   refs_src="$(dirname "$file")/references"
   if [[ -d "$refs_src" ]]; then
     mkdir -p "$dest_dir/${slug}-references"
     ats_cp_r "$refs_src" "$dest_dir/${slug}-references"
   fi
+  copy_scripts "$file" "$dest_dir" "$slug"
 }
 
 # ---------------------------------------------------------------------------
@@ -284,6 +313,7 @@ convert_antigravity() {
   } > "$dest_file"
 
   copy_references "$file" "$dest_dir"
+  copy_scripts "$file" "$dest_dir"
 }
 
 # ---------------------------------------------------------------------------
@@ -314,6 +344,7 @@ convert_gemini_cli() {
   } > "$dest_file"
 
   copy_references "$file" "$dest_dir"
+  copy_scripts "$file" "$dest_dir"
 }
 
 write_gemini_manifest() {
@@ -357,13 +388,14 @@ convert_opencode() {
     printf '%s\n' "$body"
   } > "$dest_file"
 
-  # Copy references as <slug>-references/ sibling
+  # Copy references + scripts as <slug>-*/ siblings
   local refs_src
   refs_src="$(dirname "$file")/references"
   if [[ -d "$refs_src" ]]; then
     mkdir -p "$dest_dir/${slug}-references"
     ats_cp_r "$refs_src" "$dest_dir/${slug}-references"
   fi
+  copy_scripts "$file" "$dest_dir" "$slug"
 }
 
 # ---------------------------------------------------------------------------
@@ -394,6 +426,7 @@ convert_cursor() {
     printf '%s\n' "$body"
     inline_references "$file"
   } > "$dest_file"
+  copy_scripts "$file" "$dest_dir" "$slug"
 }
 
 # ---------------------------------------------------------------------------
@@ -502,8 +535,9 @@ convert_openclaw() {
     printf '%s\n' "$(get_field "description" "$file")"
   } > "$dest_dir/IDENTITY.md"
 
-  # Copy references
+  # Copy references + scripts
   copy_references "$file" "$dest_dir"
+  copy_scripts "$file" "$dest_dir"
 }
 
 # ---------------------------------------------------------------------------
@@ -540,6 +574,7 @@ convert_qwen() {
     printf '%s\n' "$body"
     inline_references "$file"
   } > "$dest_file"
+  copy_scripts "$file" "$dest_dir" "$slug"
 }
 
 # ---------------------------------------------------------------------------
@@ -572,6 +607,7 @@ YAML
     printf '%s\n' "$body"
     inline_references "$file"
   } > "$dest_dir/system.md"
+  copy_scripts "$file" "$dest_dir"
 }
 
 # ---------------------------------------------------------------------------

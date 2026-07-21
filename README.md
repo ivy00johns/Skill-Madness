@@ -498,7 +498,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 🎁 Also works on ten other hosts
 
-The orchestrator and the multi-agent QA gate are Claude-Code-native — that's the headline feature, and it stays home: skills whose contract *is* Claude Code's runtime (the orchestrator, the 10 role agents, all 13 loops, and the workflows bound to the Artifact tool, subagent dispatch, or `~/.claude` config) are marked `requires_claude_code: true` and are never converted. The canonical `SKILL.md` *format* is platform-agnostic, though, so the rest of the library — **34 of the 71 skills** today: the git conventions and the planning, docs, review, debugging, and contract-authoring workflows — converts to ten other AI coding tools. Broadening that subset is tracked as F1 in [`docs/FUTURE.md`](docs/FUTURE.md). Two scripts handle it:
+The orchestrator and the multi-agent QA gate are Claude-Code-native — that's the headline feature, and it stays home: skills whose contract *is* Claude Code's runtime (the orchestrator, the 10 role agents, all 13 loops, and the workflows bound to the Artifact tool, subagent dispatch, or `~/.claude` config) are marked `requires_claude_code: true` and are never converted. The canonical `SKILL.md` *format* is platform-agnostic, though, so the rest of the library — **35 of the 71 skills** today: the git conventions and the planning, docs, review, debugging, and contract-authoring workflows — converts to ten other AI coding tools. Broadening that subset is tracked as F1 in [`docs/FUTURE.md`](docs/FUTURE.md). Two scripts handle it:
 
 ```bash
 ./scripts/convert.sh   # skills/**/SKILL.md  →  integrations/<host>/...
@@ -672,7 +672,7 @@ Almost always a `pyyaml` version skew. CI installs `pyyaml` explicitly on macOS 
 <details>
 <summary><b>"My non-Claude-Code host doesn't see all 71 skills"</b></summary>
 
-Expected. Skills with `requires_claude_code: true` — the `orchestrator`, all of `roles/`, all of `loops/`, and the workflows bound to Claude Code's runtime or `~/.claude` config — are skipped for the other hosts; 34 of the 71 skills convert today. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
+Expected. Skills with `requires_claude_code: true` — the `orchestrator`, all of `roles/`, all of `loops/`, and the workflows bound to Claude Code's runtime or `~/.claude` config — are skipped for the other hosts; 35 of the 71 skills convert today. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
 </details>
 
 <details>
