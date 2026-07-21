@@ -1,6 +1,6 @@
 ---
 name: nightly-docs-and-changelog
-version: 1.0.0
+version: 1.0.1
 description: >-
   Run a nightly sweep that keeps an existing repo's docs and changelog from
   rotting: diff the code since the last run, bring the docs for the changed
@@ -10,11 +10,11 @@ description: >-
   Desktop scheduled task, NOT a session-scoped loop. Use when you want docs and
   the changelog kept current automatically while you sleep, when docs keep
   drifting behind code, when the changelog is always stale, or when you want a
-  morning PR of doc+changelog updates to review with coffee. Trigger on: "keep
-  the docs current", "nightly docs sweep", "update the changelog nightly", "docs
-  keep drifting", "stale changelog", "overnight docs", "docs and changelog on a
-  schedule", "stop the docs rotting", "nightly doc PR". Drafts AFK; merges HITL.
-  A configuration of loop-controller.
+  morning PR of doc+changelog updates to review. Trigger on: "keep the docs
+  current", "nightly docs sweep", "update the changelog nightly", "docs keep
+  drifting", "stale changelog", "overnight docs", "stop the docs rotting",
+  "nightly doc PR". Drafts AFK; merges HITL. A configuration of
+  loop-controller.
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true
