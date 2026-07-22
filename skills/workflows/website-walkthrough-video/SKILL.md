@@ -1,6 +1,6 @@
 ---
 name: website-walkthrough-video
-version: 1.1.0
+version: 1.1.1
 description: |
   Generate a smooth scrolling walkthrough video of an entire website — capture
   every page full-length at desktop and mobile widths, then render an mp4 that
@@ -100,6 +100,14 @@ read the site's nav/menu (fetch the homepage and pull the primary nav links); ch
 `sitemap.xml`; or look at the route definitions in the codebase. Put them in the order
 you want them to appear in the tour (usually nav order, home first). `label` is what
 shows on screen — keep it short. `slug` is optional (derived from the path).
+
+**Route completeness is the whole job — verify it before capturing.** A "walkthrough of
+the site" means EVERY route class, including detail pages behind dynamic routes
+(`/designs/[id]`, `/blog/[slug]`, product pages): include at least one representative
+instance of each. Cross-check the route list against the codebase's route definitions
+(e.g. `src/pages/**` in Astro/Next) — nav links alone under-count, and a "walkthrough"
+missing whole page types has caused real (and justified) anger. State the route count
+and list before rendering so any gap is visible up front, not after delivery.
 
 `outDir` is resolved relative to the config file. A path the project already
 gitignores is a good choice (videos are large and regenerable).
