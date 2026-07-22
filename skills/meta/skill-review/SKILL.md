@@ -1,6 +1,6 @@
 ---
 name: skill-review
-version: 1.2.1
+version: 1.3.0
 argument-hint: skill-name or 'all'
 description: |
   Review skills for quality, consistency, triggering accuracy, and adherence to the 5000-word / 500-line body guideline. Two modes: 'all' (bulk ecosystem-wide scan for ownership conflicts, length outliers, weak triggers, dead xrefs) or a single skill name (deep dive on description quality, body structure, anti-pattern naming, cross-references). Outputs a structured markdown report plus JSON sidecar consumable by skill-update. Trigger on "audit skills", "review this skill", "health check skills", "bulk review", "deep review", "what needs fixing".
@@ -89,7 +89,7 @@ Read `SKILL.md` and every file in `references/`. Score these dimensions against 
 4. **Instruction clarity** — imperative voice, logical flow, no ambiguity, explains "why" not just "what"
 5. **Coordination** — ownership declarations, `composes_with` accuracy, no overlaps
 6. **Completeness** — referenced files exist, no dead links, validation checklists where needed
-7. **Anti-patterns** — see the anti-pattern checklist in `references/audit-checklist.md`, including the model-adaptation checks (reasoning-extraction refusal risk, prior-model over-prescription) that flag a skill written for a superseded model. When a skill scores poorly there or "worked before and got worse," hand off to the `model-adaptation` skill's migration audit.
+7. **Anti-patterns** — see the anti-pattern checklist in `references/audit-checklist.md`, including the model-adaptation checks (reasoning-extraction refusal risk, prior-model over-prescription) that flag a skill written for a superseded model, and the writing-craft checks (leading-word anchor, no-op-sentence deletion, positive-prompting lint). When a skill scores poorly there or "worked before and got worse," hand off to the `model-adaptation` skill's migration audit.
 
 #### B2. Live Trigger Testing
 

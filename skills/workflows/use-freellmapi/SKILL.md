@@ -1,6 +1,6 @@
 ---
 name: use-freellmapi
-version: 1.2.0
+version: 1.2.1
 description: |
   Wire any project to FreeLLMAPI — a local OpenAI-compatible proxy that aggregates ~20 free LLM provider
   tiers (~1.7B+ tokens/month) behind one endpoint — so you can prototype without paying for API calls.
@@ -84,7 +84,7 @@ This sets up `~/freellmapi`, generates an at-rest `ENCRYPTION_KEY`, pulls
 `ghcr.io/tashfeenahmed/freellmapi:latest`, starts the container on `:3001`, and waits for `/api/ping`.
 Re-running is safe — it preserves the existing `.env`. When it finishes, probe `/api/ping` again to
 confirm. If Docker isn't available, fall back to a source install (`git clone` + `npm install` +
-`npm run dev`); see the repo README's *Local development* section.
+`npm run dev`); see the *Local development* section of the [repo README](https://github.com/tashfeenahmed/freellmapi).
 
 If the user already runs it on a non-default port or another host, use that `base_url` everywhere below.
 

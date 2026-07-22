@@ -83,21 +83,21 @@ derivative works of, or adopt patterns from, specific skills in
 
 | Skill-Madness skill              | Adapted from                                    | What we took                                                                                                                                                                                                                                                                                                                                                                             |
 | -------------------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `workflows/diagnose-loop`        | `engineering/diagnose`                          | The six-phase structure with **Phase 1 — Build a feedback loop — IS the skill** as the structural insight. The ten ranked ways to construct a loop (failing test → curl → CLI diff → headless browser → trace replay → throwaway harness → fuzz → bisect → differential → HITL bash). The `[DEBUG-xxxx]` tagged-logs cleanup pattern. The falsifiable-hypothesis-with-prediction format. |
+| `workflows/diagnose-loop`        | `engineering/diagnose` (renamed `engineering/diagnosing-bugs` at upstream v1.1.0) | The six-phase structure with **Phase 1 — Build a feedback loop — IS the skill** as the structural insight. The ten ranked ways to construct a loop (failing test → curl → CLI diff → headless browser → trace replay → throwaway harness → fuzz → bisect → differential → HITL bash). The `[DEBUG-xxxx]` tagged-logs cleanup pattern. The falsifiable-hypothesis-with-prediction format. |
 | `workflows/grill-me`             | `productivity/grill-me`                         | The three constraints that make grilling different from generic Q&A: one question at a time, recommend-then-ask, ask-code-not-user-when-possible. Depth-first design-tree walk.                                                                                                                                                                                                          |
 | `workflows/maintain-context`     | `engineering/grill-with-docs`                   | The three-condition ADR gate (hard-to-reverse + surprising + real-tradeoff). The "CONTEXT.md is a glossary, NOT a spec" discipline. Inline-update-not-batch pattern. The `_Avoid_:` alias-list convention.                                                                                                                                                                               |
 | `workflows/architecture-rescue`  | `engineering/improve-codebase-architecture`     | The deletion test (*"imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep."*). The two-adapter rule. The seven-term architectural glossary (Module / Interface / Depth / Seam / Adapter / Leverage / Locality) with forbidden synonyms. The deepening-opportunity lens.                         |
-| `workflows/caveman`              | `productivity/caveman`                          | **Direct fork** with attribution. Same persistence rule, same drop/keep lists, same auto-clarity exception for destructive ops. Examples reused.                                                                                                                                                                                                                                         |
-| `workflows/zoom-out`             | `engineering/zoom-out`                          | The seven-line zoom-out instruction and `disable-model-invocation: true` convention for explicit-only skills.                                                                                                                                                                                                                                                                            |
+| `workflows/caveman`              | `productivity/caveman` (deleted upstream; absent at v1.1.0) | **Direct adaptation** with attribution: the persistence rule, drop/keep lists, and auto-clarity exception for destructive ops. Our examples are original (they never existed upstream) and our version deliberately stays model-invocable. We keep the skill despite the upstream deletion — see `docs/adr/0001-keep-caveman-zoom-out.md` (2026-07-21).                                   |
+| `workflows/zoom-out`             | `engineering/zoom-out` (deleted upstream; absent at v1.1.0) | The seven-line zoom-out instruction and `disable-model-invocation: true` convention for explicit-only skills. Kept despite the upstream deletion — see `docs/adr/0001-keep-caveman-zoom-out.md` (2026-07-21).                                                                                                                                                                             |
 | `workflows/work-item-brief`      | `engineering/triage` (the Agent Brief contract) | The durability rules for agent-ready briefs: no file paths, no line numbers, mandatory `Key interfaces:` section, mandatory testable acceptance criteria, mandatory `Out of scope` list. The concept-level out-of-scope file pattern.                                                                                                                                                    |
-| `in-progress/setup-project-skills` | `engineering/setup-matt-pocock-skills`        | The per-project bootstrap pattern: ask three questions one at a time with explainers, write `docs/agents/*.md` config files that other skills read, fail loudly with *"run /setup-project-skills first"* when config is missing.                                                                                                                                                        |
+| `workflows/setup-project-skills` | `engineering/setup-matt-pocock-skills` (since moved upstream) | The per-project bootstrap pattern: ask three questions one at a time with explainers, write `docs/agents/*.md` config files that other skills read, fail loudly with *"run /setup-project-skills first"* when config is missing.                                                                                                                                                        |
 
 
 In addition to the per-skill adaptations above, the current update cycle is
 adopting the following **structural and editorial patterns** from
 `mattpocock/skills`, applied via Phase 4 of the update plan:
 
-- **The 100-line rule** for SKILL.md, from `productivity/write-a-skill` —
+- **The 100-line rule** for SKILL.md, from `productivity/write-a-skill` (since removed upstream) —
 *"Split into separate files when SKILL.md exceeds 100 lines."* Being applied
 to ten long user-owned skills (`mermaid-charts`, `orchestrator`,
 `playwright`, `repo-deep-dive`, etc).
@@ -116,7 +116,7 @@ producing briefs / plans / ADRs.
 - **The `setup-X-skills` bootstrap pattern** — convention-over-re-prompting:
 one skill writes the per-repo configuration substrate that other skills
 read; missing config produces a "run setup first" message instead of
-re-asking. Being introduced as `setup-project-skills`.
+re-asking. Shipped as `workflows/setup-project-skills`.
 - **Bucket-as-publication-gate** — `.claude-plugin/plugin.json` allowlists  
 which skills ship; `archive/` and `in-progress/` exist on disk but aren't  
 published. Being introduced alongside the new plugin manifest and updated  
@@ -191,9 +191,12 @@ The karpathy-skills repository declares MIT in its README and in the
 `SKILL.md` frontmatter `license: MIT` field. No standalone `LICENSE` file is
 present in the upstream repo at the time of writing. Our use is consistent
 with attribution-and-share requirements; the originator's name and source URL
-are preserved here and in the relevant Skill-Madness skills (`workflows/caveman`
-is the most direct adoption; other adoptions are pattern-level rather than
-verbatim).
+are preserved here and in the relevant Skill-Madness skills. Note on lineage:
+the *caveman concept* originates in Karpathy's observations as distilled by
+karpathy-skills, but our `workflows/caveman` implementation is adapted from
+mattpocock's `productivity/caveman` (see the table above), which shares that
+lineage — what we take from karpathy-skills directly is pattern-level rather
+than verbatim.
 
 ---
 

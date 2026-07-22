@@ -11,7 +11,7 @@ These two skills are siblings, not duplicates. They produce different artifacts 
 | **Target tool** | Claude Code, frontend-agent, orchestrator | Claude Design (claude.ai canvas / artifact) |
 | **Output format** | Long Markdown spec (200–400 lines) saved to repo as `UI-CHALLENGE.md` | Short paste-ready prompt (60–150 lines) saved as `CLAUDE-DESIGN-PROMPT.md` |
 | **Use case** | Build the production site / app | Produce hi-fi mockups for stakeholder review |
-| **Includes** | Skill-coverage list, DoD with E2E + axe, tech stack, component primitives with implied APIs, screenshot-diff DoD | Pre-answered Q&A for the 13 categories, reference apps, palette/font specifics with fallbacks, "what to ship as artifact" instruction |
+| **Includes** | Skill-coverage list, DoD with E2E + axe, tech stack, component primitives with implied APIs, screenshot-diff DoD | Pre-answered Q&A for the 12 categories, reference apps, palette/font specifics with fallbacks, "what to ship as artifact" instruction |
 | **Excludes** | Q&A pre-answers, "ship as artifact" instructions | Implementation discipline, test commands, monorepo concerns |
 | **Length** | 200–400 lines | 60–150 lines |
 

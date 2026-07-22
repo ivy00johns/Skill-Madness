@@ -1,21 +1,19 @@
 ---
 name: orchestrator-task-loop
-version: 1.0.0
+version: 1.0.1
 description: >-
   The outer orchestration loop over the Agent Teams shared task list: the lead
   loops the board until EVERY task is completed AND each passes its TaskCompleted
   gate, feeding idle workers via the TeammateIdle hook so the team never stalls.
   One pass = read the board, assign the highest-priority unblocked task to each
   idle teammate, gate each completed task (pass counts it; fail rolls it back),
-  re-verify the whole board. Generalizes ralph-orchestrator onto Agent
-  Teams. Experimental — gated behind CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1; falls
-  back to the orchestrator's subagent/sequential path when off. Use to drain a
-  task board or keep the team working until done under a build.
-  Trigger on: "loop over the task list", "drain the task board", "keep the team
-  working until done", "agent teams loop", "orchestrator task loop", "keep idle
-  teammates fed". A configuration of loop-controller — it supplies the harness;
-  this skill supplies the proof (the task list fully drained) and the
-  assignment/supervision discipline.
+  re-verify the whole board. Experimental — gated behind
+  CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1; falls back to the orchestrator's
+  subagent/sequential path when off. Use to drain a task board or keep the team
+  working until done under a build. Trigger on: "loop over the task list",
+  "drain the task board", "keep the team working until done", "agent teams
+  loop", "orchestrator task loop", "keep idle teammates fed". A configuration
+  of loop-controller.
 requires_claude_code: true
 requires_agent_teams: true
 min_plan: starter

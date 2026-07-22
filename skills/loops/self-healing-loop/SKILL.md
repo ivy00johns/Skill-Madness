@@ -1,6 +1,6 @@
 ---
 name: self-healing-loop
-version: 1.0.1
+version: 1.1.0
 description: >-
   Watch a production or CI error signal on a cadence and, when an ACTIONABLE
   error appears, trace its root cause, fix it in a branch, verify the failing
@@ -153,6 +153,24 @@ rather than pushing one task to a finish line:
 - **Inside a tick**, the *heal* step degenerates to a finish-line loop — that's
   where [`fix-until-green`] (a `/goal` or Stop-hook loop) drives the red build to
   green as this loop's verifier.
+
+## Long-run hygiene (wired per loop-controller Step 6)
+
+A watcher that ticks for days needs the Claude 5 long-run rules in its own
+contract (drop-in text: `model-adaptation` → `references/long-run-hygiene.md`):
+
+- **Evidence-backed progress** — "healed" is claimed only with the verifying
+  re-run's output in `heal_log.md`; a quiet tick is claimed only with the
+  timestamped clean-log query result. No entry, no claim.
+- **Don't end a tick on a promise** — a tick ends with a PR opened/updated, a
+  clean-log entry recorded, or a human paged at the HITL boundary; never with
+  "I'll diagnose this next tick" and no triage.
+- **Budget is a harness decision** — a poll loop that fires around the clock
+  adds up; enforce the ceiling from `.claude/profile.yaml` in the harness and
+  keep countdowns away from the working tick.
+- **Effort per tick** — quiet-tick polls run at `low`/`medium`; escalate to
+  `high`/`xhigh` only inside an actionable diagnose/fix cycle (tiering:
+  `model-adaptation`).
 
 ## How this differs from its neighbors
 

@@ -116,6 +116,23 @@ These check whether a skill is written for the model actually running it. See th
   family output laziness is far less common, so keep the block only where a *measured*
   truncation failure exists for this skill, not by default.
 
+### Writing-craft checks (CB-2 — mattpocock `writing-great-skills` doctrine)
+
+Applied per skill in deep-review mode; each is a checked rule, not advice:
+
+- [ ] **Leading-word anchor.** Does the skill hang its behavior on one strong
+  pretrained concept ("adversarial", "triage", "postmortem"), or does it restate
+  a multi-part definition across three or more sites that should collapse to a
+  single anchoring token? Flag the restatement sites and propose the anchor.
+- [ ] **No-op sentences.** Flag any line the model already obeys by default
+  ("be helpful", "write clean code", "consider edge cases") and recommend
+  deleting the **whole sentence** — trimming a no-op produces a shorter no-op,
+  not signal.
+- [ ] **Positive-prompting lint.** Flag bare prohibitions ("don't X") that leave
+  the replacement behavior unstated; recommend restating as the target behavior
+  with the reason ("do Y because Z"). Exception: deliberately-named *Forbidden:*
+  anti-patterns, where the forbidden form is the anchor — those stay.
+
 ## Bulk Scoring Quick Reference
 
 For per-skill scores in the Mode A report, use simplified triage:

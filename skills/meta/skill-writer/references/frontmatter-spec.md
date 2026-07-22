@@ -133,7 +133,7 @@ See `description-patterns.md` for templates and worked examples.
 - **Default:** false
 - **Purpose:** Set to `true` for skills that should be invocable only by an orchestrator or explicit slash-command — not by Claude's normal model-driven skill auto-trigger. Use for: role-agent skills dispatched by the orchestrator, contract-management skills (`dependency-coordinator`), and project-setup skills (`setup-project-skills`, `zoom-out`) that need user intent to fire.
 - **Note:** This is a real Claude Code field — recognized by the runtime. Documenting here for spec coverage.
-- **Used by:** all 10 role agents, `dependency-coordinator`, `setup-project-skills`, `zoom-out`.
+- **Used by:** 27 skills as of 2026-07-21 — all 10 role agents, all 13 `loops/*` skills, `contract-auditor`, `dependency-coordinator`, `setup-project-skills`, and `zoom-out`. The authoritative list is disk truth: `grep -rl '^disable-model-invocation: true' skills/*/*/SKILL.md`.
 
 ## Optional Fields — Multi-Agent Extensions
 
@@ -149,7 +149,7 @@ This repo's extensions for orchestrated builds. Not part of Anthropic's spec; pa
 
 - **Type:** boolean
 - **Default:** false
-- **Purpose:** Set true if skill requires Claude Code CLI (bash, filesystem access)
+- **Purpose:** Set true if the skill requires Claude Code **runtime machinery**: subagent / Agent-Teams dispatch, lifecycle hooks, loop primitives (`/goal`, `/loop`, Stop hooks), the Artifact tool, or `~/.claude` config. Bash and filesystem access are **not** the test — every target host has those. This is the criterion `convert.sh` implements: `true` skips the skill for non-Claude-Code hosts.
 
 ### min_plan
 
@@ -228,7 +228,7 @@ These rules come from Anthropic's spec. `skill-review` enforces them.
 | `compatibility` | Added | Cross-platform parsers use this string; `requires_*` booleans complement for programmatic gating |
 | `metadata` | Spec-legal, unused here (FA7) | Nested form matches Anthropic spec, but PR #34 dropped it from all skills — directory conveys category, description carries keywords |
 | `requires_agent_teams` | Explicit boolean | Native teams need env var; skills must declare this for runtime gating |
-| `requires_claude_code` | Explicit boolean | Some skills are CLI-only; users need to know |
+| `requires_claude_code` | Explicit boolean | True = needs CC runtime machinery (subagents, hooks, loop primitives, Artifact, `~/.claude`) — not merely bash/filesystem, which every host has |
 | `owns.directories` | Enforced by orchestrator | Core to zero-conflict parallel builds |
 | `owns.patterns` | Glob-based | Handles files not in a single directory |
 | `composes_with` | Informational | Helps skill-writer and future auto-composition |

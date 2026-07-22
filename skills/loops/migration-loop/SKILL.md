@@ -1,6 +1,6 @@
 ---
 name: migration-loop
-version: 1.0.0
+version: 1.1.0
 description: >-
   Migrate a known, enumerated set of targets one at a time until EVERY one is
   done — one iteration picks the next un-migrated target from a checklist,
@@ -10,8 +10,7 @@ description: >-
   target set whose proof is "no legacy pattern remains," not just "tests pass."
   Use for a codemod across a repo, a Jest-to-Vitest swap, an API version bump, a
   framework migration, an import/dependency rename, or any mechanical transform
-  applied to a finite list of files. Large sets may fan out via batch or a
-  dynamic workflow with worktree isolation. Trigger on "migrate everything from
+  applied to a finite list of files. Trigger on "migrate everything from
   X to Y", "run the codemod across the repo", "bump every call site", "swap the
   framework", "migrate all the tests", "finish the migration", "no old pattern
   left", "/migration-loop". A configuration of loop-controller.
@@ -166,6 +165,45 @@ after no-progress, that's a real migration blocker, not a number to paper over. 
 fully-migrated checklist informs the build; the `qe-agent`'s `qa-report.json`
 still decides the gate (`loop-controller`'s rule: the loop informs, the gate
 decides).
+
+## Expand–contract mode (when one change breaks everything at once)
+
+A single mechanical change whose blast radius breaks thousands of call sites in
+one motion — rename a column, retype a shared symbol, change a core signature —
+can't run as the normal migrate-and-verify loop: every batch is red until the
+last one lands. Sequence it **expand → migrate → contract** instead:
+
+1. **Expand** — add the new form *beside* the old (new column, overloaded
+   signature, aliased export). Nothing breaks; the suite stays green.
+2. **Migrate** — drive call sites over in blast-radius-sized batches with the
+   normal checklist loop; each batch stays green because the old form still
+   exists.
+3. **Contract** — when the legacy-pattern grep hits zero *call sites*, delete
+   the old form. The final proof adds a grep for the old *definition*.
+
+Wire the stages as three checklist phases — the contract stage is its own target
+whose transform is the deletion. When batches can't stay green alone (deeply
+entangled sites), fall back to a shared integration branch that merges only when
+the whole set is green. (Adapted from mattpocock `engineering/to-tickets`
+v1.1.0; CB-9.)
+
+## Long-run hygiene (wired per loop-controller Step 6)
+
+A long migration is exactly where the Claude 5 long-run rules earn their keep
+(drop-in text: `model-adaptation` → `references/long-run-hygiene.md`):
+
+- **Evidence-backed progress** — a checklist entry flips `true` only on the
+  observed pair (suite exit 0 + checkpoint commit hash) for *that* target; a
+  `PROGRESS.md` line without both is fabrication, not progress.
+- **Don't end an iteration on a promise** — each iteration ends with a target
+  migrated, committed, and flipped, or at a declared stop condition; never with
+  "next I'll migrate X" and no edit.
+- **Budget is a harness decision** — read caps from `.claude/profile.yaml`;
+  don't show the model a countdown, and don't let a long set trigger
+  summarize-and-quit — the checklist externalizes exactly where to resume.
+- **Effort per iteration** — mechanical transforms run at `medium`/`low`;
+  reserve `high`/`xhigh` for a transform that reds the suite (tiering:
+  `model-adaptation`).
 
 ## How this differs from its neighbors
 

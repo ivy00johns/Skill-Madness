@@ -102,6 +102,19 @@ count_category() {
   _inventory "$1" | grep -c "^$2|" || true
 }
 
+# count_convertible <skills_root> — active skills that convert to non-Claude-
+# Code hosts: requires_claude_code absent or false (the criterion convert.sh
+# implements). Guards the README's hand-drifting "N of the M skills" phrases.
+count_convertible() {
+  local root="$1" n=0 f
+  while IFS= read -r f; do
+    grep -qE '^requires_claude_code:[[:space:]]*true' "$f" || n=$(( n + 1 ))
+  done < <(find "$root" -maxdepth 3 -name SKILL.md -type f 2>/dev/null \
+    | grep -v "$root/archive/" \
+    | grep -v "$root/in-progress/")
+  printf '%s\n' "$n"
+}
+
 # list_skills <skills_root> — print each active skill's name (the directory
 # basename, or "orchestrator" for the top-level skill), one per line, sorted.
 # Derives from the SAME inventory pass as count_total so the README-table
@@ -466,6 +479,22 @@ for_each_assertion() {
     'skill library \([0-9]+\)' "$total" \
     's/.*skill library \(([0-9]+)\).*/\1/' \
     "s/(skill library \()[0-9]+(\))/\1${total}\2/g"
+
+  # --- Convertible-subset assertions (PF3) ----------------------------------
+  # "N of the M skills" — the other-hosts section (~501) and troubleshooting
+  # (~675). N = skills without requires_claude_code:true (what convert.sh
+  # ships); M = the disk total. Two assertions per phrase so a flag flip or a
+  # new skill can't silently strand either number.
+  local convertible
+  convertible="$(count_convertible "$SKILLS_ROOT")"
+  "$cb" "$README" "README prose (N of the M skills — convertible)" \
+    '[0-9]+ of the [0-9]+ skills' "$convertible" \
+    's/.*[^0-9]([0-9]+) of the [0-9]+ skills.*/\1/' \
+    "s/[0-9]+( of the [0-9]+ skills)/${convertible}\1/g"
+  "$cb" "$README" "README prose (N of the M skills — total)" \
+    '[0-9]+ of the [0-9]+ skills' "$total" \
+    's/.*[0-9]+ of the ([0-9]+) skills.*/\1/' \
+    "s/( of the )[0-9]+( skills)/\1${total}\2/g"
 
   # --- Per-category prose/badge phrases (README + plugin/marketplace) --------
   # These carry per-category numbers that the total-only sync used to strand
