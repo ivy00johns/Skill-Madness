@@ -1,6 +1,6 @@
 # Future — Frontier (out of scope)
 
-**Last updated:** 2026-07-03 (F5–F18 intaken from the full-library review's ideas appendix)
+**Last updated:** 2026-07-21 (WC-3 parked as an F1 sub-note + PX-4 parked from the pxpipe dive)
 **Companions:** [`PLAN.md`](../PLAN.md), [`docs/REMAINING-WORK.md`](REMAINING-WORK.md)
 
 Items explicitly out of scope for the current plan. Kept here so they aren't lost; pulled into the ledger only if a future cycle prioritizes them.
@@ -8,6 +8,7 @@ Items explicitly out of scope for the current plan. Kept here so they aren't los
 ## F1 — Multi-host installer reach ("convergence frontier")
 The `agency-agents` comparison (184 agents, 11-tool install reach) sketches a ~10-day roadmap to broaden where skills can install (Copilot, Cursor-native, and other hosts) while preserving Skill-Madness's moats (contract layer, QA gate). Aspirational, not committed.
 Source: `../DeepResearch/AllTheSkills/agency-agents_deepdive/source-material/11-convergence-frontier.md`.
+Sub-note (2026-07-21, `[WCT]`, parked WC-3): if/when host #12 lands, consider the ai-website-cloner-template pattern — a declarative `hosts.yaml` data file driving the converter instead of one shell function per host. Refactoring a working generator for an aspirational need fails the YAGNI ladder today.
 
 ## F2 — Skill marketplace / registry
 A discoverable registry for publishing/pulling skills with remote version pinning (the `source` field reserved in `skills-lock.json` hints at this). No design committed.
@@ -85,3 +86,11 @@ The lower-confidence tail of the skills-comparative intake (the committed borrow
 Parked frontier build from the SkillOpt deep dive (`[SO]`); pulled into the ledger only if a future cycle prioritizes it. The concrete, cheaper SkillOpt borrows are `SO-4`–`SO-6` in [`docs/REMAINING-WORK.md`](REMAINING-WORK.md); the efficacy extension is folded into F5 above; the model-tiering follow-up is `MA-2`.
 
 - **SO-2** `[speculative]` — **Sleep-style session-harvest → `plan-intake` bridge.** A nightly/offline pass that harvests the maintainer's real Claude Code / Codex session history, mines recurring pain into checkable candidate skill-edits, and *proposes* them straight into the `plan-intake` ledger for human approval — adapting SkillOpt-Sleep's harvest→mine→replay→consolidate loop, reusing the `madness` intent-router to route a lesson to the right one of the 71 skills, and gating consolidation on a held-out replay. Big new build; depends on F5's efficacy gate (above) existing first, so deferred until then. Observable change: overnight, the toolkit turns your real past sessions into proposed skill edits waiting in the ledger. Source: `[SO]` (`09-sleep-engine.md`, `13-convergence-analysis.md` §C2).
+
+---
+
+## Deferred build from the 2026-07-21 pxpipe deep dive (`PX-4`)
+
+Parked frontier build from the pxpipe deep dive (`[PX]`); the committed adoption rows are `PX-1`–`PX-3` in [`docs/REMAINING-WORK.md`](REMAINING-WORK.md).
+
+- **PX-4** `[speculative]` — **Direct pxpipe render-API embedding in bulk-ingest skills.** Skills that feed huge piles of source to a model (`llm-wiki` ingest, `repo-deep-dive` synthesis) could run at ~1/3 input tokens by embedding pxpipe's render API directly — but that takes a code dependency on a v0.8.x repo, and no measured pain point demands it yet. Depends on PX-1 proving out. Source: `[PX]`.
