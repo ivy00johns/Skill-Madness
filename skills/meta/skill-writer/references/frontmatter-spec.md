@@ -133,7 +133,7 @@ See `description-patterns.md` for templates and worked examples.
 - **Default:** false
 - **Purpose:** Set to `true` for skills that should be invocable only by an orchestrator or explicit slash-command — not by Claude's normal model-driven skill auto-trigger. Use for: role-agent skills dispatched by the orchestrator, contract-management skills (`dependency-coordinator`), and project-setup skills (`setup-project-skills`, `zoom-out`) that need user intent to fire.
 - **Note:** This is a real Claude Code field — recognized by the runtime. Documenting here for spec coverage.
-- **Used by:** all 10 role agents, `dependency-coordinator`, `setup-project-skills`, `zoom-out`.
+- **Used by:** 27 skills as of 2026-07-21 — all 10 role agents, all 13 `loops/*` skills, `contract-auditor`, `dependency-coordinator`, `setup-project-skills`, and `zoom-out`. The authoritative list is disk truth: `grep -rl '^disable-model-invocation: true' skills/*/*/SKILL.md`.
 
 ## Optional Fields — Multi-Agent Extensions
 

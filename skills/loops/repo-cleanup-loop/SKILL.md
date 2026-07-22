@@ -1,6 +1,6 @@
 ---
 name: repo-cleanup-loop
-version: 1.0.0
+version: 1.0.1
 description: >-
   Keep a repo's git state intentional on a weekly cadence: scan every branch,
   PR, commit trail, and worktree, classify each as current / owned / safely
@@ -13,8 +13,7 @@ description: >-
   after sprints, or a weekly hygiene sweep that recovers before it deletes.
   Trigger on "clean up the repo weekly", "weekly repo hygiene", "prune stale
   branches and worktrees on a schedule", "tidy git state every week", "scheduled
-  repo cleanup", "keep the repo state intentional", "sweep stale PRs and
-  worktrees", "recover before deleting branches". A configuration of
+  repo cleanup", "sweep stale PRs and worktrees". A configuration of
   loop-controller.
 requires_claude_code: true
 min_plan: starter
