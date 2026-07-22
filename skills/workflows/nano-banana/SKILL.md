@@ -1,13 +1,13 @@
 ---
 name: nano-banana
-version: 1.4.0
+version: 1.5.0
 description: >
   Generate images using Google's Nano Banana (Gemini Image Generation) API and save them to the project. Use whenever
   the user asks to generate images, create product photos, hero banners, or lifestyle shots, mentions "Nano Banana" /
   "generate an image" / "make a banner", or wants batch image generation. Also trigger for any AI image task using
   Gemini models — even casual phrasings like "let's do images" or "make me a picture of".
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: []
