@@ -1,6 +1,6 @@
 ---
 name: repo-deep-dive
-version: 1.5.0
+version: 1.5.1
 description: >-
   Perform a comprehensive technical deep dive on an open-source repository, combining
   a deep-research markdown document with hands-on codebase analysis to produce a structured
@@ -29,16 +29,17 @@ spawned_by: []
 
 Turn a Claude Deep Research document and a locally cloned repository into a comprehensive, structured technical reference — the kind of document set that lets someone understand a 100k+ LoC codebase in an afternoon.
 
-## First: figure out the target from where you are — don't interrogate
+## First: the repo you're in IS the target — dive in, don't go hunting
 
-You were launched in a specific working directory for a reason. Read that context **before asking a single question** — it answers most of what a menu would ask, and interrogating the user for what you could have read yourself is the friction to avoid.
+You were launched in a specific working directory for a reason: that repo is the one to deep-dive. Read that context **before asking a single question** — interrogating the user for what you could have read yourself is the friction to avoid, and interrogating the *filesystem* to guess is worse.
 
-- **Check the working directory first: run `git rev-parse --show-toplevel`.** If it succeeds, you're inside a git repo, and that repo is your default target. A user who invokes `/repo-deep-dive` here — with words like "this", "this repo", "this codebase", "the lessons in this", or with no explicit target at all — means *this repo*. "this" points at the current context; take it literally and proceed.
-- **When you default to the current repo, say so in one line and keep going** — e.g. "Deep-diving the repo you're in: `<name>` — tell me if you meant a different one." A single correctable statement respects the user's time; a blocking multiple-choice menu does not.
-- **Only genuinely ambiguous cases deserve a question.** Ask which repo *only* when: (a) the working directory isn't a git repo, (b) the user explicitly names or points to a different project, path, or URL, or (c) their words clearly refer to something they were viewing elsewhere (a pasted repo URL, "this library I found"). Even then, ask once with the current repo pre-filled as the default — don't make them pick from scratch.
-- **A deep dive usually compares the target against a *reference* project.** When the target is an external clone, the repo you're invoked in is almost always that reference — infer it, don't ask twice.
+- **Check the working directory: run `git rev-parse --show-toplevel`.** If it succeeds, that repo is the target. Words like "this", "this repo", "this codebase", "the lessons in this", "another repo from `<person>`", or no explicit target at all — all mean *the repo you're in*. Take it literally and proceed.
+- **State the assumption in one line and keep going** — e.g. "Deep-diving the repo you're in: `<name>` — tell me if you meant a different one." A single correctable statement respects the user's time; a blocking multiple-choice menu does not.
+- **Never scan the filesystem to guess a target.** If the user's words seem to gesture at some other repo but give you no path, that is *not* license to `find`/`ls`/`git log` across their other repos hunting for a match — that machine-interrogation is the same friction as menu-interrogation, and it burns a turn guessing. You have exactly two resolutions: the repo you're in, or a *specific* path/URL the user actually named. Nothing concrete to resolve means nothing to hunt for.
+- **Only one situation earns a question:** the user names a *different* project you cannot resolve to a path, or the working directory isn't a git repo at all. Then ask **once** — a single direct question with the current repo pre-filled as the default — rather than going and guessing.
+- **"Compare against X" / "what can Y learn from this" is a lens, not a second target to find.** A deep dive may compare the target against a reference project, but that reference is the *framing goal*, not a repo you go looking for — and it never demotes the repo you're in to "the reference" and sends you elsewhere for "the real target." The repo you're in is the target; the comparison is what you do with it.
 
-The rule of thumb: read the git root and the user's actual words first, state your assumption, and proceed. Reserve questions for what context genuinely can't resolve.
+The rule of thumb: the current repo is the target — state that assumption and proceed. Reserve a question for the one situation above; never a filesystem scavenger hunt.
 
 ## What You Need
 
