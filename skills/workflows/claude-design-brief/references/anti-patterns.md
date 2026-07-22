@@ -9,7 +9,7 @@ Failure modes to avoid in any Claude Design prompt, and how this skill composes 
 | Echoing "decide for me" back as a question | Decide. State the decision. Explain in one clause. The canvas executes on commitments, not questions. |
 | Adjective-only tone ("modern", "clean", "professional") | Replace with two reference apps appropriate to the domain plus one named style. "NYT Magazine × Politico Magazine × wartime correspondent register" beats "professional and clean". |
 | Silence on a decision area because "the user didn't mention it" | Check the coverage guide. An uncommitted decision is what makes Claude Design ask. Even "no newsletter CTA on this product" is a better answer than silence. |
-| Structuring the prompt as a numbered 13-slot form | Write the brief to fit the project. The 13 categories are a coverage checklist, not an output format. A filled-in form looks the same for every project; a good brief looks like this specific project. |
+| Structuring the prompt as a numbered 12-slot form | Write the brief to fit the project. The 12 categories are a coverage checklist, not an output format. A filled-in form looks the same for every project; a good brief looks like this specific project. |
 | Three palettes of the same layout | Run the variation rubric (see `variation-and-risks.md`). Vary on three+ orthogonal axes. |
 | Naming a licensed font without a fallback | Every named family pairs with a Google Fonts equivalent in the same line: `Söhne (fallback: Inter)`. |
 | Forgetting the chat-vs-canvas summary instruction | Default in the template. Without it the recap gets buried on the canvas or skipped. |
@@ -30,6 +30,6 @@ Failure modes to avoid in any Claude Design prompt, and how this skill composes 
 
 - **Self-contained.** No "see [other doc] for X" — if it must reference `UI-CHALLENGE.md`, summarize the 5–8 most relevant rules inline.
 - **Project-specific.** No template placeholders unfilled. Every `[bracket]` resolves to a real value.
-- **Decision-dense.** Every one of the 13 categories has a committed answer.
+- **Decision-dense.** Every one of the 12 categories has a committed answer.
 - **Paste-target friendly.** Code blocks for any literal content the canvas should render verbatim. No table syntax that breaks when copy-pasted.
 - **Canvas-aware.** Every constraint from `canvas-constraints.md` appears as a default decision in the prompt.

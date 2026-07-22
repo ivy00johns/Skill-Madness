@@ -1,6 +1,6 @@
 # Fix Plan — "mock-as-done": the gate-coverage hole that ships a fiction
 
-> Status: **DONE — skills edited + eval green** (2026-06-23). Surfaced by the `llm-colosseum` build:
+> Status: **DONE — skills edited + eval green** (2026-06-23; eval outcome inlined under *Done when* — the eval workspace itself is local and gitignored). One follow-on remains open and is explicitly out of this change's scope: the `integrations/*` per-platform refresh (last checkbox). Surfaced by the `llm-colosseum` build:
 > a complete, gorgeous "Twitch-for-AIs" spectator UI was declared **done** with
 > **zero real LLM calls** — every match was a mock emitter replaying a fixture.
 > Every gate was green. The product's entire moat ("watch real models reason and
@@ -53,7 +53,8 @@ path. A static marketing site or a portfolio has no real-path gate to add.
 - `ui-brief`: skill-creator eval — generate a brief for (a) a live-data product
   and (b) a static product, with the OLD vs NEW skill. Assert: NEW adds a
   real-path DoD gate for (a) and does **not** over-impose one for (b); OLD lacks
-  it for (a). (Workspace: `skills/workflows/ui-brief-workspace/`.)
+  it for (a). (Workspace: `skills/workflows/ui-brief-workspace/` — **local, gitignored**;
+  the outcome is inlined in the *Done when* checklist below rather than linked.)
 - loop/orchestrator edits: reasoned (full-build evals impractical), validated
   against the colosseum failure they would have caught.
 
@@ -73,4 +74,9 @@ path. A static marketing site or a portfolio has no real-path gate to add.
       (separate from this change — `sync-catalog-skills.py` only reconciles
       `plugin.json`, it does not propagate SKILL.md content). The canonical
       `skills/**` edits are what `~/.claude` symlinks to and what runs today.
-- [ ] Proposal moved to DONE with the eval artifact linked.
+- [x] Proposal moved to DONE with the eval outcome recorded. The eval artifact
+      (`ui-brief-workspace/iteration-1/RESULTS.md`) is local/gitignored, so the
+      outcome is inlined in the checkbox above instead of linked: 4-run A/B —
+      live/NEW adds 3 real-path DoD items, static/NEW correctly omits the gate
+      with reasoning, live/OLD green-lights the mock (the reproduced colosseum
+      failure).

@@ -21,13 +21,13 @@ A multi-agent orchestration toolkit for Claude Code: **71 skills, seven categori
 </p>
 
 <p align="center">
-  <a href="#quick-start">Quick Start</a> ·
-  <a href="#why-this-exists">Why this exists</a> ·
-  <a href="#autonomous-loops">Loops</a> ·
-  <a href="#architecture">Architecture</a> ·
-  <a href="#skill-catalog">Skill catalog</a> ·
-  <a href="#also-works-on-ten-other-hosts">Other hosts</a> ·
-  <a href="#roadmap">Roadmap</a>
+  <a href="#-quick-start">Quick Start</a> ·
+  <a href="#-why-this-exists">Why this exists</a> ·
+  <a href="#-autonomous-loops">Loops</a> ·
+  <a href="#-architecture">Architecture</a> ·
+  <a href="#-skill-catalog">Skill catalog</a> ·
+  <a href="#-also-works-on-ten-other-hosts">Other hosts</a> ·
+  <a href="#-roadmap">Roadmap</a>
 </p>
 
 </div>
@@ -76,7 +76,7 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 - 📜 **Contract-first** — `contract-author` writes OpenAPI / AsyncAPI / Pydantic / TypeScript / JSON Schema *before* a line of implementation. `contract-auditor` verifies every shipped module against the spec. Agents can't drift; the contract is the truth.
 - 🤖 **Ten role agents, exclusive ownership** — backend, frontend, infrastructure, QE, security, docs, observability, db-migration, performance, code-review. Each declares `owns.directories` / `owns.files` in its frontmatter. No two agents touch the same path. Conflicts get resolved before spawn, not after.
 - 🛡️ **QA gate that blocks** — `qe-agent` emits a `qa-report.json` with critical / high / medium / low findings plus contract-conformance and security scores. The orchestrator gates the merge on the report. Agents can't self-declare "done."
-- 🔁 **Autonomous loops that converge** — 13 loop skills keep Claude working until something is *provably* true: `fix-until-green` won't stop until tests + lint + typecheck pass (and can't cheat the gate), `coverage-loop` grows the suite to a target without gaming it, `contract-conformance-loop` builds until a fresh-context evaluator agrees the spec is met, and `babysit` / `self-healing-loop` / `nightly-docs-and-changelog` run on a schedule. Every one is a configuration of `loop-controller`'s guardrail stack — iteration cap, token budget, no-progress breaker, stop condition — so they finish instead of thrashing. [See the loops →](#autonomous-loops)
+- 🔁 **Autonomous loops that converge** — 13 loop skills keep Claude working until something is *provably* true: `fix-until-green` won't stop until tests + lint + typecheck pass (and can't cheat the gate), `coverage-loop` grows the suite to a target without gaming it, `contract-conformance-loop` builds until a fresh-context evaluator agrees the spec is met, and `babysit` / `self-healing-loop` / `nightly-docs-and-changelog` run on a schedule. Every one is a configuration of `loop-controller`'s guardrail stack — iteration cap, token budget, no-progress breaker, stop condition — so they finish instead of thrashing. [See the loops →](#-autonomous-loops)
 - 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 71 and launches it. The cure for "which skill was that again?" across a 71-skill library.
 - 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 71-skill library stays cheap to host.
 - 🔁 **Two-runtime degradation** — Agent Teams (parallel tmux) → subagents (Task tool) → sequential. The orchestrator picks the highest mode the host supports; role skills work standalone in any of them.
@@ -498,7 +498,11 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 🎁 Also works on ten other hosts
 
-The orchestrator and the multi-agent QA gate are Claude-Code-native — that's the headline feature, and it stays home: skills whose contract *is* Claude Code's runtime (the orchestrator, the 10 role agents, all 13 loops, and the workflows bound to the Artifact tool, subagent dispatch, or `~/.claude` config) are marked `requires_claude_code: true` and are never converted. The canonical `SKILL.md` *format* is platform-agnostic, though, so the rest of the library — **34 of the 71 skills** today: the git conventions and the planning, docs, review, debugging, and contract-authoring workflows — converts to ten other AI coding tools. Broadening that subset is tracked as F1 in [`docs/FUTURE.md`](docs/FUTURE.md). Two scripts handle it:
+The orchestrator and the multi-agent QA gate are Claude-Code-native — that's the headline feature, and it stays home: skills whose contract *is* Claude Code's runtime (the orchestrator, the 10 role agents, all 13 loops, and the workflows bound to the Artifact tool, subagent dispatch, or `~/.claude` config) are marked `requires_claude_code: true` and are never converted. The canonical `SKILL.md` *format* is platform-agnostic, though, so the rest of the library — **34 of the 71 skills** today: the git conventions and the planning, docs, review, debugging, and contract-authoring workflows — converts to ten other AI coding tools. Broadening that subset is tracked as F1 in [`docs/FUTURE.md`](docs/FUTURE.md).
+
+The single-source model is deliberate, and there's a concrete counter-example for why: microsoft/SkillOpt shipped the opposite design — five bespoke per-host integrations (claude-code, codex, copilot, devin, openclaw) — and was already drifting within months of release: backend-enum mismatches between plugins, and an openclaw adapter broken-by-design against its own engine. One canonical `SKILL.md` plus converters means a fix lands once instead of five times.
+
+Two scripts handle it:
 
 ```bash
 ./scripts/convert.sh   # skills/**/SKILL.md  →  integrations/<host>/...
@@ -629,7 +633,7 @@ Both run in CI via the `Hooks Layer (Ubuntu)` job in `.github/workflows/lint-ski
 
 ---
 
-## 🛠️  Development
+## 🛠️ Development
 
 ### Run the lint locally
 
@@ -642,7 +646,7 @@ That's the same command CI runs. If it's green locally on macOS or Linux, the PR
 ### Add a new skill
 
 1. Use the `skill-writer` skill: `"Generate a new skill for X."` — it scaffolds frontmatter + body in the right category dir.
-2. Or copy `skills/meta/skill-writer/references/skill-template.md` and fill in by hand.
+2. Or copy `skills/meta/skill-writer/references/body-template.md` and fill in by hand.
 3. Run `./scripts/lint-skills.sh skills/<category>/<your-skill>/` until clean.
 4. Run `/sync-skills` (or `./scripts/install.sh --tool claude-code`) so Claude Code picks it up.
 5. PR — CI gates on full-ecosystem lint.
@@ -695,7 +699,7 @@ Set the override env var documented in `scripts/README.md` (e.g. `CURSOR_RULES_D
 
 ---
 
-## 🗺️  Roadmap
+## 🗺️ Roadmap
 
 - [x] **Skill library** — 71 skills, seven categories, all linted
 - [x] **Multi-tool installer** — convert / install / lint, eleven host adapters

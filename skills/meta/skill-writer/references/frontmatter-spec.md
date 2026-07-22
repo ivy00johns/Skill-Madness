@@ -149,7 +149,7 @@ This repo's extensions for orchestrated builds. Not part of Anthropic's spec; pa
 
 - **Type:** boolean
 - **Default:** false
-- **Purpose:** Set true if skill requires Claude Code CLI (bash, filesystem access)
+- **Purpose:** Set true if the skill requires Claude Code **runtime machinery**: subagent / Agent-Teams dispatch, lifecycle hooks, loop primitives (`/goal`, `/loop`, Stop hooks), the Artifact tool, or `~/.claude` config. Bash and filesystem access are **not** the test — every target host has those. This is the criterion `convert.sh` implements: `true` skips the skill for non-Claude-Code hosts.
 
 ### min_plan
 
@@ -228,7 +228,7 @@ These rules come from Anthropic's spec. `skill-review` enforces them.
 | `compatibility` | Added | Cross-platform parsers use this string; `requires_*` booleans complement for programmatic gating |
 | `metadata` | Spec-legal, unused here (FA7) | Nested form matches Anthropic spec, but PR #34 dropped it from all skills — directory conveys category, description carries keywords |
 | `requires_agent_teams` | Explicit boolean | Native teams need env var; skills must declare this for runtime gating |
-| `requires_claude_code` | Explicit boolean | Some skills are CLI-only; users need to know |
+| `requires_claude_code` | Explicit boolean | True = needs CC runtime machinery (subagents, hooks, loop primitives, Artifact, `~/.claude`) — not merely bash/filesystem, which every host has |
 | `owns.directories` | Enforced by orchestrator | Core to zero-conflict parallel builds |
 | `owns.patterns` | Glob-based | Handles files not in a single directory |
 | `composes_with` | Informational | Helps skill-writer and future auto-composition |

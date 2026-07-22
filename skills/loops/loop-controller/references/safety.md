@@ -100,6 +100,15 @@ anything without a test gate.
   checker's blind spot (a banned `rounded-full` reborn as inline
   `borderRadius:"50%"`), silence it with an ignore directive, or delete the
   assertion? Adversarial verification checks the fix, not the count.
+- **A self-improving loop must gate its own edits on measured, held-out
+  results — and there is now hard evidence for why.** microsoft/SkillOpt's
+  Sleep study ran twin overnight self-improvement loops on SearchQA, one with
+  an accept/reject validation gate and one without. The ungated twin learned a
+  plausible-but-wrong rule ("answer with the document-title string verbatim")
+  and collapsed **−52.8 points** night over night; the gated twin rejected
+  every one of those edits and lost nothing. For any loop that edits its own
+  prompt, skill, or config, the gate is not polish — it is the difference
+  between converging and self-lobotomizing.
 
 ## Staged adoption
 

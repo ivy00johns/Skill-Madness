@@ -1,6 +1,6 @@
 ---
 name: loop-controller
-version: 1.2.0
+version: 1.2.1
 description: >-
   Wrap any task in a verifiable stop condition plus a mandatory guardrail stack
   so an autonomous loop converges instead of thrashing or burning the budget —
