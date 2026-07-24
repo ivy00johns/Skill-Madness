@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.1.0
+version: 1.2.0
 description: >-
   The front door to the whole toolkit — one reliable entry point that reads what
   you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a
@@ -106,8 +106,21 @@ Route intent -> front door. Each front door owns the deeper routing from there.
 | Docs / research / deep-dive / wiki / diagram / image | `repo-deep-dive` / `llm-wiki` / `interactive-doc` / `mermaid-charts` / `nano-banana` | cheap |
 | Onboard / profile / set up a repo or harness | `project-profiler` / `setup-project-skills` / `settings-consolidator` | cheap |
 
-When nothing fits, say so plainly and name the closest miss — don't force a bad
-route. If it looks like a genuinely new pattern, point at `skill-writer`.
+## The load budget: one skill, or none
+
+Route to **one** skill. Pushy descriptions mean any request touching a shared
+term ("deploy", "review") makes several skills look plausible — but
+plausible-on-topic is not the test. Ask which decision is actually *unresolved*
+and route to the skill that resolves it (the "By unresolved decision" index in
+`skill-explorer/references/routing-table.md` keys on exactly this). Add a second
+skill only when the request genuinely contains two distinct open concerns — a
+sequenced handoff like `plan-builder` -> `orchestrator` is one route with a next
+step, not a second pick.
+
+And **"no skill" is a legal outcome.** When no decision a skill resolves is
+open, say so plainly and stop — a wrong-but-plausible launch costs more than
+"nothing here needs a skill; closest miss is X, and here's the gap." If it looks
+like a genuinely new pattern, point at `skill-writer`.
 
 ## The confirm gate: cheap goes, expensive confirms
 
@@ -192,3 +205,4 @@ a dead end.
 | Naming the skill but not invoking it | That's `skill-explorer`'s contract; `madness` is the active half — it launches |
 | Duplicating the full routing table here | The long-tail map lives in `skill-explorer/references/routing-table.md`; route to front doors and lean on it |
 | Adding a hop in front of a clean trigger | If a request already fires the right skill on its own, get out of the way |
+| Routing to several plausible skills at once | The budget is one; a second pick needs a second genuinely distinct open concern, and "none" beats force-fitting the closest miss |

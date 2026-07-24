@@ -1,6 +1,6 @@
 ---
 name: plan-intake
-version: 1.2.0
+version: 1.3.0
 description: |
   Turn any report (repo-deep-dive output, audit, skill-review, QA findings, design audit) into approved entries in a project's living-plan ledger. Use when the user says "intake this report", "add findings to the plan", "turn this audit into work items", "update the ledger from this report", "feed the deep-dive into the plan", or has a finished report and wants it tracked instead of rotting. Format-agnostic: adopts the target project's existing entry format.
 requires_agent_teams: false
@@ -107,6 +107,7 @@ On a feature branch (never directly on the default branch):
 1. Insert each approved entry into the correct Area section of the ledger, maintaining the existing sort order within that section (typically by priority, then by ID). Write the **Ledger summary** (the project-native one-liner); the review table's plain-language column was an approval aid — fold its observable-change sentence into the entry's detail only if the ledger's format has room for it. The ledger's house format (Step 1) governs what gets written, not this skill's review table.
 2. If the project uses a strategic companion (e.g. `BUILD-PLAN.md`), and any approved entry is P0 or P1 priority (or the project's equivalent of high-urgency), add a brief note in the companion's open-items or closure-log section referencing the new IDs.
 3. Never modify documents marked frozen, archived, or read-only (e.g. a spec doc with a "Status: Frozen" header). If the report source is one of those docs, read it for findings but do not edit it.
+4. Source links must be openable by anyone with the repo. If an entry's source report is audit-class (functional audit, skill-review, QA findings) and lives in a gitignored or machine-local location (e.g. a local `audit/` working tree), do not cite that path — republish the cited report into the project's committed audit-evidence projection first (e.g. `docs/audit-evidence/`, following its README's typed-header convention) and cite the in-repo path.
 
 ### Step 7 — Report what landed
 
@@ -134,6 +135,7 @@ This is pure relocation — reversible, git-tracked, no detail lost — so it do
 - **Filter for over-build.** Run candidates through "does this need to exist yet?" before proposing. Flag speculative directions as `[speculative]` or route them to the parked backlog rather than filing them at the same weight as concrete, certain work.
 - **Format-agnostic.** This skill has no opinion about what a ledger entry should look like. It adopts the project's existing format exactly. Two different projects may produce completely different entry shapes; that is correct.
 - **Never touch frozen docs.** A report source marked frozen, archived, or read-only is read-only for findings extraction. Do not edit it.
+- **Cite in-repo evidence only.** A ledger source link that points into a gitignored or machine-local directory is not a citation — nobody else can open it, and the finding can't be re-checked against a later revision. For audit-class sources, republish the cited report into the project's audit-evidence projection (e.g. `docs/audit-evidence/`) and link that path instead (Step 6.4).
 - **Feature branch only.** All writes happen on a feature branch. Never write directly to the default branch (main/master).
 - **Infer, don't invent.** If the ledger has no documented format, infer from existing entries and state the inference explicitly in the proposal table. Do not silently impose a format.
 - **Conservative deduplication.** When unsure if a candidate duplicates an existing entry, flag it rather than silently dropping it. The human sees the flag and decides.

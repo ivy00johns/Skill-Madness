@@ -1,6 +1,6 @@
 # Routing Table
 
-Common user requests → recommended skill. Use this as a fallback when SKILL.md's "rules of thumb" section doesn't cover the case.
+Common user requests → recommended skill. Use this as a fallback when SKILL.md's "rules of thumb" section doesn't cover the case. Two indexes: the phrase tables below key on what the user *says*; the decision index ("By unresolved decision") keys on which decision is actually *open* — use it when a shared term matches several plausible skills.
 
 ## By task type
 
@@ -147,6 +147,27 @@ All loop skills are `disable-model-invocation: true` — name them, then the use
 | "fewer permission prompts from common tools" | `fewer-permission-prompts` |
 | "rebind a keyboard shortcut" | `keybindings-help` |
 | "schedule a recurring task" | `loop` (interval) or `schedule` (cron) |
+
+## By unresolved decision
+
+Descriptions are deliberately pushy, so collision-prone terms ("deploy", "review") match several skills on topic. Topic overlap is not the test — each skill resolves a *different decision*, and usually only one of those decisions is open in the request. Route to the skill that resolves the open decision; if no decision is open, no skill is warranted — say so instead of force-fitting the closest miss.
+
+| Unresolved decision | Resolved by |
+|---|---|
+| Which skill should even fire for this request? | `madness` (routes and launches) / `skill-explorer` (names and stops) |
+| How should this build be split across parallel agents? | `orchestrator` |
+| What is the plan, before anything gets built? | `plan-builder` |
+| What condition must provably hold before iteration stops? | `loop-controller` (picks the concrete loop) |
+| Is this diff correct and safe to merge? | `code-review-agent` / `code-review:code-review` |
+| Can this code be exploited? | `security-agent` / `security-review` |
+| Does the running app look and behave right to a user? | `ux-review` |
+| Are the skills themselves healthy? | `skill-review` |
+| Which reviewer comments still need addressing? | `git-pr-feedback` |
+| Is this build safe to ship right now? | `deployment-checklist` |
+| How does this project get onto its hosting platform? | `railway-deploy` |
+| How should the deploy machinery itself (Docker, CI) be built? | `infrastructure-agent` |
+| Who may perform a consequential mutation (push, deploy, delete), and does it need a human first? | the confirm gate in `madness` / the HITL guardrails in `loop-controller` |
+| Is the needed skill missing, or present but failing to trigger? | `references/troubleshooting.md` (symptom taxonomy) → `sync-skills` if missing, `skill-update` if mis-triggering |
 
 ## Disambiguation: when two skills look similar
 
