@@ -103,3 +103,26 @@ point here — they don't duplicate the tables.
   reasoning gate.
 - **use-freellmapi** — the carve-out described above. Within any build that is
   not a FreeLLMAPI project, never mix vendors to save tokens.
+- **use-pxpipe** — checks the image-proxy allowlist below before enabling the
+  proxy; it wires the proxy, the SKILL.md's *Image-proxy model allowlist*
+  section owns the policy.
+
+## Image-proxy allowlist — current state
+
+The aging half of the SKILL.md's *Image-proxy model allowlist* section: which
+models may sit behind a pxpipe-style image proxy today. Numbers are the
+2026-07-21 pxpipe deep dive's measurements (its ~20-call glyph sweep over dense
+rendered text — `teamchong/pxpipe`, v0.8.0). Re-run the sweep and update this
+table on every model release, the same cadence as the ladder above.
+
+| Model | Behind the image proxy? | Measured (pxpipe dive, 2026-07-21) |
+|---|---|---|
+| **Fable 5** | Allowed | 13–15/15 on the dense-hex glyph sweep |
+| **Mythos 5** | Allowed | Same family and read behavior as Fable 5 (dive groups them in the 13–15/15 band) |
+| **Opus 4.8** | **Not allowed** | 6/15 on dense hex — misreads surface as confident wrong answers, not errors |
+| **Any unlisted / new model** | **Not allowed** (default) | Earns a slot only by passing the glyph sweep |
+
+One interaction to keep in view: a refused Claude 5 request falls back to
+Opus 4.8 (`references/refusal-and-fallback.md`) — so a session on an allowed
+model can land on a disallowed one mid-run. The `use-pxpipe` wiring is where
+that wrinkle gets handled; this table only records who passes.
