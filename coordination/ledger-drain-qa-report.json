@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0.0",
+  "timestamp": "2026-07-24T05:35:56Z",
+  "agent_role": "qe",
+  "build_session_id": "ledger-drain-06ae2f7",
+  "status": "PASS",
+  "scores": {
+    "correctness": {
+      "score": 5,
+      "notes": "Every ledger row's observable change was independently re-derived and verified true on disk, not assumed from commit messages. RV2: LICENSE (MIT, copyright 'ivy00johns' 2026, standard text) exists at root; README badge/link and the two in-body MIT references all resolve to it. HE-1: [FAUDIT] short-link in docs/REMAINING-WORK.md:20 now points to the in-repo docs/audit-evidence/2026-05-28-functional-audit/master-audit.md (file exists, along with qe-agent.md and README.md); plan-intake/SKILL.md:110,138 gained an explicit 'cite in-repo evidence only' rule forcing future citations off the gitignored audit/ tree. HE-2: skill-explorer/references/routing-table.md has a new '## By unresolved decision' index (line 151); madness/SKILL.md has a new '## The load budget: one skill, or none' section (line 109) with an anti-pattern row against multi-skill routing. WC-1: lint-skills.sh's new $ARGUMENTS body guard was hand-verified live (fresh fixture skill with a literal $ARGUMENTS token in the body -> ERROR + exit 1; the message names the token), and contracts/installer/lint-rules.md was bumped 1.3.0->1.4.0 with the rule recorded. WC-2: orchestrator/references/agent-spawning.md:65 has the numeric '~60 lines' split gate plus a pre-dispatch checklist item (:80); skill-writer/references/patterns.md:67 has the 'price every warning you keep' cost-tagged anti-pattern convention as a named pattern. PX-1: use-pxpipe/SKILL.md is a complete, well-formed skill. PX-2: madness/SKILL.md:145-166 asks the token-saver question once on expensive routes, suggest-only, never auto-enables, and knows when not to ask. PX-3: model-adaptation/SKILL.md:196-220 has the 'Image-proxy model allowlist' section citing measured read rates (Fable 5 / Mythos 5 allowed, Opus 4.8 not allowed at 6/15), and use-pxpipe/SKILL.md:65-66 cites that exact section back — the three-skill chain (use-pxpipe <-> model-adaptation <-> its references file) resolves end to end. CB-3: yagni-gate/SKILL.md is a complete, well-formed skill; plan-intake/SKILL.md:86 was repointed to reference it by name. No behavioral defects found in any of the nine rows."
+    },
+    "completeness": {
+      "score": 5,
+      "notes": "All nine ledger items claimed by the build (RV2, HE-1, HE-2, WC-1, WC-2, PX-1, PX-2, PX-3, CB-3) have their stated observable change present and verified, per the row-by-row evidence in the correctness notes. The catalog ripple (71->73) is internally consistent: README's cumulative numbered table has zero gaps from 1-73, use-pxpipe/yagni-gate are correctly inserted mid-table (rows 59-60) with every subsequent row (including the entire loops section, 65-73) renumbered rather than appended out of place. plugin.json and catalog counts both read 73 and agree with disk. git log da0711c..HEAD (11 commits) maps cleanly: 1 intake-docs commit, 1 scaffold+LICENSE commit, 7 feature commits (one per ledger row except HE-1/HE-2 which share one commit and PX-2/PX-3 which are separate), 1 doc-repoint commit, 1 catalog-ripple commit. No unexplained commits."
+    },
+    "code_quality": {
+      "score": 5,
+      "notes": "scripts/lint-skills.sh: 0 errors, 117 warnings across the full 79-skill lint scope (all pre-existing description-length/action-verb style warnings unrelated to this build's 2 new + ~8 modified files; the 2 new skills (use-pxpipe, yagni-gate) each contribute only the same pre-existing warning classes already common across the library, nothing new in kind). scripts/catalog.sh --check: clean at 73, plugin.json listing matches disk. Full bats suite (tests/run-all.sh, all 17 .bats files, 346 tests): 346 passed, 0 failed, 0 skipped, exit 0 — includes the golden-file, determinism, and per-host converter suites the catalog ripple and WC-1 could have silently broken and did not. contracts/installer/lint-rules.md changelog entry (1.4.0) is precise about scope and rationale."
+    },
+    "security": {
+      "score": 5,
+      "notes": "No production code, service, or trust boundary changed by this build — it is skill/doc authoring plus one linter rule. The one new enforcement surface (WC-1's $ARGUMENTS body guard) is itself a defense-in-depth improvement (prevents a Claude-Code-only token from silently reaching 10 other hosts via convert.sh) and was verified to actually fire (ERROR + exit 1) rather than assumed. PX-1/PX-3 explicitly carry forward a security-relevant caveat (imaged bulk is gist-only, never the sole copy of secrets/hashes) and a fail-closed default (unlisted/new models are NOT allowed behind the image proxy by default) rather than a fail-open one. No secrets, credentials, or exposed endpoints introduced; no scan tooling exists in this repo to run beyond the lint/bats gates already executed."
+    },
+    "contract_conformance": {
+      "score": 5,
+      "notes": "Ground truth used: each ledger row's own 'Observable change' / description in docs/REMAINING-WORK.md, since this build has no separate /contracts/ authoring phase for a docs/skills change set. All nine rows' stated observable changes were independently re-derived (see correctness notes) and hold. contracts/installer/lint-rules.md (the one machine-consumed contract this build touches) was correctly version-bumped 1.3.0->1.4.0 with its new rule both documented and enforced. Frontmatter conformance for both new skills (use-pxpipe, yagni-gate) checked against skills/meta/skill-writer/references/frontmatter-spec.md: name is kebab-case and matches directory name, version is top-level valid semver (1.0.0), description has no literal '<'/'>' characters, and every composes_with entry (model-adaptation, use-freellmapi, madness / caveman, architecture-rescue, plan-intake) resolves to a real skill directory on disk. Both skills also pass the schema-driven tests/standard GATE test (every real SKILL.md validates against spec/frontmatter.schema.json) as part of the 346-test green run."
+    }
+  },
+  "test_results": {
+    "unit": { "pass": 44, "fail": 0, "skip": 0 },
+    "integration": { "pass": 265, "fail": 0, "skip": 0 },
+    "e2e": { "pass": 0, "fail": 0, "skip": 0 },
+    "contract": { "pass": 37, "fail": 0, "skip": 0 },
+    "security_scan": { "pass": 0, "fail": 0, "skip": 0 }
+  },
+  "blockers": [],
+  "issues": [
+    {
+      "id": "ISSUE-1",
+      "severity": "INFO",
+      "category": "test_taxonomy",
+      "file": null,
+      "line": null,
+      "description": "test_results.unit/integration/contract/e2e/security_scan is an approximate directory-level mapping, not an authoritative taxonomy: this repo has no application-level unit/e2e split or dedicated security scanner. Mapping used: contract = tests/standard + tests/catalog (37, frontmatter-schema and catalog-invariant conformance); integration = tests/installer + tests/hooks + tests/install-plan (265, cross-file/cross-host behavior); unit = tests/class-extraction-guard + tests/scan-skills + tests/skill-health (44, single-tool behavior); e2e and security_scan = 0 (no such suite exists in this repo). The raw total (346 pass / 0 fail / 0 skip, tests/run-all.sh exit 0) is exact; only the 5-way split is approximate.",
+      "suggested_fix": "No action needed for this build. If the schema's 5-category split becomes load-bearing for a future gate decision, consider tagging bats files by category in the test runner itself rather than inferring from directory names."
+    },
+    {
+      "id": "ISSUE-2",
+      "severity": "LOW",
+      "category": "lint_warning",
+      "file": "skills/workflows/use-pxpipe/SKILL.md",
+      "line": null,
+      "description": "lint-skills.sh WARNs: description is 938 chars (soft target <=200, no error per CLAUDE.md's pushy-description allowance) and description may not start with an action verb. Same two warning classes as skills/workflows/yagni-gate/SKILL.md (978 chars, same action-verb warning). Both are pre-existing, library-wide warning classes (present on ~40 other skills already, e.g. madness, model-adaptation, orchestrator) and are explicitly tolerated by CLAUDE.md's 'descriptions are pushy' design decision.",
+      "suggested_fix": "None required; consistent with established library convention. Optional future cleanup: trim toward the 200-char soft target if these two skills are revisited."
+    }
+  ],
+  "recommendations": [
+    "Ship as-is: no blockers, all five gate-relevant checks (bats suite, lint, catalog, frontmatter conformance, contract-doc version bump) are green and were independently re-verified rather than taken on commit-message trust.",
+    "The $ARGUMENTS guard (WC-1) and the image-proxy allowlist (PX-3) are both fail-closed-by-design; keep that posture when either surface is extended (e.g. when per-host $ARGUMENTS translation is eventually built, or when a new model is evaluated for the image proxy)."
+  ],
+  "gate_decision": {
+    "proceed": true,
+    "reason": "No CRITICAL or HIGH blockers found. scores.contract_conformance = 5 (>= 3) and scores.security = 5 (>= 3). status = PASS. Full bats suite 346/346 green (exit 0), lint-skills.sh 0 errors, catalog.sh --check clean at 73, all nine ledger rows' observable changes independently re-verified true on disk, and every commit in da0711c..HEAD maps to a ledger item or an explained build-scaffold/ripple purpose. Build may proceed."
+  }
+}
