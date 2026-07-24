@@ -347,6 +347,39 @@ EOF
 }
 
 # ---------------------------------------------------------------------------
+# WC-1 — $ARGUMENTS token guard. convert.sh ships every skill body verbatim
+# to 10 non-Claude-Code hosts; none of them translate the Claude-Code-only
+# `$ARGUMENTS` slash-command placeholder. A skill body that uses the literal
+# token must fail loudly; a skill without it must be unaffected.
+# ---------------------------------------------------------------------------
+
+@test "lint: body containing \$ARGUMENTS causes ERROR and exit 1" {
+  TMPSKILL_DIR="$TMPDIR_LINT/uses-arguments"
+  mkdir -p "$TMPSKILL_DIR"
+  cat > "$TMPSKILL_DIR/SKILL.md" <<'EOF'
+---
+name: uses-arguments
+version: 1.0.0
+description: Apply uses-arguments when testing that a $ARGUMENTS token in the body fails lint loudly.
+---
+
+## Usage
+
+Run this skill with `$ARGUMENTS` passed straight through as the slash-command payload. Padding this body well past the fifty-word stub threshold so the only interesting finding is the ARGUMENTS token error, with a few more filler words for good measure.
+EOF
+  run bash "$LINT" "$TMPSKILL_DIR/SKILL.md"
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -q "ERROR"
+  echo "$output" | grep -qF '$ARGUMENTS'
+}
+
+@test "lint: body without \$ARGUMENTS is unaffected by the token guard" {
+  run bash "$LINT" "$VALID_SKILLS/roles/minimal-agent/SKILL.md"
+  [ "$status" -eq 0 ]
+  ! echo "$output" | grep -qF '$ARGUMENTS'
+}
+
+# ---------------------------------------------------------------------------
 # SR13 — --changed version-bump-drift guard (git-based, opt-in). Builds a
 # self-contained fixture repo with a copied linter (so its REPO_ROOT is the
 # fixture), one committed skill at 1.0.0, then mutates the working tree.
