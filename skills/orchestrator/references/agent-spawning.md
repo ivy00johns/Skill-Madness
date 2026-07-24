@@ -62,6 +62,25 @@ You are the [ROLE] agent for this build.
 
 **Agent spawn permissions:** Spawn agents in a permission mode that allows file writes without per-tool prompts (in Claude Code, this is `mode: "auto"` on the Agent tool). Agents that cannot write files burn their entire context asking for permission instead of building.
 
+## The split gate: ~60 lines
+
+The distilled brief has a numeric ceiling: **if it exceeds ~60 lines, split the task — don't compress the brief.** A brief that long means the task itself carries more than one concern (two contracts to implement, two subsystems, a build plus its migration), and the fix is two agents with whole briefs, not one agent with a trimmed one. Cutting to fit is how agents ship plausible-but-wrong work: the squeezed-out line — usually a Domain Rule — is exactly the one the agent needed, and the rework surfaces a wave later at the QA gate. The worked example below is ~40 lines against a 12-page plan; that ratio is healthy. A brief near 60 lines built from a *short* plan excerpt signals the ownership split is wrong, not that the template needs headroom.
+
+## Pre-dispatch checklist (run before every spawn)
+
+Thirty seconds here is cheaper than the half-done dispatch any unchecked box produces. Before each Agent call, confirm:
+
+- [ ] `subagent_type` is a registered type (`general-purpose` unless the host provably registers a specialist) — never a `*-agent` role label
+- [ ] The role skill's instructions travel **in the prompt** (invoked or pasted) — the type does not load them
+- [ ] Ownership block present: owns / do-NOT-touch / read-only, and the owns set overlaps no live agent's
+- [ ] Contracts pasted or referenced **with versions** — both the contract this agent produces and the one it consumes
+- [ ] Domain rules relevant to this agent included (the section most often squeezed out — see the split gate)
+- [ ] "Before Reporting Done" lists concrete, runnable validation commands
+- [ ] Ports and env values come from the project's convention (`.env.example`, dev scripts, `profile.yaml`), never a template default
+- [ ] Brief is under the ~60-line split gate; if not, split the task
+- [ ] AFK or HITL declared (next section), with checkpoints listed if HITL
+- [ ] Permission mode allows file writes without per-tool prompts
+
 ## AFK / HITL Classification (required)
 
 Every agent dispatch MUST declare whether it can finish unattended:
