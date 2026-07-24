@@ -61,6 +61,25 @@ async function autoScroll(page) {
   await page.waitForTimeout(300);
 }
 
+async function settle(page, settleMs) {
+  // A full-page screenshot can only ever catch an entrance animation mid-flight, so wait
+  // for the things that actually decide whether a pixel is final: webfonts (text reflows
+  // and FOUT-swaps late) and every <img> having decoded (lazy tiles report complete only
+  // after their bytes land). Both are best-effort — a stalled image must not block a shoot.
+  await page.evaluate(async () => {
+    await (document.fonts ? document.fonts.ready.catch(() => {}) : Promise.resolve());
+    await Promise.all(
+      Array.from(document.images)
+        .filter((img) => !img.complete)
+        .map((img) => new Promise((res) => {
+          img.addEventListener('load', res, { once: true });
+          img.addEventListener('error', res, { once: true });
+        }))
+    );
+  }).catch(() => {});
+  await page.waitForTimeout(settleMs);
+}
+
 export async function capture(config) {
   let chromium;
   try {
@@ -89,6 +108,9 @@ export async function capture(config) {
   });
   const fontFile = config.fontFile || DEFAULT_FONT;
   const timeout = config.timeout || 60000;
+  const reducedMotion = config.reducedMotion || 'reduce';
+  const injectCss = config.injectCss || null;
+  const settleMs = config.settleMs ?? 600;
 
   const browser = await chromium.launch({ headless: true });
   const renders = [];
@@ -100,6 +122,10 @@ export async function capture(config) {
         deviceScaleFactor: mode.deviceScaleFactor ?? 1,
         isMobile: !!mode.isMobile,
         hasTouch: !!mode.isMobile,
+        // Most sites gate their scroll-reveal / entrance animations behind a
+        // prefers-reduced-motion escape hatch. Asking for it makes the site itself render
+        // the settled end state, which is the only state a still frame can show honestly.
+        reducedMotion,
       });
       const page = await context.newPage();
       const prefix = mode.name[0].toLowerCase();
@@ -115,7 +141,11 @@ export async function capture(config) {
           await page.goto(url, { waitUntil: 'domcontentloaded', timeout }).catch(() => {});
         }
         await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
+        // Inject before the scroll so forced-visible rules are in effect while lazy content
+        // and observers fire, not bolted on after the layout has already settled around them.
+        if (injectCss) await page.addStyleTag({ content: injectCss }).catch(() => {});
         await autoScroll(page);
+        await settle(page, settleMs);
         if (!bg) {
           const css = await page.evaluate(() => getComputedStyle(document.body).backgroundColor).catch(() => null);
           bg = rgbToHex(css) || DEFAULT_BG;
