@@ -1,6 +1,6 @@
 ---
 name: use-freellmapi
-version: 1.2.1
+version: 1.2.2
 description: |
   Wire any project to FreeLLMAPI — a local OpenAI-compatible proxy that aggregates ~20 free LLM provider
   tiers (~1.7B+ tokens/month) behind one endpoint — so you can prototype without paying for API calls.

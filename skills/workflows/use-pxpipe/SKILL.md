@@ -1,6 +1,6 @@
 ---
 name: use-pxpipe
-version: 1.0.0
+version: 1.0.1
 description: |
   Wire the Claude Code agent harness to pxpipe — a local, loopback-only proxy that renders re-sent
   bulk (system prompt, tool docs, older history) into dense PNGs so long sessions cost roughly half
@@ -108,8 +108,10 @@ If the user wants it durable, put the pair in their shell profile as two labeled
 comment-swap — same pattern as `use-freellmapi`'s `.env` blocks.
 
 **Byte-exact escape hatch:** work that must be verbatim-faithful can run on a subagent model
-outside the image scope — e.g. `CLAUDE_CODE_SUBAGENT_MODEL=claude-sonnet-4-6` routes that
-subagent's traffic through the proxy untouched (not on the allowlist → genuine passthrough).
+outside the image scope — e.g. `CLAUDE_CODE_SUBAGENT_MODEL=claude-sonnet-5` (the Mid tier in
+`model-adaptation`'s tiering ladder) routes that subagent's traffic through the proxy untouched —
+a genuine passthrough as long as that model stays off the image-proxy allowlist, so re-check the
+allowlist when picking the hatch model.
 
 ### Step 4 — Verify: compression fired AND the cache stayed warm
 

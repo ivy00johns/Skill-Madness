@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.3.0
+version: 1.3.1
 description: >-
   The front door to the whole toolkit — one reliable entry point that reads what
   you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a
@@ -115,7 +115,9 @@ and route to the skill that resolves it (the "By unresolved decision" index in
 `skill-explorer/references/routing-table.md` keys on exactly this). Add a second
 skill only when the request genuinely contains two distinct open concerns — a
 sequenced handoff like `plan-builder` -> `orchestrator` is one route with a next
-step, not a second pick.
+step, not a second pick. An accepted token-saver offer (the confirm-gate
+question below) also doesn't count against the budget: a user-consented
+`use-pxpipe` side-launch is run infrastructure, not a second routing pick.
 
 And **"no skill" is a legal outcome.** When no decision a skill resolves is
 open, say so plainly and stop — a wrong-but-plausible launch costs more than

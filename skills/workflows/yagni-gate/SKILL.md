@@ -1,20 +1,19 @@
 ---
 name: yagni-gate
-version: 1.0.0
+version: 1.0.1
 description: >-
-  Persistent YAGNI build-gate mode — the laziest senior dev in the room,
-  adapted from DietrichGebert/ponytail (MIT). Before any code, climb the ladder and stop at the first rung that holds: does this
-  need to exist at all → already in this codebase, reuse it → stdlib → native
-  platform feature → already-installed dependency → one line → only then the
-  minimum that works. Hard guardrails: never lazy about trust-boundary
-  validation, error handling that prevents data loss, security, accessibility,
-  or understanding the problem first; every non-trivial change leaves one
-  runnable check. Persists until the user says 'stop yagni-gate' or 'normal
-  mode'. Use when code keeps getting over-built, a tiny ask balloons into
-  scaffolding, or you want a standing minimal-code gate on a session. Trigger
-  on: 'yagni-gate', '/yagni-gate', 'yagni mode', 'YAGNI', 'stop over-building',
-  'over-engineered', 'keep it minimal', 'minimum code', 'lazy mode', 'don't
-  gold-plate', 'ponytail', 'less code'.
+  Gate every build behind a persistent YAGNI ladder — the laziest senior dev in
+  the room, adapted from DietrichGebert/ponytail (MIT). Before any code: does
+  this need to exist, can something already present do it, can it be one line —
+  only then the minimum that works. Never lazy about trust-boundary validation,
+  data-loss error handling, security, accessibility, or understanding the
+  problem first; every non-trivial change leaves one runnable check. Persists
+  until 'stop yagni-gate' or 'normal mode'. Use when code keeps getting
+  over-built, a tiny ask balloons into scaffolding, or you want a standing
+  minimal-code gate on a session. Trigger on: 'yagni-gate', '/yagni-gate',
+  'yagni mode', 'YAGNI', 'stop over-building', 'over-engineered', 'keep it
+  minimal', 'minimum code', 'lazy mode', 'don't gold-plate', 'ponytail', 'less
+  code'.
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
