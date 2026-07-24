@@ -21,7 +21,7 @@ owns:
   patterns: []
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
-composes_with: ["model-adaptation", "use-freellmapi"]
+composes_with: ["model-adaptation", "use-freellmapi", "madness"]
 spawned_by: []
 ---
 

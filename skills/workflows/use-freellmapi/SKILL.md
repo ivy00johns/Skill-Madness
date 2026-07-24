@@ -19,7 +19,7 @@ owns:
   patterns: []
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
-composes_with: ["project-profiler", "model-adaptation"]
+composes_with: ["project-profiler", "model-adaptation", "use-pxpipe"]
 spawned_by: []
 ---
 
