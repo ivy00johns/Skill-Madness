@@ -1,6 +1,6 @@
 ---
 name: skill-explorer
-version: 1.2.0
+version: 1.3.1
 description: |
   Help the user discover, recall, understand, and pick the right skill from the available toolkit. Names the skill; does NOT invoke it. Use when the user is trying to find a skill ("I forgot the name of the one that does X", "what was that skill called"), asking what skills exist ("what skills do I have", "list all my skills", "show me the catalog"), asking what a specific skill does ("what does X do", "explain the X skill"), asking how skills relate ("how do these connect", "what does orchestrator spawn"), or asking for routing help ("which skill for this task", "what should I use to Y"). Also trigger when the user reaches for orchestrator on something that isn't a multi-agent build, or asks any meta-question about the skill ecosystem itself.
 requires_agent_teams: false
@@ -150,6 +150,6 @@ When orchestrator would be wrong, **say so explicitly**: "This isn't a multi-age
 
 ## References
 
-- `references/routing-table.md` — fuller table of common requests → recommended skill, used when the four rules of thumb above don't cover the case
+- `references/routing-table.md` — fuller table of common requests → recommended skill (plus a "By unresolved decision" index for when a shared term like "deploy" or "review" matches several plausible skills), used when the rules of thumb above don't cover the case
 - `references/troubleshooting.md` — named symptom taxonomy for skill discovery and routing problems (skill not triggering, wrong skill firing, overlapping triggers, instructions not followed)
 

@@ -1,13 +1,13 @@
 ---
 name: model-adaptation
-version: 1.3.0
+version: 1.4.0
 description: |
-  Adapt prompts, skills, and agent scaffolding when the underlying Claude model changes — currently the Claude 5 family (Fable 5 + Mythos 5) versus Opus 4.x. Stronger models need LESS scaffolding: this skill says what to PRUNE, what now backfires (narrating reasoning in the response trips a reasoning_extraction refusal), and what to add for long autonomous runs. Also the canonical home of the model & effort tiering policy (Anthropic ladder; never cross-vendor; FreeLLMAPI carve-out) and of the capability-handoff technique — extract an operating manual from a stronger model to run on a cheaper one. Use when migrating a skill to a new model, a skill "worked before and got worse", agents get refused or fall back to Opus, or picking model/effort per role or loop. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "model migration", "reasoning_extraction", "tune effort", "model tiering", "long-running agent hygiene", "fable handoff", "extract operating manual", "model leaving plan".
+  Adapt prompts, skills, and agent scaffolding when the underlying Claude model changes — currently the Claude 5 family (Fable 5 + Mythos 5) versus Opus 4.x. Stronger models need LESS scaffolding: this skill says what to PRUNE, what now backfires (narrating reasoning in the response trips a reasoning_extraction refusal), and what to add for long autonomous runs. Also the canonical home of the model & effort tiering policy (Anthropic ladder; never cross-vendor; FreeLLMAPI carve-out) and of the capability-handoff technique — extract an operating manual from a stronger model to run on a cheaper one. Use when migrating a skill to a new model, a skill "worked before and got worse", agents get refused or fall back to Opus, or picking model/effort per role or loop. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "model migration", "reasoning_extraction", "tune effort", "model tiering", "long-running agent hygiene", "fable handoff", "extract operating manual", "model leaving plan", "pxpipe", "image proxy".
 requires_claude_code: false
 min_plan: starter
 compatibility: "Claude Code or Claude.ai; reference/advisory skill. No special tools required — WebFetch is optional, only to re-pull the live Anthropic guide."
 allowed-tools: ["Read", "Grep", "Glob", "Edit", "WebFetch"]
-composes_with: ["skill-writer", "skill-review", "skill-update", "loop-controller", "orchestrator", "use-freellmapi", "claude-api"]
+composes_with: ["skill-writer", "skill-review", "skill-update", "loop-controller", "orchestrator", "use-freellmapi", "use-pxpipe", "claude-api"]
 spawned_by: []
 ---
 
@@ -193,6 +193,32 @@ wiring live in **`references/model-effort-tiering.md`** — like the *Current
 landscape* table above, its model and pricing facts age; update both when a new
 model ships.
 
+## Image-proxy model allowlist
+
+`use-pxpipe` puts an image proxy in front of a session: the bulky, re-sent parts
+of every request are rendered into dense PNGs, because image tokens are priced by
+pixel area rather than characters. That only works if the model behind the proxy
+can actually *read* the render — and a model that misreads dense glyphs doesn't
+error, it produces **confident wrong answers from garbled input**. Because the
+failure is silent, the gate is governed here, in one place, fail-closed:
+
+- **Only allowlisted models may sit behind an image proxy.** An unlisted or
+  newly released model defaults to *not allowed*, no matter how capable it is
+  otherwise — read fidelity on dense renders is a distinct, measured property.
+- **A model earns its slot by passing pxpipe's ~20-call glyph sweep** — cheap,
+  minutes of work. Re-run it on every model release, the same trigger that
+  updates the *Current landscape* table above.
+- **This axis is independent of the tiering ladder.** A model can be exactly the
+  right execution tier per the optimizer/target split above and still be barred
+  from the proxy. Choose model + effort from the tiering doctrine, then check
+  this allowlist before enabling the proxy — two separate gates.
+
+The current allowlist — which models pass today and their measured read rates —
+ages with the model generation, so it lives with the other aging facts in
+**`references/model-effort-tiering.md`** (*Image-proxy allowlist — current
+state*). `use-pxpipe` treats that list as its safety gate: it owns the wiring,
+this skill owns the policy.
+
 ## Capability handoff (extract an operating manual)
 
 When a stronger model is leaving the plan — or you want a cheaper model to run
@@ -264,7 +290,8 @@ Run this checklist against an existing skill/harness (or the whole toolkit) on a
   effort tiers, and user-facing readability. Read when authoring or migrating any loop.
 - `references/model-effort-tiering.md` — the aging half of the tiering doctrine: the
   priced Anthropic ladder (model IDs, $/1M, effort support), the output-token asymmetry
-  and billing-surface table, provider-relative instantiation, and how each consumer
-  (orchestrator dispatch, Workflow-mode stages, loop-controller Step 6, use-freellmapi)
-  wires the policy in. Read when assigning model+effort to roles/stages/loops, or when
-  a new model ships and the ladder needs updating.
+  and billing-surface table, provider-relative instantiation, the current image-proxy
+  allowlist (which models pass the glyph sweep today), and how each consumer
+  (orchestrator dispatch, Workflow-mode stages, loop-controller Step 6, use-freellmapi,
+  use-pxpipe) wires the policy in. Read when assigning model+effort to roles/stages/loops,
+  when enabling the image proxy, or when a new model ships and the ladder needs updating.

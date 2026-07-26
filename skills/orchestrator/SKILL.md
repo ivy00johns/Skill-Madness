@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-version: 1.16.1
+version: 1.17.0
 description: |
   Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow" ask, it drives the implement + verify phases with the Workflow tool — fanning out role-agents against the contracts and adversarially verifying instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, or splitting work across Claude sessions. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
@@ -107,7 +107,7 @@ If the user says "merge it", "push to main", or "create a PR" — then and only 
 6. Size the team based on the work — see `references/team-sizing.md`
 7. **Pre-build creative + research skills** — invoke these BEFORE contracts where the mission asks for them: `nano-banana` (generates real seed imagery — hero banners, product photos, category icons), `claude-design-brief` or `ui-brief` (design direction document), `repo-deep-dive` (reference repo analysis), `llm-wiki` (project knowledge base bootstrap), `mermaid-charts` (architecture diagrams). These produce ARTIFACTS the agents will consume — running them first means agents get real images and real architecture refs instead of placeholders.
 8. Author contracts (the critical phase) — invoke the `contract-author` skill
-9. Spawn agents in parallel with distilled prompts — see `references/agent-spawning.md` for template, AFK/HITL classification, and a worked example. **Role labels are not subagent types:** `backend-agent`, `docs-agent`, `qe-agent`, etc. name the *work*, not a `subagent_type` — dispatch with `general-purpose` (always available) and carry the role skill in the prompt. Passing a `*-agent` label as the type fails with "Agent type not found." See the mapping table at the top of `references/agent-spawning.md`. For frontend-agent dispatch, REQUIRE the agent to invoke `frontend-design` and `ui-ux-pro-max` during their build (not just mention them — actually call the Skill tool).
+9. Spawn agents in parallel with distilled prompts — see `references/agent-spawning.md` for template, the ~60-line split gate, the pre-dispatch checklist, AFK/HITL classification, and a worked example. **Role labels are not subagent types:** `backend-agent`, `docs-agent`, `qe-agent`, etc. name the *work*, not a `subagent_type` — dispatch with `general-purpose` (always available) and carry the role skill in the prompt. Passing a `*-agent` label as the type fails with "Agent type not found." See the mapping table at the top of `references/agent-spawning.md`. For frontend-agent dispatch, REQUIRE the agent to invoke `frontend-design` and `ui-ux-pro-max` during their build (not just mention them — actually call the Skill tool).
 10. **Spawn QE agent for testing** — this is mandatory, not optional (see below)
 11. Coordinate and validate (wave gates between every parallel wave)
 12. Gate on QA report
@@ -298,7 +298,7 @@ ALL must be true:
 - **`references/phase-guide.md`** — the full 14-phase build playbook (Phase 0 external-services audit through Phase 13 handoff).
 - **`references/team-sizing.md`** — how to size the agent team to the work; thresholds and starter formulas.
 - **`references/file-ownership.md`** — canonical agent-to-directory ownership map and contract-first architecture overview.
-- **`references/agent-spawning.md`** — the agent prompt template, AFK/HITL classification, spawn permissions, and a worked backend-agent example.
+- **`references/agent-spawning.md`** — the agent prompt template, the ~60-line split gate, the pre-dispatch checklist, AFK/HITL classification, spawn permissions, and a worked backend-agent example.
 - **`references/wave-gate.md`** — per-stack install/typecheck/test commands and failure-routing protocol.
 - **`references/workspace-bootstrap.md`** — required root README sections and the per-stack one-command `dev` aggregator table.
 - **`references/port-conventions.md`** — the house port map, per-service bands, and the preflight/next-free allocation rule (with a `free_port` helper) that keeps a freshly-generated project from crashing on `EADDRINUSE` on its first `dev` run. Why `3000` is never an API port.

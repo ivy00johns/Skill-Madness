@@ -1,6 +1,6 @@
 ---
 name: skill-writer
-version: 1.4.0
+version: 1.5.0
 description: |
   Generate new SKILL.md files conforming to the ecosystem's frontmatter spec and structure conventions. Use when creating a new agent role, meta skill, workflow skill, or contract skill — anything that needs a SKILL.md scaffold. Trigger on "create a skill", "new agent", "write a SKILL.md", "scaffold a skill", "add a role to the skill ecosystem".
 requires_agent_teams: false
@@ -79,7 +79,7 @@ Structure the body around:
 4. **Coordination rules** — how it interacts with other agents
 5. **Guidelines** — principles and common pitfalls
 
-**Writing craft (the three rules that keep a body short and reliable):**
+**Writing craft (the four rules that keep a body short and reliable):**
 
 - **Anchor on a leading word.** Hang the skill's behavior on one strong
   pretrained concept the model already knows ("adversarial", "triage",
@@ -93,6 +93,10 @@ Structure the body around:
   the model to guess the replacement; "do Y (because Z)" names it. Keep a
   prohibition only when the forbidden form itself is the sharpest anchor
   (the *Forbidden:* anti-pattern naming convention).
+- **Price every warning you keep.** A warning that names its real rework cost
+  ("burns the agent's entire context", "rework surfaces a wave later") gets
+  weighed; an unpriced one reads as style advice and gets skipped under
+  pressure. See *Cost-Tagged Anti-Patterns* in `references/patterns.md`.
 
 For agent role skills, also include:
 

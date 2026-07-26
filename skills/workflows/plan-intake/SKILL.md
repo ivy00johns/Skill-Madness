@@ -1,6 +1,6 @@
 ---
 name: plan-intake
-version: 1.2.0
+version: 1.3.0
 description: |
   Turn any report (repo-deep-dive output, audit, skill-review, QA findings, design audit) into approved entries in a project's living-plan ledger. Use when the user says "intake this report", "add findings to the plan", "turn this audit into work items", "update the ledger from this report", "feed the deep-dive into the plan", or has a finished report and wants it tracked instead of rotting. Format-agnostic: adopts the target project's existing entry format.
 requires_agent_teams: false
@@ -83,7 +83,7 @@ Present all non-duplicate candidates as a table for human review before writing 
 - If the ledger uses additional columns (Owner, Status, etc.), include them with appropriate defaults (e.g. Status: open, Owner: —).
 - Annotate any entry flagged as a possible duplicate with a note pointing to the existing entry.
 
-**Over-build pass (YAGNI).** Before presenting, run each candidate through one filter: *does this need to exist yet?* Don't file speculative or "might-want-later" directions at the same weight as concrete fixes. For each such candidate, either mark it **`[speculative]`** in the table (so the approver weighs it as a maybe, not a commitment) or route it to the project's deferred/parked backlog (e.g. `docs/FUTURE.md`) instead of the active ledger. A report proposing eleven items where two are cheap-and-certain and four overlap already-tracked work should reach the approver as *"2 to commit, 4 dups flagged, 5 speculative"* — not eleven equal rows. This is the `caveman`/`ponytail` lazy-senior-dev lens: reuse-or-defer beats build-because-listed.
+**Over-build pass (YAGNI).** Before presenting, run each candidate through one filter: *does this need to exist yet?* Don't file speculative or "might-want-later" directions at the same weight as concrete fixes. For each such candidate, either mark it **`[speculative]`** in the table (so the approver weighs it as a maybe, not a commitment) or route it to the project's deferred/parked backlog (e.g. `docs/FUTURE.md`) instead of the active ledger. A report proposing eleven items where two are cheap-and-certain and four overlap already-tracked work should reach the approver as *"2 to commit, 4 dups flagged, 5 speculative"* — not eleven equal rows. This is the `caveman`/`yagni-gate` lazy-senior-dev lens (adapted from the upstream ponytail project): reuse-or-defer beats build-because-listed.
 
 ### Step 5 — Gate: get explicit human approval
 
@@ -107,6 +107,7 @@ On a feature branch (never directly on the default branch):
 1. Insert each approved entry into the correct Area section of the ledger, maintaining the existing sort order within that section (typically by priority, then by ID). Write the **Ledger summary** (the project-native one-liner); the review table's plain-language column was an approval aid — fold its observable-change sentence into the entry's detail only if the ledger's format has room for it. The ledger's house format (Step 1) governs what gets written, not this skill's review table.
 2. If the project uses a strategic companion (e.g. `BUILD-PLAN.md`), and any approved entry is P0 or P1 priority (or the project's equivalent of high-urgency), add a brief note in the companion's open-items or closure-log section referencing the new IDs.
 3. Never modify documents marked frozen, archived, or read-only (e.g. a spec doc with a "Status: Frozen" header). If the report source is one of those docs, read it for findings but do not edit it.
+4. Source links must be openable by anyone with the repo. If an entry's source report is audit-class (functional audit, skill-review, QA findings) and lives in a gitignored or machine-local location (e.g. a local `audit/` working tree), do not cite that path — republish the cited report into the project's committed audit-evidence projection first (e.g. `docs/audit-evidence/`, following its README's typed-header convention) and cite the in-repo path.
 
 ### Step 7 — Report what landed
 
@@ -134,6 +135,7 @@ This is pure relocation — reversible, git-tracked, no detail lost — so it do
 - **Filter for over-build.** Run candidates through "does this need to exist yet?" before proposing. Flag speculative directions as `[speculative]` or route them to the parked backlog rather than filing them at the same weight as concrete, certain work.
 - **Format-agnostic.** This skill has no opinion about what a ledger entry should look like. It adopts the project's existing format exactly. Two different projects may produce completely different entry shapes; that is correct.
 - **Never touch frozen docs.** A report source marked frozen, archived, or read-only is read-only for findings extraction. Do not edit it.
+- **Cite in-repo evidence only.** A ledger source link that points into a gitignored or machine-local directory is not a citation — nobody else can open it, and the finding can't be re-checked against a later revision. For audit-class sources, republish the cited report into the project's audit-evidence projection (e.g. `docs/audit-evidence/`) and link that path instead (Step 6.4).
 - **Feature branch only.** All writes happen on a feature branch. Never write directly to the default branch (main/master).
 - **Infer, don't invent.** If the ledger has no documented format, infer from existing entries and state the inference explicitly in the proposal table. Do not silently impose a format.
 - **Conservative deduplication.** When unsure if a candidate duplicates an existing entry, flag it rather than silently dropping it. The human sees the flag and decides.

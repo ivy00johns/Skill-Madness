@@ -438,6 +438,20 @@ lint_one() {
   fi
 
   # ---------------------------------------------------------------------------
+  # $ARGUMENTS token guard (WC-1). convert.sh ships the body of every skill
+  # verbatim to 10 non-Claude-Code hosts (Cursor/Windsurf/Gemini/etc.) — none
+  # of those converters translate Claude Code's slash-command `$ARGUMENTS`
+  # placeholder, so a skill using it would silently ship a magic token those
+  # hosts don't understand. Fail loudly rather than translate silently: with
+  # zero skills using the token, there is no real host-specific behavior to
+  # translate against yet, and a loud ERROR here is what forces that design
+  # conversation the first time a skill actually needs it.
+  # ---------------------------------------------------------------------------
+  if tail -n "+$(( fm_end_line + 1 ))" "$file" | grep -qF '$ARGUMENTS'; then
+    emit_issue ERROR "$file" "" "body contains '\$ARGUMENTS' — this Claude-Code-only slash-command token is shipped verbatim (untranslated) to every other host by convert.sh; rewrite in host-neutral prose or gate the reference behind a Claude-Code-only note"
+  fi
+
+  # ---------------------------------------------------------------------------
   # Description quality heuristics (WARN)
   # ---------------------------------------------------------------------------
   if [[ "$has_verb" != "True" ]]; then

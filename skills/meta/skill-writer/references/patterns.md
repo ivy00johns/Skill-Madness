@@ -1,6 +1,6 @@
 # Skill Patterns
 
-Five architectural patterns from Anthropic's Agent Skills guide (Ch.5, pp.21-24). Use these as named templates when deciding how a new skill should be structured. Each pattern has a distinct shape, trigger profile, and failure mode.
+Five architectural patterns from Anthropic's Agent Skills guide (Ch.5, pp.21-24), plus one authoring pattern (#6) for the warnings *inside* a skill. Use these as named templates when deciding how a new skill should be structured. Each pattern has a distinct shape, trigger profile, and failure mode.
 
 ## 1. Sequential Workflow
 
@@ -59,6 +59,18 @@ Five architectural patterns from Anthropic's Agent Skills guide (Ch.5, pp.21-24)
 **In-repo example:** `contract-author` — knows the specific contract fields, invariant rules, and cross-package dependency conventions of this repo's integration contracts. A generic "write contracts" prompt would miss all of it.
 
 **Watch out for:** Overfitting. Domain intelligence is an asset when the domain is stable. If the domain is changing rapidly, keep the volatile parts in `references/` so they can be updated without touching the skill body.
+
+---
+
+## 6. Cost-Tagged Anti-Patterns (authoring pattern)
+
+**Shape:** Every entry in a skill's anti-pattern table, `Forbidden:` line, or warning carries the *real rework cost* of committing it — not just why it's wrong, but what it costs when it happens ("burns the agent's entire context", "the rework surfaces a wave later at the QA gate", "hours of duplicate work across two agents").
+
+**Use when:** Writing any warning in any skill. A warning with a price gets weighed; an unpriced warning reads as style advice and gets skipped under pressure. The cost must be the honest, observed consequence — one inflated cost trains the reader to discount all the others.
+
+**In-repo example:** `orchestrator`'s spawn-permissions note — "Agents that cannot write files burn their entire context asking for permission instead of building." The cost (a whole agent's context) is the sentence's payload, and it's why the rule sticks where "always set write permissions" would not. At table scale, `orchestrator`'s own anti-patterns table works the same way — rows carry their price ("undeclared dispatches stall builds the moment a prompt fires with no one watching").
+
+**Watch out for:** Tagging costs you haven't observed. If you can't name the concrete consequence, the warning is probably a no-op sentence — delete it whole (per the writing-craft rules in the skill body) rather than inventing a price for it.
 
 ---
 

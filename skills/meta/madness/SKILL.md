@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.1.0
+version: 1.3.1
 description: >-
   The front door to the whole toolkit — one reliable entry point that reads what
   you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a
@@ -21,7 +21,7 @@ owns:
   directories: []
   patterns: []
   shared_read: ["skills/"]
-composes_with: ["skill-explorer", "orchestrator", "plan-builder", "loop-controller"]
+composes_with: ["skill-explorer", "orchestrator", "plan-builder", "loop-controller", "use-pxpipe"]
 spawned_by: []
 ---
 
@@ -106,8 +106,23 @@ Route intent -> front door. Each front door owns the deeper routing from there.
 | Docs / research / deep-dive / wiki / diagram / image | `repo-deep-dive` / `llm-wiki` / `interactive-doc` / `mermaid-charts` / `nano-banana` | cheap |
 | Onboard / profile / set up a repo or harness | `project-profiler` / `setup-project-skills` / `settings-consolidator` | cheap |
 
-When nothing fits, say so plainly and name the closest miss — don't force a bad
-route. If it looks like a genuinely new pattern, point at `skill-writer`.
+## The load budget: one skill, or none
+
+Route to **one** skill. Pushy descriptions mean any request touching a shared
+term ("deploy", "review") makes several skills look plausible — but
+plausible-on-topic is not the test. Ask which decision is actually *unresolved*
+and route to the skill that resolves it (the "By unresolved decision" index in
+`skill-explorer/references/routing-table.md` keys on exactly this). Add a second
+skill only when the request genuinely contains two distinct open concerns — a
+sequenced handoff like `plan-builder` -> `orchestrator` is one route with a next
+step, not a second pick. An accepted token-saver offer (the confirm-gate
+question below) also doesn't count against the budget: a user-consented
+`use-pxpipe` side-launch is run infrastructure, not a second routing pick.
+
+And **"no skill" is a legal outcome.** When no decision a skill resolves is
+open, say so plainly and stop — a wrong-but-plausible launch costs more than
+"nothing here needs a skill; closest miss is X, and here's the gap." If it looks
+like a genuinely new pattern, point at `skill-writer`.
 
 ## The confirm gate: cheap goes, expensive confirms
 
@@ -128,6 +143,32 @@ a turn of friction for no safety gain.
 
 When unsure which side a route falls on, treat it as expensive and ask. The cost
 of one needless confirm is a sentence; the cost of an unwanted swarm is real.
+
+### The token-saver question (rides the expensive confirm)
+
+The runs `madness` gates as expensive — swarms, autonomous loops, full builds —
+are exactly the long, token-heavy sessions where the pxpipe proxy pays (it cuts
+input tokens roughly in half to a third by imaging re-sent bulk; see
+`use-pxpipe`). So when an expensive route confirms, fold one extra question into
+the same line: *"enable the token-saver proxy for this run?"* Once per session —
+a decline holds; don't re-ask on the next route.
+
+Know when **not** to ask, so the courtesy never becomes a nag:
+
+- **Cheap or short routes** — the proxy's own profitability gate passes small
+  sessions through anyway, so the question is pure friction.
+- **Byte-exact-critical work** — runs where history would be the sole copy of
+  secrets, hashes, or exact numbers have the wrong loss profile for imaging.
+- **Already answered** — the proxy is already wired (`ANTHROPIC_BASE_URL` points
+  at it) or the user declined earlier this session.
+- **Model not on the allowlist** — if the session's model isn't allowed per
+  `model-adaptation`'s *Image-proxy model allowlist*, the proxy would pass
+  requests through uncompressed; there's nothing to offer.
+
+Suggest-only, never auto-enable. On a yes, launch `use-pxpipe` to do the wiring
+(the allowlist check and cache-warm verification are its job), then continue
+into the route. `madness` never sets the env var itself — that would be doing
+the work instead of routing it.
 
 ## No args or vague intent -> the menu
 
@@ -192,3 +233,5 @@ a dead end.
 | Naming the skill but not invoking it | That's `skill-explorer`'s contract; `madness` is the active half — it launches |
 | Duplicating the full routing table here | The long-tail map lives in `skill-explorer/references/routing-table.md`; route to front doors and lean on it |
 | Adding a hop in front of a clean trigger | If a request already fires the right skill on its own, get out of the way |
+| Routing to several plausible skills at once | The budget is one; a second pick needs a second genuinely distinct open concern, and "none" beats force-fitting the closest miss |
+| Auto-enabling the token-saver proxy, or re-asking after a no | The proxy question is suggest-once; wiring is `use-pxpipe`'s job after a yes, and repeat-asking turns a courtesy into friction |

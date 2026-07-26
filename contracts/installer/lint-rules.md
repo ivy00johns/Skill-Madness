@@ -1,12 +1,13 @@
 # Contract: Lint Rules
 
 **Build:** Multi-Tool Installer (Slice A)
-**Version:** 1.3.0
+**Version:** 1.4.0
 **Owner:** orchestrator (authored Phase 4)
 **Consumed by:** scripts-agent (lint-skills.sh), infrastructure-agent (CI workflow), qe-agent (lint test fixtures)
 **Conforms to:** Portable Skill Frontmatter Spec (PSFS) v1.1.0 — `spec/PSFS.md`
 
 **Changelog:**
+- 1.4.0 — Added the `$ARGUMENTS` token guard (WC-1): a literal `$ARGUMENTS` anywhere in a skill's body is now an ERROR (see Body Validation below). `convert.sh` ships every skill body verbatim to 10 non-Claude-Code hosts, none of which translate Claude Code's slash-command `$ARGUMENTS` placeholder — a skill using it would silently ship a magic token those hosts don't understand. Fail loudly rather than translate silently; zero skills use the token as of this change.
 - 1.3.0 — Made the PSFS angle-bracket rule a real, always-on gate: `<`/`>` in **any** frontmatter string value or key, at any depth (including inside the free-form `metadata` object), is an ERROR (see Frontmatter Safety below). Previously this was only enforced via the schema pattern on named typed fields and only when `jsonschema` was installed; the linter now walks the whole parsed frontmatter independently of jsonschema. Also: `composes_with`/`spawned_by` reference resolution now excludes plugin-namespaced (`plugin:name`, i.e. any `:`-containing) refs from the broken-reference WARN — they are external by definition. Scoped `name` uniqueness wording to "within the collection."
 - 1.2.0 — Bound to the published **Portable Skill Frontmatter Spec (PSFS) v1.1.0** (`spec/PSFS.md`). `lint-skills.sh` is the standard's **bash reference validator** (`--standard` reports the binding); the portable, tool-agnostic canonical validator is `spec/frontmatter.schema.json` (JSON Schema 2020-12). The lint script gained an optional inline schema cross-check (ERROR on structural violation when `jsonschema` is available; WARN advisory when absent). The split is normative: the schema covers per-file structure; this contract's cross-skill checks (name uniqueness, name==dirname, `owns` non-overlap) remain validator-only.
 - 1.1.0 — Demoted `description` length checks from ERROR to WARN at every threshold. Reason: `CLAUDE.md` explicitly endorses "pushy" descriptions that over-enumerate trigger contexts to combat under-triggering. Hard ERROR-on-length conflicted with the ecosystem's intentional design. Length is now a quality signal, not a CI gate.
@@ -74,6 +75,7 @@ Frontmatter is injected verbatim into the model's system prompt, where `<...>` c
 | Body present (≥1 non-frontmatter line) | ERROR |
 | Body word count ≥50 | WARN (likely a stub) |
 | Body line count ≤500 | WARN (progressive disclosure violated; move detail to `references/`) |
+| No literal `$ARGUMENTS` token anywhere in the body | ERROR — this Claude-Code-only slash-command placeholder is shipped verbatim (untranslated) to every non-Claude-Code host by `convert.sh`; rewrite in host-neutral prose or gate the reference behind a Claude-Code-only note |
 
 ## Description Length (WARN)
 
