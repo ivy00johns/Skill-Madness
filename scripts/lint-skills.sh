@@ -15,10 +15,11 @@
 #   --format FORMAT  Output format: text (default) or junit
 #   --standard       Print the PSFS standard + version this linter implements
 #                    and the canonical schema path, then exit 0
-#   --changed [REF]  Version-drift guard (opt-in, git-based): ERROR when a
-#                    skill's SKILL.md body changed vs REF (default origin/main,
-#                    then main) but its frontmatter version: did not. Ignores
-#                    PATH args. Not part of the static lint; not wired into CI.
+#   --changed [REF]  Version-drift guard (git-based): ERROR when a skill's
+#                    SKILL.md body changed vs REF (default origin/main, then
+#                    main) but its frontmatter version: did not. Ignores PATH
+#                    args. Not part of the static lint; wired into CI as a PR
+#                    gate in .github/workflows/lint-skills.yml (DV-2).
 #   --help           Print this and exit
 #
 # PATH may be a directory (recurse) or an individual SKILL.md.

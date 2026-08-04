@@ -46,4 +46,9 @@ if [[ ${#BATS_ARGS[@]} -eq 0 ]]; then
   fi
 fi
 
-exec bats -r "${BATS_ARGS[@]}" "$SCRIPT_DIR"
+# Close stdin for the whole run (DV-1): hook scripts under tests/hooks/
+# drain stdin, and with inherited open stdin the suite hangs forever in a
+# terminal. The scripts' own `[[ ! -t 0 ]]` guards cover TTY stdin; this
+# redirect covers every other open-stdin shape (pipes that never EOF). No
+# test in this repo reads stdin, so /dev/null is safe — don't remove it.
+exec bats -r "${BATS_ARGS[@]}" "$SCRIPT_DIR" < /dev/null

@@ -32,7 +32,12 @@ type ats_err  >/dev/null 2>&1 || ats_err()  { printf '[ERR] %s\n' "$*" >&2; }
 VALIDATOR="$HOOK_SCRIPTS_DIR/qa-gate-validate.py"
 
 # Drain stdin (Stop hook payload not needed for the gate decision).
-cat >/dev/null 2>&1 || true
+# Never block on a TTY: a real hook receives its payload via a pipe, so the
+# drain only applies there; a terminal run (or a bats test with inherited
+# stdin) must not hang on an open stdin (DV-1).
+if [[ ! -t 0 ]]; then
+  cat >/dev/null 2>&1 || true
+fi
 
 active_profile="${ATS_HOOK_PROFILE:-standard}"
 case "$active_profile" in

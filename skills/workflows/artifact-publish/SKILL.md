@@ -1,8 +1,8 @@
 ---
 name: artifact-publish
-version: 1.0.0
+version: 1.0.1
 description: |
-  Publish a visual or interactive deliverable as a Claude Code Artifact — a self-contained HTML/Markdown file rendered to a hosted, default-private claude.ai web page the user can share with a link — instead of leaving it as a local file or dumping it in the terminal. Use whenever a result reads better as a page than as text: a dashboard, a rendered report, a chart or diagram, a comparison, a prototype, a walkthrough, a mockup you built in code. Trigger on "publish this as an artifact", "make a shareable link", "host this page", "turn this into a web page", "claude artifact", "publish the dashboard", "share this report as a page", "give me a link to this", "put this on claude.ai". This is the Claude Code Artifact feature (code.claude.com), NOT the claude.ai design canvas (that is claude-design-brief). It is the publish step for the visual-output skills — interactive-doc, mermaid-charts, dataviz, nano-banana — and defers all look-and-feel to the artifact-design skill.
+  Publish a visual or interactive deliverable as a Claude Code Artifact — a self-contained HTML/Markdown file rendered to a hosted, default-private claude.ai web page the user can share with a link — instead of leaving it as a local file. Use whenever a result reads better as a page than as text: a dashboard, rendered report, chart or diagram, comparison, prototype, walkthrough, or mockup you built in code. Trigger on "publish this as an artifact", "make a shareable link", "host this page", "turn this into a web page", "claude artifact", "publish the dashboard", "share this report as a page", "give me a link to this", "put this on claude.ai". This is the Claude Code Artifact feature (code.claude.com), NOT the claude.ai design canvas (that is claude-design-brief). It is the publish step for the visual-output skills — interactive-doc, mermaid-charts, dataviz, nano-banana — and defers all look-and-feel to the artifact-design skill.
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: pro
