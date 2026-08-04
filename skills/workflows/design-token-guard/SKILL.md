@@ -1,6 +1,6 @@
 ---
 name: design-token-guard
-version: 1.0.1
+version: 1.0.2
 composes_with: ["orchestrator", "frontend-agent", "render-sanity", "ux-review", "code-review-agent", "sync-skills"]
 description: >-
   Source-level gate that prevents inline styles and hardcoded CSS from
@@ -12,10 +12,10 @@ description: >-
   hex", "style={{}}", "theme/token drift", "design tokens", "we keep shipping
   inline styles", "lint for tokens", "why did this get through review".
   Framework- and stack-agnostic (React/JSX, Vue, Svelte, Angular, Astro, HTML;
-  CSS variables, SCSS/Less, JS theme objects, design-token JSON) — it
-  auto-discovers the project's tokens, so it is NOT specific to any one repo or
-  to Tailwind. Don't skip it because a visual/render review passed: render gates
-  can't see a hardcoded color — it renders identically to the token.
+  CSS variables, SCSS/Less, JS theme objects, design-token JSON) —
+  auto-discovers the project's tokens; NOT specific to any one repo or to
+  Tailwind. Don't skip it because a render review passed: render gates can't see
+  a hardcoded color — it renders identically to the token.
 compatibility: Claude Code; requires Python 3.8+ (stdlib only) to run scripts/check_design_tokens.py; ESLint scaffolding step is optional
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---

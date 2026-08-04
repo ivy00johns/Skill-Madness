@@ -1,8 +1,8 @@
 ---
 name: model-adaptation
-version: 1.4.0
+version: 1.4.1
 description: |
-  Adapt prompts, skills, and agent scaffolding when the underlying Claude model changes — currently the Claude 5 family (Fable 5 + Mythos 5) versus Opus 4.x. Stronger models need LESS scaffolding: this skill says what to PRUNE, what now backfires (narrating reasoning in the response trips a reasoning_extraction refusal), and what to add for long autonomous runs. Also the canonical home of the model & effort tiering policy (Anthropic ladder; never cross-vendor; FreeLLMAPI carve-out) and of the capability-handoff technique — extract an operating manual from a stronger model to run on a cheaper one. Use when migrating a skill to a new model, a skill "worked before and got worse", agents get refused or fall back to Opus, or picking model/effort per role or loop. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "model migration", "reasoning_extraction", "tune effort", "model tiering", "long-running agent hygiene", "fable handoff", "extract operating manual", "model leaving plan", "pxpipe", "image proxy".
+  Adapt prompts, skills, and agent scaffolding when the underlying Claude model changes — currently the Claude 5 family (Fable 5/Mythos 5) vs Opus 4.x. Stronger models need LESS scaffolding: this skill says what to PRUNE, what backfires (narrating reasoning trips a reasoning_extraction refusal), and what to add for long autonomous runs. Canonical home of the model & effort tiering policy (Anthropic ladder; never cross-vendor; FreeLLMAPI carve-out) and the capability-handoff technique — extract an operating manual from a stronger model to run on a cheaper one. Use when migrating a skill to a new model, a skill "worked before and got worse", agents get refused or fall back to Opus, or picking model/effort per role. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "model migration", "reasoning_extraction", "tune effort", "model tiering", "long-running agent hygiene", "extract operating manual", "pxpipe", "image proxy".
 requires_claude_code: false
 min_plan: starter
 compatibility: "Claude Code or Claude.ai; reference/advisory skill. No special tools required — WebFetch is optional, only to re-pull the live Anthropic guide."
@@ -231,6 +231,11 @@ already-extracted manual (`references/operating-manual.md`, reusable as-is —
 on-demand only, never injected into Claude Code sessions), the three
 refusal/continuation/framing hardenings, and the corrected cost note live in
 **`references/capability-handoff.md`**.
+
+Also reach for this section on **"fable handoff"**, **"capability handoff"**,
+**"model leaving plan"**, or **"model is going away"**. These triggers live in
+the body rather than the description because the description is held under the
+950-char lint band — a body hit still routes here once the skill is open.
 
 ## The refusal landmine (read this even if you read nothing else)
 

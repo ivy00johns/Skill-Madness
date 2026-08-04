@@ -84,7 +84,7 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 - 🌐 **Portable format, honest subset** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The multi-agent core — the orchestrator, the role agents, and the autonomous loops, whose contracts *are* Claude Code's runtime primitives — stays Claude-Code-only by design; the standalone conventions and workflows (git, planning, docs, review, debugging, contract authoring, and more) convert to all ten other hosts. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
 
 > **Status — read before you pitch this to anyone:**
-> - **The orchestrator + 73-skill library is the mature part.** All bodies under 500 lines, zero ownership conflicts, zero broken cross-references, full Ubuntu + macOS lint matrix on every push.
+> - **The orchestrator + 73-skill library is the mature part.** All bodies under 500 lines, zero ownership conflicts, zero broken cross-references, an Ubuntu lint gate plus a non-blocking macOS smoke on every push.
 > - **The 13 autonomous loops are the newest layer.** All built on one `loop-controller` guardrail harness and CI-linted. The build/verify loops (`fix-until-green`, `coverage-loop`, `contract-conformance-loop`) are the most exercised; the scheduled ones (`self-healing-loop`, `dependency-health-loop`) are powerful but younger — keep a human in the loop on anything irreversible.
 > - **Claude Code is the end-to-end-verified host.** Multi-agent dispatch with file-ownership exclusivity and the `qa-report.json` gate runs live on Claude Code today. The other ten hosts receive the library's portable subset and don't run the orchestrator's parallel dispatch.
 > - **Lossy conversion is announced.** When a skill is converted to a non-Claude-Code host, orchestration-only fields (`allowed_tools`, `owns`, `composes_with`, `spawned_by`, `requires_agent_teams`) are stripped with a stderr line per skill. Skills marked `requires_claude_code: true` are skipped entirely for those targets. See `contracts/installer/per-tool-output-spec.md`.
@@ -493,7 +493,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 │   └── frontmatter.schema.json       # JSON Schema 2020-12 reference validator
 │
 ├── tests/installer/                  # bats-core tests for convert/install/lint
-└── .github/workflows/lint-skills.yml # Ubuntu + macOS CI matrix
+└── .github/workflows/lint-skills.yml # Ubuntu gate + macOS smoke CI
 ```
 
 ---
@@ -560,7 +560,7 @@ Reads `integrations/<host>/` and copies into the host's expected install locatio
 
 ### `scripts/lint-skills.sh`
 
-Runs on every push to every branch (Ubuntu + macOS) via `.github/workflows/lint-skills.yml`. Validates:
+Runs on every push to every branch (Ubuntu gating; macOS as a non-blocking smoke) via `.github/workflows/lint-skills.yml`. Validates:
 
 - Frontmatter schema (required fields, valid `version` semver, kebab-case `name`)
 - Body length under 500 lines
@@ -643,7 +643,7 @@ Both run in CI via the `Hooks Layer (Ubuntu)` job in `.github/workflows/lint-ski
 ./scripts/lint-skills.sh
 ```
 
-That's the same command CI runs. If it's green locally on macOS or Linux, the PR will be green.
+That's the same command the gating Ubuntu CI job runs. If it's green locally on Linux, the PR will be green — the macOS job is a non-blocking compatibility smoke (continue-on-error).
 
 ### Add a new skill
 
@@ -705,7 +705,7 @@ Set the override env var documented in `scripts/README.md` (e.g. `CURSOR_RULES_D
 
 - [x] **Skill library** — 73 skills, seven categories, all linted
 - [x] **Multi-tool installer** — convert / install / lint, eleven host adapters
-- [x] **CI matrix** — Ubuntu + macOS lint on every push
+- [x] **CI matrix** — Ubuntu lint gate + macOS smoke on every push
 - [x] **Contract-first specs** — OpenAPI / AsyncAPI / Pydantic / TypeScript / JSON Schema templates
 - [x] **QA gate** — `qa-report.json` schema with critical / high / medium / low blockers
 - [x] **Two-runtime degradation** — Agent Teams → subagents → sequential, host-detected

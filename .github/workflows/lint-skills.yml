@@ -26,8 +26,12 @@ jobs:
     name: Lint Skills (Ubuntu)
     runs-on: ubuntu-latest
     steps:
+      # Full history (DV-2): the version-drift guard below diffs against
+      # origin/main, which a shallow fetch-depth: 1 checkout would not have.
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       # python3 is preinstalled on ubuntu-latest; this step confirms
       # availability and surfaces the version in the job log.
@@ -55,6 +59,13 @@ jobs:
       # covered by the full-suite run in 'Installer + Catalog (Ubuntu)'.)
       - name: Run lint (enforce pass/fail)
         run: scripts/lint-skills.sh skills/
+
+      # Version-drift guard (SR13; wired into CI by DV-2): a SKILL.md whose
+      # body changed but whose frontmatter version: did not fails the PR.
+      # Diffed against origin/main (available via the fetch-depth: 0 checkout
+      # above). Exits non-zero on any drifted skill — no '|| true' here.
+      - name: Check version-drift guard
+        run: scripts/lint-skills.sh --changed origin/main
 
       # Upload the JUnit XML even when the job fails so reviewers can
       # inspect which rules fired without re-running locally.

@@ -23,7 +23,11 @@ done
 type ats_info >/dev/null 2>&1 || ats_info() { printf '[--]  %s\n' "$*"; }
 
 # Drain any stdin payload (SessionStart may send JSON); we don't need it.
-cat >/dev/null 2>&1 || true
+# Drain only when stdin is a pipe (the hook payload) — never block on a TTY
+# or an open stdin during a terminal run or bats test (DV-1).
+if [[ ! -t 0 ]]; then
+  cat >/dev/null 2>&1 || true
+fi
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
 

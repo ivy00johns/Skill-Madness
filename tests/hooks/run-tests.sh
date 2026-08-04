@@ -47,8 +47,11 @@ printf '[run-tests] Running %d test file(s):\n' "${#TEST_FILES[@]}"
 for f in "${TEST_FILES[@]}"; do printf '  %s\n' "$(basename "$f")"; done
 printf '\n'
 
+# Close stdin (DV-1): qa-gate.sh / session-start-profile.sh drain stdin, so
+# with inherited open stdin the suite hangs forever in a terminal. No test
+# reads stdin, so /dev/null is safe.
 if [[ -t 1 ]]; then
-  bats --timing "${TEST_FILES[@]}"
+  bats --timing "${TEST_FILES[@]}" < /dev/null
 else
-  bats --tap "${TEST_FILES[@]}"
+  bats --tap "${TEST_FILES[@]}" < /dev/null
 fi
