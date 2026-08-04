@@ -705,7 +705,8 @@ cross_validate() {
 # catches local edits before they are committed. New files (absent in the base)
 # and deletions are skipped: drift needs a prior version to compare against.
 # base-ref defaults to origin/main, then main. This is NOT part of the static
-# lint (it needs git) and is deliberately NOT wired into CI here.
+# lint (it needs git); it runs as its own CI step — see the usage block at the
+# top of this file and .github/workflows/lint-skills.yml (DV-2).
 # bash-3.2-safe. Exits 0 (no drift) / 1 (drift) / 2 (git/base-ref error).
 lint_changed() {
   local base_ref="$1"
@@ -731,10 +732,21 @@ lint_changed() {
     exit 2
   fi
 
+  # Compare against the MERGE BASE, not the base ref's tip. On a branch that is
+  # behind the base, a two-way diff also reports whatever landed on the base
+  # since the fork — files this branch never touched — and any of those carrying
+  # an unbumped body change would fail the branch for someone else's drift. The
+  # CI job runs on push to any branch, not only on PR merge commits, so that
+  # shape is reachable. Falls back to the ref itself if there is no merge base
+  # (unrelated histories), which restores the old two-way behaviour.
+  local base_rev
+  base_rev="$(git -C "$REPO_ROOT" merge-base HEAD "$base_ref" 2>/dev/null || true)"
+  [[ -z "$base_rev" ]] && base_rev="$base_ref"
+
   # Changed SKILL.md paths (repo-relative). Filter with grep rather than relying
   # on git pathspec magic, so nested paths are always matched.
   local changed
-  changed="$(git -C "$REPO_ROOT" diff --name-only "$base_ref" 2>/dev/null | grep -E '(^|/)SKILL\.md$' || true)"
+  changed="$(git -C "$REPO_ROOT" diff --name-only "$base_rev" 2>/dev/null | grep -E '(^|/)SKILL\.md$' || true)"
 
   local n_drift=0 n_checked=0
   local rel nowfile basecontent basetmp vbase vnow bbase bnow
@@ -743,7 +755,7 @@ lint_changed() {
       [[ -z "$rel" ]] && continue
       nowfile="$REPO_ROOT/$rel"
       [[ -f "$nowfile" ]] || continue   # deleted in the work tree — skip
-      basecontent="$(git -C "$REPO_ROOT" show "${base_ref}:${rel}" 2>/dev/null || true)"
+      basecontent="$(git -C "$REPO_ROOT" show "${base_rev}:${rel}" 2>/dev/null || true)"
       [[ -z "$basecontent" ]] && continue   # new file (absent in base) — no prior version
       basetmp="$(mktemp "${TMPDIR:-/tmp}/ats-drift.XXXXXX")"
       printf '%s\n' "$basecontent" > "$basetmp"

@@ -232,6 +232,11 @@ on-demand only, never injected into Claude Code sessions), the three
 refusal/continuation/framing hardenings, and the corrected cost note live in
 **`references/capability-handoff.md`**.
 
+Also reach for this section on **"fable handoff"**, **"capability handoff"**,
+**"model leaving plan"**, or **"model is going away"**. These triggers live in
+the body rather than the description because the description is held under the
+950-char lint band — a body hit still routes here once the skill is open.
+
 ## The refusal landmine (read this even if you read nothing else)
 
 For a toolkit that **authors** prompts and skills, the highest-consequence change in the
