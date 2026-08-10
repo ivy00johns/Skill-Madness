@@ -1,0 +1,155 @@
+{
+  "schema": "skill-review/1.0",
+  "mode": "deep-dive",
+  "skill": "use-freellmapi",
+  "skill_path": "skills/workflows/use-freellmapi",
+  "skill_version_reviewed": "1.3.0",
+  "review_date": "2026-08-10",
+  "focus": "staleness vs freellmapi repo changes since 2026-07-29 (v0.6.6..v0.6.9 + unreleased main, 81 commits, verified at b9b6bf7)",
+  "verdict": "NEEDS_WORK",
+  "scores": {
+    "frontmatter_compliance": 4,
+    "description_quality": 5,
+    "progressive_disclosure": 4,
+    "instruction_clarity": 5,
+    "coordination": 4,
+    "completeness": 3,
+    "anti_patterns": 4
+  },
+  "telemetry": { "status": "no-data", "note": "unobserved, not evidence of a problem" },
+  "trigger_testing": { "status": "skipped", "reason": "review focus was content staleness; description embeds explicit trigger list" },
+  "issues": [
+    {
+      "id": "H1",
+      "severity": "high",
+      "file": "references/capabilities.md",
+      "section": "Not supported yet",
+      "claim": "Per-user billing / multi-tenant auth — single-user by design",
+      "reality": "v0.6.9 added per-client API keys (sk-cp-...) with optional server-enforced system prompts (#758/#411); billing remains single-user but multi-key client auth now exists",
+      "evidence": "server/src/db/migrations/20260805_000002_client_profiles.ts, server/src/lib/system-prompt.ts",
+      "suggestion": "Narrow the bullet to per-user billing only; add client-profile keys as a supported capability"
+    },
+    {
+      "id": "H2",
+      "severity": "high",
+      "file": "SKILL.md, references/capabilities.md",
+      "section": "Step 2 / Auth paragraph",
+      "claim": "single unified key is the auth story",
+      "reality": "three credential kinds now: unified key, sk-cp-... client-profile keys, revocable URL tokens; per-client key is arguably the better recommendation for wiring one project",
+      "evidence": "client_profiles migration + keys routes",
+      "suggestion": "Update Step 2 and Auth paragraph; consider recommending one client key per wired project for analytics attribution and revocability"
+    },
+    {
+      "id": "H3",
+      "severity": "high",
+      "file": "references/capabilities.md",
+      "section": "Tool calling",
+      "claim": "no mention of argument validation",
+      "reality": "opt-in schema verdict on tool arguments with failover when invalid (#802); double-encoded argument repair below top level (#794)",
+      "evidence": "server/src/lib/tool-validate.ts, server/src/lib/fallback-loop.ts",
+      "suggestion": "Add both behaviors, noting the verdict is opt-in"
+    },
+    {
+      "id": "H4",
+      "severity": "high",
+      "file": "references/capabilities.md",
+      "section": "Routing behavior",
+      "claim": "failover described without newer behaviors",
+      "reality": "auto-cooldown of repeatedly failing models beyond 429 (#806); whole-provider skip on 5xx/timeout (#817); back-off honored from error body (#798); unified output-token cap (#783); community reliability priors + exploration toggle (#744/#731)",
+      "evidence": "commits 398ed97, e1d1c5a, 6f13332, f3613ae, 1e675cc, 96da9ec",
+      "suggestion": "Fold into Routing behavior bullets; provider-skip and cooldown are user-observable"
+    },
+    {
+      "id": "H5",
+      "severity": "high",
+      "file": "references/capabilities.md",
+      "section": "Routing behavior / headers",
+      "claim": "X-Fallback-Trail is the failover debugging surface",
+      "reality": "opt-in X-Fallback-Detail header with per-hop failover timings also exists (#792)",
+      "evidence": "server/src/lib/fallback-loop.ts, server/src/__tests__/routes/fallback-detail-header.test.ts",
+      "suggestion": "Document alongside X-Fallback-Trail"
+    },
+    {
+      "id": "H6",
+      "severity": "high",
+      "file": "SKILL.md, references/capabilities.md",
+      "section": "Step 6 dashboard tour / Keys",
+      "claim": "no mention of per-key features",
+      "reality": "per-key model scopes (#757), per-key proxy override (#819), bulk key ops in a group (#816), immediate-probe for custom endpoints (#730)",
+      "evidence": "commits 19cdc53, 647683a, 21c3258, b20986c",
+      "suggestion": "One compact bullet in the dashboard tour plus a Keys paragraph in capabilities.md"
+    },
+    {
+      "id": "H7",
+      "severity": "high",
+      "file": "references/agent-clients.md",
+      "section": "Claude Code",
+      "claim": "streaming, system prompts, tool use, and image input all translate",
+      "reality": "document content blocks also translate since #793 (previously silently dropped)",
+      "evidence": "commit 35af82c, server/src/routes/anthropic.ts",
+      "suggestion": "Add documents to the translate list"
+    },
+    {
+      "id": "M1",
+      "severity": "medium",
+      "file": "SKILL.md",
+      "section": "Step 1",
+      "claim": "install paths are Docker or source only",
+      "reality": "maintained Electron desktop builds now ship: macOS, Windows installer + zip (#766/#773), Linux AppImage/deb/tar.xz (#739)",
+      "suggestion": "One sentence offering desktop app as the no-Docker fallback"
+    },
+    {
+      "id": "M2",
+      "severity": "medium",
+      "file": "SKILL.md, references/capabilities.md",
+      "section": "keyless providers",
+      "claim": "as of v0.6.5: Kilo :free, OVH, AI Horde",
+      "reality": "roster re-verified CORRECT at head (still exactly those three plus local Ollama); only the version stamp is stale",
+      "evidence": "server/src/providers/index.ts keyless: true entries, server/src/providers/aihorde.ts",
+      "suggestion": "Refresh stamp to v0.6.9+"
+    },
+    {
+      "id": "M3",
+      "severity": "medium",
+      "file": "SKILL.md",
+      "section": "Step 2",
+      "claim": "user must eyeball provider enablement",
+      "reality": "Keys page now has a provider checklist with status icons and flags providers missing keys (#596/#777/#822) plus searchable provider picker (#728)",
+      "suggestion": "Point the hold-here gate at the checklist"
+    },
+    {
+      "id": "M4",
+      "severity": "medium",
+      "file": "SKILL.md",
+      "section": "Step 6",
+      "claim": "dashboard tour omits newer surfaces",
+      "reality": "Settings auto update-check with release-notes dialog (#635/#782); password reset via server-log code (#560)",
+      "suggestion": "Add both to the handoff bullets"
+    },
+    {
+      "id": "M5",
+      "severity": "medium",
+      "file": "SKILL.md",
+      "section": "intro numbers",
+      "claim": "~29 provider tiers",
+      "reality": "AnyAPI added (#772); registry now has 32 register() calls; skill already hedges its numbers",
+      "suggestion": "Refresh the approximate count during the edit pass"
+    },
+    {
+      "id": "L1",
+      "severity": "low",
+      "file": "references/recipes.md",
+      "claim": "n/a",
+      "reality": "generic client recipes, no proxy-behavior claims; spot-check clean, not exhaustively re-verified",
+      "suggestion": "No action needed"
+    },
+    {
+      "id": "L2",
+      "severity": "low",
+      "file": "SKILL.md",
+      "section": "frontmatter",
+      "suggestion": "Bump version 1.3.0 -> 1.4.0 when content edits land"
+    }
+  ],
+  "edit_order": ["H1+H2", "H3", "H4", "H5", "H6", "H7", "M1-M5", "L2"]
+}

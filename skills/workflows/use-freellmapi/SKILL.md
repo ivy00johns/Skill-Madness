@@ -1,16 +1,17 @@
 ---
 name: use-freellmapi
-version: 1.2.2
+version: 1.4.0
 description: |
-  Wire any project to FreeLLMAPI — a local OpenAI-compatible proxy that aggregates ~20 free LLM provider
-  tiers (~1.7B+ tokens/month) behind one endpoint — so you can prototype without paying for API calls.
-  Use when a user wants to switch a project off paid OpenAI/Anthropic/etc. onto free models, point an app
-  at a local LLM proxy, cut their LLM bill for prototyping, or stand up FreeLLMAPI itself. Detects the
-  project's current LLM client (OpenAI or Anthropic SDK, LangChain, LlamaIndex, Vercel AI SDK, Continue,
-  raw HTTP), ensures the proxy is running (installs it if missing), rewires base_url + api_key behind an
-  env toggle so you can flip back, and verifies with a live test call. Trigger on "use the free llm api",
-  "use freellmapi", "switch this to free models", "point this at freellmapi", "stop paying for openai
-  here", "free llm proxy", "prototype without api costs", "configure this for the free llm api".
+  Wire any project or coding agent to FreeLLMAPI — a local proxy aggregating ~30 free LLM provider
+  tiers behind one endpoint — so you can prototype without paying for API calls. Use to switch a
+  project off paid OpenAI/Anthropic/etc. onto free models, point an app or CLI agent at a local LLM
+  proxy, or stand up FreeLLMAPI itself. Speaks OpenAI, Anthropic Messages, native Gemini, and Ollama
+  wire formats, covering Claude Code, Codex CLI, Gemini CLI, Cline, Aider, Continue, Zed, and
+  JetBrains AI. Detects the project's LLM client, ensures the proxy is running, rewires base_url +
+  api_key behind an env toggle, and verifies with a live test call. Trigger on "use freellmapi",
+  "switch this to free models", "point this at freellmapi", "stop paying for openai here", "free llm
+  proxy", "prototype without api costs", "run claude code on free models", "point claude
+  code/codex/gemini cli at freellmapi", "free models for my coding agent".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
@@ -25,12 +26,16 @@ spawned_by: []
 
 # use-freellmapi
 
-Point a project at **FreeLLMAPI** — a local proxy that aggregates the free tiers of ~20 LLM providers
-(Google, Groq, Cerebras, NVIDIA, Mistral, OpenRouter, GitHub Models, Cohere, Cloudflare, HuggingFace,
-Z.ai, Ollama, Kilo, Pollinations, LLM7, OVH, OpenCode Zen, AI Horde, and more — the exact roster shifts
-as providers come and go and the model catalog self-updates) behind a single OpenAI-compatible endpoint.
-A router picks the best available model per request and fails over when one is rate-limited. The payoff:
-prototype against real models for free, with zero code changes beyond a base URL and a key.
+Point a project at **FreeLLMAPI** — a local proxy that aggregates the free tiers of ~30 LLM providers
+(Google, Groq, Cerebras, NVIDIA, Mistral, OpenRouter, GitHub Models, Cohere, Cloudflare, Z.ai,
+ModelScope, Ollama, Kilo, OVH, AI Horde, and more) behind a single endpoint — roughly **4B tokens/month
+across 251 model families / 358 endpoints**. A router picks the best available model per request and
+fails over when one is rate-limited. The payoff: prototype against real models for free, with zero code
+changes beyond a base URL and a key.
+
+> **Don't hardcode the roster or the numbers into advice.** Providers come and go, the catalog
+> self-updates from a signed feed, and free installs run on a 30-day catalog trail. Read the live
+> `/v1/models` and the dashboard rather than trusting any list — including this one.
 
 > **Tiering note:** a FreeLLMAPI project is the toolkit's one sanctioned multi-provider setup. The
 > model & effort tiering policy (`model-adaptation`, *Model & effort tiering*) is provider-relative —
@@ -44,20 +49,24 @@ FreeLLMAPI is an **OpenAI-compatible** proxy. Wiring a project to it is almost a
 
 | What | Value |
 | --- | --- |
-| **base_url** | `http://localhost:3001/v1` (default; `PORT` may differ) |
-| **api_key** (bearer) | `freellmapi-…` — the proxy's single *unified key* |
-| **model** | `"auto"` — let the router pick and fail over; pin one like `"gemini-2.5-flash"`; or `"fusion"` to blend a panel of models into one answer |
+| **base_url** | `http://localhost:3001/v1` (default; `PORT` may differ). **Anthropic, Gemini, and Ollama clients use the bare origin** — `http://localhost:3001`, no `/v1` |
+| **api_key** (bearer) | `freellmapi-…` — the install's *unified key* — or better, a **per-client key** (`sk-cp-…`) minted for this project |
+| **model** | `"auto"` — let the router pick and fail over. Steer it per request with `"auto:fast"` / `"auto:smart"` / `"auto:reliable"` / `"auto:<profile-name>"`; pin one like `"gemini-2.5-flash"`; or `"fusion"` to blend a panel of models into one answer |
 
 Because the surface is OpenAI-compatible, any OpenAI client library works unchanged — chat, streaming,
-tool calling, vision, and embeddings all route through the same endpoint. The proxy also accepts the
-**Anthropic-style `x-api-key` header**, so Anthropic SDK clients can point at it too (use the unified
-key as the `x-api-key`). Everything past this point is about doing the swap *cleanly, reversibly, and
-verified* — not about anything exotic.
+tool calling, vision, and embeddings all route through the same endpoint. But it is **not only**
+OpenAI-shaped: the proxy also speaks the **native Anthropic Messages API** (`/v1/messages` — Claude Code
+and the Anthropic SDKs), the **native Gemini API** (`/v1beta` — Gemini CLI), and an opt-in **Ollama**
+surface (`/api/*` — Zed, JetBrains AI). Point each client at the wire format it already speaks instead
+of forcing everything through chat completions. Everything past this point is about doing the swap
+*cleanly, reversibly, and verified* — not about anything exotic.
 
-> Read `references/capabilities.md` for the exact supported surface (endpoints, the two virtual models
-> `auto` and `fusion`, embeddings families, vision, tools, structured outputs, image generation + TTS,
-> the `/mcp` server, the opt-in response cache) and the short list of things it still does **not** do
-> (legacy `/v1/completions`, moderation, `n > 1`). Check it before promising a capability.
+> Read `references/capabilities.md` for the exact supported surface (all six wire formats, the virtual
+> models `auto`/`fusion` and `auto:*` steering, embeddings families, vision, tools, structured outputs,
+> media, the `/mcp` server, prompt compression, the response cache, analytics) and the short list of
+> things it still does **not** do (moderation, `n > 1`, multi-tenant auth). Check it before promising a
+> capability — and when it matters, confirm against `GET /v1/docs` on the user's own install, since
+> older pinned images lag the catalog.
 
 ## Workflow
 
@@ -71,47 +80,91 @@ Probe the unauthenticated liveness endpoint:
 
 ```bash
 curl -fsS http://localhost:3001/api/ping
-# {"status":"ok","timestamp":"..."}  → running, go to Step 2
+# {"status":"ok","timestamp":"..."}  → something is answering, but see the check below
 ```
+
+> **A 200 on `/api/ping` does not prove the *container* answered.** A stray host-side `npm run dev`
+> from a source checkout binds `*:3001` on the IPv6 wildcard, which the OS prefers over the container's
+> `127.0.0.1:3001` when resolving `localhost`. That dev server answers `/api/ping` happily but has no
+> built client (`ENOENT … client/dist/index.html`, with a **host** path in the error) and its own empty
+> database (a bogus "create an account" page) — which reads exactly like a wiped install after a
+> rebuild. If the dashboard looks freshly-installed or errors on refresh, check who owns the port
+> **before** touching any data:
+>
+> ```bash
+> lsof -nP -iTCP:3001 -sTCP:LISTEN   # a `node` row next to `com.docker` is the bug
+> ```
+>
+> Kill the `npm run dev` parent (not just the node child — `tsx watch` respawns it), then re-probe.
+> Never reach for `docker compose down -v` to "reset" this; that is what actually destroys keys.
 
 If nothing answers, install and start it with the official one-liner (needs Docker running):
 
 ```bash
-curl -fsSL https://tashfeenahmed.github.io/freellmapi/install.sh | bash
+curl -fsSL https://freellmapi.co/install.sh | bash
 ```
 
 This sets up `~/freellmapi`, generates an at-rest `ENCRYPTION_KEY`, pulls
 `ghcr.io/tashfeenahmed/freellmapi:latest`, starts the container on `:3001`, and waits for `/api/ping`.
 Re-running is safe — it preserves the existing `.env`. When it finishes, probe `/api/ping` again to
-confirm. If Docker isn't available, fall back to a source install (`git clone` + `npm install` +
-`npm run dev`); see the *Local development* section of the [repo README](https://github.com/tashfeenahmed/freellmapi).
+confirm. If Docker isn't available, the project also ships a **desktop app** bundling the same server
+(macOS, Windows installer or zip, Linux AppImage/deb/tar.xz — the repo's Releases page), or fall back
+to a source install (`git clone` + `npm install` + `npm run dev`); see the *Local development* section
+of the [repo README](https://github.com/tashfeenahmed/freellmapi).
 
 If the user already runs it on a non-default port or another host, use that `base_url` everywhere below.
 
 ### Step 2 — Get the unified key and make sure a provider can serve requests
 
-**Unified key** (`freellmapi-…`): the single bearer token your app uses. Get it from:
+**Unified key** (`freellmapi-…`): the install-wide bearer token. Get it from:
 
 - the **Keys page header** at `http://localhost:3001` (the dashboard), or
 - the first-run container logs:
   `cd ~/freellmapi && docker compose logs 2>&1 | grep -i "unified api key"`
 
+Since v0.6.9 the Keys page can also mint **per-client keys** (`sk-cp-…`) — one per downstream app or
+tool, independently revocable, each with an optional system prompt the proxy enforces server-side.
+For wiring a single project, prefer minting one: analytics attribute traffic by key, and revoking it
+later doesn't touch any other client's credential. Everything below works the same with either key.
+
 **A fresh proxy has no provider keys, so chat requests fail until at least one provider is enabled.**
 This is the one part you can't do for the user — adding keys and toggling providers happens in the
 browser dashboard. Make it explicit and offer to wait. Two paths:
 
-- **Fastest, zero-key smoke test:** on the dashboard, enable a **keyless** provider — Pollinations
-  (GPT-OSS 20B), Kilo `:free`, or OVH work with no API key at all. Good enough to prove the pipe end to
-  end in under a minute.
+- **Fastest, zero-key smoke test:** on the dashboard, enable a **keyless** provider — as of v0.6.9
+  that's **Kilo `:free`**, **OVH**, or **AI Horde**, which need no API key at all. Good enough to prove
+  the pipe end to end in under a minute. (**Pollinations is no longer keyless** — it validates a key
+  now, so don't offer it as the zero-key path. AI Horde is queue-based and can take tens of seconds.)
 - **Real prototyping:** add free provider keys on the **Keys** page (Google AI Studio, Groq, Cerebras,
   etc. — each has a free signup), then reorder the **Fallback Chain** to taste.
 
 Hold here until the user confirms at least one provider is enabled — otherwise Step 5 will fail with a
-"no model available" error and look like a wiring bug when it isn't.
+"no model available" error and look like a wiring bug when it isn't. The Keys page's **provider
+checklist** (status icons per provider, flagging any that need a key but have none) is the quickest
+way to confirm, beating guesswork about which toggle actually took.
 
-### Step 3 — Detect the project's current LLM wiring
+### Step 3 — Detect the target: coding agent, or application code?
 
-Find how the project talks to an LLM today so you pick the right recipe and the smallest diff:
+**First ask which kind of target this is — the two paths diverge completely.**
+
+**If the target is a coding agent or CLI** (Claude Code, Codex, Gemini CLI, Cline, Aider, Continue,
+OpenCode, Goose, Qwen, Roo, Kilo, Crush, Cursor, Zed, JetBrains AI) — **do not hand-edit its config.**
+The proxy ships generators that read the live catalog, merge with existing config, and write a
+timestamped backup first:
+
+```bash
+npx freellmapi setup-claude --url http://localhost:3001 --dry-run   # show the diff
+npx freellmapi setup-claude --url http://localhost:3001             # apply, with backup
+```
+
+Read `references/agent-clients.md` for the full command table, the per-client base URLs, and the traps
+that waste the most time (Claude Code needs the **origin** not `/v1`, and `ANTHROPIC_AUTH_TOKEN` **not**
+`ANTHROPIC_API_KEY` or it refuses to start; Ollama emulation is off by default and `open-loopback`
+doesn't work in Docker). Then skip to Step 5 and verify — Step 4's env-toggle pattern is for
+application code, not agent config.
+
+**If the target is application code**, continue here. Find how the project talks to an LLM today so you
+pick the right recipe and the smallest diff:
 
 ```bash
 # language + client library + where the client is built
@@ -197,20 +250,45 @@ Map failures to causes instead of guessing:
 
 ### Step 6 — Hand off
 
-Tell the user, briefly: how to flip back (uncomment the original `.env` block), where the dashboard is
-(`http://localhost:3001` — manage keys, reorder the fallback chain or save named **routing profiles**
-that auto-sort by intelligence/speed/budget, watch analytics, use the playground), what `model:"auto"`
-does, that `model:"fusion"` blends a panel of models for a quality bump on hard prompts, and the
-relevant **not-supported** caveats from `references/capabilities.md` if their project uses legacy
-completions, moderation, or `n > 1` (those won't route — they'll need the real provider for those
-calls). Image generation and text-to-speech now *do* route on current releases (a media-capable
-provider must be enabled on the dashboard).
+Tell the user, briefly:
+
+- **How to flip back** — uncomment the original `.env` block (or re-run the agent's own config backup).
+- **Where the dashboard is** (`http://localhost:3001`) and what's on it: **Models** (Chat / Embeddings /
+  Image / Audio / Fusion tabs, with editable intelligence-and-speed ranks and per-model rate limits),
+  **Playground** (now accepts image and text-file attachments), **Keys** (provider checklist,
+  per-client `sk-cp-…` keys, per-key model scopes and proxy overrides, bulk key actions), **Agents**
+  (per-tool setup blocks, Anthropic/Gemini family maps, Ollama emulation mode, URL tokens),
+  **Analytics**, and **Premium**. Named **routing profiles** auto-sort a chain by
+  intelligence/speed/budget and are selectable per request as `auto:<profile>`. Settings live in a
+  sidebar dialog and include an automatic update check with release notes; a forgotten dashboard
+  password is recoverable with a code printed in the server logs. The UI ships in 60 languages.
+- **What the model values do** — `auto` routes and fails over, `auto:fast` / `auto:smart` /
+  `auto:reliable` steer one request without touching the dashboard, `fusion` blends a panel of models
+  for a quality bump on hard prompts.
+- **What analytics will tell them later** — p50/p95 latency, time-to-first-token, success rate,
+  estimated savings, and **pin-honor rate** (the number that answers "I asked for model X, why did I get
+  Y?"), plus per-request failover traces.
+- **The relevant not-supported caveats** from `references/capabilities.md` — moderation, `n > 1`, and
+  multi-tenant auth won't route, so those calls still need the real provider. Legacy
+  `/v1/completions`, image generation, text-to-speech, and fusion tool-calling **do** work on current
+  releases; only image *input* to `/v1/responses` and to `fusion` is still missing.
+- **If the catalog looks stale** — free installs run on a 30-day catalog trail (the live signed feed is
+  the paid tier), so a missing new model or a provider whose free tier changed is usually catalog lag,
+  not a wiring bug.
+- **Optionally, prompt compression** — off by default, but worth mentioning for long agent sessions:
+  it shrinks re-sent context before routing so more small-context models stay eligible.
 
 ## References
 
-- **`references/recipes.md`** — per-framework, copy-paste env-toggle wiring. Read the one section that
-  matches the detected stack; ignore the rest.
-- **`references/capabilities.md`** — exact supported surface (chat, streaming, tools, vision,
-  structured outputs, embeddings + their families, the Responses API shim, image/audio media, the
-  `/mcp` server, the opt-in response cache), plus the not-supported list and gotchas (sticky sessions,
-  fresh-install-has-no-keys, anonymous providers, the `X-Routed-Via` / `X-Fallback-Trail` headers).
+- **`references/recipes.md`** — per-framework, copy-paste env-toggle wiring for **application code**.
+  Read the one section that matches the detected stack; ignore the rest.
+- **`references/agent-clients.md`** — wiring for **coding agents and CLIs**: the `npx freellmapi
+  setup-*` generator table, Claude Code / Codex / Gemini CLI / Ollama-client / headerless setups, the
+  MCP server, and the per-client traps. Read this whenever the target is a tool rather than a codebase.
+- **`references/capabilities.md`** — exact supported surface across all six wire formats (chat,
+  streaming, tools, vision, structured outputs, embeddings + families, Responses, legacy completions,
+  media, transcription, Anthropic Messages, native Gemini, Ollama, `/mcp`, URL tokens, ops endpoints),
+  plus routing behavior and `auto:*` steering, prompt compression, the response cache, analytics, the
+  not-supported list, and the gotchas (sticky sessions, fresh-install-has-no-keys, which providers are
+  actually keyless, catalog lag, the `X-Routed-Via` / `X-Fallback-Trail` / `X-Request-ID` headers and
+  their percent-encoding trap).
