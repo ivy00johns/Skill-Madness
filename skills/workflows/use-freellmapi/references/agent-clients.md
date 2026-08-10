@@ -48,7 +48,7 @@ in a config file.
 
 ```bash
 export ANTHROPIC_BASE_URL=http://localhost:3001         # origin, NOT /v1
-export ANTHROPIC_AUTH_TOKEN=freellmapi-your-key         # NOT ANTHROPIC_API_KEY
+export ANTHROPIC_AUTH_TOKEN=freellmapi-xxxx         # NOT ANTHROPIC_API_KEY
 claude
 ```
 
@@ -67,7 +67,7 @@ Streaming, system prompts, tool use, image input, and document (PDF) content blo
 
 ```bash
 export GOOGLE_GEMINI_BASE_URL=http://localhost:3001
-export GEMINI_API_KEY=freellmapi-your-key
+export GEMINI_API_KEY=freellmapi-xxxx
 gemini
 ```
 
@@ -108,7 +108,7 @@ revocation is immediate.
 
 ```bash
 claude mcp add --transport http freellmapi http://localhost:3001/mcp \
-  --header "Authorization: Bearer freellmapi-your-key"
+  --header "Authorization: Bearer freellmapi-xxxx"  # scan-skills:ignore secret-generic
 ```
 
 Tools: `list_models`, `provider_health`, `usage_summary`, `routing_info`, `set_routing_strategy`,
@@ -124,7 +124,7 @@ models:
     provider: openai
     model: auto
     apiBase: http://localhost:3001/v1
-    apiKey: freellmapi-your-key
+    apiKey: freellmapi-xxxx
     useLegacyCompletionsEndpoint: true
     roles:
       - autocomplete

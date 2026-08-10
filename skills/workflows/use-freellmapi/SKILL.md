@@ -2,18 +2,15 @@
 name: use-freellmapi
 version: 1.4.0
 description: |
-  Wire any project or coding agent to FreeLLMAPI — a local proxy that aggregates ~30 free LLM provider
-  tiers (~4B tokens/month across 251 model families) behind one endpoint — so you can prototype without
-  paying for API calls. Use when a user wants to switch a project off paid OpenAI/Anthropic/etc. onto
-  free models, point an app or CLI agent at a local LLM proxy, cut their LLM bill for prototyping, or
-  stand up FreeLLMAPI itself. Speaks OpenAI, Anthropic Messages, native Gemini, and Ollama wire formats,
-  so it also covers pointing Claude Code, Codex CLI, Gemini CLI, Cline, Aider, Continue, Zed, or
-  JetBrains AI at free models. Detects the project's current LLM client (OpenAI or Anthropic SDK,
-  LangChain, LlamaIndex, Vercel AI SDK, Continue, raw HTTP), ensures the proxy is running (installs it
-  if missing), rewires base_url + api_key behind an env toggle so you can flip back, and verifies with a
-  live test call. Trigger on "use the free llm api", "use freellmapi", "switch this to free models",
-  "point this at freellmapi", "stop paying for openai here", "free llm proxy", "prototype without api
-  costs", "configure this for the free llm api", "run claude code on free models", "point claude
+  Wire any project or coding agent to FreeLLMAPI — a local proxy aggregating ~30 free LLM provider
+  tiers behind one endpoint — so you can prototype without paying for API calls. Use to switch a
+  project off paid OpenAI/Anthropic/etc. onto free models, point an app or CLI agent at a local LLM
+  proxy, or stand up FreeLLMAPI itself. Speaks OpenAI, Anthropic Messages, native Gemini, and Ollama
+  wire formats, covering Claude Code, Codex CLI, Gemini CLI, Cline, Aider, Continue, Zed, and
+  JetBrains AI. Detects the project's LLM client, ensures the proxy is running, rewires base_url +
+  api_key behind an env toggle, and verifies with a live test call. Trigger on "use freellmapi",
+  "switch this to free models", "point this at freellmapi", "stop paying for openai here", "free llm
+  proxy", "prototype without api costs", "run claude code on free models", "point claude
   code/codex/gemini cli at freellmapi", "free models for my coding agent".
 requires_agent_teams: false
 requires_claude_code: false
