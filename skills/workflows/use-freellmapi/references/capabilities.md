@@ -42,9 +42,14 @@ surface, see `agent-clients.md` — this table is the inventory.
 | `GET /v1/providers` | Provider inventory (unified-key auth); `?ready=true` filters to ones that can serve now. |
 | `GET /v1/docs` · `GET /v1/openapi.json` | Dependency-free interactive OpenAPI viewer + the spec itself. Useful for confirming a capability on *this* install rather than trusting docs. |
 
-**Auth:** every `/v1` call needs the unified key (`freellmapi-…`), accepted as
-`Authorization: Bearer <key>` or `x-api-key: <key>` (Gemini's `x-goog-api-key` on `/v1beta`). The
-`/api/*` dashboard routes use a separate email+password session and are not what apps talk to.
+**Auth:** three credential kinds unlock `/v1`, all accepted as `Authorization: Bearer <key>` or
+`x-api-key: <key>` (Gemini's `x-goog-api-key` on `/v1beta`): the install-wide **unified key**
+(`freellmapi-…`); **per-client keys** (`sk-cp-…`, minted on the Keys page since v0.6.9 — one per
+downstream app or tool, independently revocable, each with an optional **server-enforced system
+prompt** the proxy prepends to every request on that key); and revocable **URL tokens** for
+headerless clients (see the endpoints table). Prefer one per-client key per wired project —
+analytics attribute traffic by key, and revoking one doesn't rotate the others. The `/api/*`
+dashboard routes use a separate email+password session and are not what apps talk to.
 
 ## Routing behavior
 
@@ -62,12 +67,22 @@ surface, see `agent-clients.md` — this table is the inventory.
   `400`, not a silent fallback.
 - **Six selectable strategies** rank the chain: `priority` (manual order), `balanced`, `smartest`,
   `fastest`, `reliable`, or `custom` weights — scored from live per-model measurements with a
-  Thompson-sampling bandit. One-click sort presets reorder the chain from the dashboard.
+  Thompson-sampling bandit. Community reliability priors seed the posterior so fresh installs don't
+  start blind, and an **exploration toggle** controls whether unmeasured models get sampled.
+  One-click sort presets reorder the chain from the dashboard.
+- **Failing models cool down automatically.** Repeated failures put a model on a growing cooldown —
+  not just 429s; hard errors extend the penalty too — and a 5xx/timeout/transport error skips the
+  **whole provider** for that request instead of burning one attempt per key. A back-off stated in
+  an error *body* is honored like a `Retry-After` header.
+- **Output-token cap** — an optional server setting rescues requests whose client sends an excessive
+  `max_tokens` (agent harnesses love `max_tokens: 128000`) by capping it to what the routed model
+  accepts, instead of letting the provider reject the call.
 - **Unified models** — the same logical model on several providers collapses into one entry with
   strict in-group failover, plus merge/split overrides when the grouping guesses wrong.
 - **`X-Routed-Via: <platform>/<model>`** response header tells you which provider actually served the
   call; `X-Fallback-Attempts: N` appears if it fell over between providers, and `X-Fallback-Trail`
-  carries the ordered list of what was tried. Great for debugging "why is this answer weird" — check
+  carries the ordered list of what was tried. Opt in to **`X-Fallback-Detail`** for per-hop failover
+  timings on top of the trail. Great for debugging "why is this answer weird" — check
   which model you actually got. On exhaustion, the error body carries the same full attempt trail.
   **Gotcha:** HTTP headers only carry printable ASCII, so a model id with characters outside that range
   (a Chinese name from a relay catalog) is **percent-encoded** — run the value through
@@ -128,6 +143,11 @@ reaches. OpenAI-compatible providers get the request passed through; Gemini requ
 Google's `functionDeclarations` shape and back. Works with `stream: true`. A Gemini-only extra: pass a
 tool named `google_search` (aliases `googlesearch` / `google_search_retrieval`) and the proxy maps it to
 Gemini's native Google Search grounding, so a Gemini route can answer with fresh web results.
+
+Two argument-integrity behaviors ride along: the proxy **repairs double-encoded arguments** below the
+top level (a model returning a JSON string where an object belongs), and an **opt-in schema verdict**
+validates returned tool arguments against the tool's own JSON schema — an invalid set counts as a
+failed attempt and **fails over to the next model** instead of handing the app broken arguments.
 
 ## Structured outputs & sampling params
 
@@ -232,7 +252,8 @@ These have no route — calls to them fail, so the project still needs the real 
 
 - **Moderation** (`/v1/moderations`)
 - **`n > 1`** (multiple completions per request)
-- **Per-user billing / multi-tenant auth** — single-user by design
+- **Per-user billing** — one operator per install, by design. (Per-client *keys* do exist — see
+  Auth — but they attribute and constrain requests; there is no per-user quota or billing.)
 
 Narrower gaps, not whole-endpoint: **image input on `/v1/responses`** (use chat completions) and
 **image input to `fusion`** (pin a vision model).
@@ -260,7 +281,7 @@ to check its own quota burn mid-session.
 
 - **A fresh proxy serves nothing until a provider is enabled.** No keys = every chat request 4xx's with
   "no model available." This looks exactly like a wiring bug but isn't. Add a provider first.
-- **Keyless providers** — as of v0.6.5 the ones registered `keyless: true` are **Kilo `:free`**,
+- **Keyless providers** — as of v0.6.9 the ones registered `keyless: true` are **Kilo `:free`**,
   **OVH**, and **AI Horde** (plus local Ollama). The proxy sends no auth header upstream, so enabling
   one is an instant zero-config smoke test. **Pollinations is no longer keyless** — it now validates a
   key against `/account/key`, so don't offer it as the zero-key path. AI Horde is queue-based and can
@@ -271,6 +292,10 @@ to check its own quota burn mid-session.
   *prototyping* tool, not a production SLA.
 - **The unified key is per-install**, stored in the proxy's SQLite, shown on the dashboard Keys header.
   Regenerating it on the dashboard invalidates the old one — update the app's `.env` if you do.
+- **Provider keys are individually tunable.** A provider's keys can carry **model scopes** (different
+  keys serve different model groups), a **per-key proxy override** (each key exits through its own
+  proxy — geo-ban and risk isolation), and bulk enable/disable/delete within a group. Custom
+  endpoints have an immediate-probe action to validate a key on the spot.
 - **Opt-in response cache.** An exact-match in-memory LRU for identical *non-streaming* requests
   (canonical SHA-256 over the full request, with TTL + temperature gates). **Off by default**; flip it
   per-request with the `X-FreeLLM-Cache: on|off` header. Cache hits consume **zero provider quota** and

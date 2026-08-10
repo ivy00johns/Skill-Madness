@@ -61,7 +61,7 @@ claude
 Claude model names map to the free pool on the dashboard's **Agents** page: each family (`default`,
 `opus`, `sonnet`, `haiku`) routes to `auto` or a model you pin. `POST /v1/messages/count_tokens` and a
 content-negotiated `GET /v1/models` (Anthropic shape when `anthropic-version` is sent) are implemented.
-Streaming, system prompts, tool use, and image input all translate.
+Streaming, system prompts, tool use, image input, and document (PDF) content blocks all translate.
 
 ## Gemini CLI
 

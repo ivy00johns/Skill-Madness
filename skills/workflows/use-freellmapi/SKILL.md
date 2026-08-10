@@ -1,8 +1,8 @@
 ---
 name: use-freellmapi
-version: 1.3.0
+version: 1.4.0
 description: |
-  Wire any project or coding agent to FreeLLMAPI — a local proxy that aggregates ~29 free LLM provider
+  Wire any project or coding agent to FreeLLMAPI — a local proxy that aggregates ~30 free LLM provider
   tiers (~4B tokens/month across 251 model families) behind one endpoint — so you can prototype without
   paying for API calls. Use when a user wants to switch a project off paid OpenAI/Anthropic/etc. onto
   free models, point an app or CLI agent at a local LLM proxy, cut their LLM bill for prototyping, or
@@ -29,7 +29,7 @@ spawned_by: []
 
 # use-freellmapi
 
-Point a project at **FreeLLMAPI** — a local proxy that aggregates the free tiers of ~29 LLM providers
+Point a project at **FreeLLMAPI** — a local proxy that aggregates the free tiers of ~30 LLM providers
 (Google, Groq, Cerebras, NVIDIA, Mistral, OpenRouter, GitHub Models, Cohere, Cloudflare, Z.ai,
 ModelScope, Ollama, Kilo, OVH, AI Horde, and more) behind a single endpoint — roughly **4B tokens/month
 across 251 model families / 358 endpoints**. A router picks the best available model per request and
@@ -53,7 +53,7 @@ FreeLLMAPI is an **OpenAI-compatible** proxy. Wiring a project to it is almost a
 | What | Value |
 | --- | --- |
 | **base_url** | `http://localhost:3001/v1` (default; `PORT` may differ). **Anthropic, Gemini, and Ollama clients use the bare origin** — `http://localhost:3001`, no `/v1` |
-| **api_key** (bearer) | `freellmapi-…` — the proxy's single *unified key* |
+| **api_key** (bearer) | `freellmapi-…` — the install's *unified key* — or better, a **per-client key** (`sk-cp-…`) minted for this project |
 | **model** | `"auto"` — let the router pick and fail over. Steer it per request with `"auto:fast"` / `"auto:smart"` / `"auto:reliable"` / `"auto:<profile-name>"`; pin one like `"gemini-2.5-flash"`; or `"fusion"` to blend a panel of models into one answer |
 
 Because the surface is OpenAI-compatible, any OpenAI client library works unchanged — chat, streaming,
@@ -110,24 +110,31 @@ curl -fsSL https://freellmapi.co/install.sh | bash
 This sets up `~/freellmapi`, generates an at-rest `ENCRYPTION_KEY`, pulls
 `ghcr.io/tashfeenahmed/freellmapi:latest`, starts the container on `:3001`, and waits for `/api/ping`.
 Re-running is safe — it preserves the existing `.env`. When it finishes, probe `/api/ping` again to
-confirm. If Docker isn't available, fall back to a source install (`git clone` + `npm install` +
-`npm run dev`); see the *Local development* section of the [repo README](https://github.com/tashfeenahmed/freellmapi).
+confirm. If Docker isn't available, the project also ships a **desktop app** bundling the same server
+(macOS, Windows installer or zip, Linux AppImage/deb/tar.xz — the repo's Releases page), or fall back
+to a source install (`git clone` + `npm install` + `npm run dev`); see the *Local development* section
+of the [repo README](https://github.com/tashfeenahmed/freellmapi).
 
 If the user already runs it on a non-default port or another host, use that `base_url` everywhere below.
 
 ### Step 2 — Get the unified key and make sure a provider can serve requests
 
-**Unified key** (`freellmapi-…`): the single bearer token your app uses. Get it from:
+**Unified key** (`freellmapi-…`): the install-wide bearer token. Get it from:
 
 - the **Keys page header** at `http://localhost:3001` (the dashboard), or
 - the first-run container logs:
   `cd ~/freellmapi && docker compose logs 2>&1 | grep -i "unified api key"`
 
+Since v0.6.9 the Keys page can also mint **per-client keys** (`sk-cp-…`) — one per downstream app or
+tool, independently revocable, each with an optional system prompt the proxy enforces server-side.
+For wiring a single project, prefer minting one: analytics attribute traffic by key, and revoking it
+later doesn't touch any other client's credential. Everything below works the same with either key.
+
 **A fresh proxy has no provider keys, so chat requests fail until at least one provider is enabled.**
 This is the one part you can't do for the user — adding keys and toggling providers happens in the
 browser dashboard. Make it explicit and offer to wait. Two paths:
 
-- **Fastest, zero-key smoke test:** on the dashboard, enable a **keyless** provider — as of v0.6.5
+- **Fastest, zero-key smoke test:** on the dashboard, enable a **keyless** provider — as of v0.6.9
   that's **Kilo `:free`**, **OVH**, or **AI Horde**, which need no API key at all. Good enough to prove
   the pipe end to end in under a minute. (**Pollinations is no longer keyless** — it validates a key
   now, so don't offer it as the zero-key path. AI Horde is queue-based and can take tens of seconds.)
@@ -135,7 +142,9 @@ browser dashboard. Make it explicit and offer to wait. Two paths:
   etc. — each has a free signup), then reorder the **Fallback Chain** to taste.
 
 Hold here until the user confirms at least one provider is enabled — otherwise Step 5 will fail with a
-"no model available" error and look like a wiring bug when it isn't.
+"no model available" error and look like a wiring bug when it isn't. The Keys page's **provider
+checklist** (status icons per provider, flagging any that need a key but have none) is the quickest
+way to confirm, beating guesswork about which toggle actually took.
 
 ### Step 3 — Detect the target: coding agent, or application code?
 
@@ -249,11 +258,13 @@ Tell the user, briefly:
 - **How to flip back** — uncomment the original `.env` block (or re-run the agent's own config backup).
 - **Where the dashboard is** (`http://localhost:3001`) and what's on it: **Models** (Chat / Embeddings /
   Image / Audio / Fusion tabs, with editable intelligence-and-speed ranks and per-model rate limits),
-  **Playground** (now accepts image and text-file attachments), **Keys**, **Agents** (per-tool setup
-  blocks, Anthropic/Gemini family maps, Ollama emulation mode, URL tokens), **Analytics**, and
-  **Premium**. Named **routing profiles** auto-sort a chain by intelligence/speed/budget and are
-  selectable per request as `auto:<profile>`. Settings live in a sidebar dialog; the UI ships in 60
-  languages.
+  **Playground** (now accepts image and text-file attachments), **Keys** (provider checklist,
+  per-client `sk-cp-…` keys, per-key model scopes and proxy overrides, bulk key actions), **Agents**
+  (per-tool setup blocks, Anthropic/Gemini family maps, Ollama emulation mode, URL tokens),
+  **Analytics**, and **Premium**. Named **routing profiles** auto-sort a chain by
+  intelligence/speed/budget and are selectable per request as `auto:<profile>`. Settings live in a
+  sidebar dialog and include an automatic update check with release notes; a forgotten dashboard
+  password is recoverable with a code printed in the server logs. The UI ships in 60 languages.
 - **What the model values do** — `auto` routes and fails over, `auto:fast` / `auto:smart` /
   `auto:reliable` steer one request without touching the dashboard, `fusion` blends a panel of models
   for a quality bump on hard prompts.
