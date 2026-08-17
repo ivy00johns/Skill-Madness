@@ -32,3 +32,6 @@ __pycache__/
 
 node_modules/
 audit/
+
+# Local runtime state (live sqlite + worktrees) — never committed
+.freebuff/

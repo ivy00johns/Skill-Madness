@@ -40,6 +40,31 @@ function rgbToHex(css) {
   return `0x${hx(r)}${hx(g)}${hx(b)}`;
 }
 
+// Lazy <img> near the bottom of a long page only start loading at the very end of the
+// scroll; jumping back to the top then deprioritizes them and the shot catches empty
+// boxes. Force them eager, and afterwards actually wait for decode rather than guessing
+// at a sleep.
+async function forceEagerImages(page) {
+  await page
+    .evaluate(() => {
+      document.querySelectorAll('img').forEach((i) => {
+        i.loading = 'eager';
+        i.decoding = 'sync';
+      });
+    })
+    .catch(() => {});
+}
+
+async function waitForImages(page, ms = 20000) {
+  await page
+    .waitForFunction(
+      () => [...document.querySelectorAll('img')].every((i) => i.complete && i.naturalWidth > 0),
+      null,
+      { timeout: ms }
+    )
+    .catch(() => {});
+}
+
 async function autoScroll(page) {
   // Walk down the page in steps so IntersectionObserver / lazy <img> loaders all fire,
   // then snap back to the top for a clean full-page shot.
@@ -108,7 +133,19 @@ export async function capture(config) {
   });
   const fontFile = config.fontFile || DEFAULT_FONT;
   const timeout = config.timeout || 60000;
-  const reducedMotion = config.reducedMotion || 'reduce';
+  // Scroll-reveal defeat, on by default. Sites that fade content in on scroll leave
+  // whole sections at opacity:0 in a full-page shot, because autoScroll outruns their
+  // IntersectionObserver (measured on a real site: 14 of 19 revealed elements still at
+  // opacity:0 *after* a full autoScroll pass). The standard accessible implementation of
+  // that pattern ships a `prefers-reduced-motion: reduce` branch that shows everything
+  // instantly — so emulating it fixes the shot with no per-site knowledge. Same measured
+  // site: 0 of 19 stuck, without scrolling at all.
+  //
+  // This MUST default on. It was previously handled only by the opt-in injectCss hatch
+  // below, which silently does nothing when a capture config forgets it — so the bands
+  // came back every time someone captured a new site. Pass `reducedMotion: false` to opt
+  // out when you are deliberately capturing motion.
+  const reducedMotion = config.reducedMotion === false ? 'no-preference' : 'reduce';
   const injectCss = config.injectCss || null;
   const settleMs = config.settleMs ?? 600;
 
@@ -144,7 +181,10 @@ export async function capture(config) {
         // Inject before the scroll so forced-visible rules are in effect while lazy content
         // and observers fire, not bolted on after the layout has already settled around them.
         if (injectCss) await page.addStyleTag({ content: injectCss }).catch(() => {});
+        await forceEagerImages(page);
         await autoScroll(page);
+        await forceEagerImages(page); // catch <img> added during the scroll
+        await waitForImages(page);
         await settle(page, settleMs);
         if (!bg) {
           const css = await page.evaluate(() => getComputedStyle(document.body).backgroundColor).catch(() => null);
