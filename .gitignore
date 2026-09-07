@@ -32,3 +32,6 @@ __pycache__/
 
 node_modules/
 audit/
+
+# Freebuff background-agent tool state (SQLite db, worktrees, project id)
+.freebuff/
