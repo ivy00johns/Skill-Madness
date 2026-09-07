@@ -1,6 +1,6 @@
 ---
 name: skill-writer
-version: 1.5.0
+version: 1.6.0
 description: |
   Generate new SKILL.md files conforming to the ecosystem's frontmatter spec and structure conventions. Use when creating a new agent role, meta skill, workflow skill, or contract skill — anything that needs a SKILL.md scaffold. Trigger on "create a skill", "new agent", "write a SKILL.md", "scaffold a skill", "add a role to the skill ecosystem".
 requires_agent_teams: false
@@ -69,6 +69,8 @@ Required fields:
 
 The description is the primary trigger mechanism. Write it "pushy" — enumerate contexts where the skill should activate. See `references/description-patterns.md` for templates and the 3-slot anatomy.
 
+**Declare portability explicitly.** Set `requires_claude_code: false` unless the skill genuinely needs Claude-Code machinery (Agent-Teams subagents, the Artifact tool, `~/.claude` config). Default to portable — a host-agnostic skill costs nothing extra, while one marked `true` is skipped entirely when converting for other tools. If the skill is host-specific, say which host in `compatibility` (e.g. `"Claude Code or any host with Bash"`).
+
 ### Step 3: Write the Body
 
 Structure the body around:
@@ -97,6 +99,12 @@ Structure the body around:
   ("burns the agent's entire context", "rework surfaces a wave later") gets
   weighed; an unpriced one reads as style advice and gets skipped under
   pressure. See *Cost-Tagged Anti-Patterns* in `references/patterns.md`.
+- **Describe capabilities, not tool names.** Write "read the file", "run the
+  command", "list the directory" — not "use the Read tool" or "use the Bash
+  tool". Capability language keeps the same body working on every host (Claude
+  Code, Hermes, DeepSeek, Copilot, Gemini CLI). Reserve tool names for genuinely
+  host-specific instructions, and scope them ("on Claude Code, use the Task
+  tool").
 
 For agent role skills, also include:
 
@@ -140,6 +148,9 @@ Work one focused change at a time — make a single edit, re-validate (lint + th
 - [ ] Reference files are linked from the body
 - [ ] No duplicate content between body and references
 - [ ] A triggering test is recorded (≥1 phrasing that must trigger; ideally one near-miss that must not)
+- [ ] `requires_claude_code` is `false` unless the skill genuinely needs Claude-Code machinery (subagents, Artifact, `~/.claude`)
+- [ ] Body uses capability language ("read the file"), not tool names ("use the Read tool")
+- [ ] No Claude-Code-only references (plugin namespaces, `~/.claude` paths, `ANTHROPIC_BASE_URL`) unless scoped as host-specific
 
 ### Step 7: Earn the Context Cost (optional, recommended for non-trivial skills)
 
@@ -153,6 +164,7 @@ Optionally compare behavior with vs without the skill — a quick baseline eval 
 - **Overlapping ownership** — Two agents can't own the same directory. Directory ownership takes precedence over pattern ownership (see `references/frontmatter-spec.md` §Ownership Resolution Rules).
 - **Ignoring resolved conflicts** — Check `references/frontmatter-spec.md` §Resolved Conflicts (v1.0 → v1.1) before declaring ownership of `contracts/`, `.claude/handoffs/`, `CLAUDE.md`, `README.md`, or `tests/performance/`.
 - **Hardcoded project details** — Global skills never change per project. Use profile.yaml.
+- **Claude-Code-only assumptions** — Writing "use the Bash tool", hardcoding `~/.claude` paths, or assuming Agent Teams / the Artifact tool exist makes the skill bail on non-Claude hosts. Write capability language, default `requires_claude_code` to `false`, and scope any genuinely host-specific step.
 
 ## Reference Files
 
