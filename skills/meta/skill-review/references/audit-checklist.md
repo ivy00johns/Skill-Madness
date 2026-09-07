@@ -115,6 +115,12 @@ These check whether a skill is written for the model actually running it. See th
   / "do not truncate, produce it in full" block is a prior-model tactic; on the Claude 5
   family output laziness is far less common, so keep the block only where a *measured*
   truncation failure exists for this skill, not by default.
+- [ ] **Cross-vendor (DeepSeek) hygiene.** The skill targets a declared DeepSeek run but
+  emits Anthropic-only mechanics: `claude-*` model IDs as required tiers, `xhigh`/`medium`
+  effort (DeepSeek maps both to `high`), a "reroute to Opus" fallback, or an instruction
+  to narrate reasoning into the response (wrong on DeepSeek for cost/answer quality, not
+  refusal). See `model-adaptation/references/deepseek-adaptation.md` — its audit section
+  owns the sweep.
 
 ### Writing-craft checks (CB-2 — mattpocock `writing-great-skills` doctrine)
 
