@@ -1,0 +1,24 @@
+{
+  "$comment": "prose-slop-guard config. Copy to repo root as .prose-guard.json and tune. Severities: error | warn | off.",
+  "rules": {
+    "no-em-dash": "error",
+    "banned-phrases": "error",
+    "sycophancy": "error",
+    "banned-vocabulary": "warn",
+    "negative-parallelism": "warn"
+  },
+  "extraVocabulary": [],
+  "allowVocabulary": [],
+  "extraPhrases": [
+    {
+      "$comment": "example — remove or replace",
+      "name": "hedged-audience",
+      "pattern": "whether you'?re a .{0,40} or",
+      "hint": "pick the actual audience"
+    }
+  ],
+  "extensions": [".md", ".mdx", ".markdown", ".txt", ".rst"],
+  "skipPaths": ["node_modules", ".git", "dist", "build", "out", "vendor", "CHANGELOG.md", "LICENSE", "LICENSE.md"],
+  "exemptBlockquotes": true,
+  "scanFrontmatter": false
+}
