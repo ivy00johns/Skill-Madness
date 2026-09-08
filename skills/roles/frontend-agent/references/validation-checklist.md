@@ -122,7 +122,7 @@ The full responsive playbook is in `references/mobile-responsive.md`. The bar be
 
 ### 1. Actually render at both widths
 
-A `@media` rule in CSS proves nothing if an inline style is overriding it. Open the page at both widths and look. Capture a screenshot at each (Playwright is cheap if available; browser devtools otherwise) and include the path in your completion report so reviewers can verify.
+A `@media` rule in CSS proves nothing if an inline style is overriding it. Open the page at both widths **in a visible Playwright browser** (`headless: false` — see the `playwright` skill) and look. Capture a screenshot at each and include the path in your completion report so reviewers can verify. Browser-devtools device mode is a fallback only when Playwright genuinely cannot be installed — UI function and design validation is non-headless by default. Never validate a UI by reading its source or from headless screenshots.
 
 - **375 × 667** (mobile, e.g. iPhone SE) — no horizontal scrollbar; tap targets look ≥ 44 × 44; text wraps without clipping; navigation is reachable (hamburger works if collapsed); hero / primary CTA visible at the top.
 - **1440 × 900** (desktop laptop) — layout uses the extra width; no awkward giant gaps; nothing clipped.

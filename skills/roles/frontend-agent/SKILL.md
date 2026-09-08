@@ -1,6 +1,6 @@
 ---
 name: frontend-agent
-version: 1.5.0
+version: 1.6.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Builds user interfaces, client-side state, and presentation layers for multi-agent builds. Composes with frontend-design and ui-ux-pro-max for visual quality. Not user-invocable."
 compatibility: "Claude Code; requires Bash + Node toolchain"
@@ -31,6 +31,12 @@ This skill assumes a contract-first multi-agent build model:
 - `qe-agent` gates the build via `qa-report.json`
 
 For single-agent or ad-hoc work, this skill is not the right tool.
+
+## Non-Negotiable Rules
+
+- **Never infer, guess, or blindly edit.** Before writing or changing any file, read the actual file and its context — the contract, the shared types, sibling components, the design reference. Do not assume what a component looks like or what a page contains because of a similar one you saw earlier; every page must be built from what the project actually has. Never claim a component, layout, or state exists because "it probably does" — open it and look.
+- **UI design and function validation is ALWAYS non-headless Playwright.** A UI build is not done on typecheck + tests passing. Run the `playwright` skill in **non-headless** mode (or validate through `render-sanity` / `ux-review` when those are composed) so the actual rendered UI — layout, styling, responsive behavior, real data, interactions — is seen in a visible browser. Screenshots of a headless run or reading the JSX are not validation.
+- **No blind edits to someone else's work.** When you change code another agent owns, or refactor shared files, read the full file first and confirm the change preserves its contract. Never patch around an unknown — resolve the unknown by reading.
 
 ## Role
 

@@ -1,6 +1,6 @@
 ---
 name: render-sanity
-version: 1.1.0
+version: 1.2.0
 description: |
   Lightweight visual sanity check that catches failure modes passing
   "tests green + dev server boots + 0 console errors" but visibly breaking
@@ -40,6 +40,12 @@ spawned_by: ["orchestrator", "ux-review"]
 This skill is **not** subjective. It does not evaluate visual hierarchy, typography, or polish — those are `ux-review`'s job. It hunts four specific, objectively-verifiable failure modes that ship past every other gate.
 
 **Announce at start:** "Using render-sanity to click through [N routes] and check for stale data, placeholder text, dead links, and auth dead-ends."
+
+## Non-Negotiable Rules
+
+- **UI design and function validation is ALWAYS non-headless.** These checks exist because "the app renders" is not "the app works" — so they must be run in a **visible** Playwright browser. Never run the route passes in headless mode, never validate via curl/source-reading, and never skip the browser because the smoke tests passed.
+- **Never infer — observe.** Every finding must be a route you actually navigated and content you actually saw in the browser. If you haven't clicked it, you haven't verified it. Do not guess what a page renders from its component source, from the router, or from a passing test suite.
+- **No blind edits.** render-sanity is read-only — it reports failures, it does not fix them. When a finding points at a component, read the actual source before describing the cause; don't hypothesize from the symptom.
 
 ## The Four Checks
 

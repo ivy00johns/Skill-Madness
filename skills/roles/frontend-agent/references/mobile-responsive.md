@@ -207,7 +207,7 @@ A base stylesheet that ends up *smaller* than the responsive stylesheet is a str
 
 A `@media` rule in CSS proves nothing if an inline style overrides it, and a `grep` for `@media` proves even less. Before reporting done, actually render the page at both widths and verify with your eyes (or a screenshot):
 
-- **375 × 667** (iPhone SE / small mobile). Browser devtools → device toolbar → 375 × 667. Or Playwright: `await page.setViewportSize({ width: 375, height: 667 })`.
+- **375 × 667** (iPhone SE / small mobile). Browser devtools → device toolbar → 375 × 667. Or Playwright: `await page.setViewportSize({ width: 375, height: 667 })` — in **non-headless** mode, so what you capture is what renders.
 - **1440 × 900** (laptop). Same drill.
 
 At each width, check:

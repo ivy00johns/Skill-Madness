@@ -1,6 +1,6 @@
 ---
 name: playwright
-version: 1.5.0
+version: 1.6.0
 description: |
   Run browser-based E2E tests, capture screenshots, and validate user flows using Playwright with visible Chrome. Use this skill when testing a web UI end-to-end, capturing screenshots for visual review, checking responsive layouts, or auditing accessibility in a real browser. Trigger on: "e2e test", "screenshot the UI", "click through the app", "responsive layout check", "accessibility audit". Also invoke when qe-agent needs browser-level integration testing.
 requires_agent_teams: false
@@ -18,6 +18,12 @@ spawned_by: ["orchestrator", "qe-agent"]
 # Playwright
 
 Run browser-based E2E tests with visible Chrome, capture screenshots at each interaction point, and produce structured reports or interactive spot-check sessions.
+
+## Non-Negotiable Rules
+
+- **UI design and function validation is ALWAYS non-headless.** When the task is validating what a user sees — layout, styling, responsiveness, real rendered content, or that interactions work — the browser must be visible (`headless: false`). Headless runs are only acceptable as fast signal loops for pure logic (diagnose-loop Phase 1 recipes), never as evidence that a UI's design or function is correct.
+- **Never infer — observe.** If a page's appearance or behavior is in question, load it in the browser and look. Never guess what a page shows from its source code, never assume a fix worked because tests passed, and never judge design from a headless screenshot. The rendered page is ground truth.
+- **No blind edits.** Screenshots and reports document what exists; they do not authorize changing code without reading it. If a validation failure points at a component, read the component's actual source before concluding anything about it.
 
 ## Two Modes
 
