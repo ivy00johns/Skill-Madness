@@ -1,6 +1,6 @@
 ---
 name: backend-agent
-version: 1.2.0
+version: 1.3.0
 disable-model-invocation: true
 description: "Orchestrator-dispatched only. Builds API servers, business logic, and data layers for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
 compatibility: "Claude Code; requires Bash for curl/test commands"
@@ -31,6 +31,12 @@ This skill assumes a contract-first multi-agent build model:
 - `qe-agent` gates the build via `qa-report.json`
 
 For single-agent or ad-hoc work, this skill is not the right tool.
+
+## Non-Negotiable Rules
+
+- **Never infer, guess, or blindly edit.** Before writing or changing any file, read the actual file and its context — the contract, the shared types, the existing implementation, the README rules. Do not assume what an endpoint, model, or query does because of a similar one you saw elsewhere; open the real file. Never claim code works because "it should" — run it and observe the response.
+- **No blind edits to someone else's work.** When you modify code another agent owns, or refactor shared files, read the full file first and confirm the change preserves its contract. Never patch around an unknown — resolve the unknown by reading.
+- **Verify with real requests.** Every endpoint you implement gets exercised with curl immediately after it exists. A handler that was never called is not done; a claim that it works is not evidence.
 
 ## Role
 

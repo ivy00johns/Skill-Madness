@@ -70,15 +70,15 @@ diff -u fixtures/expected.txt /tmp/actual.txt
 
 **Sharpen:** Normalize timestamps, absolute paths, and random IDs before diffing (`sed 's/[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/DATE/g'`). Nondeterministic fields are the most common source of noise.
 
-## 5. Headless browser script (Playwright / Puppeteer)
+## 5. Visible browser script (Playwright, non-headless)
 
-**When:** UI bug, hydration mismatch, client-side state issue, browser-only API.
+**When:** UI bug, hydration mismatch, client-side state issue, browser-only API — anything where "what the user sees" is the symptom. Never diagnose UI behavior from a headless run or from reading component source; rendering and interaction bugs only show up in a visible browser.
 
-**Loop:** Compose with the `playwright` skill. Minimal repro script:
+**Loop:** Compose with the `playwright` skill. Minimal repro script, launched **non-headless** (`headless: false`):
 
 ```ts
 import { chromium } from "playwright";
-const browser = await chromium.launch();
+const browser = await chromium.launch({ headless: false }); // visible — UI bugs live in real rendering
 const page = await browser.newPage();
 await page.goto("http://localhost:5173/checkout");
 await page.click('button[data-testid="apply-coupon"]');
@@ -91,7 +91,7 @@ if (total !== "$80.00") {
 await browser.close();
 ```
 
-**Sharpen:** Run headless. Disable animations (`prefers-reduced-motion`). Use `data-testid` selectors so the loop isn't sensitive to copy changes.
+**Sharpen:** Disable animations (`prefers-reduced-motion`). Use `data-testid` selectors so the loop isn't sensitive to copy changes. Keep the browser **non-headless** — the loop exists to reproduce what a human sees, and a headless run can miss rendering-only failures that this skill is for.
 
 ## 6. Trace / log replay
 
