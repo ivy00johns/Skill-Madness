@@ -108,6 +108,7 @@ Common user requests → recommended skill. Use this as a fallback when SKILL.md
 | "diagram this / mermaid chart" | `mermaid-charts` |
 | "generate an image / product photo / hero banner" | `nano-banana` |
 | "open a canvas / add to canvas" | `claude-obsidian:canvas` |
+| "show off / demo multiple websites from one page" / "multi-site preview hub" | `preview-hub` |
 
 ### Memory / search
 
