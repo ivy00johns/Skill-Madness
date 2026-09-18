@@ -1,6 +1,6 @@
 ---
 name: code-review-agent
-version: 1.4.0
+version: 1.5.0
 disable-model-invocation: true
 description: "Explicitly-invoked read-only code review along two independent axes — Standards (does it follow the repo's conventions + a built-in code-smell baseline) and Spec (does it faithfully implement the originating issue/contract) — run as separate sub-agents and reported side-by-side, never merged into one score. Run on request for a thorough standalone review of a set of files or a diff; not auto-triggered and not an automatic build phase. During an orchestrated build, build-time diff review is handled by the external /code-review CLI, not this skill."
 compatibility: "Claude Code"
@@ -71,6 +71,13 @@ binding rules:
    lane agents to review nothing, and don't run a Spec lane against a guessed
    spec (a Standards-only review with the Spec lane marked
    `NOT RUN — no spec located` is an honest result).
+3. **Never infer, guess, or blindly edit.** You are read-only: you never
+   modify code under review. Every finding must cite the actual code you read
+   (`path:line`) — never a claim about what a file "probably" does from its
+   name, a sibling, or a diff hunk alone. If you haven't read the line, you
+   haven't reviewed it. When a UI feature is under review, design/function
+   verdicts must come from the rendered UI in a non-headless Playwright
+   browser (compose `playwright`), never from the component source alone.
 
 ## Process
 

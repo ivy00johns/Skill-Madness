@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.3.1
+version: 1.4.0
 description: >-
   The front door to the whole toolkit — one reliable entry point that reads what
   you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a
@@ -89,17 +89,21 @@ See "madness vs skill-explorer" below for when to use which.
 ## The entry-point map
 
 Route intent -> front door. Each front door owns the deeper routing from there.
+Targets marked *Claude-Code-native* (`feature-dev:feature-dev`,
+`frontend-design:frontend-design`, `orchestrator`, the loops, the role agents)
+exist only on Claude Code; on any other host, route to the nearest portable
+skill in the same row instead.
 
 | When the intent is... | Front door | Cost |
 |---|---|---|
 | Multi-agent / parallel / "swarm" / "team" build, a `MISSION.md`, coordinate a build across components | `orchestrator` | expensive |
 | Turn research / a PRD / a goal into a build plan first | `plan-builder` (then `orchestrator`) | cheap |
 | Keep working until something is provably true — tests green, coverage target, contract met, queue drained, overnight/autonomous, "loop until" | `loop-controller` (it picks the specific loop + primitive) | expensive |
-| One concrete feature in an existing codebase (single-developer flow) | `feature-dev:feature-dev` | cheap->medium |
+| One concrete feature in an existing codebase (single-developer flow) | `feature-dev:feature-dev` (Claude-Code-native; else the matching role skill) | cheap->medium |
 | Build one component when you already know the role | the role skill (`backend-agent`, `frontend-agent`, `infrastructure-agent`, `db-migration-agent`, ...) | cheap->medium |
-| Design / rebuild / redesign a UI | `ui-brief` (then `frontend-design:frontend-design` or `frontend-agent`) | cheap |
+| Design / rebuild / redesign a UI | `ui-brief` (then `frontend-design:frontend-design` on Claude Code, else `frontend-agent`) | cheap |
 | Author or audit an integration contract | `contract-author` / `contract-auditor` | cheap |
-| Review code, security, or deploy-readiness | `code-review` / `security-review` / `deployment-checklist` | cheap |
+| Review code, security, or deploy-readiness | `code-review-agent` / `security-agent` / `deployment-checklist` | cheap |
 | Anything about the skills themselves — create, audit, update, sync | `skill-writer` / `skill-review` / `skill-update` / `sync-skills` | cheap |
 | Just browsing — "what do I have", "I forgot the name", "which skill for X" (no intent to launch yet) | `skill-explorer` | cheap |
 | Git: commit, PR, address feedback, cleanup | `git-commit` / `git-pr` / `git-pr-feedback` / `git-post-merge-cleanup` | cheap |
@@ -145,6 +149,10 @@ When unsure which side a route falls on, treat it as expensive and ask. The cost
 of one needless confirm is a sentence; the cost of an unwanted swarm is real.
 
 ### The token-saver question (rides the expensive confirm)
+
+This question only applies on Anthropic hosts (Claude Code / Claude API), where
+`use-pxpipe` can sit in front of the model. On any other host — DeepSeek,
+Hermes, any non-Anthropic model — skip it entirely and go straight to the route.
 
 The runs `madness` gates as expensive — swarms, autonomous loops, full builds —
 are exactly the long, token-heavy sessions where the pxpipe proxy pays (it cuts
@@ -212,16 +220,21 @@ If the user wants to *do* the thing ("set up the tests and run them till green")
   directly. `madness` is for *routing confusion and cold starts*, not for adding a
   hop in front of triggers that already work.
 
-## On non-Claude-Code hosts
+## Host awareness — this skill works on every host
 
-Converted copies of this skill ship to other AI coding tools, but only the
-*portable subset* of the library ships with them — the Claude-Code-bound skills
-(`orchestrator`, every `loops/*` skill, the role agents, and the workflows bound
-to the Artifact tool or `~/.claude` config) don't exist there. On those hosts,
-route only to skills actually present (the git conventions and the planning /
-docs / review / debugging / contract workflows); when the right front door would
-be a missing Claude-Code-only skill, say so and name it rather than routing into
-a dead end.
+madness runs on Claude Code, Hermes, DeepSeek, and any other harness that loads
+skills. The routing logic is host-agnostic; only the set of available target
+skills changes. **"Not Claude Code" is never a reason to skip routing.**
+
+The one host-specific step: **route to skills that actually exist here.** The
+skills available in this session are listed in your context — check that list
+before you name a target. Some front doors in the map below are
+Claude-Code-native (`orchestrator`'s Agent Teams, every `loops/*` skill, the
+role agents, and the workflows bound to the Artifact tool or `~/.claude`
+config). On a host where those aren't present or don't run, route to the closest
+portable skill — the git, planning, docs, review, debugging, and contract
+workflows work everywhere — and name the gap in one line. Never answer "this is
+Claude Code only"; pick the nearest live route.
 
 ## Anti-patterns
 

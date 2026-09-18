@@ -74,6 +74,11 @@ A project's provider should be discoverable, not guessed:
   `project-profiler` / `setup-project-skills` convention). Absent that,
   **default to Anthropic**.
 - **Anthropic** → the ladder above.
+- **DeepSeek** (a project that declares it — e.g. a Freebuff session) → the
+  two-model family *is* the ladder: `deepseek-v4-flash` (thinking off = grunt,
+  on = mid) → `deepseek-v4-pro` (thinking high/max = the reasoning gate). The
+  capability dial is thinking mode + effort (`none/low/high/max`; `xhigh` and
+  `medium` both map to `high`). Full facts: `deepseek-adaptation.md`.
 - **FreeLLMAPI** (the project uses `use-freellmapi`) → the aggregated free
   tiers are the ladder; optimize for rate/quota and capability, not dollars;
   multi-provider spanning is expected — and this is the *only* setup where it
@@ -117,6 +122,7 @@ table on every model release, the same cadence as the ladder above.
 
 | Model | Behind the image proxy? | Measured (pxpipe dive, 2026-07-21) |
 |---|---|---|
+| **DeepSeek V4 (flash/pro)** | **Not allowed** (unlisted default) | Not yet glyph-swept — earns a slot only by passing the sweep (see `deepseek-adaptation.md`) |
 | **Fable 5** | Allowed | 13–15/15 on the dense-hex glyph sweep |
 | **Mythos 5** | Allowed | Same family and read behavior as Fable 5 (dive groups them in the 13–15/15 band) |
 | **Opus 4.8** | **Not allowed** | 6/15 on dense hex — misreads surface as confident wrong answers, not errors |

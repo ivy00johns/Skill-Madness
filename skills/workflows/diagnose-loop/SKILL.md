@@ -1,6 +1,6 @@
 ---
 name: diagnose-loop
-version: 1.1.1
+version: 1.2.0
 description: |
   Disciplined bug-diagnosis loop where Phase 1 — building a fast, deterministic, binary-signal feedback loop — IS the skill; the rest of the phases mechanically consume that signal. Use whenever the user reports a hard bug, a flaky test, a performance regression, or says they've been "staring at this for an hour." Trigger on: "diagnose this", "debug this", "why is this broken", "it sometimes fails", "performance regression", "I can't reproduce it", "what's wrong with this", "this test is flaky", "intermittent failure".
 requires_agent_teams: false
@@ -37,7 +37,7 @@ In order of cost — pick the cheapest one that actually reproduces the bug.
 2. **New failing test that captures the bug** — write the assertion, watch it fail, then start.
 3. **`curl` / HTTP request that reproduces** — for API and webhook bugs; capture as a shell script so it replays in one line.
 4. **CLI command + `diff` against known-good output** — golden-file testing for any tool that emits text.
-5. **Headless browser script** (Playwright/Puppeteer) for UI bugs — compose with the `playwright` skill.
+5. **Visible browser script** (Playwright, non-headless) for UI bugs — compose with the `playwright` skill. Never diagnose UI behavior from a headless run or from reading the component source: rendering and interaction bugs only show up in a real browser. Run Playwright with `headless: false` and keep the visible window part of the loop.
 6. **Trace/log replay** — when the bug only happens in production, dump the request and replay it locally.
 7. **Throwaway harness script** in the repo's language — a 20-line file that imports the buggy module and exercises it directly.
 8. **Property-based / fuzz test** — when the bug is data-dependent and you don't yet know which input triggers it.

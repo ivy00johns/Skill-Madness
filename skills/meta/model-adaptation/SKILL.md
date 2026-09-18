@@ -1,11 +1,11 @@
 ---
 name: model-adaptation
-version: 1.4.1
+version: 1.5.0
 description: |
-  Adapt prompts, skills, and agent scaffolding when the underlying Claude model changes — currently the Claude 5 family (Fable 5/Mythos 5) vs Opus 4.x. Stronger models need LESS scaffolding: this skill says what to PRUNE, what backfires (narrating reasoning trips a reasoning_extraction refusal), and what to add for long autonomous runs. Canonical home of the model & effort tiering policy (Anthropic ladder; never cross-vendor; FreeLLMAPI carve-out) and the capability-handoff technique — extract an operating manual from a stronger model to run on a cheaper one. Use when migrating a skill to a new model, a skill "worked before and got worse", agents get refused or fall back to Opus, or picking model/effort per role. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "model migration", "reasoning_extraction", "tune effort", "model tiering", "long-running agent hygiene", "extract operating manual", "pxpipe", "image proxy".
+  Adapt prompts, skills, and agent scaffolding when the underlying model changes — currently the Claude 5 family (Fable 5/Mythos 5) vs Opus 4.x, plus the cross-vendor DeepSeek landscape. Stronger models need LESS scaffolding: this skill says what to PRUNE, what backfires (narrating reasoning trips a reasoning_extraction refusal), and what to add for long autonomous runs. Canonical home of the model & effort tiering policy (declared-provider ladder — Anthropic or DeepSeek; FreeLLMAPI carve-out) and the capability-handoff technique — extract an operating manual from a stronger model to run on a cheaper one. Use when migrating a skill to a new model, agents get refused, or picking model/effort per role. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "deepseek", "model migration", "reasoning_extraction", "tune effort", "model tiering", "long-running agent hygiene", "extract operating manual", "pxpipe", "image proxy".
 requires_claude_code: false
 min_plan: starter
-compatibility: "Claude Code or Claude.ai; reference/advisory skill. No special tools required — WebFetch is optional, only to re-pull the live Anthropic guide."
+compatibility: "Claude Code, Claude.ai, or DeepSeek hosts (e.g. Freebuff); reference/advisory skill. No special tools required — WebFetch is optional, only to re-pull the live Anthropic or DeepSeek guide."
 allowed-tools: ["Read", "Grep", "Glob", "Edit", "WebFetch"]
 composes_with: ["skill-writer", "skill-review", "skill-update", "loop-controller", "orchestrator", "use-freellmapi", "use-pxpipe", "claude-api"]
 spawned_by: []
@@ -14,8 +14,9 @@ spawned_by: []
 # model-adaptation
 
 > The toolkit's home for **what changes about your prompts, skills, and scaffolding
-> when the underlying Claude model changes** — currently the Claude 5 family
-> (Fable 5 + Mythos 5) succeeding Opus 4.x. It advises and audits; it does not
+> when the underlying model changes** — currently the Claude 5 family
+> (Fable 5 + Mythos 5) succeeding Opus 4.x, plus the cross-vendor DeepSeek
+> landscape (V4 flash/pro). It advises and audits; it does not
 > build. `skill-writer`/`skill-review` enforce the authoring half, `loop-controller`
 > the long-run half, and `orchestrator` the multi-agent half — this skill is where
 > the *why* and the migration checklist live so those enforcement points stay in sync.
@@ -32,7 +33,9 @@ assumptions. Everything model-specific is quarantined in the *Current landscape*
 section below; the patterns are written to outlive it.
 
 Source of record: Anthropic's [Prompting Claude Fable 5](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5)
-and [Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices).
+and [Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices);
+for DeepSeek runs, the [DeepSeek API docs](https://api-docs.deepseek.com/quick_start/pricing/)
+and [Thinking Mode](https://api-docs.deepseek.com/guides/thinking_mode/).
 Re-fetch these when a new model generation ships — that's the trigger to update this skill.
 
 ## The core move: a capability jump means PRUNE, not ADD
@@ -76,8 +79,29 @@ This is the *only* part meant to age. The patterns below it are durable; these f
 | **Mythos 5** | Frontier sibling (Claude 5 family) | Same family, same prompting patterns and refusal behavior as Fable 5. Everything here that says "Fable 5" applies to Mythos 5 unless a future note says otherwise. |
 | **Opus 4.8** | Prior baseline **and the fallback target** | The model a refused Claude 5 request should reroute to. Prompts/skills tuned for it are the ones this skill helps you prune. |
 
-When "the next model" (a Mythos successor, an Opus 5) arrives: re-fetch the Anthropic
-prompting guide, update this table, and run the *migration audit* at the bottom.
+### DeepSeek landscape (cross-vendor entry)
+
+The toolkit also runs under DeepSeek models — the 2026-08-03 deep-dive vendor review
+(DV-1–DV-5) was a Freebuff/DeepSeek session, and this is the first vendor this skill
+covers besides Anthropic. The aging facts (pricing, model versions, effort mapping)
+live in `references/deepseek-adaptation.md`; the durable shape is here:
+
+| Model | Role today | What to know for adaptation |
+|---|---|---|
+| **deepseek-v4-flash** | Cheap tier | Non-thinking + thinking modes; tool calls, JSON output, Anthropic-format endpoint (`api.deepseek.com/anthropic`). Cache-hit input is ~30× cheaper than cache-miss — prompt-cache hits are the dominant cost lever. |
+| **deepseek-v4-pro** | Top tier | Same feature set, stronger reasoning; the reasoning-gate tier. 1M context / 384K max output across the family. |
+
+On DeepSeek the capability dial is **thinking mode + effort** (`none/low/high/max`;
+`xhigh` and `medium` both map to `high`), not a model switch — and the chain of
+thought arrives in `reasoning_content`, a separate channel from the answer. There is
+**no `reasoning_extraction` refusal classifier** and **no Opus fallback**: refusals
+retry inside the DeepSeek ladder (toggle thinking, switch flash↔pro). Body triggers
+that route here but stay out of the description (lint band): **"deepseek-reasoner"**,
+**"R1"**, **"V4"**, **"thinking mode"**, **"cross-vendor run"**.
+
+When "the next model" (a Mythos successor, an Opus 5, a DeepSeek V5) arrives:
+re-fetch the vendor's current docs, update this table **and**
+`references/deepseek-adaptation.md`, and run the *migration audit* at the bottom.
 
 ## The pattern catalog
 
@@ -141,12 +165,16 @@ routine passes, raise it only for the hardest reasoning). Output tokens cost
 ~5× input across the Anthropic family, so moving bulk work down a tier and
 trimming output dominate every other cost lever.
 
-**The provider-relativity rule (load-bearing).** Stay within one provider —
-never reach cross-vendor to save tokens:
+**The provider-relativity rule (load-bearing).** One project, one provider
+ladder — never mix vendors to save tokens. A project *declares* its provider
+and runs the whole toolkit on that one vendor's ladder:
 
 - **Default = Anthropic-native.** The ladder is Haiku → Sonnet → Opus → Fable,
   plus the effort dial. Read a project's declared provider from
   `.claude/profile.yaml`; absent that, assume Anthropic.
+- **DeepSeek-native.** The ladder is `deepseek-v4-flash` → `deepseek-v4-pro`,
+  with thinking mode + effort (`none/low/high/max`) as the dial within each.
+  Full facts in `references/deepseek-adaptation.md`.
 - **The doctrine is a shape** — cheapest-that-clears-the-bar for grunt work, top
   tier for the reasoning gate — instantiated with whatever single provider the
   project actually runs on, staying inside that provider's own ladder.
@@ -162,6 +190,11 @@ never reach cross-vendor to save tokens:
 | **Standard implementation** | feature code, test authoring, straightforward role-agent build work | Sonnet | medium/high |
 | **Load-bearing reasoning** | architecture & contract design, adversarial verification / fresh-context evaluator, final synthesis, hard debugging, ambiguity resolution | Opus or Fable | high/xhigh (max only when correctness ≫ cost) |
 
+On a DeepSeek project the same map instantiates as: `deepseek-v4-flash` with
+thinking off for mechanical work, flash/pro with thinking on for standard
+implementation, `deepseek-v4-pro` with thinking high/max for load-bearing
+reasoning — the two-model family *is* the ladder.
+
 **The optimizer/target split.** When one model *authors or optimizes* an
 artifact (a skill, a prompt, a config) that another model then *executes
 under*, tier by **role**, not just task difficulty: author/optimize/review on
@@ -175,6 +208,10 @@ everywhere." Detail in `references/model-effort-tiering.md`.
 
 - **No `effort` param on Haiku 4.5** — the API returns a 400. Tier down to
   Haiku *or* dial effort down, not both.
+- **DeepSeek effort semantics differ.** The API maps `xhigh`→`high` and
+  `medium`→`high`; emit `none/low/high/max` (`none` = thinking off), and don't
+  bother with `xhigh`. Thinking mode ignores `temperature`/`top_p`/penalties
+  (accepted, no effect).
 - **Don't reflexively `max`.** On the Claude 5 family `high`/`xhigh` is the
   sweet spot, and `low` effort often matches or beats prior-generation
   `xhigh`/`max` — so `low`/`medium` is the correct setting for routine work,
@@ -256,12 +293,22 @@ the full mechanics, the other classifier domains (offensive cyber, bio/life-scie
 frontier-LLM development), and the fallback configuration are in
 **`references/refusal-and-fallback.md`**.
 
+**On DeepSeek the classifier doesn't exist, but the instruction is still wrong.**
+Thinking mode already emits the chain of thought in `reasoning_content` (a separate
+channel), so asking the model to also narrate its reasoning into the response doubles
+output tokens and buries the answer — a cost/quality failure instead of a refusal.
+Read `reasoning_content` (or the harness's structured thinking) when you need the
+reasoning; and since there is no Opus fallback on DeepSeek, reroute refusals inside
+the DeepSeek ladder (toggle thinking, switch flash↔pro). See
+`references/deepseek-adaptation.md`.
+
 ## When a new model lands: the migration audit
 
 Run this checklist against an existing skill/harness (or the whole toolkit) on a model change:
 
-1. **Re-fetch the guide.** Pull Anthropic's current prompting guide for the new model and
-   update the *Current landscape* table above **and the priced ladder in
+1. **Re-fetch the guide.** Pull the vendor's current docs — Anthropic's prompting
+   guide, or the DeepSeek API docs for a DeepSeek project — and update the *Current
+   landscape* table above **and the priced ladder in
    `references/model-effort-tiering.md`** (models, pricing, effort support all age).
    New behaviors = new audit items.
 2. **Subtract first.** For each skill, ask per instruction: *does the new model already do
@@ -283,6 +330,12 @@ Run this checklist against an existing skill/harness (or the whole toolkit) on a
 
 ## Reference files
 
+- `references/deepseek-adaptation.md` — the cross-vendor DeepSeek landscape: the
+  V4 flash/pro family, thinking-mode mechanics (`reasoning_content`, the
+  Anthropic-format endpoint, tool-call pass-back), the effort mapping, the
+  provider-relative tiering instantiation, the image-proxy status, and the audit
+  additions for DeepSeek runs. Read when a project declares DeepSeek, or when
+  adapting any skill for DeepSeek execution.
 - `references/refusal-and-fallback.md` — the four Claude 5 classifier domains, the
   `reasoning_extraction` landmine in depth (what trips it, the symptom, the fix, how to
   audit for it), the `stop_reason: "refusal"` contract, and server-side vs client-side

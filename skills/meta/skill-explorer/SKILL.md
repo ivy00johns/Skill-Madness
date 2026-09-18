@@ -1,6 +1,6 @@
 ---
 name: skill-explorer
-version: 1.3.1
+version: 1.4.0
 description: |
   Help the user discover, recall, understand, and pick the right skill from the available toolkit. Names the skill; does NOT invoke it. Use when the user is trying to find a skill ("I forgot the name of the one that does X", "what was that skill called"), asking what skills exist ("what skills do I have", "list all my skills", "show me the catalog"), asking what a specific skill does ("what does X do", "explain the X skill"), asking how skills relate ("how do these connect", "what does orchestrator spawn"), or asking for routing help ("which skill for this task", "what should I use to Y"). Also trigger when the user reaches for orchestrator on something that isn't a multi-agent build, or asks any meta-question about the skill ecosystem itself.
 requires_agent_teams: false
@@ -20,6 +20,8 @@ spawned_by: []
 The user has accumulated a large toolkit (40+ repo skills plus plugin skills loaded into every session). Names blur together, descriptions overlap, and reaching for the wrong entry point (typically `orchestrator`) wastes a turn before getting redirected. This skill is the deliberate entry point for "what do I have / which one is right for this".
 
 **skill-explorer vs its siblings.** Use `skill-explorer` (this skill) to *discover, recall, explain, and route* — it names the right skill and stops, leaving you to fire it. Use `madness` when you want that routing decision *acted on* — it picks the entry point and launches it (confirming first on anything expensive). Use `skill-catalog` when you want the authoritative generated inventory/counts of what is installed, not a recall or routing answer. (There is no `find-skills` skill in this repo; that name belongs to a separately-installed plugin.)
+
+**Host awareness.** This skill runs on any host that loads skills — Claude Code, Hermes, DeepSeek, and others. The routing table and rules below contain plugin-namespaced refs (`superpowers:*`, `claude-mem:*`, `claude-obsidian:*`, `feature-dev:*`, `frontend-design:*`) and Claude Code slash commands that exist only in a Claude Code setup. On any other host, treat those as placeholders: name the closest repo skill that is actually loaded in this session, and say so plainly if none covers it. Never report a plugin skill as available when it isn't.
 
 It answers four kinds of question:
 
@@ -51,7 +53,7 @@ skills/orchestrator/SKILL.md
 skills/{contracts,git,loops,meta,roles,workflows}/<skill-name>/SKILL.md
 ```
 
-Plugin skills come from `~/.claude/plugins/` and are visible in your session context but not in the repo tree.
+Plugin skills are host-specific and may be visible in your session context but not in this repo tree — on Claude Code they come from `~/.claude/plugins/`; other hosts have their own equivalents.
 
 ## Output format
 
@@ -118,13 +120,13 @@ These are common confusions. Lean toward the right answer rather than reflecting
 
 - **"I want to build X with multiple agents" / "swarm build" / "team build"** → `orchestrator`. This is its actual job.
 - **"I just want to write/fix one thing"** → name the role skill directly (`backend-agent`, `frontend-agent`, etc.), not orchestrator. Orchestrator is for *coordinating* a team, not for any task that touches code.
-- **"Design / rebuild / redesign a UI"** → `ui-brief` first to produce the brief, then `frontend-design` or `frontend-agent` to build from it.
+- **"Design / rebuild / redesign a UI"** → `ui-brief` first to produce the brief, then `frontend-agent` to build from it (or `frontend-design` if that Claude-Code plugin is present).
 - **"Make a plan from this research/PRD"** → `plan-builder`, then optionally `orchestrator` to execute the plan.
 - **"Audit / review my skills"** → `skill-review` (`--scope=all` for bulk, `--scope=<name>` for deep dive).
 - **"Create a new skill"** → `skill-writer`.
 - **"Sync skills globally" / "link them"** → `sync-skills`.
 - **"Commit / branch / PR"** → `git-commit`, `git-pr`, etc.
-- **Plugin skills** (`superpowers:*`, `claude-mem:*`, `claude-obsidian:*`, `feature-dev:*`, etc.) — name them with their full namespace so the user can invoke them.
+- **Plugin skills** (`superpowers:*`, `claude-mem:*`, `claude-obsidian:*`, `feature-dev:*`, etc.) — Claude-Code plugin namespaces; name them with their full namespace only if they're actually loaded in this session.
 
 When orchestrator would be wrong, **say so explicitly**: "This isn't a multi-agent build, so `orchestrator` would bounce you. Use `<actual-skill>` instead."
 
