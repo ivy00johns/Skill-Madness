@@ -33,5 +33,5 @@ __pycache__/
 node_modules/
 audit/
 
-# Freebuff background-agent tool state (SQLite db, worktrees, project id)
+# Local runtime state (live sqlite + worktrees) — never committed
 .freebuff/
