@@ -9,3 +9,10 @@
 # credentials (verified: every "key" is a placeholder or an env lookup).
 skills/workflows/use-freellmapi/SKILL.md:secret-generic
 skills/workflows/use-freellmapi/references/recipes.md:secret-generic
+
+# payload-cms: config and deploy references show idiomatic env-var reads such as
+# `secret: process.env.PAYLOAD_SECRET || ''` and `token: process.env.BLOB_READ_WRITE_TOKEN || ''`.
+# The secret-generic heuristic flags the `process.env.X` expression as a long literal.
+# Scoped to these two docs-only files; the skill ships no credentials (every value is an env lookup).
+skills/workflows/payload-cms/references/config-and-collections.md:secret-generic
+skills/workflows/payload-cms/references/scaffolding-and-deploy.md:secret-generic

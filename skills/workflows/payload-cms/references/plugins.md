@@ -136,7 +136,7 @@ Options: `collections`, `beforeSync({ originalDoc, searchDoc, req, payload, coll
 - `mcpPlugin({ collections: { posts: { enabled: true | { find, create, update, delete }, description, overrideResponse } }, globals: { slug: { enabled: { find, update } } }, userCollection, overrideApiKeyCollection, overrideAuth, disabled, mcp: { tools, prompts, resources, handlerOptions: { verboseLogs, maxDuration (60s), onEvent }, serverOptions } })`.
 - **Two gates**: enable in config AND toggle capabilities per key in the admin (**MCP -> API Keys**). All requests need `Authorization: Bearer <key>`. Requests run as the key's owner user, so collection access, hooks, and multi-tenant rules still apply.
 - The generated API-key collection denies admin/REST/GraphQL access by default; configure `overrideApiKeyCollection` to see/manage keys in the admin panel.
-- Connect Claude Code: `claude mcp add --transport http Payload http://127.0.0.1:3000/api/mcp --header "Authorization: Bearer MCP-USER-API-KEY"`. Test with `npx @modelcontextprotocol/inspector` or the documented `tools/list` curl.
+- Connect Claude Code: `claude mcp add --transport http Payload http://127.0.0.1:3000/api/mcp --header "Authorization: Bearer <MCP-USER-API-KEY>"`. Test with `npx @modelcontextprotocol/inspector` or the documented `tools/list` curl.
 - Keep token use down: write strong descriptions, use `select` in tool definitions, `overrideResponse` to sanitize, and enable only needed operations (docs "Performance" section). Give write access sparingly — an MCP-connected model can create/update/delete documents.
 
 ## 10. Sentry — `@payloadcms/plugin-sentry`
