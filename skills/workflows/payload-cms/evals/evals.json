@@ -1,0 +1,55 @@
+{
+  "skill_name": "payload-cms",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "We're redoing our company marketing site (Next.js 15 app router, Postgres). I want editors to build pages out of sections - hero, feature grid, testimonial, CTA - and preview drafts before publishing. Set this up on Payload CMS: write the payload config, the pages collection with blocks, the block renderer and the draft preview wiring as real files. Don't run any installs. Also write a short notes.md with the commands to run and anything I need to double-check.",
+      "expected_output": "Set of code files + notes.md targeting stable Payload v3, drafts+preview wired, published-only public reads, renderer, types/importmap commands, migration notes.",
+      "files": [],
+      "assertions": [
+        "Targets Payload v3 (3.x) as the stable line and does not choose the v4 canary as the default",
+        "notes.md states the Next.js version constraint for the chosen Payload version (e.g. Next 15 needs 15.4.11+ or 15.2.9/15.3.9 patch lines, or 16.3.3+) rather than saying any Next 15 works",
+        "Pages collection enables versions with drafts",
+        "Public read access on pages is restricted to published documents (a _status equals published constraint or equivalent), so drafts do not leak",
+        "Block renderer maps blockType to components and handles or reports an unknown blockType instead of silently dropping it",
+        "Preview wiring uses Next.js draft mode with a secret check and an authenticated-user check",
+        "notes.md lists both payload generate:types and payload generate:importmap",
+        "notes.md or config says production uses committed migrations (payload migrate) and does not rely on dev push for Postgres",
+        "Any Local API call that acts on behalf of a user passes overrideAccess explicitly"
+      ],
+      "name": "marketing-site-blocks-and-preview"
+    },
+    {
+      "id": 1,
+      "prompt": "I want to clone payloadcms.com onto Payload so we already have a working base in place for when we redo our own website. Don't build the whole thing - write plan.md covering: what to inventory and how, the first 10 blocks to build and why, the page/collection model, what I can and can't reuse from their repo, and how we'll check the clone matches. Be specific to how their site is really built.",
+      "expected_output": "plan.md grounded in the real payloadcms/website architecture: layout builder with reusable content, API-based census, MIT code vs brand assets, parity verification, security caveats.",
+      "files": [],
+      "assertions": [
+        "States that the payloadcms/website repository code is MIT licensed while brand assets, copy, logos and fonts should not be copied",
+        "Recommends reading the page structure from the site's public /api/pages data (or equivalent API) rather than inferring blocks from the rendered DOM",
+        "Names at least five of these top blocks: reusable content, sticky highlights, statement, card grid, content grid, cta, media content, media block, content",
+        "Identifies reusable content as a shared collection referenced by a block, not copied blocks",
+        "Warns against copying autoLogin or unauthenticated sync/redeploy endpoints, or against calling mutation-like routes on the live site",
+        "Includes browser-based (Playwright) screenshot or DOM comparison of the clone against the source as the verification step",
+        "Recommends pinning Payload 3.x (the version payloadcms.com itself runs) rather than v4 canary",
+        "Describes the pages model as a hero plus a layout blocks field with drafts, nested pages/breadcrumbs, SEO and redirects"
+      ],
+      "name": "clone-payloadcms-com-plan"
+    },
+    {
+      "id": 2,
+      "prompt": "Our Payload site is on 3.42 with a bunch of @payloadcms/* plugins. Please upgrade us to the latest version and tell me what to watch out for. Also I heard v4 is out - should we move to it? Write your answer to answer.md.",
+      "expected_output": "answer.md that checks the registry for the actual latest, recommends 3.90.x for production, calls v4 a canary, lists concrete v4 breaking changes, and says to keep all @payloadcms packages in lockstep.",
+      "files": [],
+      "assertions": [
+        "Identifies the current stable latest as 3.90.x (3.90.2) based on checking the npm registry or repo in this session, not asserted from memory",
+        "States v4 is not stable yet (canary / pre-release) and recommends staying on v3 for the production site",
+        "Says all payload and @payloadcms/* packages must be upgraded together to the same exact version",
+        "Lists at least three concrete v4 differences: Local API overrideAccess default becomes false, defaultDepth becomes 1, versions on by default, Node 24.15+ requirement, Next 16.2.6+ only, Slate removed",
+        "Recommends writing v4-safe code now (explicit overrideAccess, depth, versions settings)",
+        "Mentions regenerating types and the import map and running migrations after upgrading"
+      ],
+      "name": "upgrade-to-latest-and-v4-question"
+    }
+  ]
+}
