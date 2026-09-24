@@ -1,6 +1,6 @@
 ---
 name: website-walkthrough-video
-version: 1.1.2
+version: 1.2.0
 description: |
   Generate a smooth scrolling walkthrough video of an entire website — capture
   every page full-length at desktop and mobile widths, then render an mp4 that
@@ -42,10 +42,13 @@ then on to the next page. Pages that fit in one viewport just hold for a few sec
 ## How it works (two stages)
 
 1. **Capture** (`scripts/capture.mjs`, Playwright): for each device width and each
-   route, set the viewport, navigate, scroll the whole page once so lazy images and
-   on-scroll animations fire, return to top, and take a **full-page** screenshot
-   (tall — the entire page, not just the fold). It also samples the page background
-   color so the video never flashes black. Writes the PNGs plus a `manifest.json`.
+   route, set the viewport, navigate, force lazy `<img>` elements to load eagerly,
+   force `prefers-reduced-motion: reduce` to defeat scroll-reveal animations,
+   scroll the whole page once so remaining lazy images and on-scroll animations
+   fire, return to top, take a **full-page** screenshot (tall — the entire page,
+   not just the fold), and wait for all images to finish loading. It also samples
+   the page background color so the video never flashes black. Writes the PNGs
+   plus a `manifest.json`.
 
 2. **Render** (`scripts/build.mjs`, ffmpeg): for each screenshot, build a clip that
    overlays the tall image on a viewport-sized window and animates its vertical
@@ -60,10 +63,12 @@ then on to the next page. Pages that fit in one viewport just hold for a few sec
 - **ffmpeg / ffprobe** on PATH (`ffmpeg -version`). On macOS: `brew install ffmpeg`.
 - **Node.js** (any recent version).
 - **Playwright + Chromium**. Install the npm package once inside the skill:
-  ```bash
-  cd <this-skill>/scripts && npm install
-  ```
-  Chromium is often already cached from other Playwright use; if capture complains
+
+   ```bash
+   cd <this-skill>/scripts && npm install
+   ```
+
+   Chromium is often already cached from other Playwright use; if capture complains
   about a missing browser, run `npx playwright install chromium`.
 
 ## Workflow
@@ -162,6 +167,17 @@ Everything tunable, plus the device-mode schema and ffmpeg internals, is in
 
 ## Notes
 
+- **`reducedMotion` defaults ON.** The capture script always sends
+  `prefers-reduced-motion: reduce` unless `config.reducedMotion` is explicitly
+  set to `false`. This defeats scroll-reveal / IntersectionObserver animations
+  that leave whole sections at opacity:0 in the full-page shot. Previously this
+  was handled only by the opt-in `injectCss` hatch, which silently did nothing
+  when omitted — so the blank bands came back every time. Pass `reducedMotion:
+  false` when you are deliberately capturing motion.
+- **Lazy images are forced eager.** The script flips all `<img loading="lazy">`
+  to `eager` + `decoding=sync` before and after scrolling, then waits up to 20s
+  for every image to report `complete && naturalWidth > 0`. This prevents empty
+  boxes in the screenshot from images near the bottom of long pages.
 - **Full-page screenshots with sticky/fixed headers** can repeat the header down the
   page in some sites. If you see that, see `references/tuning.md` for the CSS-injection
   knob to neutralize sticky positioning before capture.
