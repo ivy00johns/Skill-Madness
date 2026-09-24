@@ -1,6 +1,6 @@
 ---
 name: git-post-merge-cleanup
-version: 1.1.1
+version: 1.2.0
 description: >
   Clean up everything stale after merges in one pass: local branches fully
   merged into the default branch, remote-tracking refs whose remote is gone,
@@ -48,7 +48,17 @@ git fetch origin --prune
 ```
 
 Without `--prune`, stale `origin/*` refs linger for branches GitHub already
-deleted on merge.
+deleted on merge. Also scan for orphan tags (e.g. `freebuff-snapshot/*`) that
+were left behind when their source branches were deleted — there is no
+`--prune` equivalent for tags, so remove them explicitly:
+
+```bash
+git tag -d <tag-name>                        # delete locally
+git push origin --delete refs/tags/<tag-name> # delete remotely
+```
+
+List all tags with `git tag` and decide which are orphaned by checking if
+they reference a deleted branch (the tag name often embeds the branch UUID).
 
 ## Step 2 — Detect the default branch
 
@@ -176,6 +186,20 @@ git fetch origin --prune
 Show the final state with `git branch -vv` and `git worktree list`. Report:
 local branches deleted, remote branches deleted, worktrees removed, items
 flagged for attention, and what remains.
+
+### Non-interactive merge commit pitfall
+
+When resolving a merge conflict in an automated/non-interactive context,
+`git merge --continue` opens Vim for the commit message and hangs indefinitely.
+Use one of these instead:
+
+```bash
+GIT_EDITOR=true git merge --continue       # accept auto-generated message
+git commit -m "Merge branch 'X' into Y"   # explicit message
+```
+
+`git merge --continue` does NOT accept `--no-edit` (it takes no arguments),
+so the `GIT_EDITOR` env var is the reliable path.
 
 ## Safety rules
 
