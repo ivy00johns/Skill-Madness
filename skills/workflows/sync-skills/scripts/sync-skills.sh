@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Sync skills between this repo and global locations for Claude Code and Cursor.
+# Sync skills between this repo and global locations for every agent host:
+# Claude Code, Cursor, Codex, Gemini CLI, the shared ~/.agents dir, Devin, and Hermes.
 # Default mode is symlink; use --copy for file copies.
 
 REPO_ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"
@@ -9,6 +10,22 @@ REPO_SKILLS="$REPO_ROOT/skills"
 
 CLAUDE_SKILLS="$HOME/.claude/skills"
 CURSOR_SKILLS="$HOME/.cursor/skills-cursor"
+
+# Other hosts that read skills flat (<dir>/<skill>/SKILL.md), like Claude Code.
+# "key|label|dir". Hermes reads nested categories, so repo skills go under skill-madness/.
+EXTRA_HOSTS=(
+  "codex|Codex|$HOME/.codex/skills"
+  "gemini|Gemini CLI|$HOME/.gemini/skills"
+  "agents|Shared agents|$HOME/.agents/skills"
+  "devin|Devin|$HOME/.config/devin/skills"
+  "hermes|Hermes|$HOME/.hermes/skills/skill-madness"
+)
+# Each Hermes profile keeps its own skill tree; --to-hermes covers all of them.
+for _pdir in "$HOME"/.hermes/profiles/*/skills; do
+  [[ -d "$_pdir" ]] || continue
+  _p="$(basename "$(dirname "$_pdir")")"
+  EXTRA_HOSTS+=("hermes|Hermes profile $_p|$_pdir/skill-madness")
+done
 
 # Directories under skills/ that are NOT published — drafts and retired skills.
 # They are excluded from discovery so they never get symlinked into ~/.claude/skills/.
@@ -77,19 +94,26 @@ Modes:
 Directions (at least one required, unless --status):
   --to-cursor       Target ~/.cursor/skills-cursor/
   --to-claude       Target ~/.claude/skills/
-  --to-all          Target both
+  --to-codex        Target ~/.codex/skills/
+  --to-gemini       Target ~/.gemini/skills/
+  --to-agents       Target ~/.agents/skills/ (shared by several hosts)
+  --to-devin        Target ~/.config/devin/skills/
+  --to-hermes       Target ~/.hermes/skills/skill-madness/
+  --to-all          Target every host above
   --from-cursor     Pull from Cursor into repo
   --from-claude     Pull from Claude Code into repo
   --from-all        Pull from both
 
 Options:
   --status          Show link/copy/missing status for all locations
+  --orphans         List skills that live in a host folder but not in this repo
   --clean           Remove broken symlinks from global locations
   --dry-run         Preview without making changes
   -h, --help        Show this help
 
 Examples:
-  $(basename "$0") --link --to-all                    # Symlink all categories everywhere
+  $(basename "$0") --link --to-all                    # Symlink all skills into every host
+  $(basename "$0") --orphans                          # Find host-only skills to bring into the repo
   $(basename "$0") --status                           # What's linked, copied, missing?
   $(basename "$0") --clean                            # Remove broken symlinks
   $(basename "$0") --copy --to-claude meta            # Copy just meta/ to Claude Code
@@ -104,6 +128,8 @@ EOF
 
 MODE=""  # link, copy, unlink
 TO_CURSOR="" TO_CLAUDE=""
+TO_EXTRA=()  # keys from EXTRA_HOSTS
+ORPHANS_MODE=""
 FROM_CURSOR="" FROM_CLAUDE=""
 DRY_RUN="" STATUS_MODE="" CLEAN_MODE=""
 TARGETS=()
@@ -115,11 +141,15 @@ while [[ $# -gt 0 ]]; do
     --unlink)      MODE="unlink"; shift ;;
     --to-cursor)   TO_CURSOR="yes"; shift ;;
     --to-claude)   TO_CLAUDE="yes"; shift ;;
-    --to-all)      TO_CURSOR="yes"; TO_CLAUDE="yes"; shift ;;
+    --to-codex|--to-gemini|--to-agents|--to-devin|--to-hermes)
+                   TO_EXTRA+=("${1#--to-}"); shift ;;
+    --to-all)      TO_CURSOR="yes"; TO_CLAUDE="yes"
+                   TO_EXTRA=(codex gemini agents devin hermes); shift ;;
     --from-cursor) FROM_CURSOR="yes"; shift ;;
     --from-claude) FROM_CLAUDE="yes"; shift ;;
     --from-all)    FROM_CURSOR="yes"; FROM_CLAUDE="yes"; shift ;;
     --status)      STATUS_MODE="yes"; shift ;;
+    --orphans)     ORPHANS_MODE="yes"; shift ;;
     --clean)       CLEAN_MODE="yes"; shift ;;
     --dry-run)     DRY_RUN="yes"; shift ;;
     -h|--help)     usage ;;
@@ -129,7 +159,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Default mode for --to-* is link
-if [[ -z "$MODE" && ( -n "$TO_CURSOR" || -n "$TO_CLAUDE" ) ]]; then
+if [[ -z "$MODE" && ( -n "$TO_CURSOR" || -n "$TO_CLAUDE" || ${#TO_EXTRA[@]} -gt 0 ) ]]; then
   MODE="link"
 fi
 
@@ -137,9 +167,9 @@ fi
 
 # Status for Claude Code (flattened — individual skills)
 check_status_claude() {
-  local global_dir="$1"
+  local global_dir="$1" label="${2:-Claude Code}"
   echo ""
-  echo "=== Claude Code ($global_dir) — flattened ==="
+  echo "=== $label ($global_dir) — flattened ==="
 
   if [[ ! -d "$global_dir" ]]; then
     echo "  (directory does not exist)"
@@ -277,6 +307,46 @@ if [[ "$STATUS_MODE" == "yes" ]]; then
   echo "Categories: $(discover_categories)"
   check_status_claude "$CLAUDE_SKILLS"
   check_status_cursor "$CURSOR_SKILLS"
+  for h in "${EXTRA_HOSTS[@]}"; do
+    IFS='|' read -r _key label dir <<<"$h"
+    check_status_claude "$dir" "$label"
+  done
+  exit 0
+fi
+
+# --- Orphans mode ---
+# A skill that exists only inside one host's folder is invisible to every other host.
+# That is how a Cloudflare deploy skill ended up Hermes-only. List them so they can be
+# pulled into the repo and linked everywhere.
+
+if [[ "$ORPHANS_MODE" == "yes" ]]; then
+  repo_names=" "
+  for entry in $(discover_skills); do
+    s="${entry##*/}"; [[ "$s" == "." ]] && s="${entry%%/*}"
+    repo_names+="$s "
+  done
+  all_dirs=("$CLAUDE_SKILLS" "$HOME/.cursor/skills" "$CURSOR_SKILLS" "$HOME/.hermes/skills")
+  for h in "${EXTRA_HOSTS[@]}"; do
+    IFS='|' read -r _key _label dir <<<"$h"
+    [[ "$dir" == "$HOME/.hermes/skills/skill-madness" ]] && continue
+    all_dirs+=("$dir")
+  done
+  echo "Skills found in host folders but not in this repo:"
+  echo "(same name as a repo skill = a diverged copy; otherwise host-only)"
+  for d in "${all_dirs[@]}"; do
+    [[ -d "$d" ]] || continue
+    find -L "$d" -maxdepth 3 -name SKILL.md 2>/dev/null | while read -r f; do
+      sd="$(dirname "$f")"
+      real="$(cd "$sd" && pwd -P)"
+      [[ "$real" == "$REPO_SKILLS/"* ]] && continue
+      name="$(basename "$sd")"
+      if [[ "$repo_names" == *" $name "* ]]; then
+        printf "  %-32s DIVERGED COPY  %s\n" "$name" "$sd"
+      else
+        printf "  %-32s host-only      %s\n" "$name" "$sd"
+      fi
+    done
+  done | sort
   exit 0
 fi
 
@@ -314,6 +384,10 @@ clean_broken() {
 if [[ "$CLEAN_MODE" == "yes" ]]; then
   clean_broken "$CLAUDE_SKILLS" "Claude Code"
   clean_broken "$CURSOR_SKILLS" "Cursor"
+  for h in "${EXTRA_HOSTS[@]}"; do
+    IFS='|' read -r _key label dir <<<"$h"
+    clean_broken "$dir" "$label"
+  done
   echo ""
   echo "Done."
   exit 0
@@ -321,8 +395,8 @@ fi
 
 # --- Validate args ---
 
-if [[ -z "$TO_CURSOR" && -z "$TO_CLAUDE" && -z "$FROM_CURSOR" && -z "$FROM_CLAUDE" ]]; then
-  echo "Error: specify a direction (--to-claude, --to-cursor, --to-all, --from-claude, --from-cursor, --from-all) or --status / --clean." >&2
+if [[ -z "$TO_CURSOR" && -z "$TO_CLAUDE" && ${#TO_EXTRA[@]} -eq 0 && -z "$FROM_CURSOR" && -z "$FROM_CLAUDE" ]]; then
+  echo "Error: specify a direction (--to-claude, --to-cursor, --to-codex, --to-gemini, --to-agents, --to-devin, --to-hermes, --to-all, --from-claude, --from-cursor, --from-all) or --status / --clean / --orphans." >&2
   echo "Run with -h for help." >&2
   exit 1
 fi
@@ -384,6 +458,9 @@ _do_link() {
       echo "  [$name] Relinking (was → $existing)"
       rm "$dst"
     fi
+  elif [[ -d "$dst" && -n "${KEEP_REAL_DIRS:-}" ]]; then
+    echo "  [$name] Host-local copy exists — skipped (compare it with the repo version, then replace by hand)"
+    return
   elif [[ -d "$dst" ]]; then
     if [[ "$DRY_RUN" == "yes" ]]; then
       echo "  [dry-run] Would replace copy with link: $dst → $src"
@@ -660,7 +737,25 @@ sync_to_cursor() {
   done
 }
 
+# Every other flat host: same flattened layout as Claude Code. Existing real directories are
+# never replaced here (KEEP_REAL_DIRS) — a host-local copy may hold work the repo doesn't have.
+sync_to_extra() {
+  local key="$1" h label dir
+  for h in "${EXTRA_HOSTS[@]}"; do
+    [[ "${h%%|*}" == "$key" ]] || continue
+    IFS='|' read -r _key label dir <<<"$h"
+    echo ""
+    echo "--- ${MODE}ing to $label (flattened) ---"
+    case "$MODE" in
+      link)   KEEP_REAL_DIRS=yes link_skills_flat "$dir" "$label" ;;
+      copy)   copy_skills_flat "$dir" "$label" ;;
+      unlink) unlink_skills_flat "$dir" "$label" ;;
+    esac
+  done
+}
+
 [[ "$TO_CLAUDE" == "yes" ]]   && sync_to_claude
+for key in "${TO_EXTRA[@]+"${TO_EXTRA[@]}"}"; do sync_to_extra "$key"; done
 [[ "$TO_CURSOR" == "yes" ]]   && sync_to_cursor
 [[ "$FROM_CURSOR" == "yes" ]] && pull_from "$CURSOR_SKILLS" "Cursor"
 [[ "$FROM_CLAUDE" == "yes" ]] && pull_from "$CLAUDE_SKILLS" "Claude Code"
