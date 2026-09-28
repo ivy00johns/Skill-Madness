@@ -1,6 +1,6 @@
 ---
 name: cloudflare-pages-deploy
-version: 1.0.0
+version: 1.1.0
 description: >
   Deploy static sites, previews, and multi-site review hubs to Cloudflare Pages (free hosting) with
   wrangler, then verify them on the public URL. Covers hello-world pages, preview builds, per-branch
@@ -8,7 +8,7 @@ description: >
   machine is already logged in to Cloudflare with many live Pages projects, so use this skill BEFORE
   concluding Cloudflare is unavailable, unconfigured, or unknown. Trigger on "deploy to Cloudflare",
   "CF", "Cloudflare Pages", "pages.dev", "wrangler", "push a preview", "get this on a preview page",
-  "deploy the hub", "put this online", "host this", "free hosting", "deploy a hello world", "is it
+  "deploy the hub", "Delegating to the latest version of Cloudflare Pages", "Missing entry-point to Worker script", "put this online", "host this", "free hosting", "deploy a hello world", "is it
   live" — even when the user never names Cloudflare. Not Railway (railway-deploy), not here.now.
 requires_agent_teams: false
 requires_claude_code: false
@@ -79,8 +79,9 @@ Build first. Then deploy the output directory (`dist/`, `build/`, `out/`, `publi
 folder with `index.html`):
 
 ```bash
-# New project only (skip if it already appears in `pages project list`):
-npx -y wrangler@latest pages project create <name> --production-branch main
+# New project only (skip if it already appears in `pages project list`).
+# --force is REQUIRED for new projects (see "Pages → Workers delegation" below):
+npx -y wrangler@latest pages project create <name> --production-branch main --force
 
 # Preview (safe default: does NOT touch the production URL):
 npx -y wrangler@latest pages deploy <dir> --project-name <name> --branch <preview-branch>
@@ -91,7 +92,9 @@ npx -y wrangler@latest pages deploy <dir> --project-name <name> --branch main
 #   -> https://<name>.pages.dev
 ```
 
-`<name>` becomes the URL slug. A new project name gives a fresh, independent URL, and the old
+`<name>` usually becomes the URL slug. If the name is already taken on pages.dev, Cloudflare adds
+a random suffix (`hello-world` → `hello-world-5vr.pages.dev`), so read the real URL from the
+`project create` output. Never guess it. A new project name gives a fresh, independent URL, and the old
 deployment stays live. Default to a **preview branch** unless the user said production. A
 project with a custom domain (for example `johnstennett-com`) is the user's real site.
 
@@ -99,9 +102,25 @@ Hello world from nothing:
 
 ```bash
 mkdir -p hello && printf '<!doctype html><title>Hello</title><h1>Hello, world</h1>\n' > hello/index.html
-npx -y wrangler@latest pages project create hello-world --production-branch main
+npx -y wrangler@latest pages project create hello-world --production-branch main --force
 npx -y wrangler@latest pages deploy hello --project-name hello-world --branch main
 ```
+
+### Pages → Workers delegation (since ~2026-09-27)
+
+Cloudflare now routes new-project commands to "the latest version of Cloudflare Pages, now part of
+Cloudflare Workers". For a plain static folder, that delegation **fails and deploys nothing**:
+
+```
+Delegating to the latest version of Cloudflare Pages, now part of Cloudflare Workers
+✘ [ERROR] Missing entry-point to Worker script or to assets directory
+```
+
+The switch is on Cloudflare's side, so pinning an older wrangler doesn't help (4.136.1 delegates
+too). Don't retry unchanged, and don't report that Cloudflare is broken or that you lack access.
+The fix is `--force` on `pages project create`, which creates the project directly on classic
+Pages. After that, `pages deploy` to that project works normally without `--force` (verified
+2026-09-27). Per wrangler's own notice, projects that already exist on classic Pages aren't delegated.
 
 ## 4. Verify on the public origin (every deploy)
 
