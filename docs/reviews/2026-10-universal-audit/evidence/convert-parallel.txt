@@ -1,0 +1,12 @@
+$ bash scripts/convert.sh --parallel --jobs 3 --out /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/generated-parallel
+
+Skill Madness — Converting skills to tool-specific formats
+  Repo:    /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145
+  Output:  /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/generated-parallel
+  Tools:   claude-code copilot antigravity gemini-cli opencode cursor openclaw qwen kimi aider windsurf
+  Date:    2026-10-02
+
+[--]  Parallel mode: 9 tools in parallel, 2 serial (aider/windsurf)
+xargs: command line cannot be assembled, too long
+
+EXIT_CODE=1

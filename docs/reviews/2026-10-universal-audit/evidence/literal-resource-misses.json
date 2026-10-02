@@ -1,0 +1,287 @@
+[
+  {
+    "skill": "babysit",
+    "line": 91,
+    "reference": "references/primitives.md"
+  },
+  {
+    "skill": "babysit",
+    "line": 117,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "babysit",
+    "line": 148,
+    "reference": "references/long-run-hygiene.md"
+  },
+  {
+    "skill": "codebase-exploration-loop",
+    "line": 134,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "contract-conformance-loop",
+    "line": 113,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "coverage-loop",
+    "line": 117,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "coverage-loop",
+    "line": 159,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "dependency-health-loop",
+    "line": 125,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "dependency-health-loop",
+    "line": 187,
+    "reference": "references/primitives.md"
+  },
+  {
+    "skill": "fix-until-green",
+    "line": 112,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "loop-controller",
+    "line": 264,
+    "reference": "references/long-run-hygiene.md"
+  },
+  {
+    "skill": "loop-controller",
+    "line": 335,
+    "reference": "references/phase-guide.md"
+  },
+  {
+    "skill": "migration-loop",
+    "line": 121,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "migration-loop",
+    "line": 193,
+    "reference": "references/long-run-hygiene.md"
+  },
+  {
+    "skill": "nightly-docs-and-changelog",
+    "line": 137,
+    "reference": "references/primitives.md"
+  },
+  {
+    "skill": "nightly-docs-and-changelog",
+    "line": 143,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "orchestrator-task-loop",
+    "line": 150,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "orchestrator-task-loop",
+    "line": 164,
+    "reference": "references/circuit-breaker.md"
+  },
+  {
+    "skill": "orchestrator-task-loop",
+    "line": 183,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "perf-loop",
+    "line": 122,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "perf-loop",
+    "line": 161,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "repo-cleanup-loop",
+    "line": 105,
+    "reference": "references/primitives.md"
+  },
+  {
+    "skill": "repo-cleanup-loop",
+    "line": 159,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "self-healing-loop",
+    "line": 121,
+    "reference": "references/safety.md"
+  },
+  {
+    "skill": "self-healing-loop",
+    "line": 151,
+    "reference": "references/primitives.md"
+  },
+  {
+    "skill": "self-healing-loop",
+    "line": 160,
+    "reference": "references/long-run-hygiene.md"
+  },
+  {
+    "skill": "madness",
+    "line": 73,
+    "reference": "references/routing-table.md"
+  },
+  {
+    "skill": "madness",
+    "line": 119,
+    "reference": "references/routing-table.md"
+  },
+  {
+    "skill": "madness",
+    "line": 247,
+    "reference": "references/routing-table.md"
+  },
+  {
+    "skill": "model-adaptation",
+    "line": 145,
+    "reference": "references/workflow-orchestration.md"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 12,
+    "reference": "scripts/catalog.sh"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 44,
+    "reference": "scripts/catalog.sh"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 45,
+    "reference": "scripts/catalog.sh"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 46,
+    "reference": "scripts/catalog.sh"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 81,
+    "reference": "scripts/catalog-sync.sh"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 99,
+    "reference": "scripts/catalog.sh"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 112,
+    "reference": "scripts/catalog.sh"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 113,
+    "reference": "scripts/catalog.sh"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 125,
+    "reference": "scripts/catalog.sh"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 154,
+    "reference": "scripts/catalog.sh"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 155,
+    "reference": "scripts/sync-catalog-skills.py"
+  },
+  {
+    "skill": "skill-catalog",
+    "line": 156,
+    "reference": "scripts/catalog-sync.sh"
+  },
+  {
+    "skill": "skill-review",
+    "line": 147,
+    "reference": "scripts/skill-health.sh"
+  },
+  {
+    "skill": "skill-update",
+    "line": 99,
+    "reference": "references/frontmatter-spec.md"
+  },
+  {
+    "skill": "skill-update",
+    "line": 120,
+    "reference": "scripts/sync-skills.sh"
+  },
+  {
+    "skill": "skill-update",
+    "line": 142,
+    "reference": "scripts/skill-health.sh"
+  },
+  {
+    "skill": "orchestrator",
+    "line": 206,
+    "reference": "references/wiring-into-orchestrator.md"
+  },
+  {
+    "skill": "orchestrator",
+    "line": 217,
+    "reference": "references/qa-report-schema.json"
+  },
+  {
+    "skill": "security-agent",
+    "line": 148,
+    "reference": "scripts/scan-skills.sh"
+  },
+  {
+    "skill": "claude-design-brief",
+    "line": 20,
+    "reference": "references/frontmatter-spec.md"
+  },
+  {
+    "skill": "context-manager",
+    "line": 24,
+    "reference": "references/handoff-protocol.md"
+  },
+  {
+    "skill": "context-manager",
+    "line": 35,
+    "reference": "references/handoff-protocol.md"
+  },
+  {
+    "skill": "context-manager",
+    "line": 90,
+    "reference": "references/handoff-protocol.md"
+  },
+  {
+    "skill": "maintain-context",
+    "line": 22,
+    "reference": "references/file-ownership.md"
+  },
+  {
+    "skill": "setup-project-skills",
+    "line": 25,
+    "reference": "references/file-ownership.md"
+  },
+  {
+    "skill": "ui-brief",
+    "line": 86,
+    "reference": "references/mobile-responsive.md"
+  },
+  {
+    "skill": "use-pxpipe",
+    "line": 67,
+    "reference": "references/model-effort-tiering.md"
+  }
+]

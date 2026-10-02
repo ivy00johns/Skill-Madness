@@ -1,0 +1,17 @@
+{
+  "exit_code": 0,
+  "plan": [
+    "1..346"
+  ],
+  "passed": 339,
+  "skipped": [
+    "ok 336 schema passes Draft202012Validator.check_schema # skip python3 jsonschema not installed",
+    "ok 337 GATE: every real SKILL.md validates against the schema # skip python3 jsonschema not installed \u2014 cannot run real-tree schema gate",
+    "ok 338 fixture: minimal Core-valid frontmatter PASSES # skip python3 jsonschema not installed",
+    "ok 339 fixture: bad-semver version FAILS # skip python3 jsonschema not installed",
+    "ok 340 fixture: non-kebab name FAILS # skip python3 jsonschema not installed",
+    "ok 341 fixture: '<' in description FAILS # skip python3 jsonschema not installed",
+    "ok 342 fixture: bad min_plan enum FAILS # skip python3 jsonschema not installed"
+  ],
+  "failed": []
+}

@@ -1,0 +1,352 @@
+$ bash tests/run-all.sh --tap (isolated snapshot; temporary paths redirected)
+[run-all] bats version: Bats 1.13.0
+[run-all] running all .bats files under: /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/test-snapshot/tests
+1..346
+ok 1 catalog --text prints total equal to sum of categories
+ok 2 catalog --check passes (exit 0) when prose matches disk
+ok 3 catalog --check fails (exit 1) on off-by-one README count
+ok 4 catalog --check fails on off-by-one plugin.json count
+ok 5 catalog --sync makes a failing fixture pass (--sync then --check = 0)
+ok 6 catalog --sync rewrites per-category mermaid labels from disk
+ok 7 catalog excludes archive/ and in-progress/ from the count
+ok 8 catalog --sync leaves the skill-table row index untouched
+ok 9 catalog ignores node_modules SKILL.md scaffolds
+ok 10 catalog checks + syncs CLAUDE.md / PLAN.md / START-HERE.md live counts
+ok 11 catalog --sync leaves historical count notes untouched
+ok 12 catalog registers on-disk skills missing from the plugin.json array
+ok 13 catalog drops a stale plugin.json array entry
+ok 14 catalog --check passes when the README catalog table matches disk
+ok 15 catalog --check fails when the README catalog table is missing a row
+ok 16 catalog --check fails on a stale README catalog table row
+ok 17 catalog checks + syncs hero / out-of-all / tree count phrasings
+ok 18 catalog checks + syncs CLAUDE.md per-category counts
+ok 19 catalog checks + syncs the marketplace per-category breakdown
+ok 20 catalog checks + syncs the mermaid box overflow node
+ok 21 catalog --check fails when a mermaid box's named nodes miss disk
+ok 22 catalog --check flags duplicate mermaid node ids
+ok 23 scanner: walk mode reports the repeated combo with correct line numbers
+ok 24 scanner: --staged with a subdirectory --root scans the staged file (toplevel path-join regression)
+ok 25 scanner: --staged with a subdirectory --root excludes staged files outside it
+ok 26 scanner: --staged applies ignoreDirs (dist/ staged is not scanned)
+ok 27 wrapper: disabled hook is a no-op exit 0 with no stdout
+ok 28 wrapper: ATS_DISABLED_HOOKS honors a multi-id list
+ok 29 wrapper: minimal profile runs qa-gate (allow with no report)
+ok 30 wrapper: minimal profile does NOT run post-edit-format (no-op)
+ok 31 wrapper: minimal profile does NOT run session-start-profile (no-op)
+ok 32 wrapper: standard profile runs qa-gate
+ok 33 wrapper: standard profile runs post-edit-format (enabled)
+ok 34 wrapper: standard profile runs session-start-profile and emits CLAUDE.md
+ok 35 wrapper: standard profile does NOT run pre-commit-lint (strict-only)
+ok 36 wrapper: strict profile runs pre-commit-lint (no git commit cmd → exit 0)
+ok 37 wrapper: unknown hook id exits 0 with a stderr note and no stdout
+ok 38 wrapper: unknown hook id writes nothing to stdout
+ok 39 wrapper: no hook id given exits 0
+ok 40 validate: PASS fixture allows (exit 0, no output)
+ok 41 validate: proceed=false blocks (exit 1)
+ok 42 validate: CRITICAL blocker blocks (exit 1)
+ok 43 validate: contract_conformance<3 blocks (exit 1)
+ok 44 validate: security<3 blocks (exit 1)
+ok 45 validate: invalid JSON → exit 2
+ok 46 validate: missing required key → exit 2
+ok 47 validate: file not found → exit 2
+ok 48 qa-gate.sh: PASS via ATS_QA_REPORT → exit 0, no block JSON
+ok 49 qa-gate.sh: proceed=false → block JSON on stdout, exit 0
+ok 50 qa-gate.sh: CRITICAL blocker → block JSON, exit 0
+ok 51 qa-gate.sh: malformed report → block JSON, exit 0
+ok 52 qa-gate.sh: missing report under standard → allow (exit 0, no block JSON)
+ok 53 qa-gate.sh: missing report under minimal → allow (no block JSON)
+ok 54 qa-gate.sh: missing report under strict → block JSON, exit 0
+ok 55 qa-gate.sh: discovers ./qa-report.json in CWD
+ok 56 convert: emits hooks/run-with-flags.sh
+ok 57 convert: run-with-flags.sh is executable
+ok 58 convert: emits the four hook scripts + validator + manifest
+ok 59 convert: hooks.json exists and parses as JSON
+ok 60 convert: hooks.json references run-with-flags.sh
+ok 61 convert: hooks.json references the namespaced ats-hooks path
+ok 62 convert: hooks.json maps all four lifecycle events
+ok 63 convert: non-claude-code tool logs hooks unsupported and exits 0
+ok 64 convert: cursor run does not emit a hooks tree
+ok 65 lint-hooks: passes on the shipped tree (exit 0)
+ok 66 lint-hooks: explicit hooks dir arg also passes
+ok 67 lint-hooks: fails when a manifest script is missing (exit 1)
+ok 68 lint-hooks: fails when a hook script is not executable (exit 1)
+ok 69 lint-hooks: fails when manifest has an invalid profile (exit 1)
+ok 70 lint-hooks: fails when hooks.manifest.json is unparseable (exit 1)
+ok 71 lint-hooks: fails when a script omits set -euo pipefail (exit 1)
+ok 72 plan: minimal/claude-code emits parseable JSON
+ok 73 plan: minimal references only orchestrator-category sources
+ok 74 plan: every operation has a non-empty sha256
+ok 75 plan: action=create into an empty root
+ok 76 plan: pre-placed identical dest -> action=skip
+ok 77 plan: pre-placed differing dest -> action=overwrite
+ok 78 apply: creates files and writes a parseable state with matching hashes
+ok 79 apply: re-applying an unchanged plan is a no-op (all skip)
+ok 80 apply --dry-run: writes no files and no state
+ok 81 state list: reflects applied files
+ok 82 drift: pristine install reports no drift, exit 0
+ok 83 drift: mutated file is reported and exits 1
+ok 84 repair: restores a mutated file to the source hash; drift clean after
+ok 85 uninstall: removes recorded files and clears state
+ok 86 uninstall --dry-run: leaves files and state intact
+ok 87 profile git: selects only git-category skills
+ok 88 profile full: selects all seven categories
+ok 89 profile resolution: per-category skill counts match disk (catalog rule)
+ok 90 plan: copilot emits mirror operations for BOTH ~/.github and ~/.copilot
+ok 91 apply+uninstall: copilot mirror files land in and clear from BOTH trees
+ok 92 plan: only tool has no source -> warns loudly and exits non-zero
+ok 93 plan: partial-missing warns but still emits the present tool, exit 0
+ok 94 unknown profile exits 2
+ok 95 unknown tool exits 2
+ok 96 missing --tool exits 2
+ok 97 get_field: extracts 'name' from minimal-agent
+ok 98 get_field: extracts 'version' from minimal-agent
+ok 99 get_field: extracts 'description' collapsed to one line from minimal-agent
+ok 100 get_field: extracts 'name' from full-agent
+ok 101 get_field: extracts 'version' from full-agent
+ok 102 get_field: extracts 'requires_claude_code' boolean as 'true'
+ok 103 get_field: extracts 'requires_claude_code' from full-agent as 'false'
+ok 104 get_field: extracts 'min_plan' from full-agent
+ok 105 get_field: returns empty for absent field
+ok 106 get_field: returns empty on file with no opening fence
+ok 107 get_array: extracts allowed_tools from full-agent, one per line
+ok 108 get_array: extracts composes_with from full-agent
+ok 109 get_array: returns empty for field absent from minimal-agent
+ok 110 get_owns_dirs: extracts directories from full-agent
+ok 111 get_owns_dirs: returns empty for minimal-agent (no owns)
+ok 112 get_body: returns non-empty body for minimal-agent
+ok 113 get_body: body does not contain frontmatter fields
+ok 114 get_body: body starts with the first non-frontmatter line
+ok 115 get_body: body for with-references contains Reference Handling Matrix section
+ok 116 fm_check: passes on minimal-agent (well-formed)
+ok 117 fm_check: passes on full-agent (well-formed)
+ok 118 fm_check: fails with exit 1 on no-closing-fence
+ok 119 fm_check: fails with exit 1 on no-opening-fence
+ok 120 fm_check: prints error to stderr on malformed file
+ok 121 fm_has_field: returns 0 (true) for 'name' in minimal-agent
+ok 122 fm_has_field: returns 0 (true) for 'requires_claude_code' in cc-only
+ok 123 fm_has_field: returns 1 (false) for 'requires_claude_code' in minimal-agent
+ok 124 fm_has_field: returns 1 (false) for absent field
+ok 125 slugify: lowercases and hyphenates 'Backend Agent'
+ok 126 slugify: handles slash in 'UX/UI'
+ok 127 slugify: collapses multiple separators in 'My--Skill__Name'
+ok 128 slugify: strips leading and trailing hyphens from '-leading-trailing-'
+ok 129 slugify: handles all-lowercase input unchanged (minus special chars)
+ok 130 slugify: handles numbers correctly '2fa-agent'
+ok 131 claude-code: minimal-agent SKILL.md exists at category/slug path
+ok 132 claude-code: full frontmatter preserved (owns.directories present)
+ok 133 claude-code: allowed-tools preserved in output
+ok 134 claude-code: with-references references/ copied alongside
+ok 135 claude-code: cc-only skill IS included (requires_claude_code=true)
+ok 136 claude-code: body is unchanged (contains original section header)
+ok 137 copilot: minimal-agent output at flat <slug>.md path
+ok 138 copilot: full-agent output keeps name, version, description
+ok 139 copilot: full-agent output does NOT contain allowed-tools (either spelling)
+ok 140 copilot: full-agent output does NOT contain owns
+ok 141 copilot: stderr warning emitted for stripped fields
+ok 142 copilot: cc-only is skipped with stderr warning
+ok 143 copilot: with-references references copied as <slug>-references/
+ok 144 antigravity: minimal-agent output at <slug>/SKILL.md
+ok 145 antigravity: frontmatter contains 'risk: low'
+ok 146 antigravity: frontmatter contains 'source: alltheskills'
+ok 147 antigravity: frontmatter contains 'date_added' with ISO-8601 date format
+ok 148 antigravity: does NOT have 'version:' in frontmatter
+ok 149 antigravity: body is preserved
+ok 150 antigravity: references copied alongside
+ok 151 gemini-cli: minimal-agent at skills/<slug>/SKILL.md
+ok 152 gemini-cli: gemini-extension.json manifest exists
+ok 153 gemini-cli: manifest contains alltheskills name
+ok 154 gemini-cli: frontmatter has only name and description (no version)
+ok 155 gemini-cli: references copied alongside
+ok 156 opencode: minimal-agent at agents/<slug>.md
+ok 157 opencode: frontmatter has mode=subagent
+ok 158 opencode: frontmatter has color #6B7280
+ok 159 opencode: frontmatter uses original name field (not slug)
+ok 160 opencode: references copied as <slug>-references/ sibling
+ok 161 cursor: minimal-agent at rules/<slug>.mdc
+ok 162 cursor: frontmatter has globs field
+ok 163 cursor: frontmatter has alwaysApply: false
+ok 164 cursor: frontmatter does NOT have 'name:'
+ok 165 cursor: with-references file contains inline-bundled Reference: guide header
+ok 166 cursor: with-references file contains inline-bundled Reference: glossary header
+ok 167 openclaw: minimal-agent has SOUL.md, AGENTS.md, IDENTITY.md
+ok 168 openclaw: IDENTITY.md starts with robot emoji and skill name
+ok 169 openclaw: no-headers skill: SOUL.md is a placeholder (# name only)
+ok 170 openclaw: no-headers skill: AGENTS.md contains the full body
+ok 171 openclaw: full-agent: SOUL.md contains Identity section (classified as soul)
+ok 172 openclaw: with-references: references/ directory copied into skill dir
+ok 173 openclaw: with-references: AGENTS.md footer references the references/ dir
+ok 174 qwen: minimal-agent at agents/<slug>.md
+ok 175 qwen: frontmatter uses slug as name
+ok 176 qwen: full-agent frontmatter has 'tools:' mapped from allowed_tools
+ok 177 qwen: minimal-agent frontmatter does NOT have 'tools:' (no allowed_tools)
+ok 178 qwen: with-references contains inline-bundled Reference: guide
+ok 179 qwen/copilot: underscore alias still maps to tools; owns alone still warns
+ok 180 kimi: minimal-agent has agent.yaml and system.md
+ok 181 kimi: agent.yaml has correct structure
+ok 182 kimi: system.md starts with skill name as h1
+ok 183 kimi: with-references system.md contains inline-bundled Reference: guide
+ok 184 aider: CONVENTIONS.md exists
+ok 185 aider: CONVENTIONS.md contains the file header comment
+ok 186 aider: CONVENTIONS.md contains minimal-agent section
+ok 187 aider: CONVENTIONS.md contains full-agent section
+ok 188 aider: CONVENTIONS.md does NOT contain inline reference content (refs skipped)
+ok 189 aider: stderr note emitted for skipped references
+ok 190 windsurf: .windsurfrules exists
+ok 191 windsurf: .windsurfrules contains the file header comment
+ok 192 windsurf: .windsurfrules contains minimal-agent section
+ok 193 windsurf: .windsurfrules uses 80-char = delimiter
+ok 194 windsurf: stderr note emitted for skipped references
+ok 195 claude-code: references/ copied alongside with-references SKILL.md
+ok 196 antigravity: references/ copied alongside with-references SKILL.md
+ok 197 gemini-cli: references/ copied alongside with-references SKILL.md
+ok 198 opencode: references copied as <slug>-references/ sibling directory
+ok 199 openclaw: references/ copied under the skill's directory
+ok 200 copilot: references copied as <slug>-references/ sibling directory
+ok 201 cursor: with-references.mdc contains '## Reference: guide' header
+ok 202 cursor: with-references.mdc contains '## Reference: glossary' header
+ok 203 cursor: with-references.mdc contains content from guide.md
+ok 204 cursor: with-references.mdc contains content from glossary.md
+ok 205 cursor: with-references.mdc has NO separate references/ directory
+ok 206 qwen: with-references.md contains '## Reference: guide' header
+ok 207 qwen: with-references.md contains '## Reference: glossary' header
+ok 208 qwen: with-references.md contains content from both reference files
+ok 209 kimi: with-references system.md contains '## Reference: guide' header
+ok 210 kimi: with-references system.md contains '## Reference: glossary' header
+ok 211 kimi: with-references system.md contains content from both reference files
+ok 212 aider: references content is NOT in CONVENTIONS.md
+ok 213 aider: stderr contains skip note for with-references
+ok 214 windsurf: references content is NOT in .windsurfrules
+ok 215 windsurf: stderr contains skip note for with-references
+ok 216 determinism: all tools produce identical output on two runs
+ok 217 determinism: aider CONVENTIONS.md is byte-identical across two runs
+ok 218 determinism: windsurf .windsurfrules is byte-identical across two runs
+ok 219 determinism: claude-code output is byte-identical across two runs
+ok 220 cc-only: included in claude-code output
+ok 221 cc-only: skipped for copilot with stderr warning
+ok 222 cc-only: skipped for antigravity with stderr warning
+ok 223 cc-only: skipped for gemini-cli with stderr warning
+ok 224 cc-only: skipped for opencode with stderr warning
+ok 225 cc-only: skipped for cursor with stderr warning
+ok 226 cc-only: skipped for openclaw with stderr warning
+ok 227 cc-only: skipped for qwen with stderr warning
+ok 228 cc-only: skipped for kimi with stderr warning
+ok 229 cc-only: NOT in aider CONVENTIONS.md (skipped)
+ok 230 cc-only: NOT in windsurf .windsurfrules (skipped)
+ok 231 golden: claude-code/roles/minimal-agent/SKILL.md matches golden
+ok 232 golden: antigravity/minimal-agent/SKILL.md matches golden (date normalized)
+ok 233 golden: aider/CONVENTIONS.md matches golden
+ok 234 golden: windsurf/.windsurfrules matches golden
+ok 235 lint: minimal-agent passes with exit 0
+ok 236 lint: full-agent passes with exit 0
+ok 237 lint: cc-only passes with exit 0
+ok 238 lint: no-headers passes with exit 0
+ok 239 lint: missing closing --- causes ERROR and exit 1
+ok 240 lint: missing opening --- causes ERROR and exit 1
+ok 241 lint: missing 'name' field causes ERROR and exit 1
+ok 242 lint: name mismatch with directory causes ERROR and exit 1
+ok 243 lint: invalid semver version causes ERROR and exit 1
+ok 244 lint: 800-char description produces WARN not ERROR (exit 0)
+ok 245 lint: 800-char description output does NOT contain ERROR
+ok 246 lint: body word count < 50 produces WARN not ERROR
+ok 247 lint: duplicate name across two skills causes ERROR and exit 1
+ok 248 lint: duplicate name error message references 'collision-test'
+ok 249 lint: composes_with referencing unknown skill produces WARN not ERROR
+ok 250 lint: --format junit produces XML with testsuites root element
+ok 251 lint: --format junit XML is parseable by python3 xml.etree
+ok 252 lint: --format junit with errors produces failure elements
+ok 253 lint: unknown option exits with code 2
+ok 254 lint: --format with invalid value exits with code 2
+ok 255 lint: description >950 chars produces the ceiling WARN, exit 0
+ok 256 lint: normal-length description does NOT produce the ceiling WARN
+ok 257 lint: intersecting owns.patterns across skills produce a WARN, exit 0
+ok 258 lint: non-intersecting owns.patterns produce no overlap WARN
+ok 259 lint: documented-tiebreak pair (frontend/qe) is NOT flagged as overlapping
+ok 260 lint: composes_with artifact-design/dataviz are NOT flagged unknown (allowlisted)
+ok 261 lint: composes_with a genuinely unknown skill still WARNs
+ok 262 lint: body containing $ARGUMENTS causes ERROR and exit 1
+ok 263 lint: body without $ARGUMENTS is unaffected by the token guard
+ok 264 lint --changed: body changed without a version bump is a drift ERROR (exit 1)
+ok 265 lint --changed: body changed WITH a version bump passes (exit 0)
+ok 266 lint --changed: frontmatter-only change (body identical) needs no bump (exit 0)
+ok 267 lint --changed: brand-new skill (absent in base) is skipped (exit 0)
+ok 268 lint --changed: unresolvable base ref exits 2
+ok 269 install: no integrations/ directory exits with code 2
+ok 270 install --dry-run --tool claude-code: exits 0
+ok 271 install --dry-run --tool claude-code: output mentions ~/.claude/skills
+ok 272 install --dry-run --tool claude-code: output mentions minimal-agent
+ok 273 install --dry-run --tool claude-code: no files written to fake HOME
+ok 274 install --dry-run --all: exits 0
+ok 275 install --dry-run --all: output references multiple tools
+ok 276 install --dry-run --all: no files written anywhere
+ok 277 install --dry-run --detected: exits 0 even when nothing detected
+ok 278 install --dry-run --detected: detects claude-code when ~/.claude exists
+ok 279 install --tool aider: refuses to overwrite existing CONVENTIONS.md, exits 1
+ok 280 install --tool windsurf: refuses to overwrite existing .windsurfrules, exits 1
+ok 281 install --tool claude-code: symlinked skill dir is skipped with warning
+ok 282 install: unknown option exits with code 2
+ok 283 install: --tool with unknown tool name exits with code 2
+ok 284 fixture: convert emitted integrations/claude-code/hooks.json
+ok 285 install claude-code (no flag): prints merge snippet, does NOT touch settings.json
+ok 286 install claude-code (no flag): leaves a pre-existing settings.json byte-identical
+ok 287 install --wire-hooks (no settings yet): creates settings.json wiring the skill-usage emitter
+ok 288 install --wire-hooks: preserves existing settings + user hooks, and backs up first
+ok 289 install --wire-hooks twice: idempotent, no duplicate hook entries
+ok 290 install --wire-hooks: refuses to touch a malformed settings.json and leaves it intact
+ok 291 install --dry-run --wire-hooks: previews the merge and writes no settings.json
+ok 292 secret-aws: planted AKIA access key is HIGH and --check exits 1
+ok 293 private-key: BEGIN RSA PRIVATE KEY is HIGH and --check exits 1
+ok 294 secret-generic: api_key assigned a long literal is HIGH and --check exits 1
+ok 295 secret-generic: placeholder values are NOT flagged
+ok 296 zero-width-unicode: invisible codepoint is HIGH and --check exits 1
+ok 297 prompt-injection: injection phrase is MEDIUM and --check still exits 0
+ok 298 untrusted-composes: unknown skill name is MEDIUM finding
+ok 299 untrusted-composes: a real in-repo skill name produces no finding
+ok 300 inline ignore: # scan-skills:ignore RULE suppresses that one finding
+ok 301 inline ignore: only the named rule is suppressed, others still fire
+ok 302 file ignore: .scan-skills-ignore path:rule suppresses a finding
+ok 303 excerpt never prints the full secret value
+ok 304 excerpt never prints the full generic secret value
+ok 305 --json output is valid JSON array
+not ok 306 regression: --check on the real skills/ tree exits 0 (no HIGH findings)
+# (in test file tests/scan-skills/01-scan-skills.bats, line 245)
+#   `[ "$status" -eq 0 ]' failed
+ok 307 full AWS secret never leaks in --text mode
+ok 308 full AWS secret never leaks in --check mode output
+ok 309 you-are-now injection variant is MEDIUM only (no HIGH, check exits 0)
+ok 310 system-prompt-override injection variant is MEDIUM only
+ok 311 long real-looking secret value is redacted in the excerpt
+ok 312 Bearer with an env-var/template token is NOT flagged
+ok 313 record appends a schema-valid line and report shows it
+ok 314 report: 3 success + 1 failure = total 4, rate 0.75
+ok 315 report --json: 3 success + 1 failure gives total 4 rate 0.75
+ok 316 7d vs 30d: an old success counts in 30d only
+ok 317 declining flag fires when 7d rate drops past threshold below 30d
+ok 318 declining flag stays false when recent rate holds
+ok 319 drift: recorded version differs from current SKILL.md → stale
+ok 320 drift: recorded version matches current SKILL.md → ok (not stale)
+ok 321 drift --json: stale surfaces in version_drift
+ok 322 report on absent log exits 0 with no-data
+ok 323 drift on absent log exits 0 with no-data
+ok 324 report --json on absent log exits 0 and parses to empty skills
+ok 325 report on empty (touched) log exits 0 with no-data
+ok 326 report on absent/empty log warns telemetry is inactive (SR3)
+ok 327 report --json on absent log stays clean (no banner leaks into JSON)
+ok 328 report tolerates malformed JSONL lines without crashing
+ok 329 unknown-outcome events count in total but not in success rate
+ok 330 bad outcome to record is an arg error (exit 2)
+ok 331 report no-data skill: a recorded-only skill still appears
+ok 332 --standard prints PSFS and 1.1.0 and exits 0
+ok 333 --standard names the canonical schema path
+ok 334 schema is valid JSON
+ok 335 schema declares JSON Schema draft 2020-12
+ok 336 schema passes Draft202012Validator.check_schema # skip python3 jsonschema not installed
+ok 337 GATE: every real SKILL.md validates against the schema # skip python3 jsonschema not installed — cannot run real-tree schema gate
+ok 338 fixture: minimal Core-valid frontmatter PASSES # skip python3 jsonschema not installed
+ok 339 fixture: bad-semver version FAILS # skip python3 jsonschema not installed
+ok 340 fixture: non-kebab name FAILS # skip python3 jsonschema not installed
+ok 341 fixture: '<' in description FAILS # skip python3 jsonschema not installed
+ok 342 fixture: bad min_plan enum FAILS # skip python3 jsonschema not installed
+ok 343 regression: lint-skills.sh skills/ exits 0 on the real tree
+ok 344 linter: '<' in a metadata value is an ERROR (not just typed fields)
+ok 345 linter: plugin-namespaced composes_with ref is NOT flagged as unknown
+ok 346 linter: gitignored workspace SKILL.md debris is skipped by the directory walk

@@ -1,0 +1,340 @@
+
+## scan suite after restoring omitted tracked ignore input
+$ bats --tap tests/scan-skills/01-scan-skills.bats
+1..15
+ok 1 secret-aws: planted AKIA access key is HIGH and --check exits 1
+ok 2 private-key: BEGIN RSA PRIVATE KEY is HIGH and --check exits 1
+ok 3 secret-generic: api_key assigned a long literal is HIGH and --check exits 1
+ok 4 secret-generic: placeholder values are NOT flagged
+ok 5 zero-width-unicode: invisible codepoint is HIGH and --check exits 1
+ok 6 prompt-injection: injection phrase is MEDIUM and --check still exits 0
+ok 7 untrusted-composes: unknown skill name is MEDIUM finding
+ok 8 untrusted-composes: a real in-repo skill name produces no finding
+ok 9 inline ignore: # scan-skills:ignore RULE suppresses that one finding
+ok 10 inline ignore: only the named rule is suppressed, others still fire
+ok 11 file ignore: .scan-skills-ignore path:rule suppresses a finding
+ok 12 excerpt never prints the full secret value
+ok 13 excerpt never prints the full generic secret value
+ok 14 --json output is valid JSON array
+ok 15 regression: --check on the real skills/ tree exits 0 (no HIGH findings)
+
+EXIT_CODE=0
+
+## canonical skill scan
+$ bash scripts/scan-skills.sh --check skills/
+
+MEDIUM
+  skills/loops/babysit/SKILL.md:22  [untrusted-composes]  composes_with -> loop (not present under skills/)
+  skills/loops/dependency-health-loop/SKILL.md:22  [untrusted-composes]  composes_with -> loop (not present under skills/)
+  skills/loops/loop-controller/SKILL.md:20  [untrusted-composes]  composes_with -> loop (not present under skills/)
+  skills/loops/loop-controller/SKILL.md:20  [untrusted-composes]  composes_with -> schedule (not present under skills/)
+  skills/loops/nightly-docs-and-changelog/SKILL.md:22  [untrusted-composes]  composes_with -> schedule (not present under skills/)
+  skills/loops/orchestrator-task-loop/SKILL.md:22  [untrusted-composes]  composes_with -> loop (not present under skills/)
+  skills/loops/orchestrator-task-loop/SKILL.md:22  [untrusted-composes]  composes_with -> schedule (not present under skills/)
+  skills/loops/repo-cleanup-loop/SKILL.md:22  [untrusted-composes]  composes_with -> loop (not present under skills/)
+  skills/loops/self-healing-loop/SKILL.md:21  [untrusted-composes]  composes_with -> loop (not present under skills/)
+  skills/meta/model-adaptation/SKILL.md:10  [untrusted-composes]  composes_with -> claude-api (not present under skills/)
+  skills/meta/model-adaptation/references/operating-manual.md:108  [prompt-injection]  **Procedure.** After drafting, switch roles: you are now a reviewer paid to
+  skills/orchestrator/SKILL.md:22  [untrusted-composes]  composes_with -> ui-ux-pro-max (not present under skills/)
+  skills/orchestrator/SKILL.md:22  [untrusted-composes]  composes_with -> ux-review (not present under skills/)
+  skills/orchestrator/SKILL.md:23  [untrusted-composes]  composes_with -> claude-api (not present under skills/)
+  skills/orchestrator/SKILL.md:27  [untrusted-composes]  composes_with -> loop (not present under skills/)
+  skills/orchestrator/SKILL.md:27  [untrusted-composes]  composes_with -> schedule (not present under skills/)
+  skills/roles/frontend-agent/SKILL.md:15  [untrusted-composes]  composes_with -> ui-ux-pro-max (not present under skills/)
+  skills/workflows/artifact-publish/SKILL.md:14  [untrusted-composes]  composes_with -> artifact-design (not present under skills/)
+  skills/workflows/artifact-publish/SKILL.md:14  [untrusted-composes]  composes_with -> dataviz (not present under skills/)
+  skills/workflows/claude-design-brief/SKILL.md:14  [untrusted-composes]  composes_with -> ui-ux-pro-max (not present under skills/)
+  skills/workflows/design-token-guard/SKILL.md:4  [untrusted-composes]  composes_with -> ux-review (not present under skills/)
+  skills/workflows/render-sanity/SKILL.md:32  [untrusted-composes]  composes_with -> ux-review (not present under skills/)
+  skills/workflows/ui-brief/SKILL.md:14  [untrusted-composes]  composes_with -> ui-ux-pro-max (not present under skills/)
+  skills/workflows/ui-brief/SKILL.md:14  [untrusted-composes]  composes_with -> ux-review (not present under skills/)
+
+LOW (informational)
+  skills/meta/skill-writer/references/frontmatter-spec.md:85  [mcp-ref]  - **Purpose:** Human-readable declaration of environment requirements: intended ...
+  skills/meta/skill-writer/references/frontmatter-spec.md:111  [mcp-ref]  - `mcp-server` — name of the MCP server this skill enhances, if any
+  skills/meta/skill-writer/references/patterns.md:19  [mcp-ref]  **Shape:** The skill orchestrates two or more MCP servers or external tool categ...
+  skills/meta/skill-writer/references/quick-checklist.md:28  [mcp-ref]  - [ ] `compatibility` string present if the skill requires specific environments...
+  skills/workflows/interactive-doc/references/concept-explainer.md:207  [mcp-ref]  | | SKILL.md | OpenAPI spec | Jira ticket | MCP server manifest |
+  skills/workflows/llm-wiki/references/operations.md:260  [mcp-ref]  - **Consider `qmd`** for search: a local hybrid BM25/vector search engine for ma...
+  skills/workflows/mermaid-charts/references/chart-types/flowchart.md:27  [mcp-ref]  mcp[MCP Server]
+  skills/workflows/playwright/references/screenshot-workflow.md:7  [mcp-ref]  Everything a run produces lives under **one** gitignored root: `.playwright/`. A...
+  skills/workflows/render-sanity/SKILL.md:22  [mcp-ref]  "mcp__plugin_playwright_playwright__browser_navigate",
+  skills/workflows/render-sanity/SKILL.md:23  [mcp-ref]  "mcp__plugin_playwright_playwright__browser_snapshot",
+  skills/workflows/render-sanity/SKILL.md:24  [mcp-ref]  "mcp__plugin_playwright_playwright__browser_click",
+  skills/workflows/render-sanity/SKILL.md:25  [mcp-ref]  "mcp__plugin_playwright_playwright__browser_evaluate",
+  skills/workflows/render-sanity/SKILL.md:26  [mcp-ref]  "mcp__plugin_playwright_playwright__browser_console_messages",
+  skills/workflows/render-sanity/SKILL.md:27  [mcp-ref]  "mcp__plugin_playwright_playwright__browser_network_requests"]
+  skills/workflows/settings-consolidator/SKILL.md:55  [mcp-ref]  - Playwright: all `mcp__plugin_playwright_playwright__browser_*` tools
+  skills/workflows/settings-consolidator/SKILL.md:56  [mcp-ref]  - Other MCP servers: `mcp__<server>__<tool>` format
+  skills/workflows/use-freellmapi/SKILL.md:287  [mcp-ref]  MCP server, and the per-client traps. Read this whenever the target is a tool ra...
+  skills/workflows/use-freellmapi/references/agent-clients.md:107  [mcp-ref]  ## MCP server
+
+Summary
+  HIGH: 0   MEDIUM: 24   LOW: 18
+[OK]  scan-skills: no HIGH findings.
+
+EXIT_CODE=0
+
+## HTML plus JSX inline styles / default
+$ python3 /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/skills/workflows/design-token-guard/scripts/check_design_tokens.py --root /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/inline --json
+{
+  "ok": true,
+  "summary": {
+    "total": 1,
+    "errors": 0,
+    "warnings": 1,
+    "files": 1
+  },
+  "tokenSources": [],
+  "tokensIndexed": 0,
+  "colorValuesMapped": 0,
+  "findings": [
+    {
+      "rule": "no-inline-style",
+      "severity": "warn",
+      "file": "component.tsx",
+      "line": 1,
+      "col": 30,
+      "snippet": "export const X = () => <main style={{display: \"grid\", width: \"1200px\"}}>Hi</main>;",
+      "message": "inline style with hardcoded dimension value",
+      "suggestion": "move the value into a token / utility class"
+    }
+  ]
+}
+
+EXIT_CODE=0
+
+## HTML plus JSX / strict policy refutation
+$ python3 /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/skills/workflows/design-token-guard/scripts/check_design_tokens.py --root /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/inline --config /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/strict-design.json --json
+{
+  "ok": false,
+  "summary": {
+    "total": 2,
+    "errors": 2,
+    "warnings": 0,
+    "files": 2
+  },
+  "tokenSources": [],
+  "tokensIndexed": 0,
+  "colorValuesMapped": 0,
+  "findings": [
+    {
+      "rule": "no-inline-style",
+      "severity": "error",
+      "file": "component.tsx",
+      "line": 1,
+      "col": 30,
+      "snippet": "export const X = () => <main style={{display: \"grid\", width: \"1200px\"}}>Hi</main>;",
+      "message": "inline style attribute (strict mode forbids all inline styles)",
+      "suggestion": "move the value into a token / utility class"
+    },
+    {
+      "rule": "no-inline-style",
+      "severity": "error",
+      "file": "index.html",
+      "line": 1,
+      "col": 7,
+      "snippet": "<main style=\"display:grid;grid-template-columns:60% 40%;width:1200px\">Hello</main>",
+      "message": "inline style attribute (strict mode forbids all inline styles)",
+      "suggestion": "move the value into a token / utility class"
+    }
+  ]
+}
+
+EXIT_CODE=1
+
+## staged design check with git unavailable
+$ python3 /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/skills/workflows/design-token-guard/scripts/check_design_tokens.py --root /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/inline --staged --json
+design-token-guard: --staged could not list staged files (Command '['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM']' returned non-zero exit status 2.); treating as no files.
+{
+  "ok": true,
+  "summary": {
+    "total": 0,
+    "errors": 0,
+    "warnings": 0,
+    "files": 0
+  },
+  "tokenSources": [],
+  "tokensIndexed": 0,
+  "colorValuesMapped": 0,
+  "findings": []
+}
+
+EXIT_CODE=0
+
+## installer worker loses exported dry-run
+$ bash scripts/install.sh --tool gemini-cli --dry-run --no-interactive
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/gemini-extension.json
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/architecture-rescue/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/architecture-rescue/references/architecture-language.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/architecture-rescue/references/interface-design.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/caveman/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/class-extraction-guard/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/class-extraction-guard/references/config.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/class-extraction-guard/references/extraction-convention.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/class-extraction-guard/references/scaffolding.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/class-extraction-guard/references/wiring-into-orchestrator.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/class-extraction-guard/scripts/check_class_extraction.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/claude-design-brief/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/claude-design-brief/references/anti-patterns.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/claude-design-brief/references/canvas-constraints.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/claude-design-brief/references/direction-examples/bold.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/claude-design-brief/references/direction-examples/experimental.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/claude-design-brief/references/direction-examples/safe.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/claude-design-brief/references/prompt-template.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/claude-design-brief/references/usage-modes.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/claude-design-brief/references/variation-and-risks.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/contract-author/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/contract-author/references/asyncapi-template.yaml
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/contract-author/references/data-layer-template.yaml
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/contract-author/references/json-schema-template.json
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/contract-author/references/openapi-template.yaml
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/contract-author/references/pydantic-template.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/contract-author/references/typescript-template.ts
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/design-token-guard/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/design-token-guard/references/config.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/design-token-guard/references/scaffolding.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/design-token-guard/references/wiring-into-orchestrator.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/design-token-guard/scripts/check_design_tokens.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/diagnose-loop/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/diagnose-loop/references/feedback-loop-recipes.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/diagnose-loop/references/hypothesis-format.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/diagnose-loop/scripts/hitl-loop.template.sh
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/find-unknowns/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/git-commit/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/git-post-merge-cleanup/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/git-post-merge-cleanup/references/branch-classification.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/git-post-merge-cleanup/references/worktree-cleanup-rules.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/git-pr/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/git-pr-feedback/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/grill-me/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/interactive-doc/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/interactive-doc/references/architecture-map.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/interactive-doc/references/comparison.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/interactive-doc/references/concept-explainer.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/interactive-doc/references/house-style.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/interactive-doc/references/markdown-document.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/living-plan/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/llm-wiki/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/llm-wiki/references/operations.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/llm-wiki/references/wiki-schema-template.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/madness/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/maintain-context/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/maintain-context/references/adr-format.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/maintain-context/references/context-format.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/maintain-context/references/three-condition-gate.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/mermaid-charts/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/mermaid-charts/references/advanced-patterns.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/mermaid-charts/references/chart-types/er.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/mermaid-charts/references/chart-types/flowchart.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/mermaid-charts/references/chart-types/mindmap.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/mermaid-charts/references/chart-types/other.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/mermaid-charts/references/chart-types/sequence.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/mermaid-charts/references/chart-types/state.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/mermaid-charts/references/complexity-and-output.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/mermaid-charts/references/styling.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/model-adaptation/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/model-adaptation/references/capability-handoff.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/model-adaptation/references/deepseek-adaptation.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/model-adaptation/references/long-run-hygiene.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/model-adaptation/references/model-effort-tiering.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/model-adaptation/references/operating-manual.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/model-adaptation/references/refusal-and-fallback.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/model-adaptation/scripts/extract_operating_manual.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/nano-banana/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/nano-banana/references/example-project-config.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/nano-banana/references/imagen-4-prompting.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/nano-banana/scripts/generate_image.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/access-and-hooks.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/clone-a-site-workflow.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/clone-recipes.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/config-and-collections.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/database-and-migrations.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/fields.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/live-preview-and-drafts.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/local-api-and-queries.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/payloadcms-com-anatomy.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/performance-and-troubleshooting.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/plugins.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/scaffolding-and-deploy.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/v4-delta.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/payload-cms/references/website-template.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/plan-builder/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/plan-builder/references/plan-format.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/plan-builder/references/research-extraction.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/plan-builder/references/second-order-effects.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/plan-intake/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/playwright/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/playwright/references/screenshot-workflow.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/playwright/references/selectors-guide.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/playwright/references/setup.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/prose-slop-guard/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/prose-slop-guard/references/slop-patterns.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/prose-slop-guard/references/wiring-into-agents.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/prose-slop-guard/scripts/check_prose_slop.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/railway-deploy/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/railway-deploy/references/deploy-script.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/railway-deploy/references/dockerfile-recipes.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/railway-deploy/references/multi-service-setup.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/references/templates/contract-format-jsonschema.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/references/templates/contract-format-openapi.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/references/templates/contract-format-pydantic.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/references/templates/contract-format-ts.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/references/templates/domain-docs-multi.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/references/templates/domain-docs-single.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/references/templates/work-item-tracker-beads.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/references/templates/work-item-tracker-github.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/references/templates/work-item-tracker-gitlab.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/setup-project-skills/references/templates/work-item-tracker-local.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/references/schemas.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/scripts/__init__.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/scripts/aggregate_benchmark.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/scripts/generate_report.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/scripts/improve_description.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/scripts/package_skill.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/scripts/quick_validate.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/scripts/run_eval.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/scripts/run_loop.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-creator/scripts/utils.py
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-explorer/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-explorer/references/routing-table.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-explorer/references/troubleshooting.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-review/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-review/references/audit-checklist.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-review/references/deep-review-rubric.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-review/references/report-format.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-update/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-update/references/plan-format.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-update/references/validation-checklist.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-writer/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-writer/references/body-template.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-writer/references/description-patterns.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-writer/references/frontmatter-spec.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-writer/references/patterns.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-writer/references/performance-notes.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-writer/references/quick-checklist.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/skill-writer/references/validation-script-pattern.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/ui-brief/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/ui-brief/references/brief-template.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/use-freellmapi/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/use-freellmapi/references/agent-clients.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/use-freellmapi/references/capabilities.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/use-freellmapi/references/recipes.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/wiki-research/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/wiki-research/references/contradiction-finding.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/work-item-brief/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/work-item-brief/references/afk-hitl-rubric.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/work-item-brief/references/brief-format.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/work-item-brief/references/out-of-scope-pattern.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/yagni-gate/SKILL.md
+[install] updated /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills/skills/zoom-out/SKILL.md
+[OK]  Gemini CLI: 39 skills -> /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/adversarial-fixtures/worker-home/.gemini/extensions/alltheskills
+
+EXIT_CODE=0
+worker wrote despite dry-run: True
+description='original description' calls=["audit negative control", "skill", "same-source", 10] result={"skill_name": "skill", "description": "original description", "results": [{"query": "audit negative control", "should_trigger": false, "trigger_rate": 0.0, "triggers": 0, "runs": 1, "pass": true}], "summary": {"total": 1, "passed": 1, "failed": 0}}
+description='radically different candidate' calls=["audit negative control", "skill", "same-source", 10] result={"skill_name": "skill", "description": "radically different candidate", "results": [{"query": "audit negative control", "should_trigger": false, "trigger_rate": 0.0, "triggers": 0, "runs": 1, "pass": true}], "summary": {"total": 1, "passed": 1, "failed": 0}}
+Static call chain: run_eval accepts description but never forwards/applies it; negative-control failures become False and count as correct non-trigger.

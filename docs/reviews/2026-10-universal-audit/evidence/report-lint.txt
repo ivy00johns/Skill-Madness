@@ -1,0 +1,4 @@
+$ markdownlint --config .markdownlint.json <audit reports and drafts>
+(no violations)
+
+EXIT_CODE=0

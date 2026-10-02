@@ -1,0 +1,322 @@
+[
+  {
+    "id": "UA-01",
+    "priority": "P1",
+    "size": "M",
+    "problem": "Portable role doctrine is blocked by host and orchestrator-only gates",
+    "fix": "Add standalone/solo branches for all ten roles and contract-auditor, retaining CC dispatch, ownership and QE order",
+    "notice": "Solo builds can use the same frontend, security and verification discipline as orchestrated builds.",
+    "evidence": "[skills/roles/frontend-agent/SKILL.md:8](../../../skills/roles/frontend-agent/SKILL.md#L8); [skills/roles/code-review-agent/SKILL.md:5](../../../skills/roles/code-review-agent/SKILL.md#L5)",
+    "dedup": "SR1 extension; PF5 clarified runtime-standalone, not user-standalone"
+  },
+  {
+    "id": "UA-02",
+    "priority": "P1",
+    "size": "L",
+    "problem": "Binary host/plan flags discard capability-rich non-Claude runtimes",
+    "fix": "Version PSFS capability/mode schema plus one resolver used by convert/install/sync; preserve legacy CC fields during migration",
+    "notice": "Skills choose a safe execution mode based on tools actually available.",
+    "evidence": "[scripts/convert.sh:711](../../../scripts/convert.sh#L711)",
+    "dedup": "F1/WC3 overlap: approve narrow resolver now; defer broad generator framework"
+  },
+  {
+    "id": "UA-03",
+    "priority": "P1",
+    "size": "L",
+    "problem": "Sequential core is a paragraph contradicting no-implementation/mandatory spawn rules",
+    "fix": "Specify state graph, role packets, dependency queue, reset boundaries and independent verifier; refuse unbounded unattended fallback",
+    "notice": "Single-agent hosts can finish a bounded build without pretending the builder is an independent reviewer.",
+    "evidence": "[skills/orchestrator/SKILL.md:154](../../../skills/orchestrator/SKILL.md#L154); [skills/orchestrator/SKILL.md:186](../../../skills/orchestrator/SKILL.md#L186)",
+    "dedup": "Not new sequential-orchestrator skill; F15/F16 shared substrate overlap"
+  },
+  {
+    "id": "UA-04",
+    "priority": "P1",
+    "size": "M",
+    "problem": "Frontend gates are available but no host-neutral build bootstrap ensures invocation",
+    "fix": "Add consented project bootstrap of strict layout/organization policy, precommit and CI; integrate solo entry and router",
+    "notice": "Styling violations are caught even when the orchestrator is not used.",
+    "evidence": "[skills/workflows/design-token-guard/SKILL.md:103](../../../skills/workflows/design-token-guard/SKILL.md#L103); [skills/workflows/class-extraction-guard/SKILL.md:76](../../../skills/workflows/class-extraction-guard/SKILL.md#L76)",
+    "dedup": "Extend existing guards; F7 hook-forge overlap, not a new hook framework"
+  },
+  {
+    "id": "UA-05",
+    "priority": "P2",
+    "size": "M",
+    "problem": "Default design guard misses HTML dimensions and passes inline-layout warnings",
+    "fix": "Parse HTML attribute CSS and JSX separately; add layout-only ERROR profile, dynamic CSS-var exemption, honest scanned count",
+    "notice": "An inline grid or fixed-width wrapper cannot pass the frontend policy unnoticed.",
+    "evidence": "[skills/workflows/design-token-guard/scripts/check_design_tokens.py:90](../../../skills/workflows/design-token-guard/scripts/check_design_tokens.py#L90); [default/strict repro](evidence/refutation-checks.txt)",
+    "dedup": "New defect, no blanket ban on safe dynamic properties"
+  },
+  {
+    "id": "UA-06",
+    "priority": "P2",
+    "size": "M",
+    "problem": "Unique class names hide duplicate CSS declaration blocks",
+    "fix": "Extend class-extraction guard with normalized declaration equivalence scoped by media/layer/specificity and approved exceptions",
+    "notice": "Copy-pasted CSS is detected even after every rule is renamed.",
+    "evidence": "[skills/workflows/class-extraction-guard/scripts/check_class_extraction.py:60](../../../skills/workflows/class-extraction-guard/scripts/check_class_extraction.py#L60); [hash fixture](evidence/adversarial-results.txt)",
+    "dedup": "Extend existing organization guard; no new skill required"
+  },
+  {
+    "id": "UA-07",
+    "priority": "P2",
+    "size": "M",
+    "problem": "No generic shared-layout markup gate catches copied chrome",
+    "fix": "Add shared-layout guard over source templates, not generated HTML; require one owning partial/component/include",
+    "notice": "Changing one header or footer updates every page instead of leaving copies behind.",
+    "evidence": "[four-page reproduced escape](evidence/adversarial-results.txt); [skills/workflows/payload-cms/SKILL.md:46](../../../skills/workflows/payload-cms/SKILL.md#L46)",
+    "dedup": "New generic gap; Payload globals/reusable content already help in that stack"
+  },
+  {
+    "id": "UA-08",
+    "priority": "P0",
+    "size": "S",
+    "problem": "Parallel installer worker resets dry-run and can write during a requested preview",
+    "fix": "Parse worker arguments or preserve exported flags; fake-HOME regression proving zero writes",
+    "notice": "A dry-run remains read-only in parallel mode.",
+    "evidence": "[scripts/install.sh:46](../../../scripts/install.sh#L46); [worker wrote despite dry-run](evidence/refutation-checks.txt)",
+    "dedup": "New safety defect; no actual user HOME changed"
+  },
+  {
+    "id": "UA-09",
+    "priority": "P2",
+    "size": "M",
+    "problem": "Parallel converter loses --out, totals and Gemini manifest; macOS command too long",
+    "fix": "Propagate immutable worker context after parsing, collect status/counts, emit manifest once, avoid xargs inline path expansion",
+    "notice": "Parallel generation produces the same files and failures as sequential generation.",
+    "evidence": "[scripts/convert.sh:790](../../../scripts/convert.sh#L790); [worker fixture](evidence/adversarial-results.txt); [parallel run](evidence/convert-parallel.txt)",
+    "dedup": "New worker defect; not stale integrations claim"
+  },
+  {
+    "id": "UA-10",
+    "priority": "P1",
+    "size": "M",
+    "problem": "Conversion omits assets, creator helper dirs and nested inline resources",
+    "fix": "Ship resource manifest for assets/agents/eval-viewer/templates; preserve skill-root paths or rewrite every literal reference",
+    "notice": "Installed guards and skill evaluation retain their templates and helper programs.",
+    "evidence": "[scripts/convert.sh:109](../../../scripts/convert.sh#L109); [resource summary](evidence/resource-delivery-summary.json)",
+    "dedup": "PF1 shipped scripts; this is uncovered resource classes, not reopening absent script-copy fix"
+  },
+  {
+    "id": "UA-11",
+    "priority": "P1",
+    "size": "M",
+    "problem": "Installer paths drop converted scripts/references and Gemini metadata",
+    "fix": "Make classic and plan installers consume the same resource manifest; preserve Gemini skills/ and extension manifest and hooks",
+    "notice": "A generated skill remains runnable after installation, not only in the staging folder.",
+    "evidence": "[scripts/install.sh:540](../../../scripts/install.sh#L540); [scripts/install-plan.sh:228](../../../scripts/install-plan.sh#L228); [741-operation plan](evidence/fresh-install-plan.json)",
+    "dedup": "PF1 integration-level regression evidence: generated scripts exist but installation drops them"
+  },
+  {
+    "id": "UA-12",
+    "priority": "P0",
+    "size": "M",
+    "problem": "Strict QA hook allows missing/crashed validator and accepts unbound stale reports",
+    "fix": "Fail closed on validator failure in enforcement mode; bind report to run/revision/contract and bounded stop reentry",
+    "notice": "A broken checker or old QA report cannot falsely certify a new build.",
+    "evidence": "[hooks/scripts/qa-gate.sh:85](../../../hooks/scripts/qa-gate.sh#L85); [strict missing-validator repro](evidence/adversarial-results.txt)",
+    "dedup": "DV1 stdin hang remains fixed; do not reopen it"
+  },
+  {
+    "id": "UA-13",
+    "priority": "P1",
+    "size": "M",
+    "problem": "Loop hard-budget claims are prompt instructions rather than enforced ceilings on all paths",
+    "fix": "Require wrapper max calls/tokens/time/cost, locks/cancellation and proof artifacts before unattended mode",
+    "notice": "An overnight loop stops at its approved budget even when the model ignores a prompt.",
+    "evidence": "[skills/loops/loop-controller/SKILL.md:195](../../../skills/loops/loop-controller/SKILL.md#L195); [skills/loops/loop-controller/references/primitives.md:143](../../../skills/loops/loop-controller/references/primitives.md#L143)",
+    "dedup": "F9/F15/F16 overlap; implement shared enforcement, not another prose budget skill"
+  },
+  {
+    "id": "UA-14",
+    "priority": "P2",
+    "size": "M",
+    "problem": "Gate criteria/config/baselines can be weakened by the worker",
+    "fix": "Freeze verifier/config/datasets/test assertions; reviewer authorizes changes; handle grep errors separately",
+    "notice": "A green result must reflect a real improvement rather than a narrower test or metric.",
+    "evidence": "[skills/loops/migration-loop/references/migration-checklist.md:95](../../../skills/loops/migration-loop/references/migration-checklist.md#L95); [skills/loops/loop-controller/references/safety.md:97](../../../skills/loops/loop-controller/references/safety.md#L97)",
+    "dedup": "Existing anti-cheat doctrine is good; mechanical enforcement extension"
+  },
+  {
+    "id": "UA-15",
+    "priority": "P1",
+    "size": "M",
+    "problem": "Model doctrine lacks GPT/Gemini/unknown and defaults silently to Anthropic",
+    "fix": "Adopt audited draft references and explicit observed provider/endpoint/effort capability policy",
+    "notice": "Changing model no longer injects nonexistent Claude settings into the run.",
+    "evidence": "[skills/meta/model-adaptation/references/model-effort-tiering.md:83](../../../skills/meta/model-adaptation/references/model-effort-tiering.md#L83); [drafts](04-model-adaptation-drafts/unknown-model-adaptation.md)",
+    "dedup": "MT1/MA2 preserved; these are missing instantiations"
+  },
+  {
+    "id": "UA-16",
+    "priority": "P2",
+    "size": "M",
+    "problem": "Cost policy forbids approved cross-vendor cheap-worker/independent-reviewer runs outside proxy",
+    "fix": "Add explicit allowed-provider/privacy/budget opt-in with model catalog and accepted-result cost measurement",
+    "notice": "The owner can approve a cheap builder plus a stronger independent reviewer without bypassing policy.",
+    "evidence": "[skills/meta/model-adaptation/references/model-effort-tiering.md:96](../../../skills/meta/model-adaptation/references/model-effort-tiering.md#L96); [ladder](04-model-adaptation-drafts/cross-vendor-tiering.md)",
+    "dedup": "Policy change, not claim MT1 absent; single-provider remains default"
+  },
+  {
+    "id": "UA-17",
+    "priority": "P1",
+    "size": "M",
+    "problem": "Skill-creator evaluates old description, forced skill loading and stdout mentions; errors look like negatives",
+    "fix": "Apply candidate in isolated snapshot; observe actual retrieval/invocation trace; model pin per worker; tri-state run outcomes and isolated HOME",
+    "notice": "Trigger scores measure whether the candidate was chosen, not whether its name appeared in an answer.",
+    "evidence": "[skills/workflows/skill-creator/scripts/run_eval.py:75](../../../skills/workflows/skill-creator/scripts/run_eval.py#L75); [skills/workflows/skill-creator/scripts/run_eval.py:125](../../../skills/workflows/skill-creator/scripts/run_eval.py#L125); [mocked boundary check](evidence/refutation-checks.txt)",
+    "dedup": "New installed Hermes-oriented eval runner defect; no paid model execution"
+  },
+  {
+    "id": "UA-18",
+    "priority": "P2",
+    "size": "S",
+    "problem": "Creator selects best by repeated held-out-test scores",
+    "fix": "Use train/dev for tuning and selection; final touch-once held-out set per split-hygiene standard",
+    "notice": "A reported test improvement survives an honest unseen final check.",
+    "evidence": "[skills/workflows/skill-creator/scripts/run_loop.py:207](../../../skills/workflows/skill-creator/scripts/run_loop.py#L207); [docs/standards/eval-split-hygiene.md:1](../../../docs/standards/eval-split-hygiene.md#L1)",
+    "dedup": "SO4 standard closed; consumer violates it, demonstrated regression"
+  },
+  {
+    "id": "UA-19",
+    "priority": "P2",
+    "size": "L",
+    "problem": "Universality and trigger claims have no cross-host load/efficacy test",
+    "fix": "Extend F3/F5 into tiny low-cost host/model matrix with frozen baseline, held-out outcomes and budget limits",
+    "notice": "Universal support is backed by measured task results and resource-load checks.",
+    "evidence": "[.github/workflows/lint-skills.yml:117](../../../.github/workflows/lint-skills.yml#L117); [docs/FUTURE.md:15](../../../docs/FUTURE.md#L15)",
+    "dedup": "Existing F3/F5, not newly invented cross-model-eval scope"
+  },
+  {
+    "id": "UA-20",
+    "priority": "P1",
+    "size": "M",
+    "problem": "Raw sync differs from conversion and ignores flat-link subset; collisions delete copies",
+    "fix": "Use same capability projection; ownership manifest, backup/confirm collisions and subset tests; clean only owned links",
+    "notice": "Sync only changes requested owned skills and never destroys an unrelated local copy.",
+    "evidence": "[skills/workflows/sync-skills/scripts/sync-skills.sh:393](../../../skills/workflows/sync-skills/scripts/sync-skills.sh#L393); [skills/workflows/sync-skills/scripts/sync-skills.sh:412](../../../skills/workflows/sync-skills/scripts/sync-skills.sh#L412)",
+    "dedup": "Baseline CC/Cursor only, do not assert newer multihost sync"
+  },
+  {
+    "id": "UA-21",
+    "priority": "P2",
+    "size": "M",
+    "problem": "Serializable apply trusts stale source hash, loses mode and allows destination escape",
+    "fix": "Validate plan schema/source digest/destination containment and symlink parents; preserve modes, merge state, atomic apply",
+    "notice": "A reviewed installation applies those exact bytes only within its approved destination.",
+    "evidence": "[scripts/install-apply.sh:92](../../../scripts/install-apply.sh#L92); [stale-hash/mode/root fixture](evidence/adversarial-results.txt)",
+    "dedup": "Outside-declared-root fixture stayed inside audit directory"
+  },
+  {
+    "id": "UA-22",
+    "priority": "P2",
+    "size": "S",
+    "problem": "PR creation uses unsupported --head flag and feedback treats replies as resolution",
+    "fix": "Use supported gh branch argument and unresolved-thread state rather than author-reply existence",
+    "notice": "PR workflows find the right PR and do not silently skip still-open feedback.",
+    "evidence": "[skills/git/git-pr/SKILL.md:90](../../../skills/git/git-pr/SKILL.md#L90); [skills/git/git-pr-feedback/SKILL.md:188](../../../skills/git/git-pr-feedback/SKILL.md#L188); [gh help](evidence/adversarial-results.txt)",
+    "dedup": "Read-only CLI help verified, no GitHub mutation"
+  },
+  {
+    "id": "UA-23",
+    "priority": "P2",
+    "size": "S",
+    "problem": "Tag cleanup deletion appears before required approval and infers branch history from names",
+    "fix": "Make scan nonmutating, classify tag target reachability/retention and approve before tag deletion",
+    "notice": "Cleanup previews include tags and no remote deletion happens before consent.",
+    "evidence": "[skills/git/git-post-merge-cleanup/SKILL.md:56](../../../skills/git/git-post-merge-cleanup/SKILL.md#L56); [skills/git/git-post-merge-cleanup/SKILL.md:139](../../../skills/git/git-post-merge-cleanup/SKILL.md#L139)",
+    "dedup": "Ambiguous sequence, not observed unauthorized deletion"
+  },
+  {
+    "id": "UA-24",
+    "priority": "P2",
+    "size": "S",
+    "problem": "QE prototype advice and role pipeline blurbs contradict canonical gate/schema",
+    "fix": "Remove skip/lower-threshold default; make explicit prototype acceptance policy; repair frontend UX and infra nonexistent scores/backend contract authorship",
+    "notice": "Agents agree on who authors contracts and what actually blocks completion.",
+    "evidence": "[skills/roles/qe-agent/SKILL.md:21](../../../skills/roles/qe-agent/SKILL.md#L21); [skills/roles/infrastructure-agent/SKILL.md:21](../../../skills/roles/infrastructure-agent/SKILL.md#L21); [skills/roles/frontend-agent/SKILL.md:21](../../../skills/roles/frontend-agent/SKILL.md#L21)",
+    "dedup": "FA8 advisory closure remains correct elsewhere; residual regression lines specifically cited"
+  },
+  {
+    "id": "UA-25",
+    "priority": "P2",
+    "size": "M",
+    "problem": "PSFS open-parser requirement and closed schema disagree with current Agent Skills types",
+    "fix": "Separate tolerant loader from strict author lint; serialize allowed-tools string and metadata string-map for standard export; tighten names",
+    "notice": "Portable exports match the live open standard without breaking native CC frontmatter.",
+    "evidence": "[spec/PSFS.md:70](../../../spec/PSFS.md#L70); [spec/frontmatter.schema.json:113](../../../spec/frontmatter.schema.json#L113); [live standard](https://agentskills.io/specification)",
+    "dedup": "Backward-compatible exports; do not blindly rewrite canonical arrays"
+  },
+  {
+    "id": "UA-26",
+    "priority": "P2",
+    "size": "M",
+    "problem": "Scripts and portable bodies resolve resources through Claude home or repo root",
+    "fix": "Define SKILL_ROOT/runtime profile/secret-loader contract; bundle root helpers or declare checkout requirement; explicit env injection",
+    "notice": "Copied skills find their scripts and approved credentials without depending on ~/.claude.",
+    "evidence": "[skills/workflows/nano-banana/SKILL.md:70](../../../skills/workflows/nano-banana/SKILL.md#L70); [skills/workflows/living-plan/SKILL.md:118](../../../skills/workflows/living-plan/SKILL.md#L118); [skills/meta/skill-catalog/SKILL.md:12](../../../skills/meta/skill-catalog/SKILL.md#L12)",
+    "dedup": "Never distribute root .env or private values"
+  },
+  {
+    "id": "UA-27",
+    "priority": "P2",
+    "size": "S",
+    "problem": "Missing project config can mean fail-loud or silently default depending on skill",
+    "fix": "Specify one explicit-consent fallback contract for setup and consumers",
+    "notice": "Every host gets the same understandable setup requirement and override choice.",
+    "evidence": "[skills/workflows/setup-project-skills/SKILL.md:112](../../../skills/workflows/setup-project-skills/SKILL.md#L112); [skills/workflows/maintain-context/SKILL.md:73](../../../skills/workflows/maintain-context/SKILL.md#L73)",
+    "dedup": "Human-approved orchestrator default already exists, retain it"
+  },
+  {
+    "id": "UA-28",
+    "priority": "P2",
+    "size": "S",
+    "problem": "Wiki knowledge can be treated as current-code proof without freshness check",
+    "fix": "Carry source revision/date and verify touched boundaries in current code before safety/correctness decisions",
+    "notice": "A stale wiki can guide discovery but cannot certify today\u2019s implementation.",
+    "evidence": "[skills/workflows/wiki-research/SKILL.md:75](../../../skills/workflows/wiki-research/SKILL.md#L75); [skills/workflows/llm-wiki/SKILL.md:186](../../../skills/workflows/llm-wiki/SKILL.md#L186)",
+    "dedup": "Extend retrieval protocol, not a new knowledge system"
+  },
+  {
+    "id": "UA-29",
+    "priority": "P2",
+    "size": "S",
+    "problem": "Walkthrough capture uses unbounded full-page images despite shared memory warning",
+    "fix": "Share screenshot height/route/bytes budget with Playwright, tile/cap or refuse oversized captures",
+    "notice": "Long websites produce bounded videos without exhausting workstation memory.",
+    "evidence": "[skills/workflows/website-walkthrough-video/SKILL.md:48](../../../skills/workflows/website-walkthrough-video/SKILL.md#L48); [skills/workflows/playwright/SKILL.md:67](../../../skills/workflows/playwright/SKILL.md#L67)",
+    "dedup": "Not a claim that capture failed live; static missing bound"
+  },
+  {
+    "id": "UA-30",
+    "priority": "P2",
+    "size": "S",
+    "problem": "Body word guidance and unsupported host claims outrun existing lint checks",
+    "fix": "Measure approximate tokens, validate resource closure, report physical/nonblank lines distinctly, repair scoped stale assertions",
+    "notice": "Quality claims say what was actually checked, and oversized prompts are visible before use.",
+    "evidence": "[CLAUDE.md:60](../../../CLAUDE.md#L60); [README.md:366](../../../README.md#L366); [START-HERE.md:8](../../../START-HERE.md#L8)",
+    "dedup": "RV16 minimized body already; further split justified by current5463words; historic counts not drift"
+  },
+  {
+    "id": "UA-31",
+    "priority": "P2",
+    "size": "S",
+    "problem": "Guard staged enumeration errors can return clean success",
+    "fix": "Return configuration/execution-error status when git/read fails and report true scanned file count",
+    "notice": "A checker that cannot inspect the source reports blocked, never clean.",
+    "evidence": "[skills/workflows/design-token-guard/scripts/check_design_tokens.py:295](../../../skills/workflows/design-token-guard/scripts/check_design_tokens.py#L295); [mock git failure](evidence/refutation-checks.txt)",
+    "dedup": "Canonical failure handler warns but still returns empty list"
+  },
+  {
+    "id": "UA-32",
+    "priority": "P2",
+    "size": "S",
+    "problem": "Portable prose contains consequential install/global-permission/deploy defaults",
+    "fix": "Require scoped approval before global bootstrap, pipe-to-shell, production requests and privacy-changing publication",
+    "notice": "Routine skills cannot expand authority or spend money just because a trigger matched.",
+    "evidence": "[skills/workflows/settings-consolidator/SKILL.md:48](../../../skills/workflows/settings-consolidator/SKILL.md#L48); [skills/workflows/use-freellmapi/SKILL.md:104](../../../skills/workflows/use-freellmapi/SKILL.md#L104); [skills/workflows/railway-deploy/SKILL.md:40](../../../skills/workflows/railway-deploy/SKILL.md#L40)",
+    "dedup": "F9 overlaps; explicit host adapter authority, no new autonomy skill"
+  }
+]
