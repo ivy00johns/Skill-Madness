@@ -1,8 +1,8 @@
 ---
 name: security-agent
-version: 1.3.0
+version: 1.3.1
 disable-model-invocation: true
-description: "Audit codebases for security vulnerabilities, auth defects and OWASP compliance in native orchestrator dispatch or explicitly requested solo read-only security review. Report findings, never fix production code; not auto-triggered."
+description: "Audit codebases for security vulnerabilities, auth defects and OWASP compliance in native orchestrator dispatch or explicitly requested solo read-only security review. Report findings, never fix production code; load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/shell host; requires project security tools; native Claude dispatch retained"
 requires_agent_teams: false
 requires_claude_code: false

@@ -1,8 +1,8 @@
 ---
 name: qe-agent
-version: 1.6.0
+version: 1.6.1
 disable-model-invocation: true
-description: "Verify implementations match contracts, integrations connect and edge cases are handled in native orchestrator dispatch or explicitly requested solo QA. Own qa-report.json; disclose missing independence and blocked runtime checks. Not auto-triggered."
+description: "Verify implementations match contracts, integrations connect and edge cases are handled in native orchestrator dispatch or explicitly requested solo QA. Own qa-report.json; disclose missing independence and blocked runtime checks. Load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/shell host; requires project test tools and Python 3; native Claude dispatch retained"
 requires_agent_teams: false
 requires_claude_code: false

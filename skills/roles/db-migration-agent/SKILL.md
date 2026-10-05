@@ -1,8 +1,8 @@
 ---
 name: db-migration-agent
-version: 1.3.0
+version: 1.3.1
 disable-model-invocation: true
-description: "Manage database schema migrations, seed data and schema evolution in native orchestrator dispatch or explicitly requested solo migration work. Preserve contract boundaries and approval before database mutations; not auto-triggered."
+description: "Manage database schema migrations, seed data and schema evolution in native orchestrator dispatch or explicitly requested solo migration work. Preserve contract boundaries and approval before database mutations; load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/edit/shell host; requires project DB CLI; native Claude dispatch retained"
 requires_agent_teams: false
 requires_claude_code: false

@@ -1,8 +1,8 @@
 ---
 name: performance-agent
-version: 1.4.0
+version: 1.4.1
 disable-model-invocation: true
-description: "Design and execute performance tests, load tests and benchmarks in native orchestrator dispatch or explicitly requested solo measurement work. Freeze targets and obtain approval for nonlocal load; not auto-triggered."
+description: "Design and execute performance tests, load tests and benchmarks in native orchestrator dispatch or explicitly requested solo measurement work. Freeze targets and obtain approval for nonlocal load; load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/edit/shell host; requires project benchmark tools; native Claude dispatch retained"
 requires_agent_teams: false
 requires_claude_code: false

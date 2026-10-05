@@ -1,8 +1,8 @@
 ---
 name: backend-agent
-version: 1.4.0
+version: 1.4.1
 disable-model-invocation: true
-description: "Build API servers, business logic and data layers against authored contracts. Use in native orchestrator dispatch or explicitly requested solo backend implementation; not auto-triggered."
+description: "Build API servers, business logic and data layers against authored contracts. Use in native orchestrator dispatch or explicitly requested solo backend implementation; load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/edit/shell host; requires project curl/test tools; native Claude dispatch retained"
 requires_agent_teams: false
 requires_claude_code: false

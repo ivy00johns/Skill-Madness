@@ -1,8 +1,8 @@
 ---
 name: infrastructure-agent
-version: 1.3.0
+version: 1.3.1
 disable-model-invocation: true
-description: "Build containerization, service orchestration, CI/CD and deployment configuration in native orchestrator dispatch or explicitly requested solo infrastructure work. Production actions require approval; not auto-triggered."
+description: "Build containerization, service orchestration, CI/CD and deployment configuration in native orchestrator dispatch or explicitly requested solo infrastructure work. Production actions require approval; load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/edit/shell host; requires project container/port tools; native Claude dispatch retained"
 requires_agent_teams: false
 requires_claude_code: false
