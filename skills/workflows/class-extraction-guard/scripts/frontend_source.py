@@ -66,10 +66,14 @@ def css_blocks(text):
                 if depth:
                     raise ValueError("unbalanced CSS block")
                 body = text[i + 1:j - 1]
+                # Report the selector's own position, not the end of the
+                # previous rule (which sits on an earlier line).
+                raw = text[cursor:i]
+                start_pos = cursor + len(raw) - len(raw.lstrip())
                 if header.startswith("@"):
                     yield from walk(i + 1, j - 1, scope + (compact(header),))
                 elif "{" not in body:
-                    yield header, body, scope, cursor
+                    yield header, body, scope, start_pos
                 i = j
                 cursor = j
                 continue
@@ -124,8 +128,25 @@ def fingerprint(value):
     return hashlib.sha256(repr(value).encode("utf-8")).hexdigest()
 
 
+# Per-page active-state markers: a copied nav that only moves "current page"
+# between copies is still one copied nav, so these never split a fingerprint.
+_ACTIVE_ATTR = re.compile(r'''\s+aria-current(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?''', re.I)
+_ACTIVE_CLASSES = {"active", "is-active", "current", "is-current", "selected", "is-selected"}
+_CLASS_ATTR = re.compile(r'''(\s(?:class|className)\s*=\s*)(["'])(.*?)\2''', re.S)
+
+
+def _strip_active_state(block):
+    block = _ACTIVE_ATTR.sub("", block)
+
+    def drop(match):
+        kept = [t for t in match.group(3).split() if t.lower() not in _ACTIVE_CLASSES]
+        return "%s%s%s%s" % (match.group(1), match.group(2), " ".join(kept), match.group(2)) if kept else ""
+    return _CLASS_ATTR.sub(drop, block)
+
+
 def chrome_blocks(text, tags):
-    """Extract literal semantic chrome, preserving content/attributes/variants."""
+    """Extract literal semantic chrome, preserving content/attributes/variants
+    except per-page active-state markers (aria-current, active/current classes)."""
     text = mask_comments(text)
     # Script literals are not authored DOM; style content is also not markup.
     text = re.sub(r"<(script|style)\b[^>]*>.*?</\1\s*>",
@@ -140,7 +161,7 @@ def chrome_blocks(text, tags):
             if stack and stack[-1][0] == name:
                 _, start = stack.pop()
                 block = text[start:match.end()]
-                normalized = re.sub(r">\s+<", "><", compact(block))
+                normalized = re.sub(r">\s+<", "><", compact(_strip_active_state(block)))
                 yield name, normalized, text.count("\n", 0, start) + 1
         elif not match.group().endswith("/>"):
             stack.append((name, match.start()))

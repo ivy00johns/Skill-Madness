@@ -169,6 +169,29 @@ class FrontendWave(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertEqual(len(json.loads(result.stdout)["findings"]), 3)
 
+    def test_copied_nav_with_per_page_active_state_still_blocks(self):
+        pages = ("home", "about", "contact")
+        for page in pages:
+            links = "".join('<li><a href="/%s"%s>%s</a></li>' % (
+                p, ' aria-current="page" class="link active"' if p == page else ' class="link"', p) for p in pages)
+            self.write("pages/%s.html" % page, "<header><nav><ul>%s</ul></nav></header><main>%s</main>" % (links, page))
+        result = self.cli("check_shared_layout.py", "--json")
+        self.assertEqual(result.returncode, 1, result.stdout)
+        tags = sorted(f["tag"] for f in json.loads(result.stdout)["findings"])
+        self.assertEqual(tags, ["header", "nav"])
+
+    def test_different_nav_links_are_not_collapsed(self):
+        for n in range(3):
+            self.write("p%d.html" % n, '<nav><a href="/x%d" class="active">Section %d</a></nav>' % (n, n))
+        self.assertEqual(self.cli("check_shared_layout.py", "--json").returncode, 0)
+
+    def test_duplicate_css_sites_report_each_selector_line(self):
+        text = "\n\n".join(".x%d {display:grid;\n  gap:1rem;\n  padding:2rem}" % n for n in range(3))
+        _, data = self.css(text)
+        self.assertEqual(data["findings"][0]["occurrences"], ["styles.css:1 .x0", "styles.css:5 .x1", "styles.css:9 .x2"])
+        _, data = self.css("\n".join(".y%d {display:grid;gap:1rem;padding:2rem}" % n for n in range(3)))
+        self.assertEqual(data["findings"][0]["occurrences"], ["styles.css:1 .y0", "styles.css:2 .y1", "styles.css:3 .y2"])
+
     def test_shared_partial_and_generated_output_do_not_block(self):
         chrome = '<header><a href="/">Home</a></header>'
         self.write("templates/header.html", chrome)
