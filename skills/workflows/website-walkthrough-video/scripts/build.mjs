@@ -17,6 +17,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { checkCaptureBounds, CAPTURE_LIMITS } from './capture.mjs';
 
 // Timing envelope, shared by every clip. holdTop/holdBottom are the still beats at each
 // end of a scroll so the eye can register the page before and after the motion.
@@ -56,7 +57,9 @@ async function buildClip(clip, render, fps, workDir, idx) {
   const { outWidth: W, outWinHeight: WINH, fontSize, speed, maxPan, bg, fontFile, label: modeLabel } = render;
   const img = clip.path;
   const { w: imgW, h: imgH } = await probeDims(img);
-  const effH = Math.round((imgH * W) / imgW); // image height after it's scaled to the output width
+  checkCaptureBounds(imgW, imgH);
+  const effH = Math.round((imgH * W) / imgW);
+  checkCaptureBounds(W, Math.max(effH, WINH)); // image height after it's scaled to the output width
   const scrollable = effH - WINH;             // how far we can travel before hitting the bottom
 
   // Duration & pan time: longer pages pan longer, but clamp so a giant page doesn't drag.
@@ -101,8 +104,7 @@ async function buildRender(render, fps, outDir) {
     for (const clip of render.clips) {
       clip.path = join(outDir, clip.file);
       if (!existsSync(clip.path)) {
-        console.warn(`    (skip ${clip.file} — not found)`);
-        continue;
+        throw new Error(`Missing screenshot ${clip.file}; incomplete tour cannot pass`);
       }
       clipPaths.push(await buildClip(clip, render, fps, workDir, i++));
     }
@@ -136,6 +138,7 @@ export async function build(outDir) {
     throw new Error(`No manifest.json in ${outDir}. Run capture.mjs first (or check the path).`);
   }
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  if (!Array.isArray(manifest.renders) || manifest.renders.some((r) => !Array.isArray(r.clips) || r.clips.length > CAPTURE_LIMITS.maxRoutes)) throw new Error('Invalid/oversized capture manifest');
   const fps = manifest.fps || 60;
   const outputs = [];
   for (const render of manifest.renders) {

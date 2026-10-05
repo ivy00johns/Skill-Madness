@@ -1,6 +1,6 @@
 ---
 name: design-token-guard
-version: 1.0.2
+version: 1.1.0
 composes_with: ["orchestrator", "frontend-agent", "render-sanity", "ux-review", "code-review-agent", "sync-skills"]
 description: >-
   Source-level gate that prevents inline styles and hardcoded CSS from
@@ -16,7 +16,7 @@ description: >-
   auto-discovers the project's tokens; NOT specific to any one repo or to
   Tailwind. Don't skip it because a render review passed: render gates can't see
   a hardcoded color — it renders identically to the token.
-compatibility: Claude Code; requires Python 3.8+ (stdlib only) to run scripts/check_design_tokens.py; ESLint scaffolding step is optional
+compatibility: Read/edit/shell host; requires Python 3.9+ (stdlib only) to run scripts/check_design_tokens.py; ESLint scaffolding step is optional
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
@@ -57,6 +57,7 @@ python3 <skill-dir>/scripts/check_design_tokens.py --root .
 ```
 
 What it does automatically:
+
 - **Discovers the token source** — scans for CSS custom properties
   (`--name: …`), SCSS/Less vars (`$name`, `@name`), JS/TS theme objects, or
   design-token JSON. From those it builds a `color-value → token` map.
@@ -66,7 +67,7 @@ What it does automatically:
 - **Reports** each finding as `file:line:col`, the offending snippet, and — when
   the literal matches a declared token — the exact fix:
 
-  ```
+  ```text
   no-hardcoded-color (error) — 2
     src/components/schedule/EventBar.tsx:69:17
       fill="#0E1116"
@@ -74,12 +75,13 @@ What it does automatically:
   ```
 
 Useful flags:
+
 - `--staged` — only git-staged files (this is what the pre-commit hook uses).
 - `--json` — machine-readable output for a gate/CI to parse (`{ ok, summary, findings }`).
 - `PATHS…` — limit to specific files/dirs (e.g. just the component you changed).
 - `--config <path>` — explicit config location.
 
-Exit code is `1` when there are **error**-severity findings, `0` when clean — so
+Exit code is `2` when inspection/configuration fails, `1` when there are **error**-severity findings, `0` when clean — so
 it drops straight into a gate or CI step.
 
 ## Step 2 — Interpret and fix
@@ -99,6 +101,23 @@ Inline styles whose values are all dynamic (`var(--…)`, JS expressions) are
 **allowed** by default — the rule fires on hardcoded literals, not on the
 mechanism. Use `"inlineStyleMode": "strict"` only if the project bans inline
 style attributes outright.
+
+## Solo/native frontend bootstrap — invoke before authoring
+
+Frontend-agent and madness invoke this path on solo and native UI builds. Resolve the actual skill roots from installed resources; do not assume Claude home. The bootstrap bundles both existing guards and a small shared-layout checker, not a new orchestration framework. Preview first; obtain project setup consent before `--apply`:
+
+```bash
+python3 <design-guard-root>/scripts/bootstrap_frontend_guards.py --root <project> \
+  --class-guard-dir <class-extraction-guard-root>
+# After scoped approval:
+python3 <design-guard-root>/scripts/bootstrap_frontend_guards.py --root <project> \
+  --class-guard-dir <class-extraction-guard-root> --apply
+python3 <project>/scripts/frontend-guards/run.py
+```
+
+This creates layout ERROR policy, error-level utility/CSS duplication policy, a full-source runner, CI, and an **inactive** hook snippet. Merge the runner into existing Husky/lefthook/pre-commit after approval; optional `--wire-precommit --apply` creates a plain project-local hook only when no hook/manager/path override exists. Worktrees must use their existing hook setup; no global settings or hooksPath are changed. Conflicting files block **before writes**; never overwrite user config. Missing sibling resources fail closed. Repeated apply keeps identical files unchanged.
+
+The bundle checks authored source, not generated output (build directories are ignored). Add project-specific generated paths deliberately. Visible two-width rendering, project typecheck/tests and independent review are separate proofs. Setup declined or unavailable means enforcement BLOCKED, not a guarded success.
 
 ## Step 3 — Enforce (scaffold into the repo)
 
@@ -126,6 +145,10 @@ procedure; the short version:
 
 Tell the user which layers you installed and which you skipped (e.g. "no Husky
 here, used a raw git hook").
+
+### Layout-only policy
+
+`--profile layout` enforces `no-inline-style: error` while preserving explicit CSS custom-property-only inputs such as `style="--progress: 72%"` or `style={{'--progress': progress}}`. Ordinary inline properties, including token-backed layout, bound/opaque objects and spreads, must move to stylesheets or be manually refactored; a token value does not fix cascade precedence. The legacy literal/warn default remains for existing adopters; it now recognizes unquoted HTML CSS dimensions separately from quoted JSX values. `summary.files`/`files_scanned` count inspected source files; `files_with_findings` is distinct. Git enumeration, unreadable source/config and missing explicit paths return blocked status, never clean success. These are conservative source patterns, not a complete framework compiler.
 
 ## The rule set
 
@@ -156,10 +179,13 @@ When a frontend build runs under an orchestrator or agent team, this is a **hard
 source-level wave-gate**, complementary to the render-level gates (render-sanity,
 ux-review) — those check pixels, this checks source, and a build needs both:
 
-- A **frontend-agent** runs `--json` against the files it changed *before*
-  reporting done; error-severity findings mean the task isn't done.
-- The **orchestrator** runs it at the wave gate alongside typecheck/test. Parse
-  `summary.errors`; non-zero blocks the wave and routes back to the owning agent.
+- A **frontend-agent** runs the bootstrapped full-source runner after each slice
+  and before reporting done. Changed-file `--json` scans are extra diagnostics,
+  never a substitute for cross-file CSS/chrome checks.
+- The **orchestrator** runs the same runner at the wave gate alongside
+  typecheck/test. Any nonzero exit, including blocked inspection, blocks the
+  wave and routes back to the owning agent. Never interpret missing JSON or a
+  checker crash as zero findings.
 
 See `references/wiring-into-orchestrator.md` for the exact gate snippet and how
 this plugs into the orchestrator's Definition of Done.

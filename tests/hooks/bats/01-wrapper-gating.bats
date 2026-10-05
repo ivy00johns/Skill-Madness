@@ -126,3 +126,36 @@ teardown() {
   run bash "$WRAPPER"
   [ "$status" -eq 0 ]
 }
+
+@test "wrapper: strict QA cannot fail open on a broken manifest" {
+  cp -R "$REPO_ROOT/hooks" "$WORKDIR/hooks"
+  printf 'broken JSON\n' > "$WORKDIR/hooks/hooks.manifest.json"
+  cd "$WORKDIR"
+  run env ATS_HOOK_PROFILE=strict bash "$WORKDIR/hooks/run-with-flags.sh" qa-gate
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -q '"decision": "block"'
+}
+
+@test "wrapper: strict QA missing script blocks even without manifest discovery" {
+  cp -R "$REPO_ROOT/hooks" "$WORKDIR/hooks"
+  rm "$WORKDIR/hooks/scripts/qa-gate.sh"
+  run env ATS_HOOK_PROFILE=strict bash "$WORKDIR/hooks/run-with-flags.sh" qa-gate
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -q '"decision":"block"'
+  echo "$output" | grep -q 'script missing'
+}
+
+@test "wrapper: explicit strict QA disable still wins over missing script" {
+  cp -R "$REPO_ROOT/hooks" "$WORKDIR/hooks"
+  rm "$WORKDIR/hooks/scripts/qa-gate.sh"
+  run env ATS_HOOK_PROFILE=strict ATS_DISABLED_HOOKS=qa-gate bash "$WORKDIR/hooks/run-with-flags.sh" qa-gate
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "wrapper: misspelled strict profile cannot skip QA" {
+  cd "$WORKDIR"
+  run env ATS_HOOK_PROFILE=strcit bash "$WRAPPER" qa-gate
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -q '"decision": "block"'
+}

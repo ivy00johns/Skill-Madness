@@ -7,6 +7,7 @@ and how to make the legacy-pattern grep an honest proof. The loop machinery
 this is only what is specific to migrating a fixed set.
 
 ## Contents
+
 - [Building the target checklist / mapping](#checklist)
 - [Sequential vs `/batch` fan-out](#fanout)
 - [The "no legacy pattern remains" verification](#grep)
@@ -92,6 +93,18 @@ didn't *miss* any.
 - **Grep the exact pinned pattern(s).** Use the `legacy_patterns` from the
   checklist verbatim — the same strings you enumerated with. A passing migration
   is `grep -rE -c '<pattern>' <grep_scope>` returning **zero** for every pattern.
+- **Distinguish grep errors from zero matches.** Check grep's exit status:
+  `grep` returns `0` when pattern lines are found, `1` when no lines match (clean zero),
+  and `2` (or >1) when an error occurs (syntax error, unreadable file, directory loop, invalid regex).
+  **Never treat an exit code > 1 as zero matches.** A nonzero exit from execution failure
+  is a `BLOCKED` check, not a green pass.
+- **Freeze verifier, config, and test assertions.** Verifier scripts, test files,
+  benchmark baselines, and grep configurations must be frozen during migration passes.
+  Any modification to verifiers, thresholds, or test assertions requires explicit reviewer
+  authorization — never edit assertions to make a migration loop pass. Use the
+  loop-controller's `scripts/run_guarded.py` frozen manifest over these boundaries
+  around every bounded iteration; mismatch stops, not an automatic baseline refresh.
+  A new manifest must follow reviewer approval of the exact verifier change.
 - **Scope it honestly.** Restrict to the migration scope (`verify.grep_scope`),
   but do not narrow it to dodge known stragglers. **Narrowing the pattern or the
   scope so the count reads zero while real usages remain is a *finding*, not a

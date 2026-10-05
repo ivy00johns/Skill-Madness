@@ -1,11 +1,11 @@
 ---
 name: docs-agent
-version: 1.2.0
+version: 1.3.0
 disable-model-invocation: true
-description: "Orchestrator-dispatched only. Generates project documentation, API docs, READMEs, and changelogs for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
-compatibility: "Claude Code"
+description: "Generate project documentation, API docs, READMEs and changelogs in native orchestrator dispatch or explicitly requested solo documentation work. Read real contracts and code; not auto-triggered."
+compatibility: "Read/edit host; native Claude dispatch retained"
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: ["docs/"]
@@ -30,7 +30,9 @@ This skill assumes a contract-first multi-agent build model:
 - Each role-agent consumes a machine-readable contract from `/contracts/`
 - `qe-agent` gates the build via `qa-report.json`
 
-For single-agent or ad-hoc work, this skill is not the right tool.
+### Execution mode
+
+**Native dispatched:** preserve the orchestrator's role packet, exclusive ownership, teams/Agent/Workflow choices and QE order. **Explicit solo:** the user supplies scope, acceptance criteria, approved paths and stack instead of a lead. Read existing contracts; ask for missing boundary decisions. Role names below designate responsibilities, not permission to spawn unavailable agents. Keep ownership carve-outs; request approval for shared-file changes. Follow the same checklist on a bounded slice and hand evidence to a reviewer. Same-context self-review is UNVERIFIED, not independent QE certification. Missing tools/checks are BLOCKED, not passes. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually. Phase 14 references below apply to native dispatch; solo requests do not require an orchestrator.
 
 ## Role
 
@@ -101,7 +103,7 @@ Track significant changes:
 - **Contract is source of truth for API docs** — don't guess from code
 - **Keep it concise** — developers skim, they don't read novels
 - **Include working examples** — every API endpoint needs a curl command that works
-- **backend-agent** — read their API contracts and source for endpoint documentation; they own `src/` — you document it, you don't touch it
+- **backend-agent** — read the API contracts from `contracts/` and their source for endpoint documentation; they own `src/` — you document it, you don't touch it
 - **frontend-agent** — read their component structure for user-facing feature docs; they own `src/components/` and related UI code
 - **infrastructure-agent** — read their Docker/deploy configs for setup and deployment docs; they own `docker-compose.yml`, `Dockerfile`, and infra configs
 

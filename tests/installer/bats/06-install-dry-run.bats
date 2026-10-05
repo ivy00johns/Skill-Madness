@@ -19,7 +19,7 @@ setup_file() {
 
   # Build a fake repo with copied scripts + fixture skills + pre-built integrations
   export FAKEREPO
-  FAKEREPO="$(mktemp -d /tmp/ats-fakerepo.XXXXXX)"
+  FAKEREPO="$(mktemp -d '/tmp/ats-fakerepo space.XXXXXX')"
   mkdir -p "$FAKEREPO/scripts/lib"
   cp "$SCRIPTS_DIR/convert.sh"         "$FAKEREPO/scripts/convert.sh"
   cp "$SCRIPTS_DIR/install.sh"         "$FAKEREPO/scripts/install.sh"
@@ -27,6 +27,9 @@ setup_file() {
   cp "$SCRIPTS_DIR/lib/slug.sh"        "$FAKEREPO/scripts/lib/slug.sh"
   cp "$SCRIPTS_DIR/lib/term.sh"        "$FAKEREPO/scripts/lib/term.sh"
   cp "$SCRIPTS_DIR/lib/platform.sh"    "$FAKEREPO/scripts/lib/platform.sh"
+  cp "$SCRIPTS_DIR/lib/resource_delivery.py" "$FAKEREPO/scripts/lib/resource_delivery.py"
+  cp "$SCRIPTS_DIR/lib/capability_resolver.py" "$FAKEREPO/scripts/lib/capability_resolver.py"
+  cp "$SCRIPTS_DIR/lib/standard_export.py" "$FAKEREPO/scripts/lib/standard_export.py"
   cp -r "$FIXTURE_SKILLS"              "$FAKEREPO/skills"
 
   # Run convert first to populate integrations/
@@ -124,6 +127,75 @@ teardown() {
   [ ! -f "$WORKDIR/CONVENTIONS.md" ]
   [ ! -f "$WORKDIR/.windsurfrules" ]
   [ ! -d "$WORKDIR/.cursor" ]
+}
+
+@test "install --parallel --dry-run --all: fake HOME and project remain empty" {
+  cd "$WORKDIR"
+  run bash "$INSTALL" --all --parallel --jobs 2 --dry-run --no-interactive
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -q '\[dry-run\]'
+  local unexpected; unexpected="$(find "$FAKE_HOME" "$WORKDIR" -mindepth 1 -print)"
+  if [[ -n "$unexpected" ]]; then printf '%s\n' "$unexpected" >&2; fi
+  [ -z "$unexpected" ]
+}
+
+@test "install worker: CLI dry-run is honored without exported preview flag" {
+  cd "$WORKDIR"
+  run env ATS_INSTALL_WORKER=1 ATS_INSTALL_TOOL=gemini-cli \
+    bash "$INSTALL" --tool gemini-cli --dry-run --no-interactive
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -q 'Gemini CLI:.*dry-run'
+  local unexpected; unexpected="$(find "$FAKE_HOME" "$WORKDIR" -mindepth 1 -print)"
+  if [[ -n "$unexpected" ]]; then printf '%s\n' "$unexpected" >&2; fi
+  [ -z "$unexpected" ]
+}
+
+@test "install worker: legacy exported DRY_RUN remains read-only" {
+  cd "$WORKDIR"
+  run env ATS_INSTALL_WORKER=1 ATS_INSTALL_TOOL=gemini-cli DRY_RUN=true \
+    bash "$INSTALL" --tool gemini-cli --no-interactive
+  [ "$status" -eq 0 ]
+  local unexpected; unexpected="$(find "$FAKE_HOME" "$WORKDIR" -mindepth 1 -print)"
+  if [[ -n "$unexpected" ]]; then printf '%s\n' "$unexpected" >&2; fi
+  [ -z "$unexpected" ]
+}
+
+@test "install worker: invalid preview context fails before writing" {
+  cd "$WORKDIR"
+  run env ATS_INSTALL_WORKER=1 ATS_INSTALL_TOOL=gemini-cli ATS_INSTALL_DRY_RUN=invalid \
+    bash "$INSTALL" --tool gemini-cli --no-interactive
+  [ "$status" -eq 2 ]
+  local unexpected; unexpected="$(find "$FAKE_HOME" "$WORKDIR" -mindepth 1 -print)"
+  if [[ -n "$unexpected" ]]; then printf '%s\n' "$unexpected" >&2; fi
+  [ -z "$unexpected" ]
+}
+
+@test "install worker: mismatched tool fails before writing" {
+  cd "$WORKDIR"
+  run env ATS_INSTALL_WORKER=1 ATS_INSTALL_TOOL=gemini-cli \
+    bash "$INSTALL" --tool claude-code --no-interactive
+  [ "$status" -eq 2 ]
+  local unexpected; unexpected="$(find "$FAKE_HOME" "$WORKDIR" -mindepth 1 -print)"
+  if [[ -n "$unexpected" ]]; then printf '%s\n' "$unexpected" >&2; fi
+  [ -z "$unexpected" ]
+}
+
+@test "install worker: missing tool argument fails before writing" {
+  cd "$WORKDIR"
+  run env ATS_INSTALL_WORKER=1 ATS_INSTALL_TOOL=gemini-cli \
+    bash "$INSTALL" --no-interactive
+  [ "$status" -eq 2 ]
+  local unexpected; unexpected="$(find "$FAKE_HOME" "$WORKDIR" -mindepth 1 -print)"
+  if [[ -n "$unexpected" ]]; then printf '%s\n' "$unexpected" >&2; fi
+  [ -z "$unexpected" ]
+}
+
+@test "install --parallel: real installation still writes requested fake destinations" {
+  cd "$WORKDIR"
+  run bash "$INSTALL" --tool claude-code --tool gemini-cli --parallel --jobs 2 --no-interactive
+  [ "$status" -eq 0 ]
+  [ -f "$FAKE_HOME/.claude/skills/roles/minimal-agent/SKILL.md" ]
+  [ -f "$FAKE_HOME/.gemini/extensions/alltheskills/gemini-extension.json" ]
 }
 
 # ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 # Contract: Hooks Layer (P0)
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Status:** ACTIVE — authored by orchestrator for the AllTheSkills P0 build
 **Source plan:** `DeepResearch/The-Hive/ecc_deepdive/source-material/14-alltheskills-frontier.md` (P0)
 
@@ -16,7 +16,7 @@ Out of scope (later phases): plan/apply install + profiles + content-hash instal
 
 - Bash, `set -euo pipefail`, **bash 3.2 portable** (macOS default). No `mapfile`, no associative arrays unless guarded.
 - Source shared helpers: `. "$LIB_DIR/term.sh"` for `ats_ok/ats_warn/ats_err/ats_info`; reuse `platform.sh` where useful.
-- Hooks must `exit 0` on disabled state and on non-critical errors (never wedge the host harness). Only the qa-gate intentionally blocks, and only on a real gate failure.
+- Hooks must `exit 0` on disabled state and on non-critical errors (never wedge the host harness). Only the qa-gate intentionally blocks: on a gate failure, malformed report, or unavailable strict enforcement.
 - Blocking hooks must stay fast (<200 ms) except the qa-gate, which runs a python3 validation pass (still sub-second).
 - python3 validation uses **stdlib only** (`json`) — no third-party `jsonschema` dependency. Validate required keys + types structurally against `skills/roles/qe-agent/references/qa-report-schema.json`.
 
@@ -60,9 +60,25 @@ Invoked as a Claude Code **Stop** hook via `run-with-flags.sh qa-gate`.
    - any blocker with `severity == "CRITICAL"`
    - `scores.contract_conformance.score < 3`
    - `scores.security.score < 3`
-5. Blocking mechanism: emit the Claude Code Stop-hook block decision — print JSON `{"decision":"block","reason":"<why>"}` to stdout and `exit 0` (Claude Code's documented Stop-hook contract), and also write the human reason to stderr. Allowing → `exit 0` with no decision.
+5. **Strict proof binding (UA-12):** require `proof_binding` with the active `run_id`, Git `revision`, `source_sha256`, and `contract_sha256`. `build_session_id` must equal the active run. The hook uses `ATS_QA_RUN_ID`, falling back to the host payload's `session_id`; absent context blocks. The project root is `CLAUDE_PROJECT_DIR` (or cwd), and contracts default to its `contracts/` directory (`ATS_QA_CONTRACTS` may select another directory inside the root). The validator recomputes the binding and blocks mismatches, including uncommitted and untracked nonignored changes at the same HEAD. Legacy unbound reports still work under standard/minimal, but cannot certify strict completion. In strict mode the wrapper dispatches QA directly even if manifest discovery fails; a missing QA script blocks unless the hook was explicitly disabled.
+6. **Enforcement failures:** strict mode blocks a missing validator, Python/runtime failure, invalid hook payload, and unexpected validator status. Standard/minimal preserve their permissive policy, emit `UNVERIFIED` for checker failures, and never call those failures a pass. Unknown profiles select strict rather than silently downgrading. Hook diagnostics go to stderr; stdout contains only decision JSON or nothing. If Python is unavailable, the shell emits a fixed valid blocking decision.
+7. **Bounded Stop reentry:** read `stop_hook_active` from the payload as a JSON boolean. If true, return control with `UNVERIFIED` on stderr and no block/allow certification, preventing an endless Stop loop. This is a host escape, not proof of success; the owner must repair the gate/report before treating the build as verified. Keep DV-1's no-read-from-TTY protection and all explicit hook-disable opt-ins.
+8. Blocking mechanism: emit the Claude Code Stop-hook block decision — print JSON `{"decision":"block","reason":"<why>"}` to stdout and `exit 0` (Claude Code's documented Stop-hook contract), and also write the human reason to stderr. Allowing → `exit 0` with no decision.
 
-The validator is pure and unit-testable: `qa-gate-validate.py <report.json>` exits `0` (allow), `1` (block — prints reason to stdout), `2` (malformed/not-found).
+The validator is unit-testable: `qa-gate-validate.py <report.json>` exits `0` (allow), `1` (block — prints reason to stdout), `2` (malformed/not-found/proof unavailable). `FAIL`/`BLOCKED` status blocks even if `gate_decision.proceed` is incorrectly true. `--strict` adds read-only Git/content binding checks; `--snapshot` emits only the current binding JSON.
+
+### Producing strict evidence
+
+The lead supplies the run ID; the verifier captures the binding **before** testing, then compares it after testing and writes it into `proof_binding` only if the source and contract boundary remained unchanged. Set `build_session_id` to that run ID. For example:
+
+```bash
+export ATS_QA_RUN_ID="owner-assigned-build-id"
+export CLAUDE_PROJECT_DIR="$PWD"
+python3 hooks/scripts/qa-gate-validate.py coordination/qa-report.json --snapshot
+python3 hooks/scripts/qa-gate-validate.py coordination/qa-report.json --strict
+```
+
+Do not retrofit fresh hashes onto an old result: rerun verification after any source/contract changes. The digest includes relative names, modes and bytes of Git-tracked and nonignored untracked files, including deleted tracked paths. It excludes the selected QA JSON/narrative pair and the three conventional QA-report pairs to avoid self-reference. Ignored files (including root credentials), external runtime/database state and unsupported symlinks/submodules/special files are not certified by this snapshot; require separate evidence for those boundaries, and strict mode refuses unsupported entries. An empty contract set is bound as empty, not claimed as a passed contract test. Binding establishes freshness, **not authenticity, independent review or proof that tests ran**.
 
 ## 4. Installer emission
 
@@ -78,6 +94,7 @@ The validator is pure and unit-testable: `qa-gate-validate.py <report.json>` exi
 ## 6. Tests (bats, `tests/hooks/`)
 
 Mirror `tests/installer/` conventions (setup_file, mktemp, bash-3.2). Required cases:
+
 - wrapper: a hook in `ATS_DISABLED_HOOKS` is a no-op `exit 0`; profile `minimal` runs only qa-gate; `standard` runs the three; unknown id → `exit 0` with stderr note.
 - qa-gate: PASS fixture (`tests/installer/qa-report.json`) → allow (exit 0, no block JSON). New FAIL fixtures → block for each rule: `proceed=false`, a CRITICAL blocker, `contract_conformance<3`, `security<3`. Malformed JSON → exit 2. Missing report → allow under `standard`, block under `strict`.
 - convert: running convert for claude-code produces `integrations/claude-code/hooks/run-with-flags.sh` (executable) and a `hooks.json` that parses and references `run-with-flags.sh`.
@@ -94,4 +111,5 @@ Mirror `tests/installer/` conventions (setup_file, mktemp, bash-3.2). Required c
 
 ## Changelog
 
+- 1.1.0 — UA-12 strict fail-closed enforcement, run/content/contract binding, JSON-only decisions and bounded Stop reentry; legacy standard/minimal report policy retained.
 - 1.0.0 — initial contract (orchestrator, P0 hooks layer).

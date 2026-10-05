@@ -1,8 +1,8 @@
 ---
 name: skill-creator
-version: 1.0.0
+version: 1.3.0
 description: |
-  Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.
+  Create new skills, modify and improve existing skills, and measure skill performance with Hermes Agent. Use when users want to create a skill from scratch, edit or optimize an existing skill, run trigger evaluations with isolated snapshots and tri-state tracking, or run description optimization loops with strict SO-4 split hygiene (train/dev selection with single-use touch-once held-out test).
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
@@ -45,6 +45,10 @@ Of course, you should always be flexible and if the user is like "I don't need t
 Then after the skill is done (but again, the order is flexible), you can also run the skill description improver, which we have a whole separate script for, to optimize the triggering of the skill.
 
 Cool? Cool.
+
+## Installed resource boundary
+
+Resolve `SKILL_ROOT` from this host's actual installed prompt/resource contract; `agents/`, `assets/`, `eval-viewer/`, `references/` and `scripts/` live together beneath it. Run local helpers by that root (for module imports, execute from `SKILL_ROOT`); never assume Claude home or the project's cwd. Read `.ats-runtime.json` for declared checkout/toolchain requirements. Keep evaluations under the project's `.workspaces/`; provider evaluations still require approved credentials, model and budget. Missing resources/tools block that stage, not a negative eval result. Bundled files prove delivery, not model efficacy. Trigger evaluation requires exact successful `skill_view` trace proof, an observed pinned model and isolated `HOME`/`HERMES_HOME`. Operational errors are UNVERIFIED and stop optimization. No paid run is authorized by loading this skill.
 
 ## Communicating with the user
 
@@ -352,8 +356,8 @@ Create 20 eval queries — a mix of should-trigger and should-not-trigger. Save 
 
 ```json
 [
-  {"query": "the user prompt", "should_trigger": true},
-  {"query": "another prompt", "should_trigger": false}
+  {"query": "a real user task", "should_trigger": true, "provenance": "real"},
+  {"query": "a generated near-miss", "should_trigger": false, "provenance": "synthetic"}
 ]
 ```
 
@@ -399,11 +403,17 @@ python -m scripts.run_loop \
   --verbose
 ```
 
-Use the model ID from your system prompt (the one powering the current session) so the triggering test matches what the user actually experiences.
+Choose the owner-approved endpoint catalog ID for the worker (`--worker-model`) and optimizer (`--model`); never infer account availability from the assistant's identity. Keep a stable `--holdout-state-dir` under `.workspaces/<skill>/` across runs. Explicit cross-provider optimizer/worker choices require provider/privacy/budget approval first.
 
 While it runs, periodically tail the output to give the user updates on which iteration it's on and what the scores look like.
 
-This handles the full optimization loop automatically. It splits the eval set into 60% train and 40% held-out test, evaluates the current description (running each query 3 times to get a reliable trigger rate), then calls the model to propose improvements based on what failed. It re-evaluates each new description on both train and test, iterating up to 5 times. When it's done, it opens an HTML report in the browser showing the results per iteration and returns JSON with `best_description` — selected by test score rather than train score to avoid overfitting.
+This handles the full optimization loop automatically with strict SO-4 split hygiene:
+
+1. Deterministic per-item hashing partitions the eval queries into train, dev (validation), and held-out test sets without split drift.
+2. The loop evaluates the candidate description (running queries across workers with isolated HOME and pinned model), then calls the model to propose improvements based on train failures.
+3. Candidate selection is based strictly on train/dev sets during iteration — the held-out test set is NEVER used to pick the winner.
+4. When optimization completes, real held-out items are atomically consumed before the final check, even if it errors. Persistent query claims and frozen splits prevent reuse or changing ratios/provenance across restarts. Synthetic/missing-provenance items train only. Empty splits block rather than move test items. JSON returns separate selection and final-test scores; `--results-dir` saves JSON and local HTML (no automatic browser launch). Small deltas require repeated trials, not a single lucky score.
+5. `scripts/check_matrix.py` validates frozen F3/F5 receipt records; it never dispatches models. Offline fixture/load success is not live-host efficacy. See `docs/standards/cross-host-matrix-spec.md` in the checkout for the bounded matrix protocol.
 
 ### How skill triggering works in Hermes
 

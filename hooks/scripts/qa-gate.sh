@@ -31,31 +31,60 @@ type ats_err  >/dev/null 2>&1 || ats_err()  { printf '[ERR] %s\n' "$*" >&2; }
 
 VALIDATOR="$HOOK_SCRIPTS_DIR/qa-gate-validate.py"
 
-# Drain stdin (Stop hook payload not needed for the gate decision).
-# Never block on a TTY: a real hook receives its payload via a pipe, so the
-# drain only applies there; a terminal run (or a bats test with inherited
-# stdin) must not hang on an open stdin (DV-1).
+# Read the Stop payload without reviving DV-1's open-TTY hang.
+payload=""
 if [[ ! -t 0 ]]; then
-  cat >/dev/null 2>&1 || true
+  payload="$(cat)"
 fi
 
 active_profile="${ATS_HOOK_PROFILE:-standard}"
 case "$active_profile" in
   minimal|standard|strict) : ;;
-  *) active_profile="standard" ;;
+  *) active_profile="strict" ;; # A typo must not downgrade enforcement.
 esac
 
 # emit_block <reason> — print the Stop-hook block decision and a stderr note.
 emit_block() {
   local reason="$1"
   # JSON-encode the reason safely via python3 (stdlib).
-  python3 -c '
+  if ! python3 -c '
 import json, sys
 print(json.dumps({"decision": "block", "reason": sys.argv[1]}))
-' "$reason"
+' "$reason"; then
+    # Even a missing Python runtime must produce valid blocking JSON.
+    printf '%s\n' '{"decision":"block","reason":"qa-gate runtime unavailable; restore python3 or explicitly disable the hook"}'
+  fi
   ats_err "qa-gate: BLOCK — $reason"
   exit 0
 }
+
+# Check host reentry before blocking: allow the host to stop on the second
+# invocation, but explicitly report UNVERIFIED rather than claiming QA passed.
+if [[ -n "$payload" ]]; then
+  payload_state=""
+  if payload_state="$(python3 -c '
+import json, sys
+p = json.loads(sys.argv[1])
+if not isinstance(p, dict) or not isinstance(p.get("stop_hook_active", False), bool):
+    raise ValueError("invalid Stop payload")
+print("reentry" if p.get("stop_hook_active", False) else "initial")
+' "$payload" 2>/dev/null)"; then
+    if [[ "$payload_state" == "reentry" ]]; then
+      ats_err "qa-gate: UNVERIFIED — Stop-hook reentry; returning control without QA certification"
+      exit 0
+    fi
+    if [[ -z "${ATS_QA_RUN_ID:-}" ]]; then
+      ATS_QA_RUN_ID="$(python3 -c '
+import json, sys
+value = json.loads(sys.argv[1]).get("session_id", "")
+print(value if isinstance(value, str) else "")
+' "$payload")"
+      export ATS_QA_RUN_ID
+    fi
+  elif [[ "$active_profile" == "strict" ]]; then
+    emit_block "invalid Stop-hook payload or Python runtime unavailable"
+  fi
+fi
 
 # --- Locate the report ---
 report=""
@@ -75,25 +104,31 @@ if [[ -z "$report" || ! -f "$report" ]]; then
   if [[ "$active_profile" == "strict" ]]; then
     emit_block "no qa-report.json found (strict profile requires one)"
   fi
-  ats_warn "qa-gate: no qa-report.json found — allowing (profile=$active_profile)"
+  ats_warn "qa-gate: no qa-report.json found — allowing (profile=$active_profile)" >&2
   exit 0
 fi
 
 if [[ ! -f "$VALIDATOR" ]]; then
-  # Cannot validate — non-critical: allow rather than wedge the harness.
-  ats_warn "qa-gate: validator not found at $VALIDATOR — allowing"
+  if [[ "$active_profile" == "strict" ]]; then
+    emit_block "validator not found at $VALIDATOR (strict enforcement unavailable)"
+  fi
+  ats_warn "qa-gate: UNVERIFIED — validator not found at $VALIDATOR — allowing" >&2
   exit 0
 fi
 
 # --- Validate + evaluate gate rules ---
 set +e
-gate_reason="$(python3 "$VALIDATOR" "$report" 2>/dev/null)"
+validator_args=("$report")
+if [[ "$active_profile" == "strict" ]]; then
+  validator_args+=(--strict)
+fi
+gate_reason="$(python3 "$VALIDATOR" "${validator_args[@]}" 2>/dev/null)"
 rc=$?
 set -e
 
 case "$rc" in
   0)
-    ats_ok "qa-gate: report passed the gate — allowing"
+    ats_ok "qa-gate: report passed the gate — allowing" >&2
     exit 0
     ;;
   1)
@@ -103,8 +138,10 @@ case "$rc" in
     emit_block "${gate_reason:-report malformed: not conformant}"
     ;;
   *)
-    # Unexpected validator failure — allow (non-critical) but note it.
-    ats_warn "qa-gate: validator exited $rc unexpectedly — allowing"
+    if [[ "$active_profile" == "strict" ]]; then
+      emit_block "validator exited $rc unexpectedly (strict enforcement unavailable)"
+    fi
+    ats_warn "qa-gate: UNVERIFIED — validator exited $rc unexpectedly — allowing" >&2
     exit 0
     ;;
 esac

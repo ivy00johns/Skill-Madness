@@ -1,6 +1,6 @@
 ---
 name: living-plan
-version: 1.2.1
+version: 1.3.0
 description: |
   Document and set up the living-plan convention: a front door (START-HERE.md), a
   strategic roadmap, tactical ledger, done-archive, and frontier doc, wired to an
@@ -79,7 +79,7 @@ Small projects may collapse layers 2–4 into a single file (e.g. one `PLAN.md` 
 
 Reports don't rot here. Any finished report — deep dive, audit, skill-review, QA findings — enters the living plan via this loop:
 
-```
+```text
 report  →  plan-intake skill  →  proposed entries  →  human approval  →  ledger + closure log
 ```
 
@@ -93,7 +93,7 @@ Intake is one half of keeping the ledger honest; the **completion sweep** is the
 
 The rule: **when an item reaches `done`, it does not stay in the open ledger.** It moves to the completed archive in the same motion that marks it done.
 
-```
+```text
 item ships  →  flip status to done  →  move the row to docs/COMPLETED-WORK.md
             →  add/confirm a one-line entry in the closure log (BUILD-PLAN.md)
 ```
@@ -115,7 +115,8 @@ If a project is small enough that one ledger never gets long, the sweep can be d
 ### Step 1 — Copy the front-door template
 
 ```bash
-cp template/START-HERE.template.md START-HERE.md
+# SKILL_ROOT is this installed skill's resource root, not the project's cwd.
+cp "$SKILL_ROOT/template/START-HERE.template.md" START-HERE.md
 ```
 
 Open `START-HERE.md` and fill every `{{PLACEHOLDER}}`. The ownership map is the most important part: list every planning doc and classify it as canonical, frozen reference, or archived. This is the map new contributors (and future Claude sessions) use to navigate.

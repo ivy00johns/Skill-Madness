@@ -1,11 +1,11 @@
 ---
 name: code-review-agent
-version: 1.5.0
+version: 1.6.0
 disable-model-invocation: true
 description: "Explicitly-invoked read-only code review along two independent axes — Standards (does it follow the repo's conventions + a built-in code-smell baseline) and Spec (does it faithfully implement the originating issue/contract) — run as separate sub-agents and reported side-by-side, never merged into one score. Run on request for a thorough standalone review of a set of files or a diff; not auto-triggered and not an automatic build phase. During an orchestrated build, build-time diff review is handled by the external /code-review CLI, not this skill."
-compatibility: "Claude Code"
+compatibility: "Read/shell host; native isolated Agent lanes when available, explicit sequential fallback otherwise"
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: []
@@ -110,9 +110,7 @@ versa:
   standards docs. Answers exactly: complete? faithful? anything built that
   wasn't asked for?
 
-Both lanes run in parallel. When sub-agent dispatch isn't available, run the
-lanes sequentially in this order — Standards first, then Spec — and do not let
-findings from one lane edit the other's verdict.
+Both lanes run in parallel when isolated read-only sub-agent dispatch is available; preserve the native Agent path. Otherwise use the explicit **solo** branch: run Standards first, then Spec, keep verdicts separate, and mark `independence: UNVERIFIED (same-context sequential review)` in the report. Do not let findings from one lane edit the other's verdict. A self-review after building is only a pre-check; request a fresh reviewer or owner acceptance before treating it as independent certification. The user supplies scope/spec in place of a lead; missing scope/spec still fails fast. Never fabricate Agent calls or relax read-only ownership to simulate independence.
 
 ### 2. Assemble the side-by-side report
 

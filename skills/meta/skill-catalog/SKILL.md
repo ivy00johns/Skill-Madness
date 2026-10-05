@@ -1,6 +1,6 @@
 ---
 name: skill-catalog
-version: 1.0.0
+version: 1.1.0
 description: |
   Keep the Skill-Madness catalog in sync with the filesystem. The published
   plugin.json `skills` array and every advertised skill count (README, CLAUDE.md,
@@ -37,6 +37,10 @@ six files plus a manifest array — drifts every single time. A skill gets added
 the array isn't updated, three of the six counts get bumped and three don't, and
 now the repo disagrees with itself. The fix is to stop treating those numbers as
 facts to maintain and start treating them as *outputs* to generate.
+
+## Runtime boundary
+
+This is checkout-maintenance tooling, not a standalone installed helper. Set `ATS_CHECKOUT_ROOT` to the owner-approved Skill-Madness checkout and run commands there; do not treat `SKILL_ROOT` or an unrelated current project as that checkout. Missing checkout/tooling is BLOCKED. Global sync requires separate approval. The runtime receipt declares this dependency; root scripts and credentials are not silently bundled.
 
 ## The one command
 

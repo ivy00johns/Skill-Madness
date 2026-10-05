@@ -5,9 +5,16 @@ repo so it runs on every commit and in CI — the difference between "we cleaned
 up once" and "it can't come back." Install the layers that fit the repo; tell the
 user which you installed and which you skipped and why.
 
+## Preferred solo/native bootstrap
+
+Resolve both installed skill roots, then preview `scripts/bootstrap_frontend_guards.py --root <project> --class-guard-dir <class-guard-root>`. Obtain scoped consent before adding `--apply`. The bundle creates layout ERROR policy, class/CSS organization enforcement, shared literal source-chrome checks, a local full-source runner and CI. It includes an inactive hook snippet; merge `python3 scripts/frontend-guards/run.py` into existing hook tooling after approval. Optional `--wire-precommit` creates a plain local hook only when no hook manager, existing hook, worktree `.git` file or hooksPath override exists. No global changes or dependency install; conflicts fail before writes. Repeated identical apply is a no-op.
+
+Existing-project config and ratchet choices still require explicit owner review; never overwrite config/baselines or silently downgrade errors. Missing resources, git/read/config failures and setup refusal mean enforcement BLOCKED. Generated output stays outside the authored-source scan. The runtime/visual/independent-review gates remain separate.
+
 ## 1. Write `.design-guard.json`
 
 Copy `assets/design-guard.config.json` to the repo root and tailor it:
+
 - Set `tokenSources` to the project's real token file(s) — explicit, not
   auto-discovered, so CI is deterministic.
 - Turn on any project-specific rules (`no-class-in-svg`, `restricted-radius`,
@@ -38,16 +45,20 @@ The hook scans staged files only, so it's fast and scoped. Choose the wiring tha
 matches the repo:
 
 - **Husky present** (`.husky/`): add to `.husky/pre-commit`:
+
   ```sh
   python3 scripts/check_design_tokens.py --root . --staged --quiet || exit 1
   ```
+
 - **lefthook present** (`lefthook.yml`): add a command:
+
   ```yaml
   pre-commit:
     commands:
       design-token-guard:
         run: python3 scripts/check_design_tokens.py --root . --staged --quiet
   ```
+
 - **Neither** (raw git hook): `cp assets/pre-commit .git/hooks/pre-commit &&
   chmod +x .git/hooks/pre-commit`. Note this isn't version-controlled — prefer
   Husky/lefthook for team repos; the raw hook is fine for a solo repo.
@@ -78,6 +89,7 @@ the server. The checker needs only a Python runtime.
 
 If the repo already has many violations (a legacy codebase), a hard gate will
 block every commit. Two options — pick with the user:
+
 - **Clean then gate** — fix the existing findings in one pass (the checker's
   `value → token` suggestions make most of them mechanical), then turn the gate
   to `error`. Best when the backlog is small.

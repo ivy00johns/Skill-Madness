@@ -23,6 +23,12 @@ teardown() {
   rm -rf "$FIX"
 }
 
+@test "frontend wave: source guards, bootstrap and portable role regressions" {
+  run python3 "$REPO_ROOT/tests/class-extraction-guard/test_frontend_wave.py"
+  if [ "$status" -ne 0 ]; then printf '%s\n' "$output" >&2; fi
+  [ "$status" -eq 0 ]
+}
+
 # _combo_file <path> — a file carrying the same 4-utility combo at 3 call-sites
 # (>= minUtilities 4, >= minRepeats 3, so repeated-class-string fires).
 _combo_file() {

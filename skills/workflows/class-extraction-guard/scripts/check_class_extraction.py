@@ -38,6 +38,7 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
+from frontend_source import css_blocks, declaration_key, fingerprint, mask_comments
 
 # ---------------------------------------------------------------------------
 # Defaults. Everything here is overridable via .class-guard.json at the root.
@@ -49,7 +50,7 @@ from typing import Dict, List, Optional, Tuple
 DEFAULT_CONFIG = {
     "scanExtensions": [
         ".tsx", ".ts", ".jsx", ".js", ".mjs", ".cjs",
-        ".vue", ".svelte", ".astro", ".html",
+        ".vue", ".svelte", ".astro", ".html", ".css", ".php", ".erb", ".heex",
     ],
     "ignoreDirs": [
         "node_modules", ".git", ".next", "dist", "build", "out",
@@ -68,9 +69,14 @@ DEFAULT_CONFIG = {
     # Tokens that mark a string as already-abstracted (named/@apply classes). Used
     # by the opt-in abstraction-defeat rule. Regex, matched per token.
     "namedClassPattern": "",
+    "minDeclarations": 3,
+    "minCssRepeats": 3,
+    "cssAllowlist": [], # {"fingerprint": "...", "reason": "owner-approved rationale"}
+    "sharedLayout": {"tags": ["header", "nav", "footer"], "minRepeats": 2, "allowlist": []},
     "rules": {
         "repeated-class-string": "warning",   # the strong signal: copy-paste soup
         "long-class-string": "off",           # opt-in: one-off mega-strings
+        "duplicate-css-block": "off",
         "abstraction-defeat": "off",          # opt-in: utilities glued onto a named class
     },
 }
@@ -190,17 +196,26 @@ def token_count(value: str) -> int:
 def load_config(root: str, explicit: Optional[str]) -> dict:
     cfg = json.loads(json.dumps(DEFAULT_CONFIG))  # deep copy
     path = explicit or os.path.join(root, ".class-guard.json")
+    if explicit and not os.path.isfile(path):
+        raise ValueError("config not found: %s" % path)
     if os.path.isfile(path):
         try:
             user = json.load(open(path, encoding="utf-8"))
         except (json.JSONDecodeError, OSError) as e:
-            print(f"class-extraction-guard: bad config {path}: {e}", file=sys.stderr)
-            sys.exit(2)
+            raise ValueError("bad config %s: %s" % (path, e))
         for k, v in user.items():
-            if k == "rules" and isinstance(v, dict):
-                cfg["rules"].update(v)
+            if k in ("rules", "sharedLayout") and isinstance(v, dict):
+                cfg[k].update(v)
             else:
                 cfg[k] = v
+    if any(k not in DEFAULT_CONFIG["rules"] or v not in SEVERITY_RANK for k, v in cfg["rules"].items()):
+        raise ValueError("invalid rule/severity")
+    for key in ("minUtilities", "minRepeats", "maxUtilities", "minDeclarations", "minCssRepeats"):
+        if type(cfg[key]) is not int or cfg[key] < 1:
+            raise ValueError("%s must be a positive integer" % key)
+    for entry in cfg["cssAllowlist"]:
+        if not isinstance(entry, dict) or not entry.get("fingerprint") or not entry.get("reason", "").strip():
+            raise ValueError("CSS exception requires fingerprint and reason")
     return cfg
 
 
@@ -220,21 +235,21 @@ def iter_files(root: str, cfg: dict, paths: List[str], staged: bool) -> List[str
                 ["git", "-C", root, "rev-parse", "--show-toplevel"],
                 capture_output=True, text=True, check=True,
             ).stdout.strip()
+            top = os.path.realpath(top)
             out = subprocess.run(
-                ["git", "-C", root, "diff", "--cached", "--name-only", "--diff-filter=ACM"],
+                ["git", "-C", root, "diff", "--cached", "--name-only", "-z", "--diff-filter=ACMR"],
                 capture_output=True, text=True, check=True,
-            ).stdout.split("\n")
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            return []
+            ).stdout.split("\0")
+        except (subprocess.CalledProcessError, FileNotFoundError) as exc:
+            raise ValueError("cannot list staged files: %s" % exc)
         root_real = os.path.realpath(root)
         staged_files: List[str] = []
         for p in out:
-            p = p.strip()
             if not p or not p.endswith(exts):
                 continue
             if set(p.split("/")) & ignore:
                 continue
-            ap = os.path.realpath(os.path.join(top, p))
+            ap = os.path.abspath(os.path.join(top, p))
             if ap == root_real or ap.startswith(root_real + os.sep):
                 staged_files.append(ap)
         return staged_files
@@ -247,12 +262,14 @@ def iter_files(root: str, cfg: dict, paths: List[str], staged: bool) -> List[str
             if t.endswith(exts):
                 found.append(t)
             continue
-        for dirpath, dirnames, filenames in os.walk(t):
+        if not os.path.exists(t):
+            raise ValueError("scan path does not exist: %s" % t)
+        for dirpath, dirnames, filenames in os.walk(t, onerror=lambda e: (_ for _ in ()).throw(e)):
             dirnames[:] = [d for d in dirnames if d not in ignore]
             for fn in filenames:
                 if fn.endswith(exts):
                     found.append(os.path.join(dirpath, fn))
-    return found
+    return sorted(set(found))
 
 
 # ---------------------------------------------------------------------------
@@ -347,13 +364,18 @@ def analyze(strings: List[ClassString], cfg: dict, baseline: set) -> List[Findin
 # Baseline (ratchet mode)
 # ---------------------------------------------------------------------------
 def load_baseline(path: Optional[str]) -> set:
-    if not path or not os.path.isfile(path):
+    if not path or not os.path.exists(path):
         return set()
+    if not os.path.isfile(path):
+        raise ValueError("baseline is not a file: %s" % path)
     try:
         data = json.load(open(path, encoding="utf-8"))
-        return set(data.get("normalized", []))
-    except (json.JSONDecodeError, OSError):
-        return set()
+        keys = data.get("normalized", [])
+        if not isinstance(keys, list) or any(not isinstance(k, str) for k in keys):
+            raise ValueError("baseline normalized keys must be strings")
+        return set(keys)
+    except (json.JSONDecodeError, OSError) as exc:
+        raise ValueError("cannot read baseline: %s" % exc)
 
 
 def write_baseline(path: str, strings: List[ClassString], cfg: dict) -> None:
@@ -364,6 +386,40 @@ def write_baseline(path: str, strings: List[ClassString], cfg: dict) -> None:
         groups[normalize(cs.raw)] = groups.get(normalize(cs.raw), 0) + 1
     keys = [k for k, n in groups.items() if n >= cfg["minRepeats"]]
     json.dump({"normalized": sorted(keys)}, open(path, "w", encoding="utf-8"), indent=2)
+
+
+def analyze_css(sources, cfg):
+    severity = cfg["rules"].get("duplicate-css-block", "off")
+    if severity == "off":
+        return []
+    groups = {}
+    for rel, text in sources:
+        chunks = [(text, 0, (rel,) if rel.endswith(".module.css") else ())] if rel.endswith(".css") else [
+            (m.group(2), text.count("\n", 0, m.start(2)),
+             (rel,) if re.search(r"\b(?:scoped|module)\b", m.group(1)) or rel.endswith(".svelte") else ())
+            for m in re.finditer(r"<style\b([^>]*)>(.*?)</style\s*>", mask_comments(text), re.S | re.I)]
+        for chunk, base_line, isolation in chunks:
+            for selector, body, scope, offset in css_blocks(chunk):
+                scope = isolation + scope
+                # Compare only equal-specificity simple classes in equal scope.
+                # @keyframes, nesting and complex selectors are outside this rule.
+                if not re.fullmatch(r"\.[\w-]+", selector) or any("keyframes" in s for s in scope):
+                    continue
+                key = declaration_key(body)
+                if len(key) < cfg["minDeclarations"]:
+                    continue
+                groups.setdefault((scope, key), []).append((rel, base_line + chunk.count("\n", 0, offset) + 1, selector))
+    allowed = {entry["fingerprint"] for entry in cfg["cssAllowlist"]}
+    findings = []
+    for key, sites in groups.items():
+        if len(sites) < cfg["minCssRepeats"] or fingerprint(key) in allowed:
+            continue
+        sites = sorted(sites)
+        first = sites[0]
+        findings.append(Finding("duplicate-css-block", severity, first[0], first[1],
+                                fingerprint(key), len(sites), ["%s:%d %s" % s for s in sites],
+                                "identical CSS declarations under equivalent simple-class/scope boundaries — extract one shared class; fingerprint=%s" % fingerprint(key)))
+    return findings
 
 
 # ---------------------------------------------------------------------------
@@ -382,19 +438,23 @@ def main(argv: Optional[List[str]] = None) -> int:
     args = ap.parse_args(argv)
 
     root = os.path.abspath(args.root)
+    if not os.path.isdir(root):
+        raise ValueError("root is not a directory: %s" % root)
     cfg = load_config(root, args.config)
     files = iter_files(root, cfg, args.paths, args.staged)
 
+    sources = []
     all_strings: List[ClassString] = []
     scanned = 0
     for fp in files:
         try:
-            text = open(fp, encoding="utf-8", errors="replace").read()
-        except OSError:
-            continue
+            text = open(fp, encoding="utf-8", errors="strict").read()
+        except OSError as exc:
+            raise ValueError("cannot read scan source %s: %s" % (fp, exc))
         scanned += 1
         rel = os.path.relpath(fp, root)
-        all_strings.extend(extract_class_strings(text, rel))
+        sources.append((rel, text))
+        all_strings.extend(extract_class_strings(mask_comments(text), rel))
 
     if args.write_baseline:
         bpath = args.baseline or os.path.join(root, ".class-guard-baseline.json")
@@ -403,7 +463,9 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 0
 
     baseline = load_baseline(args.baseline or os.path.join(root, ".class-guard-baseline.json"))
-    findings = analyze(all_strings, cfg, baseline)
+    if args.baseline and not os.path.isfile(args.baseline):
+        raise ValueError("explicit baseline not found: %s" % args.baseline)
+    findings = analyze(all_strings, cfg, baseline) + analyze_css(sources, cfg)
 
     errors = sum(1 for f in findings if f.severity == "error")
     warnings = sum(1 for f in findings if f.severity == "warning")
@@ -417,7 +479,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         }, indent=2))
     elif not args.quiet:
         if not findings:
-            print(f"class-extraction-guard: clean ({len(files)} files scanned)")
+            print(f"class-extraction-guard: clean ({scanned} files scanned)")
         else:
             for f in sorted(findings, key=lambda x: (-x.count, x.file)):
                 tag = "ERROR" if f.severity == "error" else "warn "
@@ -428,10 +490,16 @@ def main(argv: Optional[List[str]] = None) -> int:
                     print(f"        sites: {', '.join(f.occurrences[:8])}"
                           + (" …" if len(f.occurrences) > 8 else ""))
             print(f"\nclass-extraction-guard: {errors} error(s), {warnings} warning(s), "
-                  f"{len(files)} files scanned")
+                  f"{scanned} files scanned")
 
     return 1 if errors > 0 else 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except (OSError, ValueError, TypeError, KeyError, AttributeError, re.error, subprocess.SubprocessError) as exc:
+        if "--json" in sys.argv:
+            print(json.dumps({"status": "blocked", "error": str(exc)}))
+        print("class-extraction-guard: inspection blocked: %s" % exc, file=sys.stderr)
+        sys.exit(2)

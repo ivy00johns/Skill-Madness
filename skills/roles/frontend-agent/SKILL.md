@@ -1,11 +1,11 @@
 ---
 name: frontend-agent
-version: 1.6.0
+version: 1.7.0
 disable-model-invocation: true
-description: "Orchestrator-dispatched only. Builds user interfaces, client-side state, and presentation layers for multi-agent builds. Composes with frontend-design and ui-ux-pro-max for visual quality. Not user-invocable."
-compatibility: "Claude Code; requires Bash + Node toolchain"
+description: "Build user interfaces, client-side state and presentation layers in native orchestrator dispatch or explicitly requested solo frontend work. Use for UI implementation, responsive layouts and shared page shells; invoke frontend source guards before done. Not auto-triggered."
+compatibility: "Read/edit/shell host; project toolchain plus Python 3 for source guards; native Claude dispatch retained"
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: ["src/components/", "src/pages/", "src/hooks/", "src/styles/", "public/"]
@@ -18,7 +18,7 @@ spawned_by: ["orchestrator"]
 
 # Frontend Agent
 
-> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. UI implementation feeds into qe-agent UX/contract_conformance scores. Owns: `src/components/`, `src/pages/`, `src/hooks/`, `src/styles/`, `public/`.
+> **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. UI evidence feeds qe-agent correctness/contract_conformance scores; visual review remains separate. Owns: `src/components/`, `src/pages/`, `src/hooks/`, `src/styles/`, `public/`.
 
 Build the user interface, client-side state, and presentation layer. You consume the API contract — you do not define it.
 
@@ -30,7 +30,12 @@ This skill assumes a contract-first multi-agent build model:
 - Each role-agent consumes a machine-readable contract from `/contracts/`
 - `qe-agent` gates the build via `qa-report.json`
 
-For single-agent or ad-hoc work, this skill is not the right tool.
+### Execution mode — choose before following the pipeline
+
+- **Native dispatched mode:** when the orchestrator supplied the role packet, keep its ownership, Agent/teams/Workflow choices, handoffs and mandatory QE order unchanged.
+- **Explicit solo mode:** the user supplies scope, acceptance criteria, stack and approved paths instead of a lead. Read existing contracts; if a boundary is missing, ask for it rather than inventing one. Use read/edit/shell tools actually available; role names are responsibility boundaries, not instructions to spawn unavailable agents. Honor other owners' boundaries and request approval before shared-file edits. Build one bounded slice, then run the same validation checklist. Ask the owner to arrange contract-auditor → independent QE/reviewer after your pre-check. Same-context self-review is not independent certification; report missing reviewers/tools as BLOCKED or UNVERIFIED, never fabricate a gate pass.
+
+Keep `disable-model-invocation` so activation remains explicit on native Claude; portable exports/manual loading enable the solo branch without enabling automatic dispatch.
 
 ## Non-Negotiable Rules
 
@@ -71,6 +76,12 @@ Before writing any code, read all contract files:
 - **Shared types** — mirror or import these for type safety
 - **README domain rules** — business logic the frontend must respect (e.g., tag case-normalization, state machine transitions)
 - **README implementation notes** — frontend-specific guidance (libraries, patterns, type generation)
+
+### 0a. Invoke source guards before building (native and solo)
+
+Read the installed `design-token-guard` and `class-extraction-guard` skills, resolving their actual roots from this host (never assume `~/.claude`). Before CSS/page generation, request consent to run the project-local bootstrap documented in design-token-guard. Preview first; `--apply` creates a runner, strict layout config, CSS organization policy, shared-source-chrome checker and CI. Merge its invocation into existing pre-commit tooling only after approval; never replace user hooks. If guards/resources are missing or setup is declined, report enforcement BLOCKED and do not claim a guarded build.
+
+Use one owning header/nav/footer component/partial/include and a shared shell. Validate representative routes before multiplying pages. Run `python3 scripts/frontend-guards/run.py` after each UI slice and before done (full source tree, not only changed pages). Nonzero status, including inspection errors, blocks guarded completion. Dynamic CSS custom-property inputs are allowed; opaque style objects need review/refactoring. Source checks do not replace the visible mobile/desktop proof below.
 
 ### 1. Scaffold the Project
 
@@ -182,4 +193,4 @@ Focus indicators, labels on inputs, descriptive button text, alt text, keyboard 
 
 Run the complete checklist in `references/validation-checklist.md` before reporting done. Fix all failures.
 
-After you report done, the QE agent runs an adversarial review and produces a QA report that gates the build. Your self-validation is a pre-check — not the final gate.
+In native dispatched mode, QE runs the adversarial final gate after your pre-check. In solo mode, report the actual source/type/test/two-width proof and request independent verification; if unavailable, label the handoff UNVERIFIED rather than claiming QE passed.

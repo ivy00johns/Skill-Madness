@@ -29,6 +29,9 @@ setup_file() {
     cp "$SCRIPTS_DIR/lib/slug.sh"        "$REPO/scripts/lib/slug.sh"
     cp "$SCRIPTS_DIR/lib/term.sh"        "$REPO/scripts/lib/term.sh"
     cp "$SCRIPTS_DIR/lib/platform.sh"    "$REPO/scripts/lib/platform.sh"
+    cp "$SCRIPTS_DIR/lib/resource_delivery.py" "$REPO/scripts/lib/resource_delivery.py"
+    cp "$SCRIPTS_DIR/lib/capability_resolver.py" "$REPO/scripts/lib/capability_resolver.py"
+    cp "$SCRIPTS_DIR/lib/standard_export.py" "$REPO/scripts/lib/standard_export.py"
     cp -r "$FIXTURE_SKILLS"              "$REPO/skills"
   done
 
@@ -64,6 +67,9 @@ setup_file() {
   cp "$SCRIPTS_DIR/lib/slug.sh"        "$FAKEREPO_SKIP/scripts/lib/slug.sh"
   cp "$SCRIPTS_DIR/lib/term.sh"        "$FAKEREPO_SKIP/scripts/lib/term.sh"
   cp "$SCRIPTS_DIR/lib/platform.sh"    "$FAKEREPO_SKIP/scripts/lib/platform.sh"
+  cp "$SCRIPTS_DIR/lib/resource_delivery.py" "$FAKEREPO_SKIP/scripts/lib/resource_delivery.py"
+  cp "$SCRIPTS_DIR/lib/capability_resolver.py" "$FAKEREPO_SKIP/scripts/lib/capability_resolver.py"
+  cp "$SCRIPTS_DIR/lib/standard_export.py" "$FAKEREPO_SKIP/scripts/lib/standard_export.py"
   cp -r "$FIXTURE_SKILLS"              "$FAKEREPO_SKIP/skills"
 
   OUTDIR_SKIP="$(mktemp -d /tmp/ats-skip.XXXXXX)"

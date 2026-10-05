@@ -67,6 +67,14 @@ A skill claiming **Extended** conformance:
 
 ### Parser requirements
 
+The closed JSON Schema is a **strict authoring validator**, not a loader contract.
+Loaders accept and retain unknown fields; lint rejects undeclared author fields.
+Native Claude copies keep PSFS arrays and metadata unchanged. Standard `SKILL.md`
+exports use `scripts/lib/standard_export.py`: `allowed-tools` becomes a space-delimited
+string, metadata becomes a string-to-string map, and extension values are encoded
+under `psfs.*` metadata keys. Exported names cannot end in a hyphen or contain
+consecutive hyphens. These export types do not change canonical native array types.
+
 - A PSFS parser operating at Core tier MUST accept and ignore frontmatter keys it does
   not recognize. This is what lets an Extended skill load unchanged under a Core-only
   parser, and what lets future PSFS versions add fields without breaking older parsers.
@@ -99,7 +107,7 @@ parsed YAML *values*, so block-scalar indicators like `description: >` or
 
 | Field | Required | Type | Constraints | Semantics |
 |-------|----------|------|-------------|-----------|
-| `name` | MUST | string | kebab-case `^[a-z][a-z0-9-]*$`, ≤64 chars, matches folder name, unique within the collection | Stable identifier for the skill. |
+| `name` | MUST | string | kebab-case `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`, ≤64 chars, matches folder name, unique within the collection | Stable identifier for the skill. |
 | `version` | MUST | string | semver `^\d+\.\d+\.\d+$` | Top-level semantic version. See Skill Versioning below. |
 | `description` | MUST | string | present, ≤1024 chars, no `<`/`>`; ≤200 chars RECOMMENDED | Primary trigger text. Claude reads this to decide whether to invoke the skill: `[what it does] + [when to use] + [key capabilities/keyword variants]`. |
 | `compatibility` | MAY | string | 1–500 chars, no `<`/`>` | Human-readable declaration of host, required packages, network, and MCP servers. For programmatic gating use the `requires_*` booleans. |
@@ -131,6 +139,10 @@ conformance.
 | `owns` | object | OPTIONAL object; see owns note below | Ownership declaration for agent role skills. |
 | `composes_with` | string[] | each item no `<`/`>` | Other skill names this one naturally works with (informational). Plugin-external refs use a `plugin:name` prefix. |
 | `spawned_by` | string[] | each item no `<`/`>` | Which skills spawn this one. Plugin-external refs use a `plugin:name` prefix. |
+| `requires_capabilities` | string[] | each item no `<`/`>` | Semantic capabilities required for execution (e.g. `read_files`, `write_files`, `run_shell`). |
+| `optional_capabilities` | string[] | each item no `<`/`>` | Optional capabilities that enhance execution if available. |
+| `refuse_if` | string[] | each item no `<`/`>` | Condition identifiers under which execution must be refused (e.g. `unattended_without_budget_enforcement`). |
+| `execution_modes` | object | mapping of mode names to mode configs | Named execution modes with capability prerequisites, adapter references, and quality ratings. |
 
 **owns note.** `owns` is an OPTIONAL object with three OPTIONAL properties, each an array
 of strings (no other properties are permitted):

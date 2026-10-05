@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 from scripts.utils import parse_skill_md
@@ -29,16 +30,21 @@ def _call_hermes(prompt: str, model: str | None = None, timeout: int = 300) -> s
     if model:
         cmd.extend(["-m", model])
 
-    env = {k: v for k, v in os.environ.items()}
-
-    result = subprocess.run(
-        cmd,
-        input=prompt,
-        capture_output=True,
-        text=True,
-        env=env,
-        timeout=timeout,
-    )
+    if not model:
+        raise ValueError('Optimizer model must be explicitly pinned')
+    with tempfile.TemporaryDirectory(prefix='hermes-optimizer-') as temporary:
+        root = Path(temporary)
+        home = root / 'home'
+        hermes_home = home / '.hermes'
+        hermes_home.mkdir(parents=True)
+        (hermes_home / '.no-bundled-skills').write_text('isolated optimizer\n')
+        env = dict(os.environ, HOME=str(home), USERPROFILE=str(home), HERMES_HOME=str(hermes_home),
+                   XDG_CONFIG_HOME=str(home / '.config'), PYTHONDONTWRITEBYTECODE='1')
+        for key in ('HERMES_PROFILE', 'HERMES_CONFIG', 'HERMES_ENV', 'HERMES_YOLO_MODE'):
+            env.pop(key, None)
+        cmd.extend(['--ignore-user-config', '--ignore-rules', '--max-turns', '1', '--run-budget', str(timeout), '-t', 'skills'])
+        result = subprocess.run(cmd, input=prompt, capture_output=True, text=True,
+                                cwd=root, env=env, timeout=timeout)
     if result.returncode != 0:
         raise RuntimeError(
             f"hermes chat exited {result.returncode}\nstderr: {result.stderr}"
@@ -63,6 +69,10 @@ def improve_description(
     iteration: int | None = None,
 ) -> str:
     """Call Hermes to improve the description based on eval results."""
+    if test_results is not None or any(any(k.startswith('test_') for k in h) for h in history):
+        raise ValueError('Held-out results must never reach the optimizer')
+    if eval_results['summary'].get('errored', 0):
+        raise ValueError('Execution errors are not description failures')
     failed_triggers = [
         r for r in eval_results["results"]
         if r["should_trigger"] and not r["pass"]

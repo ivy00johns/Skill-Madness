@@ -10,14 +10,19 @@ the other. Wire this one the same three ways design-token-guard is wired.
 | design-token-guard | source | token-system bypasses, hardcoded colors, inline styles | how styling is *organized* |
 | class-extraction-guard | source | the same utility combo repeated inline instead of extracted | anything wrong only at runtime; value-level token bypasses |
 
+## Current native/solo gate
+
+After the consented design-token-guard bootstrap, run `python3 scripts/frontend-guards/run.py` on the **full authored source tree** after each UI slice and at the wave/done gate. This invokes layout, utility/CSS duplication and shared-source-chrome checks. Any nonzero exit, including blocked inspection, fails the gate. Resolve actual installed skill roots; never assume Claude home. The individual snippets below are diagnostic/legacy integration examples, not substitutes for the full cross-file runner.
+
 ## 1. Frontend-agent self-check (before reporting done)
 
 Add to the frontend-agent's done criteria, parallel to the design-token-guard
 self-check:
 
 ```bash
-python3 ~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py \
+python3 <class-guard-root>/scripts/check_class_extraction.py \
   --root . --json src/components/<the-files-it-touched> > /tmp/ceg.json
+# Check the command exit before parsing JSON; any nonzero status blocks.
 # If a rule is set to "error" and .summary.errors > 0, the task is NOT done:
 # extract the repeated combo into a named class/component and re-run.
 ```
@@ -35,8 +40,10 @@ test + `design-token-guard` — add this check for any wave that touched UI. Sam
 deterministic, parse-once shape, same failure routing:
 
 ```bash
-python3 ~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py \
+python3 <class-guard-root>/scripts/check_class_extraction.py \
   --root . --json > /tmp/ceg.json
+RC=$?
+if [ "$RC" -ne 0 ]; then cat /tmp/ceg.json; exit "$RC"; fi
 ERRORS=$(python3 -c "import json;print(json.load(open('/tmp/ceg.json'))['summary']['errors'])")
 # ERRORS > 0  →  block the wave (only when a rule is "error"), route findings back
 #               to the owning frontend-agent by file (each finding has file/line).

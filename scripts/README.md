@@ -11,14 +11,39 @@ All three scripts are portable (bash 3.2+ on macOS, bash 4+ on Linux) and determ
 ## Installation Prerequisites
 
 - **bash** 3.2+ (macOS), 4.0+ (Linux) — tested on macOS 12+, Ubuntu 20.04+, Windows Git Bash
-- **python3** with PyYAML — required by lint-skills.sh for YAML parsing (used by convert.sh and install.sh indirectly via lib/frontmatter.sh). Install with `pip3 install pyyaml`.
+- **Python 3.9+** with PyYAML — required for YAML parsing and fail-closed capability/standard-export adapters. Delivery helpers use stdlib; creator helpers require Python 3.10+. Use project-local dependencies. Optional `jsonschema` enables the author-schema check; absent schema validation is reported, not host acceptance.
 - **bats-core** — only if running the test suite (`tests/installer/`). Not required to run convert/install/lint.
+
+## Resource delivery and runtime roots
+
+Current conversion emits `.ats-resources.json` inventories and `.ats-runtime.json`
+per-skill receipts. Verbose skill lint reports regular-file count/bytes, literal local
+resource references, external skill/checkout dependencies and missing resources.
+Missing local resources or blocked inspection fail; generated project outputs and
+context-qualified external references are distinct from bundled files. This narrow
+source check does not parse every executable path or certify a host's runtime. Scripts, assets, creator agents/viewer, templates and nested
+references retain one runnable root. Flat prompts have `<slug>-resources/`
+companions; Aider/Windsurf resources install under `.ats-skills/<tool>/skills/`.
+Resolve `SKILL_ROOT` explicitly; checkout-maintenance helpers require approved
+`ATS_CHECKOUT_ROOT`, never a guessed Claude home. Credentials are explicit process
+input / owner-selected `ATS_ENV_FILE`, never distributed. Python 3.9+ stdlib is
+required for delivery helpers; skill-specific runtimes may require newer versions.
+
+Both installers verify the same bytes/modes. Reviewed plan/state schema **2**
+binds destination root and byte/mode preconditions; apply blocks stale sources,
+symlink/escape destinations and intervening edits, rolls back I/O failures and
+merges owned state. Old plans require regeneration/review. `--include-hooks`
+adds native hook files without settings activation. Drift/repair preserve modes;
+uninstall refuses edited files. Legacy classic integrations warn if manifests
+are absent. See [the delivery contract](../contracts/installer/resource-delivery.md)
+for exclusions, profiles, atomicity limits and separate global-install approval.
 
 ## scripts/convert.sh
 
 **Purpose:** Convert canonical SKILL.md files from `skills/**/` into 11 tool-specific output formats and write them to `integrations/<tool>/`.
 
 **Usage:**
+
 ```bash
 scripts/convert.sh [--tool <name>] [--out <dir>] [--parallel] [--jobs N] [--help]
 ```
@@ -27,13 +52,14 @@ scripts/convert.sh [--tool <name>] [--out <dir>] [--parallel] [--jobs N] [--help
 
 | Flag | Argument | Default | Effect |
 |---|---|---|---|
-| `--tool` | NAME | all | Convert for a single tool only. Repeatable: `--tool cursor --tool aider`. Valid names: `claude-code`, `copilot`, `antigravity`, `gemini-cli`, `opencode`, `cursor`, `openclaw`, `qwen`, `kimi`, `aider`, `windsurf`, `all` |
+| `--tool` | NAME | all | Convert for a single tool only; use `all` for all targets. Valid names: `claude-code`, `copilot`, `antigravity`, `gemini-cli`, `opencode`, `cursor`, `openclaw`, `qwen`, `kimi`, `aider`, `windsurf`, `all` |
 | `--out` | DIR | `integrations/` | Override output base directory |
 | `--parallel` | — | — | Run per-tool conversions concurrently (only with `--tool all`). Use `--jobs` to set worker count. |
 | `--jobs` | N | nproc (Linux) or sysctl (macOS) | Parallel worker count. Ignored unless `--parallel` is set. |
 | `--help` | — | — | Print help and exit |
 
 **Exit Codes:**
+
 - `0` — success
 - `1` — at least one per-skill conversion error
 - `2` — argument parsing error
@@ -71,8 +97,9 @@ See `contracts/installer/per-tool-output-spec.md` for the full specification. Su
 # Convert for a single tool
 ./scripts/convert.sh --tool cursor
 
-# Convert multiple tools explicitly
-./scripts/convert.sh --tool cursor --tool aider
+# Convert individual tools explicitly
+./scripts/convert.sh --tool cursor
+./scripts/convert.sh --tool aider
 
 # Convert in parallel (all tools, 8 workers)
 ./scripts/convert.sh --parallel --jobs 8
@@ -86,6 +113,7 @@ See `contracts/installer/per-tool-output-spec.md` for the full specification. Su
 **Purpose:** Copy converted skill artifacts from `integrations/` to the appropriate config directories for each tool. Detects installed tools, offers an interactive selector, and handles conflicts gracefully.
 
 **Usage:**
+
 ```bash
 scripts/install.sh [OPTIONS] [TOOL ...]
 ```
@@ -105,6 +133,7 @@ scripts/install.sh [OPTIONS] [TOOL ...]
 | `--help` | — | — | Print help and exit |
 
 **Exit Codes:**
+
 - `0` — all requested installations succeeded
 - `1` — at least one installation failed
 - `2` — argument parsing error or preflight failure (e.g., missing `integrations/`)
@@ -131,7 +160,7 @@ scripts/install.sh [OPTIONS] [TOOL ...]
 
 When stdin is a TTY and no explicit tool is specified, the installer shows an ASCII menu:
 
-```
+```text
 +----------------------------------------------------+
 |  Skill Madness -- Skill Installer       |
 +----------------------------------------------------+
@@ -156,6 +185,7 @@ System scan:  [*] = detected on this machine
 ```
 
 Navigation:
+
 - Type `1-11` to toggle a tool's checkbox
 - Type `a` to select all, `n` to deselect all, `d` to select only detected
 - Press Enter to proceed with checked tools
@@ -200,7 +230,7 @@ Navigation:
 
 A disciplined alternative to `install.sh` that adds a dry-runnable operation
 list, recorded install-state with content hashes, drift detection, uninstall,
-and named profiles. It runs **alongside** `install.sh` (which is unchanged) and
+and named profiles. It runs **alongside** `install.sh` (which shares the resource inventory) and
 resolves the same source→destination matrix (`contracts/installer/install-locations.md`)
 from `integrations/`. Three scripts, plus `manifests/profiles.json`.
 
@@ -233,13 +263,15 @@ No filesystem mutation. Emits:
 
 ```json
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "root": "/approved/root",
   "generated_at": "…Z",
   "profile": "minimal",
   "tools": ["claude-code"],
   "operations": [
     { "tool": "claude-code", "source": "…", "dest": "…",
-      "action": "create|overwrite|skip", "sha256": "…" }
+      "action": "create|overwrite|skip", "sha256": "…", "mode": 493,
+      "dest_sha256": null, "dest_mode": null }
   ]
 }
 ```
@@ -294,6 +326,7 @@ Tests: `tests/install-plan/` (bats) — `bats tests/install-plan`.
 **Purpose:** Validate all `skills/**/SKILL.md` files against the canonical frontmatter schema, body quality guidelines, and cross-skill invariants. This is the CI gate — errors block PR merges.
 
 **Usage:**
+
 ```bash
 scripts/lint-skills.sh [OPTIONS] [PATH ...]
 ```
@@ -313,6 +346,7 @@ scripts/lint-skills.sh [OPTIONS] [PATH ...]
 - `PATH` — optional. Directory (recurse into all SKILL.md files) or individual SKILL.md file. Defaults to `skills/` if not given.
 
 **Exit Codes:**
+
 - `0` — no errors (warnings allowed)
 - `1` — at least one error
 - `2` — argument parsing failure
@@ -338,7 +372,7 @@ See `contracts/installer/lint-rules.md` for the authoritative reference and seve
 
 **Output Format (text):**
 
-```
+```text
 Linting 46 skills...
 
 ERROR  skills/roles/backend-agent/SKILL.md:2  name 'backend' does not match directory 'backend-agent'

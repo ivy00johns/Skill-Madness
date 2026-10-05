@@ -1,6 +1,6 @@
 ---
 name: loop-controller
-version: 1.2.1
+version: 1.4.0
 description: >-
   Wrap any task in a verifiable stop condition plus a mandatory guardrail stack
   so an autonomous loop converges instead of thrashing or burning the budget —
@@ -191,15 +191,19 @@ termination is.
    into the `/goal` condition — `/goal` has no native cap). This is the primary
    backstop when the proof is never met.
 2. **Token / cost budget with enforcement.** A ceiling that *terminates* the
-   loop, not just warns. `/goal` has no built-in budget — embed a turn cap and
-   watch `/cost`; dynamic workflows take an explicit token budget; bash loops
-   need an external counter. A 50-iteration run on a large codebase can cost
-   $50–100+. The number that actually tells you whether the loop is worth running
-   is **cost per *accepted* result**, not tokens spent or iterations run: a loop
-   that opens five PRs where you merge one, or emits a daily report no one reads,
-   can cost more than doing the work by hand. Track yield, not spend — a low
-   accept rate means the loop is manufacturing review debt, and the fix is a
-   tighter proof (Step 2), not a bigger budget.
+   loop, not just warns. `/goal` has no built-in budget — embed an explicit turn
+   cap and abort condition; watching `/cost` in prompt prose is advisory only, not
+   hard cancellation. Unattended or bash/Ralph execution requires an **external
+   process wrapper** enforcing max calls, wall-clock timeout, token budget, and
+   process locks with `SIGTERM`/`SIGKILL` cancellation. Unattended runs must
+   produce a durable proof artifact and run within external budget ceilings. A
+   50-iteration run on a large codebase can cost $50–100+. The number that
+   actually tells you whether the loop is worth running is **cost per *accepted*
+   result**, not tokens spent or iterations run: a loop that opens five PRs where
+   you merge one, or emits a daily report no one reads, can cost more than doing
+   the work by hand. Track yield, not spend — a low accept rate means the loop is
+   manufacturing review debt, and the fix is a tighter proof (Step 2), not a
+   bigger budget.
 3. **No-progress / oscillation detection.** Stop if iterations stop changing
    state, or if output repeats (≥~90% similarity to a recent iteration), or if
    token use grows quadratically rather than linearly. Thrashing and budget
@@ -207,9 +211,10 @@ termination is.
 4. **HITL checkpoint before anything irreversible.** Pause for a human before a
    DB write, a deploy, an external API call, a force-push. Unattended loops run
    only what is reversible and has a hard verifier.
-5. **Checkpoint commits.** Commit working state every iteration with a
-   descriptive message. On a wedged codebase, `git reset --hard` to the last
-   green checkpoint and re-loop is usually cheaper than rescuing it.
+5. **Durable checkpoints.** Save working files, diff and proof receipts every
+   iteration. Commit only when the owner has authorized commits. Never reset,
+   discard another worker's changes, or delete work as an automatic recovery
+   step; propose an exact scoped rollback and obtain approval first.
 6. **Never let the loop weaken its own gate.** Forbid editing or deleting tests
    to make them pass, silencing a check with an ignore directive, or relocating
    a violation into the checker's blind spot. A green that came from moving the
@@ -219,6 +224,18 @@ termination is.
 The full stack — including the `stop_hook_active` guard for Stop-hook loops, the
 oscillation thresholds, and the staged-adoption / rollback ladder — is in
 `references/safety.md`.
+
+### Executable external controller
+
+Use `scripts/run_guarded.py` from the actual `SKILL_ROOT` for POSIX bounded
+adapters. It reserves worst-case call/token/cost liability **before dispatch**,
+checks a frozen verifier manifest before/during/after commands, uses an exclusive
+lock, and cancels the whole process group at the wall-time ceiling. Failed calls
+keep their reservations; consumed state cannot be restarted with reset counters.
+Read `references/safety.md` for the budget/manifest interface and proof boundary.
+A command with unknown internal calls or cost is BLOCKED: this wrapper is not a
+provider traffic meter. Native primitives without a verified hard-bound adapter
+still refuse unattended use. Completion of bounded dispatches is not task/QE acceptance.
 
 ## Step 4 — Externalize state (so iterations are stateless)
 

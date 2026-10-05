@@ -29,6 +29,8 @@
 # ACKNOWLEDGMENTS.md at the repo root.
 
 set -euo pipefail
+# Preview must not populate Python bytecode caches in HOME/project/source.
+export PYTHONDONTWRITEBYTECODE=1
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIB_DIR="$SCRIPT_DIR/lib"
@@ -43,7 +45,16 @@ INTEGRATIONS="$REPO_ROOT/integrations"
 
 ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode cursor openclaw qwen kimi aider windsurf)
 
-DRY_RUN=false
+# Only worker invocations inherit the parent's parsed preview choice.
+if [[ "${ATS_INSTALL_WORKER:-}" == "1" ]]; then
+  DRY_RUN="${ATS_INSTALL_DRY_RUN:-${DRY_RUN:-false}}"
+  case "$DRY_RUN" in
+    true|false) : ;;
+    *) ats_err "Invalid installer worker dry-run context"; exit 2 ;;
+  esac
+else
+  DRY_RUN=false
+fi
 
 # OPT-IN: merge the converted ats-hooks (hooks.json) into ~/.claude/settings.json
 # during a claude-code install. Default OFF (no-change) — the installer only ever
@@ -86,10 +97,14 @@ install_file() {
 
   # If files are identical, skip silently (or note at --verbose)
   if [[ -f "$dst" ]] && cmp -s "$src" "$dst"; then
-    return 0
+    python3 - "$src" "$dst" <<'PY'
+import os, stat, sys
+os.chmod(sys.argv[2], stat.S_IMODE(os.stat(sys.argv[1]).st_mode))
+PY
+    return $?
   fi
 
-  cp "$src" "$dst"
+  cp -p "$src" "$dst" || return 1
   printf '[install] updated %s\n' "$dst"
 }
 
@@ -816,8 +831,64 @@ install_windsurf() {
   ats_warn "Windsurf: project-scoped. Run from your project root."
 }
 
+install_manifest_tool() {
+  local t="$1" listing src dest
+  listing="$(ats_mktemp_file)"
+  if ! python3 "$LIB_DIR/resource_delivery.py" destinations --tool-root "$INTEGRATIONS/$t" \
+      --tool "$t" --home "$HOME" --project "$PWD" > "$listing"; then
+    rm -f "$listing"; return 1
+  fi
+  # Validate all destination boundaries before copying the first file.
+  if ! python3 - "$listing" "$HOME" "$PWD" "$LIB_DIR" <<'PY'
+import os, sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[4])
+from resource_delivery import contained
+paths = Path(sys.argv[1]).read_bytes().split(b'\0')[:-1]
+for raw in paths[1::2]:
+    dest = Path(os.fsdecode(raw))
+    root = Path(os.path.abspath(sys.argv[2])) if Path(os.path.abspath(sys.argv[2])) in dest.parents else Path(os.path.abspath(sys.argv[3]))
+    # Native sync-managed skill directories remain opt-out; installer never follows.
+    parents = []
+    for p in dest.parents:
+        if p == root: break
+        parents.append(p)
+    if any(p.is_symlink() for p in parents):
+        if '/.claude/skills/' in str(dest): continue
+        raise ValueError('symlinked destination parent: ' + str(dest))
+    if not dest.is_symlink(): contained(dest, root)
+PY
+  then rm -f "$listing"; return 1; fi
+  if [[ "$t" == "aider" && -e "$PWD/CONVENTIONS.md" ]] || [[ "$t" == "windsurf" && -e "$PWD/.windsurfrules" ]]; then
+    if ! $DRY_RUN; then ats_err 'target exists; remove or rename before install'; rm -f "$listing"; return 1; fi
+  fi
+  while IFS= read -r -d '' src && IFS= read -r -d '' dest; do
+    if [[ "$t" == "claude-code" && "$src" == "$INTEGRATIONS/claude-code/hooks"* ]]; then continue; fi
+    if [[ "$t" == "claude-code" ]]; then
+      local skill_path="${dest#"$HOME/.claude/skills/"}" cat slug
+      cat="${skill_path%%/*}"; skill_path="${skill_path#*/}"; slug="${skill_path%%/*}"
+      if [[ -L "$HOME/.claude/skills/$cat" || -L "$HOME/.claude/skills/$cat/$slug" ]]; then
+        printf '[install] skipped %s (managed by /sync-skills)\n' "$slug" >&2; continue
+      fi
+    fi
+    install_file "$src" "$dest" || { rm -f "$listing"; return 1; }
+  done < "$listing"
+  rm -f "$listing"
+  if [[ "$t" == "claude-code" ]]; then install_hooks_claude_code || return 1; fi
+  if $DRY_RUN; then
+    if [[ "$t" == "gemini-cli" ]]; then ats_ok 'Gemini CLI: resource inventory (dry-run)'; else ats_ok "$t: resource inventory (dry-run)"; fi
+  else
+    ats_ok "$t: resource inventory installed"
+  fi
+}
+
 install_tool() {
   local t="$1"
+  if [[ -f "$INTEGRATIONS/$t/.ats-resources.json" ]]; then
+    install_manifest_tool "$t"
+    return $?
+  fi
+  ats_warn "$t: legacy integrations lack a resource manifest; regenerate for resource-closed delivery"
   case "$t" in
     claude-code)  install_claude_code  ;;
     copilot)      install_copilot      ;;
@@ -833,15 +904,6 @@ install_tool() {
     *)            ats_err "Unknown tool: $t"; return 1 ;;
   esac
 }
-
-# ---------------------------------------------------------------------------
-# Worker entry point (parallel mode)
-# When ATS_INSTALL_WORKER=1, run a single tool and exit, suppressing TUI.
-# ---------------------------------------------------------------------------
-if [[ "${ATS_INSTALL_WORKER:-}" == "1" && -n "${ATS_INSTALL_TOOL:-}" ]]; then
-  install_tool "${ATS_INSTALL_TOOL}"
-  exit 0
-fi
 
 # ---------------------------------------------------------------------------
 # Main
@@ -885,6 +947,17 @@ main() {
   done
 
   check_integrations
+
+  # Workers still parse CLI flags and validate tools before installing. An
+  # explicit --dry-run must never be bypassed by this internal entry point.
+  if [[ "${ATS_INSTALL_WORKER:-}" == "1" ]]; then
+    if [[ ${#explicit_tools[@]} -ne 1 || "${explicit_tools[0]:-}" != "${ATS_INSTALL_TOOL:-}" ]]; then
+      ats_err "Installer worker requires one matching --tool"
+      exit 2
+    fi
+    install_tool "${explicit_tools[0]}"
+    return $?
+  fi
 
   if $DRY_RUN; then
     ats_header "Skill Madness -- Skill Installer (DRY RUN)"
@@ -948,15 +1021,14 @@ main() {
     tools_list="$(ats_mktemp_file)"
     for t in "${SELECTED_TOOLS[@]}"; do printf '%s\n' "$t"; done > "$tools_list"
 
-    # Propagate the opt-in wiring choice: workers bypass main's arg parsing and
-    # read WIRE_HOOKS from ATS_WIRE_HOOKS at load time.
-    if $WIRE_HOOKS; then export ATS_WIRE_HOOKS=1; fi
-    export ATS_INSTALL_WORKER=1 INTEGRATIONS DRY_RUN REPO_ROOT
-    # shellcheck disable=SC2016 # single quotes: xargs shell expansion
+    # Propagate parsed preview/wiring choices to workers explicitly.
+    export ATS_INSTALL_DRY_RUN="$DRY_RUN"
+    if $WIRE_HOOKS; then export ATS_WIRE_HOOKS=1; else export ATS_WIRE_HOOKS=0; fi
+    # Pass paths as arguments, never splice them into shell source (spaces in
+    # worktree paths are ordinary data). Workers inherit the preview flag.
     xargs -P "$parallel_jobs" -I {} sh -c \
-      'ATS_INSTALL_TOOL="{}" ATS_INSTALL_WORKER=1 '"$SCRIPT_DIR"'/install.sh --tool "{}" --no-interactive > "'"$install_out_dir"'/{}" 2>&1' \
-      < "$tools_list"
-    unset ATS_INSTALL_WORKER
+      'ATS_INSTALL_TOOL="$3" ATS_INSTALL_WORKER=1 bash "$1" --tool "$3" --no-interactive > "$2/$3" 2>&1' \
+      _ "$SCRIPT_DIR/install.sh" "$install_out_dir" {} < "$tools_list"
 
     for t in "${SELECTED_TOOLS[@]}"; do
       [[ -f "$install_out_dir/$t" ]] && cat "$install_out_dir/$t"

@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-version: 1.18.0
+version: 1.21.0
 description: |
   Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow" ask, it drives the implement + verify phases with the Workflow tool — fanning out role-agents against the contracts and adversarially verifying instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, or splitting work across Claude sessions. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
@@ -56,9 +56,9 @@ The orchestrator is the conductor — not the only player. It composes with thre
 - **RUNS the validation phases AS LOOPS (not one-shot checks)** — the canonical loop-harness mapping: the wave gate and the QA gate are convergence loops. `fix-until-green` is the contract for driving install/typecheck/test/QA red→green *without cheating the gate* — the QE inner loop and the wave-gate driver; `loop-controller` is the underlying harness (iterate → evaluate → guardrail → stop) whose no-progress/oscillation guardrail *is* the 3-failure circuit breaker and whose iteration/budget caps bound wave-gate retries. Under native Agent Teams, `orchestrator-task-loop` drives the whole-task-list OUTER loop (drain the shared task list until every task is completed + passing its `TaskCompleted` gate, feeding idle workers via `TeammateIdle`), with `fix-until-green` as each task's INNER loop. All three are `disable-model-invocation: true` — you **explicitly dispatch** them; they never auto-trigger because a test happened to fail. See `skills/loops/`.
 - **DISPATCHES four more build loops when the mission calls for them:** `contract-conformance-loop` (build-until-spec, graded by a fresh-context evaluator), `coverage-loop` (a test-coverage target), `perf-loop` (a performance budget), and `migration-loop` (an enumerated wide-refactor set). All four are `loop-controller` configs and `disable-model-invocation: true` — the **mission text** is their trigger, and you are their dispatcher. Dispatch table: `references/phase-guide.md` (Phase 13's *Optional build loops*).
 
-<what-to-do>
+## Execution instructions
 
-You are the **lead coordinator** for a Claude Code Agent Team build. Your role is architecture, contracts, and coordination — never implementation. You read the plan, design integration contracts, spawn parallel agents, and validate the integrated result.
+You are the **lead coordinator** for a Claude Code Agent Team build. In native parallel modes your role is architecture, contracts, and coordination — never implementation. In explicitly selected attended-sequential mode, the bounded BUILD_SLICE role packet authorizes implementation within its frozen ownership; the sequential reference takes precedence over native-only spawn rules. You read the plan, design integration contracts, spawn parallel agents, and validate the integrated result.
 
 **Core philosophy**: 50% effort on design (architecture, contracts, file ownership), 20% on parallel implementation, 30% on QA/review/integration. Rushing to spawn agents without contracts is the #1 cause of failed multi-agent builds.
 
@@ -151,7 +151,7 @@ mechanical/high-volume roles tier down to the cheapest model that clears the bar
 ONE provider's ladder, and **pass `model` and `effort` explicitly on every spawn** — per-agent
 defaults resolve to the session-start model, which goes stale after `/model`.
 
-**Sequential mode**: When neither Agent Teams nor subagent spawning is available, work through each role one at a time within a single session. Apply the relevant role skill as your own instructions for that phase. The user may need to coordinate context resets between roles. Contracts and validation still apply — only the parallelism changes.
+**Sequential mode**: When neither Agent Teams nor subagent spawning is available, or when attended single-agent execution is selected, operate according to `references/sequential-execution.md`. Work through bounded role packets one at a time within a machine-checkable state transition graph (`DISCOVER → SCOPE_APPROVED → CONTRACTS_FROZEN → READY_QUEUE → BUILD_SLICE → WAVE_VERIFY → REVIEW_PACKET → INDEPENDENT_QE`). Apply each role skill's exact ownership boundaries and checklists. Refuse unbounded unattended fallback; unattended runs require external wrapper constraints (timeouts, locks, budget caps). Independent verification is mandatory — same-context roleplay cannot self-certify release without disclosing unverified independence. Contracts and validation still apply — only the scheduling changes.
 
 ## Dynamic Workflows (ultracode)
 
@@ -183,7 +183,7 @@ Directory ownership takes precedence over pattern ownership. Subdirectory carve-
 
 ## Coordination Rules
 
-- **Never implement code yourself** — you are coordination only
+- **Native parallel modes: never implement code yourself** — coordination only. Attended-sequential mode permits only the approved BUILD_SLICE role packet.
 - **All inter-agent communication goes through you**
 - **Async, long-lived subagents where the build allows (Claude 5 family).** "Communication
   goes through you" governs *contract and shared-file changes* — it is not a mandate to block
@@ -197,7 +197,7 @@ Directory ownership takes precedence over pattern ownership. Subdirectory carve-
 
 ## QE Agent Is Mandatory
 
-Every orchestrated build **must** spawn a QE agent. Testing is not optional. Even if the plan document does not mention testing, you are responsible for spawning a QE agent that writes and runs tests covering the built code. The QE agent should be spawned after implementation agents complete (or in parallel if contracts are sufficient to write tests against). A build without tests is an incomplete build — the Definition of Done cannot be satisfied without a passing QA gate.
+Every native parallel orchestrated build **must** spawn a QE agent. Attended-sequential builds instead require a separate session/reviewer or human QE against the same frozen criteria; missing independence blocks ACCEPTED, never silently waives verification. Testing is not optional. Even if the plan document does not mention testing, you are responsible for ensuring tests cover the built code. In native parallel mode, spawn QE after implementation agents complete (or in parallel if contracts are sufficient to write tests against); in attended-sequential mode, deliver the frozen criteria and proof packet to the independent reviewer. A build without tests is an incomplete build — the Definition of Done cannot be satisfied without a passing QA gate.
 
 ## Validation Sequence
 
@@ -209,6 +209,8 @@ Every orchestrated build **must** spawn a QE agent. Testing is not optional. Eve
 6. **QA gate** — QE agent's `qa-report.json` must pass gate rules
 
 ## Workspace Bootstrap
+
+For UI projects, the bootstrap wave invokes frontend-agent's consented `design-token-guard` project bundle before any UI authoring. Run its layout ERROR profile, class/CSS declaration organization checks and shared source-chrome checker at every UI wave and final DoD; any nonzero exit (including blocked inspection) routes by ownership. Preserve native teams/Agent/Workflow and mandatory independent QE; the local runner augments these, never replaces them. Do not overwrite hook managers or install globally. See the guard's `references/scaffolding.md` for preview/apply and explicit hook consent.
 
 Any project with more than a single source file requires a root `README.md` and (for multi-service projects) a one-command `dev` script at the workspace root. The README's commands must actually run. See `references/workspace-bootstrap.md` for the required sections and the per-stack dev-aggregator table.
 
@@ -289,9 +291,7 @@ ALL must be true:
 16. **Collision-free ports** — the root `dev` script preflights each port and steps to the next free one instead of dying on `EADDRINUSE`, and no source or test file hardcodes a literal dev port (services read the resolved port from env). See `references/port-conventions.md`.
 17. **End-state report** — a single file (e.g., `BUILD_RESULTS.md` or the build's git commit summary) lists what shipped, what was deferred, the mission skill checklist state, and explicit handoff items for the user. The user should be able to read this file and know exactly where the build stopped. **If the build is scaffold-only (mock-backed, the real value path unexercised), that is the report's headline — stated plainly at the top, not buried in a deferrals list.**
 
-</what-to-do>
-
-<supporting-info>
+## Supporting information
 
 ## Reference Documents
 
@@ -306,5 +306,3 @@ ALL must be true:
 - **`references/port-conventions.md`** — the house port map, per-service bands, and the preflight/next-free allocation rule (with a `free_port` helper) that keeps a freshly-generated project from crashing on `EADDRINUSE` on its first `dev` run. Why `3000` is never an API port.
 - **`references/circuit-breaker.md`** — the 3-failure circuit breaker for agent dispatch (= `loop-controller`'s no-progress guardrail). The loop-harness mapping — which build loops are configs of which loop skills — lives in the Composition section's RUNS-AS-LOOPS bullet.
 - **`references/handoff-protocol.md`** — context-window handoff protocol for long-running builds.
-
-</supporting-info>

@@ -42,4 +42,6 @@ The gate is only as honest as the state it runs in. A "green" that came from a d
 
 ## Wire source-convention gates at bootstrap, not at the end
 
+For UI waves, invoke frontend-agent's consented project bundle before authoring and run `python3 scripts/frontend-guards/run.py` after each wave: layout ERROR policy, utility/CSS duplication and literal shared-source chrome checks. Treat all nonzero exits (including inspection errors) as blocking; run full authored source, not generated output or only changed files. Preserve native ownership-based routing and mandatory independent QE. The local runner augments native enforcement; setup refusal/resources missing are BLOCKED, not passed. See design-token-guard's scaffolding reference for safe hook integration.
+
 `design-token-guard` and any lint / strict-type / convention gate is cheapest when it exists **before the first line of UI is written**. Scaffold its config + pre-commit hook + CI step in the bootstrap wave. Then the first frontend-agent commit is already checked and the gate can hard-fail from day one — instead of being retrofitted onto a fleet of finished files, where it inherits a backlog, can only run report-only ("ratchet") to avoid blocking the whole build, and leaves a manual multi-file burndown for later. Retrofitting works, but the burndown it creates is pure avoidable cost.

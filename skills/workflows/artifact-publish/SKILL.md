@@ -1,6 +1,6 @@
 ---
 name: artifact-publish
-version: 1.0.1
+version: 1.1.0
 description: |
   Publish a visual or interactive deliverable as a Claude Code Artifact — a self-contained HTML/Markdown file rendered to a hosted, default-private claude.ai web page the user can share with a link — instead of leaving it as a local file. Use whenever a result reads better as a page than as text: a dashboard, rendered report, chart or diagram, comparison, prototype, walkthrough, or mockup you built in code. Trigger on "publish this as an artifact", "make a shareable link", "host this page", "turn this into a web page", "claude artifact", "publish the dashboard", "share this report as a page", "give me a link to this", "put this on claude.ai". This is the Claude Code Artifact feature (code.claude.com), NOT the claude.ai design canvas (that is claude-design-brief). It is the publish step for the visual-output skills — interactive-doc, mermaid-charts, dataviz, nano-banana — and defers all look-and-feel to the artifact-design skill.
 requires_agent_teams: false
@@ -43,7 +43,7 @@ Do **not** publish when:
 - a **plain-text answer** is enough — just answer inline
 - the content contains **secrets, credentials, or data the user hasn't okayed** for an external service
 
-**Publishing is outward-facing.** Even a default-private Artifact is hosted on claude.ai and may be cached or indexed. For anything the user might consider private or sensitive, confirm before you publish — the same discipline you'd apply to any action that sends content off the machine.
+**Publishing is outward-facing.** Skill activation or a request for a local page grants no upload authority. Before publication, confirm the exact artifact, destination/account, audience/access policy and any private-data egress. An explicit publish request covering those particulars may provide that consent; otherwise present a local preview and wait. Public sharing, changing access policy, replacing another artifact, or publishing sensitive content requires its own scoped approval.
 
 ## The mechanics (short version)
 
@@ -61,7 +61,7 @@ The full tool contract — every parameter, the CSP rules, conflict handling, an
 1. **Load `artifact-design`** for design calibration.
 2. **Get the content** — build it, or take it from a producing skill (see Composition).
 3. **Write it to a file** as self-contained HTML (or Markdown). Put scratch pages in the session scratchpad unless the user wants the source kept somewhere specific.
-4. **Confirm if it's sensitive** — publishing is outward-facing.
+4. **Confirm scoped publication authority** — exact content, destination/account and access policy; default to local preview if not approved.
 5. **Call the Artifact tool** with the file path, an emoji `favicon`, a one-sentence `description`, and a stable title in the file.
 6. **Return the URL.** To iterate: edit the *same* file and re-publish to the *same* path → same URL, new version.
 

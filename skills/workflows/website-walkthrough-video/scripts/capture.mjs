@@ -10,7 +10,7 @@
 // Standalone:  node capture.mjs --config site.json
 // Library:     import { capture } from './capture.mjs'; await capture(config)
 
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, unlinkSync } from 'node:fs';
 import { join, isAbsolute, dirname } from 'node:path';
 
 // Sensible presets. A site config usually only needs baseUrl + routes; these fill the rest.
@@ -65,6 +65,22 @@ async function waitForImages(page, ms = 20000) {
     .catch(() => {});
 }
 
+export const CAPTURE_LIMITS = Object.freeze({ maxRoutes: 20, maxHeight: 8000, maxDecodedBytes: 250 * 1024 * 1024 });
+
+export function checkCaptureBounds(width, height, scale = 1) {
+  if (![width, height, scale].every((n) => Number.isFinite(n) && n > 0)) throw new Error('Invalid capture dimensions');
+  const decodedBytes = Math.ceil(width * scale) * Math.ceil(height * scale) * 4;
+  if (height * scale > CAPTURE_LIMITS.maxHeight || decodedBytes > CAPTURE_LIMITS.maxDecodedBytes) {
+    throw new Error(`Capture refused: ${width}x${height}@${scale}, ${decodedBytes} decoded bytes; use scoped routes or viewport tiles (never stitch an oversized image)`);
+  }
+  return decodedBytes;
+}
+
+async function verifyPageBounds(page, mode) {
+  const size = await page.evaluate(() => ({ width: Math.max(document.documentElement.scrollWidth, window.innerWidth), height: Math.max(document.documentElement.scrollHeight, document.body.scrollHeight, window.innerHeight) }));
+  checkCaptureBounds(size.width, size.height, mode.deviceScaleFactor ?? 1);
+}
+
 async function autoScroll(page) {
   // Walk down the page in steps so IntersectionObserver / lazy <img> loaders all fire,
   // then snap back to the top for a clean full-page shot.
@@ -72,7 +88,13 @@ async function autoScroll(page) {
     await new Promise((resolve) => {
       let y = 0;
       const step = Math.max(300, Math.floor(window.innerHeight * 0.8));
+      const started = Date.now();
       const timer = setInterval(() => {
+        if (Date.now() - started > 10000 || document.documentElement.scrollHeight > 8000) {
+          clearInterval(timer);
+          resolve();
+          return;
+        }
         window.scrollBy(0, step);
         y += step;
         if (y >= document.body.scrollHeight + window.innerHeight) {
@@ -92,6 +114,7 @@ async function settle(page, settleMs) {
   // and FOUT-swaps late) and every <img> having decoded (lazy tiles report complete only
   // after their bytes land). Both are best-effort — a stalled image must not block a shoot.
   await page.evaluate(async () => {
+    await Promise.race([new Promise((resolve) => setTimeout(resolve, 20000)), (async () => {
     await (document.fonts ? document.fonts.ready.catch(() => {}) : Promise.resolve());
     await Promise.all(
       Array.from(document.images)
@@ -101,11 +124,13 @@ async function settle(page, settleMs) {
           img.addEventListener('error', res, { once: true });
         }))
     );
+    })()]);
   }).catch(() => {});
   await page.waitForTimeout(settleMs);
 }
 
 export async function capture(config) {
+  if (!Array.isArray(config.routes) || config.routes.length === 0 || config.routes.length > CAPTURE_LIMITS.maxRoutes) throw new Error('Capture requires 1–20 routes');
   let chromium;
   try {
     ({ chromium } = await import('playwright'));
@@ -125,6 +150,10 @@ export async function capture(config) {
     const base = DEFAULT_MODES.find((d) => d.name === m.name) || {};
     return { ...base, ...m };
   });
+  // A failed recapture must never leave an old success receipt for new inputs.
+  const receiptPath = join(outDir, 'manifest.json');
+  if (existsSync(receiptPath)) unlinkSync(receiptPath);
+  for (const mode of modes) checkCaptureBounds(mode.width, mode.winHeight, mode.deviceScaleFactor ?? 1);
   const routes = config.routes.map((r, i) => {
     const path = typeof r === 'string' ? r : r.path;
     const slug = (typeof r === 'object' && r.slug) || slugify(path);
@@ -175,12 +204,15 @@ export async function capture(config) {
         try {
           await page.goto(url, { waitUntil: 'load', timeout });
         } catch {
-          await page.goto(url, { waitUntil: 'domcontentloaded', timeout }).catch(() => {});
+          // Retrying navigation is valid; swallowing both failures would capture
+          // a browser error/previous route and falsely seal a successful receipt.
+          await page.goto(url, { waitUntil: 'domcontentloaded', timeout });
         }
         await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
         // Inject before the scroll so forced-visible rules are in effect while lazy content
         // and observers fire, not bolted on after the layout has already settled around them.
         if (injectCss) await page.addStyleTag({ content: injectCss }).catch(() => {});
+        await verifyPageBounds(page, mode);
         await forceEagerImages(page);
         await autoScroll(page);
         await forceEagerImages(page); // catch <img> added during the scroll
@@ -190,7 +222,12 @@ export async function capture(config) {
           const css = await page.evaluate(() => getComputedStyle(document.body).backgroundColor).catch(() => null);
           bg = rgbToHex(css) || DEFAULT_BG;
         }
-        await page.screenshot({ path: join(outDir, file), fullPage: true });
+        await verifyPageBounds(page, mode); // lazy/infinite growth must not bypass the bound
+        const screenshotPath = join(outDir, file);
+        await page.screenshot({ path: screenshotPath, fullPage: true, timeout });
+        const png = readFileSync(screenshotPath);
+        if (png.length < 24 || png.readUInt32BE(0) !== 0x89504e47) throw new Error('Invalid screenshot PNG');
+        checkCaptureBounds(png.readUInt32BE(16), png.readUInt32BE(20), 1);
         clips.push({ file, label: route.label });
         console.log(`    ${file}  (${route.label})`);
       }
