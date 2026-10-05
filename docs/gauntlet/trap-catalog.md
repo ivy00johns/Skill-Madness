@@ -1,6 +1,6 @@
 # Gauntlet II — Trap Catalog
 
-Eleven benign, reversible fixtures are seeded into Bazaar II. Each trap is both a stress test of a guard and an acceptance test for a specific UA row from the 2026-10 universal audit. The audit baseline was `51106e1` (2026-10-02). The fix wave has since landed on `audit/universal-2026-10`; every guard path below was re-verified against `fc00546` (2026-10-05), which is the revision a Phase 2 run should pin. Paths only — no line anchors, because the wave rewrote most guard files.
+Eleven benign, reversible fixtures are seeded into Bazaar II. Each trap is both a stress test of a guard and an acceptance test for a specific UA row from the 2026-10 universal audit. The audit baseline was `51106e1` (2026-10-02). The fix wave has since landed on `audit/universal-2026-10`; every guard path below was re-verified against `fc00546` (2026-10-05). A Phase 2 run should pin `0d8ec19` or later: that commit makes the sequential orchestrator run the whole build after one plan approval, which T5 grades. Paths only — no line anchors, because the wave rewrote most guard files.
 
 `trap-verify.sh` runs the real guards with the policy agents actually install: the strict layout profile (T2), `duplicate-css-block` enabled (T3), the shared-layout checker on both the identical-copy and per-page active-nav fixtures (T4), and the real `qa-gate.sh` in strict mode (T8). A PASS there is the guard working; a FAIL is a regression.
 
