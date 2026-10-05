@@ -1,6 +1,6 @@
 ---
 name: contract-auditor
-version: 1.3.0
+version: 1.3.1
 description: "Audit implementations against integration contracts before runtime integration testing, in native orchestrator dispatch or explicitly requested solo static review. Read code/contracts and report mismatches; never run the app or change implementation."
 requires_agent_teams: false
 requires_claude_code: false
@@ -31,7 +31,7 @@ This skill assumes a contract-first multi-agent build model:
 
 ### Execution mode
 
-**Native dispatched:** preserve the orchestrator/loop role packet and static-audit → QE order. When dispatched as a fresh-context loop evaluator, keep no Write/Edit tools and return findings to the controller. **Explicit solo:** the user supplies scope, real contracts and approved output path instead of a lead; read implementation and report without changing it. Missing contracts block conformance claims. Write only the requested audit report. If you built the implementation in this same context, disclose `independence: UNVERIFIED` and request a fresh reviewer before independent certification. No native spawn/team tools are required for this static solo pass; role names below designate responsibilities and missing runtime QE must be reported BLOCKED, not passed.
+**Dispatched** (the orchestrator supplied a role packet — natively, or in its sequential mode on any host): preserve the orchestrator/loop role packet and static-audit → QE order. When dispatched as a fresh-context loop evaluator, keep no Write/Edit tools and return findings to the controller. **Explicit solo:** the user supplies scope, real contracts and approved output path instead of a lead; read implementation and report without changing it. Missing contracts block conformance claims. Write only the requested audit report. If you built the implementation in this same context, disclose `independence: UNVERIFIED` and request a fresh reviewer before independent certification. No native spawn/team tools are required for this static solo pass; role names below designate responsibilities and missing runtime QE must be reported BLOCKED, not passed.
 
 ## Role
 

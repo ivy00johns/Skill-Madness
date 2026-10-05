@@ -1,6 +1,6 @@
 ---
 name: frontend-agent
-version: 1.7.1
+version: 1.7.2
 disable-model-invocation: true
 description: "Build user interfaces, client-side state and presentation layers in native orchestrator dispatch or explicitly requested solo frontend work. Use for UI implementation, responsive layouts and shared page shells; invoke frontend source guards before done. Load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/edit/shell host; project toolchain plus Python 3 for source guards; native Claude dispatch retained"
@@ -32,7 +32,7 @@ This skill assumes a contract-first multi-agent build model:
 
 ### Execution mode — choose before following the pipeline
 
-- **Native dispatched mode:** when the orchestrator supplied the role packet, keep its ownership, Agent/teams/Workflow choices, handoffs and mandatory QE order unchanged.
+- **Dispatched mode:** when the orchestrator supplied the role packet (natively, or in its sequential mode on any host), keep its ownership, Agent/teams/Workflow choices, handoffs and mandatory QE order unchanged.
 - **Explicit solo mode:** the user supplies scope, acceptance criteria, stack and approved paths instead of a lead. Read existing contracts; if a boundary is missing, ask for it rather than inventing one. Use read/edit/shell tools actually available; role names are responsibility boundaries, not instructions to spawn unavailable agents. Honor other owners' boundaries and request approval before shared-file edits. Build one bounded slice, then run the same validation checklist. Ask the owner to arrange contract-auditor → independent QE/reviewer after your pre-check. Same-context self-review is not independent certification; report missing reviewers/tools as BLOCKED or UNVERIFIED, never fabricate a gate pass.
 
 Keep `disable-model-invocation` so activation remains explicit on native Claude; portable exports/manual loading enable the solo branch without enabling automatic dispatch.

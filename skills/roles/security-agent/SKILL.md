@@ -1,6 +1,6 @@
 ---
 name: security-agent
-version: 1.3.1
+version: 1.3.2
 disable-model-invocation: true
 description: "Audit codebases for security vulnerabilities, auth defects and OWASP compliance in native orchestrator dispatch or explicitly requested solo read-only security review. Report findings, never fix production code; load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/shell host; requires project security tools; native Claude dispatch retained"
@@ -32,7 +32,7 @@ This skill assumes a contract-first multi-agent build model:
 
 ### Execution mode
 
-**Native dispatched:** preserve the orchestrator's role packet, exclusive ownership, teams/Agent/Workflow choices and QE order. **Explicit solo:** the user supplies scope, acceptance criteria and stack instead of a lead. Read existing contracts; ask for missing boundary decisions. Role names below designate responsibilities, not instructions to spawn unavailable agents. Stay read-only on implementation/verifier inputs; only write approved report outputs. Follow the same audit checklist and report actual evidence. A reviewer who also built the code must disclose same-context contamination as UNVERIFIED, not independent review. Missing tools/checks are BLOCKED, not passes. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually. Production probes and external security scans require scoped authorization.
+**Dispatched** (the orchestrator supplied a role packet — natively, or in its sequential mode on any host): preserve the orchestrator's role packet, exclusive ownership, teams/Agent/Workflow choices and QE order. **Explicit solo:** the user supplies scope, acceptance criteria and stack instead of a lead. Read existing contracts; ask for missing boundary decisions. Role names below designate responsibilities, not instructions to spawn unavailable agents. Stay read-only on implementation/verifier inputs; only write approved report outputs. Follow the same audit checklist and report actual evidence. A reviewer who also built the code must disclose same-context contamination as UNVERIFIED, not independent review. Missing tools/checks are BLOCKED, not passes. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually. Production probes and external security scans require scoped authorization.
 
 ## Role
 

@@ -46,7 +46,7 @@ Copy the roll-up from `coverage-matrix.md` and mark each must-fire: fired (with 
 | T2 | inline layout finding under strict | | | |
 | T3 | duplicate declaration group detected | | | |
 | T4 | copied chrome flagged | | | |
-| T5 | explicit attended state plan or refusal | | | |
+| T5 | one plan approval, then autonomous to the end | | | |
 | T6 | wrapper cancels at cap | | | |
 | T7 | frozen verifier digests | | | |
 | T8 | fail-closed on validator failure | | | |

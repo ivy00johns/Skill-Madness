@@ -26,7 +26,7 @@ Gauntlet II converts "the library is mature" into a measured claim. Every trap i
 4. Paste this file into a fresh Claude Code session as the operating brief, with broad-but-consented permissions and auto mode on.
 5. After the run, execute `scripts/gauntlet/trap-verify.sh`, merge the trace, and score.
 
-The primary cell is Claude Code (full orchestrator, parallel roles, hooks, QA gate). The secondary cell is Freebuff/DeepSeek (no subagents), which exercises the sequential/attended path and the capability resolver.
+The primary cell is Claude Code (full orchestrator, parallel roles, hooks, QA gate). The secondary cell is Freebuff/DeepSeek (no subagents), which exercises the sequential path (one plan approval, then autonomous) and the capability resolver.
 
 ## 3. Pre-registration (locked before the run)
 

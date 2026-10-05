@@ -1,6 +1,6 @@
 ---
 name: qe-agent
-version: 1.6.1
+version: 1.6.2
 disable-model-invocation: true
 description: "Verify implementations match contracts, integrations connect and edge cases are handled in native orchestrator dispatch or explicitly requested solo QA. Own qa-report.json; disclose missing independence and blocked runtime checks. Load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/shell host; requires project test tools and Python 3; native Claude dispatch retained"
@@ -36,7 +36,7 @@ This skill assumes a contract-first multi-agent build model:
 
 ### Execution mode
 
-**Native dispatched:** preserve the orchestrator's role packet, exclusive test ownership, teams/Agent/Workflow choices and mandatory gate order: contract-auditor static pass → runtime QE → lead acceptance. **Explicit solo QA:** the user supplies acceptance criteria, contracts, service map and approved test/report paths instead of a lead. Read the contract-audit before runtime testing; if absent, perform and label the static pass first. Do not edit production code or weaken assertions/config to get green. Only report executed evidence. If you also built the code in this context, this is a self-check, not independent QE certification: disclose UNVERIFIED independence and request a fresh reviewer/owner acceptance before final release. Missing tools or runtime checks are BLOCKED, not passes. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually. A report's proof binding establishes freshness, not reviewer independence.
+**Dispatched** (the orchestrator supplied a role packet — natively, or in its sequential mode on any host): preserve the orchestrator's role packet, exclusive test ownership, teams/Agent/Workflow choices and mandatory gate order: contract-auditor static pass → runtime QE → lead acceptance. **Explicit solo QA:** the user supplies acceptance criteria, contracts, service map and approved test/report paths instead of a lead. Read the contract-audit before runtime testing; if absent, perform and label the static pass first. Do not edit production code or weaken assertions/config to get green. Only report executed evidence. If you also built the code in this context, this is a self-check, not independent QE certification: disclose UNVERIFIED independence and request a fresh reviewer/owner acceptance before final release. Missing tools or runtime checks are BLOCKED, not passes. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually. A report's proof binding establishes freshness, not reviewer independence.
 
 ## Role
 

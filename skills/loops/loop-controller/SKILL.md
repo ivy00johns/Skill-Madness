@@ -1,6 +1,6 @@
 ---
 name: loop-controller
-version: 1.5.0
+version: 1.6.0
 description: >-
   Wrap any task in a verifiable stop condition plus a mandatory guardrail stack
   so an autonomous loop converges instead of thrashing or burning the budget —
@@ -18,7 +18,7 @@ execution_modes:
   native:
     requires: ["lifecycle_hooks", "schedule_recurring"]
     quality: equivalent
-  attended:
+  in-session:
     requires: ["read_files", "write_files", "run_shell"]
     quality: degraded-safe
 refuse_if: ["unattended_without_budget_enforcement"]
@@ -157,10 +157,11 @@ limit and `/loop`'s session-scope/expiry/no-catch-up rules — are in
 
 **Hosts without these primitives** (Gemini CLI, Codex, Cursor, OpenCode, a bare
 API agent): the table above is Claude Code-native — do not pretend `/goal`,
-`/loop` or a Stop hook exist. Two routes remain. **Attended:** iterate in the
-live session with the owner present, state the iteration cap and proof command
-up front, and run every guardrail in Step 3 yourself; stop at the cap or on
-HITL triggers. **Unattended:** only through `scripts/run_guarded.py` around an
+`/loop` or a Stop hook exist. Two routes remain. **In-session:** state the
+proof command and iteration cap up front, get the owner's one approval (or use
+the plan the orchestrator already had approved), then iterate in the live host
+session without further prompts, running every guardrail in Step 3 yourself;
+stop at the cap or on HITL triggers (Step 3, guardrail 4). **Unattended:** only through `scripts/run_guarded.py` around an
 owner-approved bounded adapter for the host's non-interactive CLI — one whose
 per-call token/cost ceiling is known — with declared call/token/cost/wall-time
 limits (see *Executable external controller* below). With neither, refuse

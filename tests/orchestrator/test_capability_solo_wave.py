@@ -138,15 +138,15 @@ def test_sequential_execution_reference_and_schema():
     # Verify contract-author v1.6.0
     ca_doc = REPO_ROOT / "skills" / "contracts" / "contract-author" / "SKILL.md"
     ca_text = ca_doc.read_text(encoding="utf-8")
-    assert "version: 1.6.0" in ca_text
+    assert "version: 1.6.1" in ca_text
     assert "skip contracts" not in ca_text
 
 
 @pytest.mark.parametrize("skill,native,portable", [
-    ("skills/orchestrator/SKILL.md", "native-parallel", "attended-sequential"),
-    ("skills/loops/loop-controller/SKILL.md", "native", "attended"),
+    ("skills/orchestrator/SKILL.md", "native-parallel", "sequential"),
+    ("skills/loops/loop-controller/SKILL.md", "native", "in-session"),
 ])
-def test_core_skills_resolve_native_on_claude_and_attended_elsewhere(skill, native, portable):
+def test_core_skills_resolve_native_on_claude_and_portable_elsewhere(skill, native, portable):
     fm = parse_frontmatter(REPO_ROOT / skill)
     assert resolve_skill_execution(fm, "claude-code")["mode"] == native
     for host in ("gemini-cli", "cursor", "opencode"):

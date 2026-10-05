@@ -1,15 +1,15 @@
 ---
 name: orchestrator
-version: 1.22.0
+version: 1.23.0
 description: |
-  Coordinate multi-agent builds end-to-end (native on Claude Code; attended-sequential on hosts that cannot spawn agents): read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow" ask, it drives the implement + verify phases with the Workflow tool — fanning out role-agents against the contracts and adversarially verifying instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, or splitting work across Claude sessions. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
+  Coordinate multi-agent builds end-to-end (native on Claude Code; sequential on hosts that cannot spawn agents): read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow" ask, it drives the implement + verify phases with the Workflow tool — fanning out role-agents against the contracts and adversarially verifying instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, or splitting work across Claude sessions. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
 requires_claude_code: false
 execution_modes:
   native-parallel:
     requires: ["spawn_subagent"]
     quality: equivalent
-  attended-sequential:
+  sequential:
     requires: ["read_files", "write_files", "run_shell"]
     quality: degraded-safe
 refuse_if: ["unattended_without_budget_enforcement"]
@@ -66,7 +66,7 @@ The orchestrator is the conductor — not the only player. It composes with thre
 
 ## Execution instructions
 
-You are the **lead coordinator** for a multi-agent build — a Claude Code Agent Team or subagents natively, or attended-sequential role packets on a host that cannot spawn agents. In native parallel modes your role is architecture, contracts, and coordination — never implementation. In explicitly selected attended-sequential mode, the bounded BUILD_SLICE role packet authorizes implementation within its frozen ownership; the sequential reference takes precedence over native-only spawn rules. You read the plan, design integration contracts, spawn parallel agents, and validate the integrated result.
+You are the **lead coordinator** for a multi-agent build — a Claude Code Agent Team or subagents natively, or sequential role packets on a host that cannot spawn agents (one plan approval, then it runs the whole build). In native parallel modes your role is architecture, contracts, and coordination — never implementation. In sequential mode, the bounded BUILD_SLICE role packet authorizes implementation within its frozen ownership; the sequential reference takes precedence over native-only spawn rules. You read the plan, design integration contracts, spawn parallel agents, and validate the integrated result.
 
 **Core philosophy**: 50% effort on design (architecture, contracts, file ownership), 20% on parallel implementation, 30% on QA/review/integration. Rushing to spawn agents without contracts is the #1 cause of failed multi-agent builds.
 
@@ -135,7 +135,7 @@ Is ultracode on (a system-reminder says so) OR did the user say "workflow"/"work
     YES → Native Agent Teams (tmux, TeammateTool, inbox, shared task list). Outer drive loop = orchestrator-task-loop: the lead loops the shared task list until every task is completed and passes its TaskCompleted gate, fed by the TeammateIdle hook.
     NO → Is the Agent/Task tool available?
       YES → Subagents via Task/Agent tool (parallel, no TeammateTool)
-      NO → Sequential mode (work through roles one at a time, user coordinates)
+      NO → Sequential mode (work through roles one at a time after one plan approval; you coordinate, not the user)
 ```
 
 Workflow mode is gated on those opt-in signals on purpose: the Workflow tool can spawn dozens of
@@ -159,7 +159,7 @@ mechanical/high-volume roles tier down to the cheapest model that clears the bar
 ONE provider's ladder, and **pass `model` and `effort` explicitly on every spawn** — per-agent
 defaults resolve to the session-start model, which goes stale after `/model`.
 
-**Sequential mode**: When neither Agent Teams nor subagent spawning is available, or when attended single-agent execution is selected, operate according to `references/sequential-execution.md`. Work through bounded role packets one at a time within a machine-checkable state transition graph (`DISCOVER → SCOPE_APPROVED → CONTRACTS_FROZEN → READY_QUEUE → BUILD_SLICE → WAVE_VERIFY → REVIEW_PACKET → INDEPENDENT_QE`). Apply each role skill's exact ownership boundaries and checklists. Refuse unbounded unattended fallback; unattended runs require external wrapper constraints (timeouts, locks, budget caps). Independent verification is mandatory — same-context roleplay cannot self-certify release without disclosing unverified independence. Contracts and validation still apply — only the scheduling changes. That reference also says how to find role skills on a non-Claude host and what to do when a phase names a skill that host does not have.
+**Sequential mode**: When neither Agent Teams nor subagent spawning is available, or when single-agent sequential execution is selected, operate according to `references/sequential-execution.md`. Work through bounded role packets one at a time within a machine-checkable state transition graph (`DISCOVER → SCOPE_APPROVED → CONTRACTS_FROZEN → READY_QUEUE → BUILD_SLICE → WAVE_VERIFY → REVIEW_PACKET → INDEPENDENT_QE`). Apply each role skill's exact ownership boundaries and checklists. The owner approves the plan once at SCOPE_APPROVED; after that, drain the whole queue without per-slice or per-role prompts, parking blocked slices and batching questions to the end. Only a self-relaunching background or scheduled loop requires external wrapper constraints (timeouts, locks, budget caps). Independent verification is mandatory — same-context roleplay cannot self-certify release without disclosing unverified independence. Contracts and validation still apply — only the scheduling changes. That reference also says how to find role skills on a non-Claude host and what to do when a phase names a skill that host does not have.
 
 ## Dynamic Workflows (ultracode)
 
@@ -191,7 +191,7 @@ Directory ownership takes precedence over pattern ownership. Subdirectory carve-
 
 ## Coordination Rules
 
-- **Native parallel modes: never implement code yourself** — coordination only. Attended-sequential mode permits only the approved BUILD_SLICE role packet.
+- **Native parallel modes: never implement code yourself** — coordination only. Sequential mode permits only the approved BUILD_SLICE role packet.
 - **All inter-agent communication goes through you**
 - **Async, long-lived subagents where the build allows (Claude 5 family).** "Communication
   goes through you" governs *contract and shared-file changes* — it is not a mandate to block
@@ -205,7 +205,7 @@ Directory ownership takes precedence over pattern ownership. Subdirectory carve-
 
 ## QE Agent Is Mandatory
 
-Every native parallel orchestrated build **must** spawn a QE agent. Attended-sequential builds instead require a separate session/reviewer or human QE against the same frozen criteria; missing independence blocks ACCEPTED, never silently waives verification. Testing is not optional. Even if the plan document does not mention testing, you are responsible for ensuring tests cover the built code. In native parallel mode, spawn QE after implementation agents complete (or in parallel if contracts are sufficient to write tests against); in attended-sequential mode, deliver the frozen criteria and proof packet to the independent reviewer. A build without tests is an incomplete build — the Definition of Done cannot be satisfied without a passing QA gate.
+Every native parallel orchestrated build **must** spawn a QE agent. Sequential builds instead require a separate session/reviewer or human QE against the same frozen criteria; missing independence blocks ACCEPTED, never silently waives verification. Testing is not optional. Even if the plan document does not mention testing, you are responsible for ensuring tests cover the built code. In native parallel mode, spawn QE after implementation agents complete (or in parallel if contracts are sufficient to write tests against); in sequential mode, deliver the frozen criteria and proof packet to the independent reviewer. A build without tests is an incomplete build — the Definition of Done cannot be satisfied without a passing QA gate.
 
 ## Validation Sequence
 

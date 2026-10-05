@@ -1,6 +1,6 @@
 ---
 name: observability-agent
-version: 1.3.1
+version: 1.3.2
 disable-model-invocation: true
 description: "Set up logging, monitoring, metrics and alerting in native orchestrator dispatch or explicitly requested solo instrumentation work. Preserve business-logic ownership; load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/edit/shell host; requires project instrumentation tools; native Claude dispatch retained"
@@ -32,7 +32,7 @@ This skill assumes a contract-first multi-agent build model:
 
 ### Execution mode
 
-**Native dispatched:** preserve the orchestrator's role packet, exclusive ownership, teams/Agent/Workflow choices and QE gate. **Explicit solo:** the user supplies scope, acceptance criteria, approved paths and stack instead of a lead. Read existing contracts; ask for missing boundary decisions. Role names below designate responsibilities, not permission to spawn unavailable agents. Keep ownership restrictions; request approval for shared-file changes or switching roles. Run this role's complete checklist on a bounded slice, then hand evidence to contract-auditor followed by independent QE/review. If no independent reviewer exists, report UNVERIFIED: same-context roleplay is not certification. Missing tools/checks are BLOCKED, not passes. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually.
+**Dispatched** (the orchestrator supplied a role packet — natively, or in its sequential mode on any host): preserve the orchestrator's role packet, exclusive ownership, teams/Agent/Workflow choices and QE gate. **Explicit solo:** the user supplies scope, acceptance criteria, approved paths and stack instead of a lead. Read existing contracts; ask for missing boundary decisions. Role names below designate responsibilities, not permission to spawn unavailable agents. Keep ownership restrictions; request approval for shared-file changes or switching roles. Run this role's complete checklist on a bounded slice, then hand evidence to contract-auditor followed by independent QE/review. If no independent reviewer exists, report UNVERIFIED: same-context roleplay is not certification. Missing tools/checks are BLOCKED, not passes. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually.
 
 ## Role
 

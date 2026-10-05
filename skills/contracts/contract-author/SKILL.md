@@ -1,6 +1,6 @@
 ---
 name: contract-author
-version: 1.6.0
+version: 1.6.1
 description: |
   Generate machine-readable integration contracts (API, data layer, shared types, events) before any implementation begins in a multi-agent build or explicitly requested solo contract design. Use when authoring API contracts, OpenAPI specs, AsyncAPI specs, Pydantic models, TypeScript interfaces, JSON Schema definitions, data layer interfaces, shared type schemas, integration boundaries between agents, or domain business rules. Trigger on "write the API contract", "define the shared types", "spec out the endpoints", "create the OpenAPI", "author the contract", or when the orchestrator needs contracts authored for a plan. Bundles six templates (OpenAPI, AsyncAPI, Pydantic, TypeScript, JSON Schema, data-layer YAML) — pick the one matching the project's stack.
 requires_agent_teams: false
@@ -30,7 +30,7 @@ This skill defines integration contracts in contract-first multi-agent builds or
 
 ### Execution mode
 
-**Native dispatched:** author contracts during Phase 4 per the orchestrator plan. Output machine-readable contracts to `contracts/` and wait for verification before implementation agents spawn. **Explicit solo:** the user provides system requirements, domain entities, and target stack. Read project architecture, extract interfaces, author flat `contracts/types.<ext>` and relevant API/data contracts, and freeze them before writing application code. Disclose unreviewed contracts if independent audit is unavailable. Missing tools are BLOCKED, not passed. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually.
+**Dispatched** (the orchestrator supplied a role packet — natively, or in its sequential mode on any host): author contracts during Phase 4 per the orchestrator plan. Output machine-readable contracts to `contracts/` and wait for the orchestrator's verification (not the owner's — the approved plan covers contracts in scope) before implementation agents spawn. **Explicit solo:** the user provides system requirements, domain entities, and target stack. Read project architecture, extract interfaces, author flat `contracts/types.<ext>` and relevant API/data contracts, and freeze them before writing application code. Disclose unreviewed contracts if independent audit is unavailable. Missing tools are BLOCKED, not passed. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually.
 
 ## Execution instructions
 
