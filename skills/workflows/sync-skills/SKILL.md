@@ -1,6 +1,6 @@
 ---
 name: sync-skills
-version: 2.2.0
+version: 2.2.1
 description: |
   Sync approved Skill-Madness skills into Claude Code and Cursor skill directories with links or resource-complete copies. Use for "sync skills", "link skills", "skill status", "unlink skills", or importing an explicitly selected local skill. Honor category/skill subsets, preserve unrelated copies and links, and require explicit backed-up collision approval. Global mutation is never implicit in catalog maintenance.
 requires_agent_teams: false
@@ -78,7 +78,10 @@ arguments select exact subsets; unknown selections fail.
 ## Ownership and failures
 
 Each destination holds `.ats-sync-owned.json` recording this checkout's links
-or copy byte/mode fingerprint. Unowned/edited collisions block before changes;
+or copy byte/mode fingerprint. Unowned/edited collisions block before changes,
+and every one is listed (`collision: <path> (existing …)`) so the owner sees the
+full set; the `--replace-with-backup --dry-run` preview marks each line that
+`backs up existing …`. Show that preview before asking for approval;
 no `rm -rf` or `rsync --delete` against arbitrary local skills. Only unchanged
 owned copies may be replaced automatically. An exact canonical-source link
 can be adopted without deleting it. Unlink/clean affect only recorded links

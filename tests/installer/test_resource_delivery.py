@@ -317,6 +317,23 @@ class ResourceDelivery(unittest.TestCase):
         self.assertFalse((base / 'fixture').is_symlink())
         self.assertTrue(unrelated.is_symlink())
 
+    def test_sync_lists_every_collision_and_previews_each_backup(self):
+        second = self.repo / 'skills/workflows/second/SKILL.md'
+        self.write(second, (self.skill / 'SKILL.md').read_text().replace('fixture', 'second'))
+        base = self.home / '.claude/skills'
+        self.write(base / 'fixture/user.txt', 'local copy')
+        base.joinpath('second').symlink_to(self.root / 'elsewhere')
+        result = self.sync('--to-claude', '--dry-run')
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('collision: %s (existing directory)' % (base / 'fixture'), result.stderr)
+        self.assertIn('collision: %s (existing link -> %s)' % (base / 'second', self.root / 'elsewhere'), result.stderr)
+        self.assertIn('2 unowned/edited collision(s)', result.stderr)
+        result = self.sync('--to-claude', '--dry-run', '--replace-with-backup')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('link: %s (backs up existing directory)' % (base / 'fixture'), result.stdout)
+        self.assertIn('link: %s (backs up existing link -> %s)' % (base / 'second', self.root / 'elsewhere'), result.stdout)
+        self.assertEqual((base / 'fixture/user.txt').read_text(), 'local copy')
+
     def test_cursor_sync_filters_native_only_and_copies_template(self):
         native = self.repo / 'skills/meta/native/SKILL.md'
         self.write(native, '---\nname: native\nversion: 1.0.0\ndescription: native only\nrequires_claude_code: true\n---\n# Native\n')

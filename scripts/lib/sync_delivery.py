@@ -26,6 +26,12 @@ def tree_hash(path):
     return h.hexdigest()
 
 
+def describe_existing(dest):
+    if dest.is_symlink():
+        return 'link -> ' + os.readlink(dest)
+    return 'directory' if dest.is_dir() else 'file'
+
+
 def pull_skills(args, repo, definitions):
     sources = [t for t in definitions if args.from_all or (args.from_claude if t == 'claude-code' else args.from_cursor)]
     pending = []
@@ -91,6 +97,7 @@ def main():
     if any(t not in known for t in args.targets):
         raise ValueError('unknown category/skill selection')
     changes = []
+    collisions = []
     receipts = {}
     for tool in tools:
         base = definitions[tool]
@@ -139,13 +146,19 @@ def main():
                 continue
             trusted = owned and ((dest.is_symlink() and os.readlink(dest) == owned.get('target')) or
                                   (dest.is_dir() and not dest.is_symlink() and owned.get('kind') == 'copy' and tree_hash(dest) == owned.get('sha256')))
-            if exists and not trusted and not args.replace_with_backup:
-                raise ValueError('unowned/edited collision: %s; preview and approve --replace-with-backup' % dest)
+            if exists and not trusted:
+                collisions.append((dest, describe_existing(dest)))
             changes.append(('copy' if args.copy else 'link', dest, source, receipt, slug,
                             {'category': category, 'backup': bool(exists and not trusted)}))
+    # Report every collision at once so one approval covers a known, complete set.
+    if collisions and not args.replace_with_backup:
+        for dest, existing in collisions:
+            print('collision: %s (existing %s)' % (dest, existing), file=sys.stderr)
+        raise ValueError('%d unowned/edited collision(s) listed above; preview and approve --replace-with-backup' % len(collisions))
     # Validate all collisions before the first write; dry run never records state.
     for action, dest, source, receipt, slug, record in changes:
-        print('%s%s: %s' % ('[dry-run] ' if args.dry_run else '', action, dest))
+        note = ' (backs up existing %s)' % describe_existing(dest) if record.get('backup') else ''
+        print('%s%s: %s%s' % ('[dry-run] ' if args.dry_run else '', action, dest, note))
     if args.dry_run or args.status:
         return
     for action, dest, source, receipt, slug, record in changes:
