@@ -95,6 +95,21 @@ EOF
   i=$((i + 1))
 done
 
+# T4 variant — the realistic copy: each page marks its own nav link current.
+mkdir -p "$TRAPS/T4-active-nav"
+for page in home auctions sell; do
+  nav=""
+  for link in home auctions sell; do
+    if [ "$link" = "$page" ]; then
+      nav="$nav<a href=\"/$link\" class=\"nav-link active\" aria-current=\"page\">$link</a>"
+    else
+      nav="$nav<a href=\"/$link\" class=\"nav-link\">$link</a>"
+    fi
+  done
+  printf '<!doctype html>\n<html lang="en">\n<body>\n  <header><nav>%s</nav></header>\n  <main>%s</main>\n</body>\n</html>\n' \
+    "$nav" "$page" > "$TRAPS/T4-active-nav/$page.html"
+done
+
 # T5 — replay on a host with no subagents (behavioural marker).
 mkdir -p "$TRAPS/T5-no-subagents"
 cat > "$TRAPS/T5-no-subagents/.marker" <<'EOF'

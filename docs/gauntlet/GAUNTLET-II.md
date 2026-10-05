@@ -45,7 +45,7 @@ A real-time, multi-tenant marketplace fusing auction, escrow ledger, social time
 | Layer | Choice | Why this choice |
 |---|---|---|
 | API | TypeScript / Fastify | triggers backend, contract, observability, performance roles |
-| Frontend | React + Vite, multiple authored pages, one design-token file, one shared shell | triggers the frontend role and both UI guards plus the shared-layout gap |
+| Frontend | React + Vite, multiple authored pages, one design-token file, one shared shell | triggers the frontend role, both UI guards and the shared-layout guard |
 | Data | Postgres + Redis via Docker, lightweight in-process queue | portable and unpaid; triggers db-migration and dependency coordination |
 | Realtime | WebSockets on the bid and comment hotpath | forces concurrency reasoning and observability |
 | Payments | simulated double-entry escrow ledger | forces real money math with no live rail |
