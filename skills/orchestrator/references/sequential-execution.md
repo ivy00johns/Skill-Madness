@@ -72,6 +72,35 @@ When acting as a specific role in sequential mode, work from a discrete **Role P
 3. **Context resets & boundaries**: For long sessions, recommend a context reset or clean checkpoint between roles. Save modified state to disk and verify git status.
 4. **Handoff evidence**: When finishing a role slice, produce the slice handoff packet (files modified, verifier commands executed, output logs) before transitioning to the next role or verifier.
 
+## Finding role skills on this host
+
+Load each role **by name** (`backend-agent`, `frontend-agent`, `qe-agent`,
+`contract-author`, `contract-auditor`, …) the way this host loads skills: an
+explicit skill activation, its installed rule/agent file, or the role's
+`SKILL.md` read from the same installed skills location this orchestrator was
+loaded from. Paths like `skills/roles/backend-agent/SKILL.md` are repo-checkout
+paths; never assume them or `~/.claude`. Resolve each role's `references/` and
+`scripts/` from that role's own installed root (exported roots carry an
+`.ats-runtime.json` listing their bundled resources). If a role cannot be found, that slice is
+`BLOCKED` — do not improvise the role from memory.
+
+## Skills that are not installed on this host
+
+Some skills the phases name are Claude-Code-only and are not exported to other
+hosts. The step they serve still applies; perform it with what *is* available
+and record the substitution in `coordination/MISSION_SKILLS.md` ("not installed
+on this host — performed inline" or "BLOCKED: <missing tool>"). A substitute
+never reports a PASS it could not observe.
+
+| Named skill | Do this instead |
+|---|---|
+| `fix-until-green` | The `WAVE_VERIFY → BUILD_SLICE` retry edge: fix one real blocker per attempt, re-run the same checks, stop at 3 attempts. Never edit tests or checks to pass. |
+| `render-sanity` | Its four checks by hand in a real browser (the `playwright` skill or the host's browser tool): smell scan for `undefined` / `?` / `—` / stuck `Loading…`, click through every list item, signed-out route matrix, signed-in route matrix. No browser available → DoD item 11 is `BLOCKED`, not PASS. |
+| `contract-conformance-loop`, `coverage-loop`, `perf-loop`, `migration-loop` | `loop-controller` in attended mode with the same proof command and iteration cap. |
+| `orchestrator-task-loop`, Agent Teams, the Workflow tool | Not applicable — `READY_QUEUE` is the task list and you drain it one role packet at a time. |
+| `project-profiler`, `dependency-coordinator`, `context-manager`, `deployment-checklist` | Do the step inline: a stack scan; one owner for each shared manifest; a written handoff file between roles; a pre-deploy checklist. The assumption audit in Phase 3 means: list the plan's unstated assumptions about environment, data and constraints, and confirm each with the user before freezing contracts. |
+| Any other named skill missing here | Note it in `MISSION_SKILLS.md` with the reason, tell the user once, and continue with the closest exported skill or inline step. |
+
 ## Rules of Attended Sequential Mode
 
 - **Never implement code as the orchestrator**: Even in sequential mode, switch explicitly into the role persona (`backend-agent`, `frontend-agent`, etc.) with its specific ownership and constraints.

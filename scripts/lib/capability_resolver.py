@@ -46,6 +46,13 @@ DEFAULT_TOOL_CAPABILITIES: Dict[str, Set[str]] = {
     host: {"read_files", "write_files", "run_shell"}
     for host in ("claude-code", "cursor", "gemini-cli", "copilot", "antigravity", "opencode", "openclaw", "qwen", "kimi", "aider", "windsurf")
 }
+# Claude Code's native primitives (Agent tool, AskUserQuestion, hooks, /loop and
+# cron scheduling) are shipped host features, so native modes resolve natively.
+# Other hosts stay at the conservative baseline until observed via --caps.
+DEFAULT_TOOL_CAPABILITIES["claude-code"] |= {
+    "spawn_subagent", "parallel_subagents", "ask_user_structured",
+    "lifecycle_hooks", "schedule_recurring",
+}
 
 
 def parse_frontmatter(path: Path) -> Dict[str, Any]:

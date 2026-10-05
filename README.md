@@ -505,7 +505,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 🎁 Also works on ten other hosts
 
-The orchestrator, native hook execution and autonomous loops retain their Claude-Code runtime path. The ten role skills and contract-auditor now also have explicit bounded solo branches: user-supplied scope/contracts, the same ownership/checklists, and honest blocked/independence reporting without invented Agent calls. Thus **50 of the 76 skills** export to the ten other converter targets. Export count is not runtime certification: resource delivery is covered by local fake-root regressions; live-host efficacy and mechanical unattended controls remain tracked in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md). The broader F1 generator framework remains parked.
+Native hook execution and the twelve concrete autonomous loops retain their Claude-Code runtime path. The `orchestrator` and `loop-controller` keep that native path and also export with attended modes for hosts that cannot spawn agents (sequential role packets; attended iterations or `run_guarded.py` around a bounded adapter). The ten role skills and contract-auditor now also have explicit bounded solo branches: user-supplied scope/contracts, the same ownership/checklists, and honest blocked/independence reporting without invented Agent calls. Thus **52 of the 76 skills** export to the ten other converter targets. Export count is not runtime certification: resource delivery is covered by local fake-root regressions; live-host efficacy and mechanical unattended controls remain tracked in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md). The broader F1 generator framework remains parked.
 
 The single-source model is deliberate, and there's a concrete counter-example for why: microsoft/SkillOpt shipped the opposite design — five bespoke per-host integrations (claude-code, codex, copilot, devin, openclaw) — and was already drifting within months of release: backend-enum mismatches between plugins, and an openclaw adapter broken-by-design against its own engine. One canonical `SKILL.md` plus converters means a fix lands once instead of five times.
 
@@ -683,7 +683,7 @@ Almost always a `pyyaml` version skew. CI installs `pyyaml` explicitly on macOS 
 <details>
 <summary><b>"My non-Claude-Code host doesn't see all 76 skills"</b></summary>
 
-Expected. Skills with `requires_claude_code: true` — the `orchestrator`, all of `loops/`, and workflows bound to Claude Code's runtime or `~/.claude` config — are skipped for the other hosts; 50 of the 76 skills export today. The roles and contract-auditor export explicit solo branches, not native orchestration emulation. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
+Expected. Skills with `requires_claude_code: true` — the twelve concrete `loops/*` skills and workflows bound to Claude Code's runtime or `~/.claude` config — are skipped for the other hosts; 52 of the 76 skills export today. The roles and contract-auditor export explicit solo branches, not native orchestration emulation. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
 </details>
 
 <details>

@@ -1,10 +1,18 @@
 ---
 name: orchestrator
-version: 1.21.0
+version: 1.22.0
 description: |
-  Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow" ask, it drives the implement + verify phases with the Workflow tool — fanning out role-agents against the contracts and adversarially verifying instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, or splitting work across Claude sessions. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
+  Coordinate multi-agent builds end-to-end (native on Claude Code; attended-sequential on hosts that cannot spawn agents): read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow" ask, it drives the implement + verify phases with the Workflow tool — fanning out role-agents against the contracts and adversarially verifying instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, or splitting work across Claude sessions. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
+execution_modes:
+  native-parallel:
+    requires: ["spawn_subagent"]
+    quality: equivalent
+  attended-sequential:
+    requires: ["read_files", "write_files", "run_shell"]
+    quality: degraded-safe
+refuse_if: ["unattended_without_budget_enforcement"]
 min_plan: starter
 owns:
   directories: []
@@ -58,7 +66,7 @@ The orchestrator is the conductor — not the only player. It composes with thre
 
 ## Execution instructions
 
-You are the **lead coordinator** for a Claude Code Agent Team build. In native parallel modes your role is architecture, contracts, and coordination — never implementation. In explicitly selected attended-sequential mode, the bounded BUILD_SLICE role packet authorizes implementation within its frozen ownership; the sequential reference takes precedence over native-only spawn rules. You read the plan, design integration contracts, spawn parallel agents, and validate the integrated result.
+You are the **lead coordinator** for a multi-agent build — a Claude Code Agent Team or subagents natively, or attended-sequential role packets on a host that cannot spawn agents. In native parallel modes your role is architecture, contracts, and coordination — never implementation. In explicitly selected attended-sequential mode, the bounded BUILD_SLICE role packet authorizes implementation within its frozen ownership; the sequential reference takes precedence over native-only spawn rules. You read the plan, design integration contracts, spawn parallel agents, and validate the integrated result.
 
 **Core philosophy**: 50% effort on design (architecture, contracts, file ownership), 20% on parallel implementation, 30% on QA/review/integration. Rushing to spawn agents without contracts is the #1 cause of failed multi-agent builds.
 
@@ -151,7 +159,7 @@ mechanical/high-volume roles tier down to the cheapest model that clears the bar
 ONE provider's ladder, and **pass `model` and `effort` explicitly on every spawn** — per-agent
 defaults resolve to the session-start model, which goes stale after `/model`.
 
-**Sequential mode**: When neither Agent Teams nor subagent spawning is available, or when attended single-agent execution is selected, operate according to `references/sequential-execution.md`. Work through bounded role packets one at a time within a machine-checkable state transition graph (`DISCOVER → SCOPE_APPROVED → CONTRACTS_FROZEN → READY_QUEUE → BUILD_SLICE → WAVE_VERIFY → REVIEW_PACKET → INDEPENDENT_QE`). Apply each role skill's exact ownership boundaries and checklists. Refuse unbounded unattended fallback; unattended runs require external wrapper constraints (timeouts, locks, budget caps). Independent verification is mandatory — same-context roleplay cannot self-certify release without disclosing unverified independence. Contracts and validation still apply — only the scheduling changes.
+**Sequential mode**: When neither Agent Teams nor subagent spawning is available, or when attended single-agent execution is selected, operate according to `references/sequential-execution.md`. Work through bounded role packets one at a time within a machine-checkable state transition graph (`DISCOVER → SCOPE_APPROVED → CONTRACTS_FROZEN → READY_QUEUE → BUILD_SLICE → WAVE_VERIFY → REVIEW_PACKET → INDEPENDENT_QE`). Apply each role skill's exact ownership boundaries and checklists. Refuse unbounded unattended fallback; unattended runs require external wrapper constraints (timeouts, locks, budget caps). Independent verification is mandatory — same-context roleplay cannot self-certify release without disclosing unverified independence. Contracts and validation still apply — only the scheduling changes. That reference also says how to find role skills on a non-Claude host and what to do when a phase names a skill that host does not have.
 
 ## Dynamic Workflows (ultracode)
 
@@ -283,7 +291,7 @@ ALL must be true:
 8. **Mission skill manifest closed out** — `coordination/MISSION_SKILLS.md` exists and shows every skill the mission explicitly named, each with either ✅ (invoked) or a one-line reason for skipping. A mission that names `nano-banana`, `ui-ux-pro-max`, `frontend-design`, `ux-review`, `repo-deep-dive`, etc. and gets a build with none of them invoked is a regression, not a deliverable.
 9. **Visual assets exist for UI builds** — if the project has a UI, real seed imagery exists in `assets/` or `web/public/` (generated via `nano-banana` or sourced via another path). The bar is "looks like a product"; "stub URL placeholders" doesn't meet it.
 10. **Post-build UX review passed for UI builds** — `ux-review` invoked (or equivalent non-headless Playwright + screenshots pass), and the issues it surfaces are fixed or recorded.
-11. **Render-sanity returned PASS for UI builds** — `render-sanity` walked every user-facing route in a real browser and all four checks (smell scan, click-through, signed-out matrix, signed-in matrix) returned zero critical findings; a FAIL blocks the build. This is the *outcome* gate — "the checks came back clean," not "the skill was invoked." (It reads pixels, so realistic mock data passes it; the reality gate is item 4.)
+11. **Render-sanity returned PASS for UI builds** — `render-sanity` walked every user-facing route in a real browser and all four checks (smell scan, click-through, signed-out matrix, signed-in matrix) returned zero critical findings; a FAIL blocks the build (on a host without `render-sanity`, run its four checks per `references/sequential-execution.md`; no browser means BLOCKED, never PASS). This is the *outcome* gate — "the checks came back clean," not "the skill was invoked." (It reads pixels, so realistic mock data passes it; the reality gate is item 4.)
 12. **Source-convention gates passed for UI builds** — the canonical statement of the two source-level guards. `design-token-guard` returns zero error-severity findings: no inline styles or hardcoded colors bypassing the token system. A hardcoded color renders identically to its token, so it sails through every pixel gate and exists only in source — which is why a UI build needs the source gate **and** the render gates, not one or the other. Its *organization* sibling `class-extraction-guard` runs on the same builds and catches the orthogonal problem: the same correctly-tokenized utility combo copy-pasted inline instead of extracted into a named class (warnings by default; blocking when the project sets the rule to `error`). design-token-guard checks *which values* styling uses; class-extraction-guard checks *how it's organized* — both invisible to pixel gates. Findings route to the owning frontend-agent by file.
 13. Contract changelog clean
 14. QA gate passed — QE agent tests written, executed, and passing

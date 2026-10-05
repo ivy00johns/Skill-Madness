@@ -140,3 +140,17 @@ def test_sequential_execution_reference_and_schema():
     ca_text = ca_doc.read_text(encoding="utf-8")
     assert "version: 1.6.0" in ca_text
     assert "skip contracts" not in ca_text
+
+
+@pytest.mark.parametrize("skill,native,portable", [
+    ("skills/orchestrator/SKILL.md", "native-parallel", "attended-sequential"),
+    ("skills/loops/loop-controller/SKILL.md", "native", "attended"),
+])
+def test_core_skills_resolve_native_on_claude_and_attended_elsewhere(skill, native, portable):
+    fm = parse_frontmatter(REPO_ROOT / skill)
+    assert resolve_skill_execution(fm, "claude-code")["mode"] == native
+    for host in ("gemini-cli", "cursor", "opencode"):
+        res = resolve_skill_execution(fm, host)
+        assert (res["status"], res["mode"]) == ("ALLOWED", portable)
+    refused = resolve_skill_execution(fm, "gemini-cli", active_conditions={"unattended_without_budget_enforcement"})
+    assert refused["status"] == "REFUSED"

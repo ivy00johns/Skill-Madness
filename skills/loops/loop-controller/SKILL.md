@@ -1,11 +1,11 @@
 ---
 name: loop-controller
-version: 1.4.0
+version: 1.5.0
 description: >-
   Wrap any task in a verifiable stop condition plus a mandatory guardrail stack
   so an autonomous loop converges instead of thrashing or burning the budget —
   the foundation harness every loop skill composes on. Use whenever you want
-  Claude to keep working until something is provably true (tests pass, coverage
+  the agent to keep working until something is provably true (tests pass, coverage
   hits a target, a contract's criteria hold, a queue is empty), to schedule a
   recurring check, or to pick the right loop primitive (/goal vs /loop vs
   Stop-hook vs a bash Ralph loop vs a dynamic workflow). Trigger on: "loop
@@ -13,7 +13,15 @@ description: >-
   loop", "agentic loop", "ralph loop", "/goal", "iterate until", "loop safely",
   "iteration cap", "loop budget", "runaway agent", "overnight build". Read it
   first when authoring any new loop skill.
-requires_claude_code: true
+requires_claude_code: false
+execution_modes:
+  native:
+    requires: ["lifecycle_hooks", "schedule_recurring"]
+    quality: equivalent
+  attended:
+    requires: ["read_files", "write_files", "run_shell"]
+    quality: degraded-safe
+refuse_if: ["unattended_without_budget_enforcement"]
 min_plan: starter
 disable-model-invocation: true
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "Agent", "Workflow"]
@@ -146,6 +154,17 @@ primitives with different failure modes. Full mechanics, constraints, and the
 exact invocations for each — including `/goal`'s evaluator-can't-read-files
 limit and `/loop`'s session-scope/expiry/no-catch-up rules — are in
 `references/primitives.md`. **Read it before authoring.**
+
+**Hosts without these primitives** (Gemini CLI, Codex, Cursor, OpenCode, a bare
+API agent): the table above is Claude Code-native — do not pretend `/goal`,
+`/loop` or a Stop hook exist. Two routes remain. **Attended:** iterate in the
+live session with the owner present, state the iteration cap and proof command
+up front, and run every guardrail in Step 3 yourself; stop at the cap or on
+HITL triggers. **Unattended:** only through `scripts/run_guarded.py` around an
+owner-approved bounded adapter for the host's non-interactive CLI — one whose
+per-call token/cost ceiling is known — with declared call/token/cost/wall-time
+limits (see *Executable external controller* below). With neither, refuse
+unattended work rather than looping on prompt discipline alone.
 
 ## Step 2 — Make "done" mechanical and default-FAIL
 

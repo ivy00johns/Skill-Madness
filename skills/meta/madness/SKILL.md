@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.5.0
+version: 1.5.1
 description: >-
   The front door to the whole toolkit — one reliable entry point that reads what
   you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a
@@ -231,8 +231,8 @@ skills changes. **"Not Claude Code" is never a reason to skip routing.**
 The one host-specific step: **route to skills that actually exist here.** The
 skills available in this session are listed in your context — check that list
 before you name a target. Some front doors in the map below are
-Claude-Code-native (`orchestrator`'s Agent Teams, every `loops/*` skill, the
-workflows bound to the Artifact tool or `~/.claude` config). The role agents have portable explicit solo branches, while native dispatch still uses orchestrator ownership and QE order. On a host where those aren't present or don't run, route to the closest
+Claude-Code-native (`orchestrator`'s Agent Teams, the concrete `loops/*` skills, the
+workflows bound to the Artifact tool or `~/.claude` config). The role agents have portable explicit solo branches, while native dispatch still uses orchestrator ownership and QE order. `orchestrator` itself runs attended-sequential role packets and `loop-controller` runs attended iterations (or `run_guarded.py` around a bounded adapter) on hosts that cannot spawn agents. On a host where those aren't present or don't run, route to the closest
 portable skill — the git, planning, docs, review, debugging, and contract
 workflows work everywhere — and name the gap in one line. Never answer "this is
 Claude Code only"; pick the nearest live route.
