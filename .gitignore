@@ -29,3 +29,5 @@ integrations/
 # Python bytecode cache
 __pycache__/
 *.pyc
+
+audit/
