@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skill-madness.local/gauntlet/trace-schema.json",
+  "title": "Gauntlet II trace record",
+  "description": "One JSONL record per skill invocation captured during a Gauntlet II run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "run_id",
+    "ts",
+    "phase",
+    "skill",
+    "host",
+    "model",
+    "retrieval_proof",
+    "outcome",
+    "budget_status"
+  ],
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "Stable identifier for the run, e.g. gauntlet-ii-2026-10-15."
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the invocation."
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "pre-flight",
+        "0-discovery",
+        "1-plan",
+        "2-contracts-assets",
+        "3-build",
+        "4-verify",
+        "5-second-cell",
+        "6-ship",
+        "7-operate",
+        "8-harvest",
+        "9-tidy"
+      ],
+      "description": "Run phase the invocation occurred in."
+    },
+    "skill": {
+      "type": "string",
+      "description": "Skill name as resolved from disk."
+    },
+    "trigger_text": {
+      "type": "string",
+      "description": "The user or agent text that prompted the invocation."
+    },
+    "expected": {
+      "type": "string",
+      "enum": ["must-fire", "near-miss-control", "incidental"],
+      "description": "Whether this invocation was a must-fire, a near-miss control, or incidental."
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "description": "Observed host, e.g. claude-code, freebuff." },
+        "version": { "type": "string" },
+        "mode": { "type": "string", "enum": ["attended", "unattended"] }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider"],
+      "properties": {
+        "provider": { "type": "string", "description": "Observed provider; never inferred." },
+        "endpoint": { "type": "string", "description": "Approved endpoint, if known." },
+        "id": { "type": "string", "description": "Observed model id, if known." },
+        "effort": { "type": "string", "description": "Observed effort value, if supported." }
+      }
+    },
+    "retrieval_proof": {
+      "type": "string",
+      "description": "Path to the trace that proves unforced retrieval, not a forced load or prose mention."
+    },
+    "gate_results": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Gate outcomes observed, e.g. pass, fail, blocked."
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["pass", "fail", "blocked", "skipped", "execution-error"],
+      "description": "Outcome of this invocation. execution-error is distinct from a genuine non-trigger."
+    },
+    "proof": {
+      "type": "string",
+      "enum": ["pass", "fail", "blocked", "not-applicable"]
+    },
+    "architecture": {
+      "type": "string",
+      "enum": ["pass", "fail", "blocked", "not-applicable"]
+    },
+    "trajectory": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "calls": { "type": "integer", "minimum": 0 },
+        "seconds": { "type": "number", "minimum": 0 },
+        "cost": { "type": ["number", "null"], "minimum": 0, "description": "null means unknown, never zero." }
+      }
+    },
+    "budget_status": {
+      "type": "string",
+      "enum": [
+        "within-approved-caps",
+        "stopped-at-cap",
+        "unknown-no-paid-authorization"
+      ]
+    },
+    "trap": {
+      "type": "string",
+      "description": "Trap id (T1-T11) if this invocation was caused by a seeded trap."
+    }
+  }
+}
