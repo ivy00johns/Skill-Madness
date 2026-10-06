@@ -25,4 +25,6 @@ The redirect is recorded here rather than as a new file so that merging this wor
 
 ## Status
 
-Phase 1 (this package) is complete. Phase 2 — the run — starts only after the UA-01…UA-32 refactor lands and the owner chooses to run it. The harness scripts are authored but not executed.
+Phase 1 (this package) is complete. The UA-01…UA-32 refactor has landed on `audit/universal-2026-10`, so Phase 2 — the run — can start whenever the owner chooses. Pin the run to `0d8ec19` or later: that commit makes the sequential orchestrator run the whole build after one plan approval.
+
+Start from `GAUNTLET-II.md` — this README is only the index. `trap-inject.sh` and `trap-verify.sh` have been run on scratch fixtures: `trap-verify.sh` returns PASS for T2, T3, T4 (both variants) and T8, and BLOCKED for the behavioural traps until a live run. `trace-merge.py` and `score.py` have not been run yet.
