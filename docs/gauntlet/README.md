@@ -10,6 +10,7 @@ Authoring-time index for the Gauntlet II dogfood brief and its harness. Nothing 
 | `scoring-rubric.md` | the four eval layers, four axes, and nine disqualifiers |
 | `trace-schema.json` | JSON Schema for one trace record |
 | `report-template.md` | the run report that feeds `plan-intake` as `[G2]` rows |
+| `trigger-probe-results.md` | the first cross-model trigger-probe run and its per-skill differences |
 
 Harness tooling lives in `scripts/gauntlet/`: `trap-inject.sh`, `trap-verify.sh`, `trace-merge.py`, `score.py`. The trigger-selection probe, `trigger-probe.py`, runs the matrix's positive and near-miss prompts against an isolated host home on any model, so triggering can be measured before (and instead of) a full run.
 
