@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-version: 1.23.0
+version: 1.23.1
 description: |
   Coordinate multi-agent builds end-to-end (native on Claude Code; sequential on hosts that cannot spawn agents): read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit "workflow" ask, it drives the implement + verify phases with the Workflow tool — fanning out role-agents against the contracts and adversarially verifying instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, or splitting work across Claude sessions. Triggers on "agent team", "parallel build", "team build", "multi-agent", "swarm build", "build X with agents", "coordinate the build", "run the mission", "workflow", "dynamic workflows", "ultracode build", "orchestrate with workflows". Does NOT preempt brainstorming, planning, design-brief, or feature-dev — it picks up after those produce artifacts.
 requires_agent_teams: false
