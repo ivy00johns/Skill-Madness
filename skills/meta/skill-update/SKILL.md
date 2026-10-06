@@ -2,7 +2,7 @@
 name: skill-update
 version: 1.2.1
 description: |
-  Plan and apply changes to an existing skill in one workflow. Reads a skill-review report (bulk or deep-dive) or inline findings, drafts an edit list with the agent's recommended answer attached, walks the edits one at a time, applies them, and re-runs lint and frontmatter checks. Use after skill-review when you're ready to ship the changes. Trigger on "apply the review", "update this skill", "fix the skill", "ship the recommendations", "edit this skill", "apply the plan", "implement the changes".
+  Apply changes to an existing skill: read a skill-review report or inline findings, draft an edit list with a recommended answer attached to each, walk the edits one at a time, apply them, and re-run lint and frontmatter checks. Use right after skill-review when you are ready to ship the recommendations — "apply the review", "apply the skill-review report to X", "update this skill", "fix the skill", "implement the changes", "ship the recommendations", or "edit this skill's description".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

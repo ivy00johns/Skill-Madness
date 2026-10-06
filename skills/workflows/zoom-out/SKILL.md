@@ -1,7 +1,8 @@
 ---
 name: zoom-out
 version: 1.1.1
-description: "User-invoked only, via /zoom-out — never auto-fires. Steps back from the current code to give a higher-level perspective: which modules are involved, how do they connect, what is this change touching that isn't obvious? Reads the project's CONTEXT.md / domain glossary when available. Invoke it deliberately when you feel stuck in detail, when a change feels bigger than expected, or before making a structural decision and you want a map first."
+description: |
+  Guide a decision from a higher level: step back from the code to show which modules a change touches, how they connect, and what it affects that is not obvious. Reads the project's CONTEXT.md or domain glossary when available. Use when asked to "step back", "zoom out", "give me the big picture", "which modules does this change touch?", "what does this change affect?", "what am I missing here", before a structural decision when you want a map first, or when a change feels bigger than expected.
 disable-model-invocation: true
 requires_agent_teams: false
 requires_claude_code: false

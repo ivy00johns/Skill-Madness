@@ -2,7 +2,8 @@
 name: code-review-agent
 version: 1.6.1
 disable-model-invocation: true
-description: "Explicitly-invoked read-only code review along two independent axes — Standards (does it follow the repo's conventions + a built-in code-smell baseline) and Spec (does it faithfully implement the originating issue/contract) — run as separate sub-agents and reported side-by-side, never merged into one score. Run on request for a thorough standalone review of a set of files or a diff; load it on explicit request; it is not an automatic build phase. During an orchestrated build, build-time diff review is handled by the external /code-review CLI, not this skill."
+description: |
+  Review a diff, pull request, or set of files and report findings on two independent axes — Standards (repo conventions plus a code-smell baseline) and Spec (does it faithfully implement the originating issue or contract) — run as separate sub-agents and reported side-by-side, never merged into one score. Use when asked to "review this diff", "review this PR", "code review", "check this for correctness and conventions", "does this follow our conventions", or for a thorough standalone review of changed files. Read-only — it never edits code. During an orchestrated build, build-time diff review is handled by the external /code-review CLI.
 compatibility: "Read/shell host; native isolated Agent lanes when available, explicit sequential fallback otherwise"
 requires_agent_teams: false
 requires_claude_code: false

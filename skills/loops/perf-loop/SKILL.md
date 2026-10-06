@@ -1,19 +1,8 @@
 ---
 name: perf-loop
 version: 1.0.0
-description: >-
-  Drive a metric under its budget in a disciplined profile-optimize-reprofile
-  loop run under REPEATABLE conditions: benchmark the whole measured set under a
-  fixed environment, find the single highest-leverage hotspot or regression,
-  optimize one thing, re-benchmark the WHOLE set, and repeat until the metric is
-  under target on every measured path with no functional regression. The proof is
-  a measured number from a named benchmark artifact, not a hunch. Use for latency,
-  throughput, page-load, bundle-size, memory, or test-suite-speed targets, or as
-  the performance-role inner loop under an orchestrated build. Trigger on:
-  "optimize until under Nms", "get page load under budget", "profile and speed
-  this up", "make it faster until target", "reduce latency loop", "performance
-  budget", "shrink the bundle", "speed up the test suite", "benchmark until
-  green", "perf loop", "/perf-loop". A configuration of loop-controller.
+description: |
+  Profile and optimize a metric under its budget in a disciplined profile-optimize-reprofile loop: benchmark the whole measured set under a fixed environment, find the single highest-leverage hotspot or regression, optimize one thing, re-benchmark the WHOLE set, and repeat until the metric is under target on every measured path with no functional regression. Use for a latency, throughput, page-load, bundle-size, memory, or test-suite-speed target — "optimize until under Nms", "optimize this endpoint until p95 is under 200ms", "make it faster until target", "get page load under budget", "shrink the bundle", "speed up the test suite", "profile and speed this up", "perf loop". The proof is a measured number from a named benchmark artifact.
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

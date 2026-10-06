@@ -2,7 +2,7 @@
 name: model-adaptation
 version: 1.7.0
 description: |
-  Adapt prompts, skills, and agent scaffolding when the underlying model changes — Claude 5 (Fable/Mythos) vs Opus 4.x, cross-vendor DeepSeek, OpenAI/GPT, Gemini, and unknown runtimes. Stronger models need LESS scaffolding: this skill says what to PRUNE, what backfires (narrating reasoning trips a refusal), and what to add for long autonomous runs. Canonical home of the model & effort tiering policy, cross-vendor routing consent, and capability-handoff technique. Use when migrating a skill to a new model, picking model/effort, or running cross-vendor. Trigger on "migrate to Fable", "Fable 5", "deepseek", "gpt-6", "luna", "gemini", "model migration", "tune effort", "model tiering", "cross-vendor run", "long-running agent hygiene".
+  Migrate and adapt a prompt, skill, brief, or agent scaffold when the underlying model or host changes — a new Claude version, DeepSeek, GPT, Gemini, Freebuff, or an unknown runtime. Stronger models need less scaffolding, so this says what to prune, what backfires, and what to add for long autonomous runs; it is the canonical home of the model/effort tiering policy and cross-vendor routing consent. Use when adapting a brief or a skill for a specific cell or vendor ("adapt this for the DeepSeek cell", "migrate to Fable 5"), picking model or effort, or tuning prompts for a different host.
 requires_claude_code: false
 min_plan: starter
 compatibility: "Reference/advisory doctrine for Claude, GPT, Gemini, DeepSeek and unknown runtimes. Host tools, provider routing and endpoint effort controls must be observed separately; documentation fetch is optional."

@@ -2,18 +2,7 @@
 name: render-sanity
 version: 1.2.0
 description: |
-  Lightweight visual sanity check that catches failure modes passing
-  "tests green + dev server boots + 0 console errors" but visibly breaking
-  the app when a human clicks — stale mock IDs on "live" pages, lone `?` /
-  `—` / `undefined` / `Loading…` where data should be, dead links from
-  list pages, and "Couldn't load X / Unauthorized" dead-end shells. Runs
-  four objective checks BEFORE the build is declared done: smell scan,
-  click-through every list, signed-out matrix, signed-in matrix. Use when
-  a build is wrapping up, after ux-review or qe-agent finishes, when the
-  user says "is it actually working", "broken pages", "dead links", or
-  pastes a screenshot showing `?`, `undefined`, or a "Not found" page.
-  Also invoke proactively when a frontend agent rewires mocks → real
-  backend, when auth was added, or when seed data is regenerated.
+  Run a lightweight visual sanity check before a build is declared done — the failure modes that pass "tests green + dev server boots + 0 console errors" but visibly break the UI when a human clicks: stale mock IDs on live pages, lone `?` / `—` / `undefined` / `Loading…` where data should be, dead links from list pages, and "Couldn't load X / Unauthorized" dead-end shells. Performs four objective checks: smell scan, click-through every list, signed-out matrix, signed-in matrix. Use when tests pass but the checkout UI is broken, when a build is wrapping up, after ux-review or qe-agent finishes, when a frontend agent rewires mocks to a real backend, when auth is added, or when the user says "is it actually working", "broken pages", or "dead links".
 compatibility: Claude Code; requires Playwright MCP tools
 requires_claude_code: true
 requires_agent_teams: false

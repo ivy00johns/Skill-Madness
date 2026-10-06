@@ -2,7 +2,7 @@
 name: skill-explorer
 version: 1.4.1
 description: |
-  Help the user discover, recall, understand, and pick the right skill from the available toolkit. Names the skill; does NOT invoke it. Use when the user is trying to find a skill ("I forgot the name of the one that does X", "what was that skill called"), asking what skills exist ("what skills do I have", "list all my skills", "show me the catalog"), asking what a specific skill does ("what does X do", "explain the X skill"), asking how skills relate ("how do these connect", "what does orchestrator spawn"), or asking for routing help ("which skill for this task", "what should I use to Y"). Also trigger when the user reaches for orchestrator on something that isn't a multi-agent build, or asks any meta-question about the skill ecosystem itself.
+  Guide the user to the right skill without running it. Use when someone asks which skill handles a task — "which skill handles dependency freshness?", "what should I use to do X?", "which skill for this?" — asks what skills exist ("what skills do I have"), asks what a named skill does or how skills relate ("what does orchestrator spawn?", "explain the X skill"), or has forgotten a skill's name ("the one that does X"). Also use for routing help when a request is vague about which skill should own it. Names the skill and says why it fits; it does not invoke it.
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
