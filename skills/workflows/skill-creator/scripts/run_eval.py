@@ -176,6 +176,7 @@ def observe_freebuff_trace(raw: str, skill_name: str, model: str) -> dict:
         return {"triggered": bool(evidence), "status": "success", "error_message": None,
                 "model": model, "retrieval_evidence": evidence,
                 "snapshot_commit": initial[0].get("snapshot_commit"),
+                "tools": initial[0].get("tools"),
                 "trace_sha256": hashlib.sha256(raw.encode()).hexdigest()}
     except (ValueError, TypeError, KeyError, AttributeError, IndexError) as exc:
         return error_result(str(exc))
@@ -217,7 +218,12 @@ def run_single_query_freebuff(query: str, skill_name: str, skill_path: str,
                        "apiKeyEnv": host_config["api_key_env"], "maxAgentSteps": 3,
                        "timeoutMs": timeout * 1000, "codebuffDir": str(codebuff.resolve()),
                        "snapshotPath": str(Path(host_config.get("snapshot") or FREEBUFF_SNAPSHOT).resolve())}
-            env = {k: v for k, v in os.environ.items() if not k.startswith("NEXT_PUBLIC_")}
+            # Explicit allowlist: the agent process never sees the caller's other
+            # secrets or config, only what bun needs and the one endpoint key.
+            env = {k: os.environ[k] for k in ("PATH", "LANG", "LC_ALL", "TMPDIR", "SYSTEMROOT")
+                   if k in os.environ}
+            if host_config["api_key_env"] in os.environ:
+                env[host_config["api_key_env"]] = os.environ[host_config["api_key_env"]]
             env.update(HOME=str(home), USERPROFILE=str(home), XDG_CONFIG_HOME=str(home / ".config"),
                        XDG_CACHE_HOME=str(home / ".cache"), AI_SDK_LOG_WARNINGS="false")
             process = subprocess.run(["bun", "run", str(FREEBUFF_DIR / "runner.ts")], input=json.dumps(request),

@@ -73,6 +73,18 @@ Each query runs in a fresh temp HOME and project. The candidate is placed at
 build values are placeholders (BYOK makes no Codebuff, analytics or billing
 request; the analytics host points at a closed local port).
 
+## Tools exposed during an eval
+
+Only `skill`. The snapshot keeps Freebuff's full tool list as a record, but the
+runner withholds the rest (listed in the trace's `init` event as
+`withheld_tools`): shell and write tools could execute what an eval query or the
+skill under test asks for, and `read_files` accepts absolute paths outside the
+project, so it could send local files to the endpoint. The agent process also
+gets an environment allowlist (PATH, locale, temp dir and the one endpoint key),
+not your full environment. The cost: the model cannot choose "explore the files
+myself" over "load a skill", so trigger rates can run higher than in a full
+Freebuff session. The Hermes host makes the same trade (`-t skills`).
+
 ## Freebuff quirks that change results
 
 - **Discovery is one folder deep.** Freebuff finds `<dir>/<name>/SKILL.md` in

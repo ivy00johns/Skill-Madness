@@ -118,6 +118,7 @@ def test_live_engine_against_fake_endpoint(tmp_path, monkeypatch):
               'provider': 'openai-compatible', 'api_key_env': 'ATS_MOCK_KEY'}
     result = run_single_query_freebuff('use the demo skill', 'demo-skill', str(folder), 'Demo skill.', 90, 'mock-model', config)
     assert result['status'] == 'success' and result['triggered'] is True, result
+    assert result['tools'] == ['skill']
 
 
 def test_optimizer_endpoint_posts_one_chat_completion(monkeypatch):
@@ -161,3 +162,36 @@ def test_optimizer_endpoint_requires_key(monkeypatch):
     monkeypatch.delenv('ATS_MISSING_KEY', raising=False)
     with pytest.raises(ValueError, match='api_key_env'):
         _call_openai_compatible('p', 'm', {'base_url': 'http://127.0.0.1:9/v1', 'api_key_env': 'ATS_MISSING_KEY'})
+
+
+def test_agent_process_gets_only_allowlisted_env(tmp_path, monkeypatch):
+    """No inherited secrets: PATH/locale/temp plus the one endpoint key."""
+    import subprocess as sp
+    from scripts import run_eval as module
+
+    checkout = tmp_path / 'codebuff'
+    (checkout / 'sdk/src').mkdir(parents=True)
+    (checkout / 'sdk/src/index.ts').write_text('')
+    (checkout / 'node_modules').mkdir()
+    folder = write_skill(tmp_path)
+    monkeypatch.setenv('ATS_ENDPOINT_KEY', 'endpoint-key-0123456789')
+    monkeypatch.setenv('GITHUB_TOKEN', 'must-not-leak')
+    monkeypatch.setenv('NEXT_PUBLIC_CB_ENVIRONMENT', 'dev')
+    monkeypatch.setattr(module.shutil, 'which', lambda name: '/usr/bin/' + name)
+    captured = {}
+
+    def fake_run(cmd, **kwargs):
+        captured.update(kwargs)
+        return sp.CompletedProcess(cmd, 0, stdout=trace(*load(), model='pinned'), stderr='')
+
+    monkeypatch.setattr(module.subprocess, 'run', fake_run)
+    config = {'codebuff_dir': str(checkout), 'base_url': 'http://127.0.0.1:9/v1',
+              'provider': 'openai-compatible', 'api_key_env': 'ATS_ENDPOINT_KEY'}
+    result = run_single_query_freebuff('q', 'candidate', str(folder), 'Use it.', 30, 'pinned', config)
+    env = captured['env']
+    assert result['status'] == 'success'
+    assert env['ATS_ENDPOINT_KEY'] == 'endpoint-key-0123456789'
+    assert 'GITHUB_TOKEN' not in env and 'NEXT_PUBLIC_CB_ENVIRONMENT' not in env
+    assert env['HOME'] != os.environ.get('HOME') and env['HOME'] == env['USERPROFILE']
+    assert set(env) <= {'PATH', 'LANG', 'LC_ALL', 'TMPDIR', 'SYSTEMROOT', 'ATS_ENDPOINT_KEY', 'HOME',
+                        'USERPROFILE', 'XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'AI_SDK_LOG_WARNINGS'}

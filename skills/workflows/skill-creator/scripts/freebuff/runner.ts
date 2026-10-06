@@ -16,6 +16,9 @@ import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
+// Trigger evals expose only `skill`, like the Hermes runner's `-t skills`.
+const EVAL_TOOLS = new Set(['skill'])
+
 const emit = (event: Record<string, unknown>) => process.stdout.write(JSON.stringify(event) + '\n')
 
 // The SDK validates these public build values at import. BYOK runs make no
@@ -46,7 +49,15 @@ async function main(): Promise<number> {
   for (const [key, value] of Object.entries(PLACEHOLDER_ENV)) process.env[key] ??= value
 
   const snapshot = JSON.parse(readFileSync(request.snapshotPath, 'utf8'))
-  const definition = { ...snapshot.definition, model: request.model }
+  // A trigger eval needs the model's decision to load a skill, not tool effects.
+  // Everything but `skill` is withheld: shell and write tools could execute
+  // what an eval query or the skill under test asks for, and read_files accepts
+  // absolute paths outside the project, so it could send local secrets to the
+  // endpoint. Cost: the model cannot pick "explore files" over "load a skill".
+  const toolNames = (snapshot.definition.toolNames as string[]).filter((t) => EVAL_TOOLS.has(t))
+  if (!toolNames.includes('skill')) throw new Error('snapshot has no skill tool')
+  const withheld = (snapshot.definition.toolNames as string[]).filter((t) => !EVAL_TOOLS.has(t))
+  const definition = { ...snapshot.definition, model: request.model, toolNames }
   const { CodebuffClient } = await import(path.join(request.codebuffDir, 'sdk/src/index.ts'))
 
   const now = new Date().toISOString()
@@ -57,7 +68,7 @@ async function main(): Promise<number> {
   }
   Object.defineProperty(byok, 'apiKey', { value: apiKey, enumerable: false })
 
-  emit({ type: 'init', model: request.model, agent: definition.id, snapshot_commit: snapshot.source_commit })
+  emit({ type: 'init', model: request.model, agent: definition.id, snapshot_commit: snapshot.source_commit, tools: toolNames, withheld_tools: withheld })
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), Number(request.timeoutMs) || 60000)
   try {
