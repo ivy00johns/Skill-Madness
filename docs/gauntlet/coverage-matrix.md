@@ -4,6 +4,8 @@ All 76 active skills, derived from the filesystem (`skills/**/SKILL.md`, excludi
 
 The near-miss controls are how over-triggering on the pushy descriptions is measured. A must-fire miss and a near-miss false positive are both findings.
 
+The **Must-fire** cell has three values. `yes` means the model must select the skill unforced on the legitimate trigger — an unsatisfied `yes` is a finding. `explicit` means the skill ships `disable-model-invocation: true` (or is otherwise dispatched only by a lead), so it is *deliberately* not model-selectable: the acceptance is that it is reached and its work happens once invoked, and a natural-language prompt that fails to auto-select it is not a finding. `yes (optional)` is a must-fire row whose need is conditional.
+
 > **Phase key:** P0 pre-flight · P1 plan · P2 contracts/assets · P3 build · P4 verify · P5 second cell · P6 ship · P7 operate · P8 harvest · P9 tidy.
 
 ---
@@ -19,7 +21,7 @@ The near-miss controls are how over-triggering on the pushy descriptions is meas
 | Skill | Phase | Legitimate trigger | Must-fire | Near-miss control (must not fire) |
 |---|---|---|---|---|
 | backend-agent | P3 | "implement the Fastify auction and ledger endpoints" | yes | "explain how Fastify routing works" |
-| frontend-agent | P3 | "build the item, auction, and checkout pages" | yes | "list React state libraries" |
+| frontend-agent | P3 | "build the item, auction, and checkout pages" | explicit | "list React state libraries" |
 | infrastructure-agent | P3 | "write the Dockerfile, compose file, and CI workflow" | yes | "what is CI?" |
 | db-migration-agent | P3 | "add the staged Postgres migration for the ledger tables" | yes | "what is a migration?" |
 | qe-agent | P4 | "verify the build against the contracts and emit qa-report.json" | yes | "write one unit test" |
@@ -27,7 +29,7 @@ The near-miss controls are how over-triggering on the pushy descriptions is meas
 | docs-agent | P4 | "write the README, API reference, and runbook" | yes | "fix this typo" |
 | observability-agent | P3 | "add structured logs, metrics, and health checks" | yes | "what is a metric?" |
 | performance-agent | P3 | "write k6 load scripts for the bid and fraud endpoints" | yes | "why does performance matter?" |
-| code-review-agent | P4 | "review this diff for correctness and conventions" | yes | "read me this function" |
+| code-review-agent | P4 | "review this diff for correctness and conventions" | explicit | "read me this function" |
 
 ## Contract skills
 
@@ -61,11 +63,11 @@ The near-miss controls are how over-triggering on the pushy descriptions is meas
 
 | Skill | Phase | Legitimate trigger | Must-fire | Near-miss control (must not fire) |
 |---|---|---|---|---|
-| loop-controller | P3 | "keep the ledger suite green until it passes" (routes to a primitive) | yes | "what is a loop?" |
+| loop-controller | P3 | "keep the ledger suite green until it passes" (routes to a primitive) | explicit | "what is a loop?" |
 | fix-until-green | P3 | "do not stop until tests, lint, and typecheck are green" | yes | "run the tests once" |
 | contract-conformance-loop | P3 | "build until every ledger contract criterion holds" | yes | "explain the contract" |
 | coverage-loop | P3 | "get coverage of the ledger module to 85%" | yes | "what is coverage?" |
-| perf-loop | P3 | "optimize the bid endpoint until p95 is under 200ms" | yes | "what is p95?" |
+| perf-loop | P3 | "optimize the bid endpoint until p95 is under 200ms" | explicit | "what is p95?" |
 | migration-loop | P7 | "migrate every module off the legacy pricing API" | yes | "what is a migration?" |
 | babysit | P6 | "keep the open PR rebased and green while review comes in" | yes | "what does a PR do?" |
 | self-healing-loop | P7 | "watch CI and self-heal the failures" | yes | "what is CI?" |
@@ -84,7 +86,7 @@ The near-miss controls are how over-triggering on the pushy descriptions is meas
 | living-plan | P0 | "set up the living-plan convention for Bazaar II" | yes | "what is a plan?" |
 | grill-me | P1 | "interview me about the escrow design, one question at a time" | yes | "give me a design doc" |
 | find-unknowns | P1 | "run a blindspot pass before we commit to the plan" | yes | "what are requirements?" |
-| zoom-out | P1 | "step back — which modules does this change touch?" | yes | "list the files" |
+| zoom-out | P1 | "step back — which modules does this change touch?" | explicit | "list the files" |
 | architecture-rescue | P1 | "find the shallow modules and missing seams in the ledger" | yes | "what is architecture?" |
 | work-item-brief | P1 | "write an agent-ready ticket for the fraud service" | yes | "make a todo" |
 | yagni-gate | P2 | "before we build the fraud service, climb the reuse ladder" | yes | "what is YAGNI?" |
@@ -134,4 +136,4 @@ The near-miss controls are how over-triggering on the pushy descriptions is meas
 | workflows | 39 |
 | **Total** | **76** |
 
-A must-fire skill that produces no trace record is reported as a miss. A near-miss control that fires is reported as a false positive. Both feed the `[G2]` intake proposal.
+A `yes` skill that produces no trace record is reported as a miss. A near-miss control that fires is reported as a false positive. An `explicit` skill is reported separately: it is graded on whether it was reached and did its work when invoked, never on unsolicited model selection. Misses, false positives, and unreached `explicit` skills all feed the `[G2]` intake proposal.

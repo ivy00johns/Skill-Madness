@@ -41,9 +41,16 @@ def load_jsonl(path: Path) -> list[dict]:
     return records
 
 
-def parse_matrix(matrix_path: Path) -> dict[str, str]:
-    """Return skill -> category, using the order of the category headings."""
+def parse_matrix(matrix_path: Path) -> tuple[dict[str, str], set[str], set[str]]:
+    """Return (skill -> category, must_fire, explicit) from coverage-matrix.md.
+
+    `must_fire` holds the `yes` rows the report scores for selection; `explicit`
+    holds the `disable-model-invocation` rows, which are graded on reachability
+    and never reported as missed must-fire skills.
+    """
     categories: dict[str, str] = {}
+    must: set[str] = set()
+    explicit: set[str] = set()
     current = ""
     for line in matrix_path.read_text(encoding="utf-8").splitlines():
         if line.startswith("## "):
@@ -61,7 +68,12 @@ def parse_matrix(matrix_path: Path) -> dict[str, str]:
             cells = [c.strip() for c in line.strip("|").split("|")]
             if len(cells) >= 4 and cells[0] and cells[0].lower() != "skill":
                 categories.setdefault(cells[0], current)
-    return categories
+                flag = cells[3].lower()
+                if flag.startswith("yes"):
+                    must.add(cells[0])
+                elif flag.startswith("explicit"):
+                    explicit.add(cells[0])
+    return categories, must, explicit
 
 
 def main() -> int:
@@ -74,7 +86,10 @@ def main() -> int:
     if not args.trace.is_file():
         raise SystemExit(f"error: trace not found: {args.trace}")
 
-    categories = parse_matrix(args.matrix) if args.matrix.is_file() else {}
+    if args.matrix.is_file():
+        categories, must, explicit = parse_matrix(args.matrix)
+    else:
+        categories, must, explicit = {}, set(), set()
     records = load_jsonl(args.trace)
 
     by_skill: dict[str, list[dict]] = {}
@@ -84,7 +99,7 @@ def main() -> int:
             by_skill.setdefault(skill, []).append(record)
 
     counted = Counter(categories.get(skill, "unknown") for skill in by_skill)
-    total_by_cat = Counter(categories.values())
+    total_by_cat = Counter(categories.get(skill, "unknown") for skill in must)
 
     lines: list[str] = []
     lines.append("# Gauntlet II — scored coverage")
@@ -105,12 +120,22 @@ def main() -> int:
     lines.append(f"| **total** | **{expected_total}** | **{fired_total}** | **{missed_total}** |")
     lines.append("")
 
-    missed_skills = sorted(set(categories) - set(by_skill))
-    unexpected = sorted(set(by_skill) - set(categories))
+    missed_skills = sorted(must - set(by_skill))
+    unreached_explicit = sorted(explicit - set(by_skill))
+    unexpected = sorted(set(by_skill) - must - explicit)
     if missed_skills:
         lines.append("## Missed must-fire skills")
         lines.append("")
         for skill in missed_skills:
+            lines.append(f"- {skill}")
+        lines.append("")
+    if unreached_explicit:
+        lines.append("## Explicit-invocation skills not reached")
+        lines.append("")
+        lines.append("These ship `disable-model-invocation: true`; not reaching them is a")
+        lines.append("reachability finding, not a model-selection miss.")
+        lines.append("")
+        for skill in unreached_explicit:
             lines.append(f"- {skill}")
         lines.append("")
     if unexpected:
@@ -137,6 +162,13 @@ def main() -> int:
             f"| G2-{idx:02d} | | {skill} fired without a must-fire context "
             f"| possible over-triggering | tighten the {skill} description "
             f"| coverage-matrix.md | S |"
+        )
+        idx += 1
+    for skill in unreached_explicit:
+        lines.append(
+            f"| G2-{idx:02d} | | {skill} was never reached on its explicit-invocation path "
+            f"| explicit-invocation skill unreachable in this run "
+            f"| document a dispatch/entry point for {skill} | coverage-matrix.md | S |"
         )
         idx += 1
     if idx == 1:

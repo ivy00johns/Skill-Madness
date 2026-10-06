@@ -32,7 +32,7 @@ The primary cell is Claude Code (full orchestrator, parallel roles, hooks, QA ga
 
 These are fixed before execution so the run cannot quietly rewrite its own success criteria.
 
-- **Falsifying result:** if a must-fire skill does not fire on its legitimate trigger in Phase 4 through Phase 6, that is a finding, not a nuisance. The run is designed to surface it.
+- **Falsifying result:** if a must-fire (`yes`) skill does not fire on its legitimate trigger in Phase 4 through Phase 6, that is a finding, not a nuisance. The run is designed to surface it. Skills the matrix marks `explicit` are excluded from this falsifier: they ship `disable-model-invocation: true` by design, so they are graded on reachability and work-when-invoked, never on unsolicited model selection.
 - **Acceptance = outcome + proof + architecture.** Trajectory (calls, seconds, cost) only explains; it never substitutes. A `null` cost means unknown, never zero.
 - **Scope is bounded on purpose.** The old Gauntlet's four-figure-line scope is ungovernable; a run that cannot finish produces no evidence. Bazaar II is deliberately six to eight routes and three services.
 - **No paid model batch, no production deploy, no real money, no global installs, no permission changes** without separate approval.
@@ -84,7 +84,7 @@ A trap that stays green means no rule exists. That result is reported, not smoot
 
 ## 7. Coverage matrix
 
-All 76 on-disk skills are enumerated in `coverage-matrix.md`, derived from the filesystem rather than from the docs, each with a phase, a legitimate trigger phrase, a must-fire flag, and a near-miss negative control that must not fire. The near-miss controls are how over-triggering on the pushy descriptions is measured.
+All 76 on-disk skills are enumerated in `coverage-matrix.md`, derived from the filesystem rather than from the docs, each with a phase, a legitimate trigger phrase, a must-fire flag (`yes`, `explicit`, or `yes (optional)`), and a near-miss negative control that must not fire. The near-miss controls are how over-triggering on the pushy descriptions is measured; the `explicit` flag records the skills that deliberately disable model invocation instead of pretending they should auto-fire.
 
 ## 8. Phases
 

@@ -40,10 +40,16 @@ def load_jsonl(path: Path) -> list[dict]:
     return records
 
 
-def derive_expectations(matrix_path: Path) -> tuple[set[str], set[str]]:
-    """Return (must_fire, near_miss) skill names parsed from coverage-matrix.md."""
+def derive_expectations(matrix_path: Path) -> tuple[set[str], set[str], set[str]]:
+    """Return (must_fire, near_miss, explicit) skill names from coverage-matrix.md.
+
+    `explicit` rows ship `disable-model-invocation: true`: they are deliberately
+    not model-selectable, so a firing is welcome but never a false positive, and
+    a non-firing is only reported as unreached, not as a missed must-fire.
+    """
     must: set[str] = set()
     near: set[str] = set()
+    explicit: set[str] = set()
     for line in matrix_path.read_text(encoding="utf-8").splitlines():
         match = MATRIX_ROW.match(line)
         if not match:
@@ -55,7 +61,9 @@ def derive_expectations(matrix_path: Path) -> tuple[set[str], set[str]]:
             must.add(skill)
             if near_miss:
                 near.add(skill)
-    return must, near
+        elif must_fire.lower().startswith("explicit"):
+            explicit.add(skill)
+    return must, near, explicit
 
 
 def main() -> int:
@@ -74,13 +82,15 @@ def main() -> int:
     fired = {str(r.get("skill", "")).strip() for r in records if r.get("skill")}
 
     must: set[str] = set()
+    explicit: set[str] = set()
     if args.matrix.is_file():
-        must, _near = derive_expectations(args.matrix)
+        must, _near, explicit = derive_expectations(args.matrix)
     else:
         print(f"warn: matrix not found, no expectations derived: {args.matrix}", file=sys.stderr)
 
     missed = sorted(must - fired)
-    false_positives = sorted(fired - must) if must else []
+    unreached_explicit = sorted(explicit - fired)
+    false_positives = sorted(fired - must - explicit) if must else []
 
     merged = "\n".join(json.dumps(r, sort_keys=True) for r in records)
     if args.out:
@@ -94,6 +104,10 @@ def main() -> int:
     if missed:
         print(f"missed must-fire ({len(missed)}):", file=sys.stderr)
         for skill in missed:
+            print(f"  - {skill}", file=sys.stderr)
+    if unreached_explicit:
+        print(f"explicit skills not reached ({len(unreached_explicit)}):", file=sys.stderr)
+        for skill in unreached_explicit:
             print(f"  - {skill}", file=sys.stderr)
     if false_positives:
         print(f"unexpected firings ({len(false_positives)}):", file=sys.stderr)

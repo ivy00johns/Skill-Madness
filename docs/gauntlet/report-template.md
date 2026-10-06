@@ -25,7 +25,7 @@ One paragraph: did the run exercise the collection, what fired, what missed, and
 
 ## 3. Coverage results
 
-Copy the roll-up from `coverage-matrix.md` and mark each must-fire: fired (with the trace record), missed, or blocked. List every near-miss control that fired as a false positive.
+Copy the roll-up from `coverage-matrix.md` and mark each must-fire (`yes`) skill: fired (with the trace record), missed, or blocked. List every near-miss control that fired as a false positive. Report the `explicit` rows separately — reached or not reached, and whether the work happened — since they are graded on reachability, not model selection.
 
 | Category | Must-fire | Fired | Missed | Blocked | False positives |
 |---|---|---|---|---|---|
