@@ -89,7 +89,8 @@ INPUT_REQUEST_MARKERS = (
     "please point", "point me to", "you haven't included", "you have not included",
     "can you provide", "could you provide", "can you share", "could you share",
     "i need the", "i'd need", "send me the", "which file", "which branch",
-    "let me know which", "can you paste", "could you paste",
+    "let me know which", "can you paste", "could you paste", "paste the",
+    "can you clarify", "could you clarify", "please clarify",
 )
 # Phrases that mark a refusal. A refusal is not work, no matter how long it is.
 REFUSAL_MARKERS = (
@@ -391,13 +392,16 @@ def parse_trace(stream: str) -> Trace:
 
 
 def _is_input_request(text: str) -> bool:
-    """Did the host ask the user for missing input instead of doing the work?"""
+    """Did the host ask the user to supply a missing artifact?
+
+    Only concrete artifact requests count. A bare question is not a punt: for an
+    interview skill the question IS the work, so treating every `?` as a request
+    for input reads a correct interview turn as a failure.
+    """
     low = text.strip().lower()
     if not low:
         return False
-    if any(marker in low for marker in INPUT_REQUEST_MARKERS):
-        return True
-    return low.endswith("?") and len(low) < 400
+    return any(marker in low for marker in INPUT_REQUEST_MARKERS)
 
 
 def _is_refusal(text: str) -> bool:

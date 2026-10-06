@@ -61,6 +61,9 @@ terse = line(type="result", text="dependency-health-loop audits for stale pins a
 assert tp.assess_work(tp.parse_trace(terse))[0] is True
 refusal = line(type="result", text="I can't help with that request.")
 assert tp.assess_work(tp.parse_trace(refusal))[0] is False
+# A question can be the work itself: an interview skill asks one at a time.
+interview = line(type="result", text="First question: what is the core trust gap this escrow design must close?")
+assert tp.assess_work(tp.parse_trace(interview))[0] is True
 acted = line(type="tool_use", name="bash", input={"command": "pytest"})
 assert tp.assess_work(tp.parse_trace(acted))[0] is True
 view = "\n".join([

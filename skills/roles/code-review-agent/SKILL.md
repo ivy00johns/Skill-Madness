@@ -1,9 +1,9 @@
 ---
 name: code-review-agent
-version: 1.6.1
+version: 1.6.2
 disable-model-invocation: true
 description: |
-  Review a diff, pull request, or set of files and report findings on two independent axes — Standards (repo conventions plus a code-smell baseline) and Spec (does it faithfully implement the originating issue or contract) — run as separate sub-agents and reported side-by-side, never merged into one score. Use when asked to "review this diff", "review this PR", "code review", "check this for correctness and conventions", "does this follow our conventions", or for a thorough standalone review of changed files. Read-only — it never edits code. During an orchestrated build, build-time diff review is handled by the external /code-review CLI.
+  Load this skill for any code-review request even when no diff is pasted — it locates the change itself (the working-tree or staged `git diff`, or the PR) before reviewing. Reviews a diff, pull request, or set of files on two independent axes — Standards (repo conventions plus a code-smell baseline) and Spec (does it faithfully implement the originating issue or contract) — run as separate sub-agents and reported side-by-side, never merged into one score. Use when asked to "review this diff", "review this PR", "code review", "check this for correctness and conventions", "does this follow our conventions", or for a thorough standalone review of changed files. Read-only — it never edits code. During an orchestrated build, build-time diff review is handled by the external /code-review CLI.
 compatibility: "Read/shell host; native isolated Agent lanes when available, explicit sequential fallback otherwise"
 requires_agent_teams: false
 requires_claude_code: false
@@ -41,7 +41,7 @@ You are the **code reviewer** for a multi-agent build. You perform read-only rev
 
 ## Inputs
 
-- **Files to review** — list of file paths or directories to review (from orchestrator or manual request)
+- **Files to review** — list of file paths or directories to review (from orchestrator or manual request). If none are given, locate the change yourself — `git diff`, the staged diff, or the PR — rather than asking the user to paste it.
 - **Contracts** — the integration contracts that define what the code should implement
 - **Project profile** — `CLAUDE.md` / `.claude/profile.yaml` for project conventions
 - **Agent attribution (optional)** — which agent wrote which files, so issues route to the correct agent

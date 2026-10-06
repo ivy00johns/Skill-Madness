@@ -1,8 +1,8 @@
 ---
 name: model-adaptation
-version: 1.7.0
+version: 1.7.1
 description: |
-  Migrate and adapt a prompt, skill, brief, or agent scaffold when the underlying model or host changes — a new Claude version, DeepSeek, GPT, Gemini, Freebuff, or an unknown runtime. Stronger models need less scaffolding, so this says what to prune, what backfires, and what to add for long autonomous runs; it is the canonical home of the model/effort tiering policy and cross-vendor routing consent. Use when adapting a brief or a skill for a specific cell or vendor ("adapt this for the DeepSeek cell", "migrate to Fable 5"), picking model or effort, or tuning prompts for a different host.
+  Load this skill for any adaptation-for-a-cell request even when no brief is attached — it adapts whatever is in context and, when nothing is supplied, emits the per-cell adaptation rules and routing directly instead of asking for the brief. Migrate and adapt a prompt, skill, brief, or agent scaffold when the underlying model or host changes — a new Claude version, DeepSeek, GPT, Gemini, Freebuff, or an unknown runtime. Stronger models need less scaffolding, so this says what to prune, what backfires, and what to add for long autonomous runs; it is the canonical home of the model/effort tiering policy and cross-vendor routing consent. Use when adapting a brief or a skill for a specific cell or vendor ("adapt this for the DeepSeek cell", "migrate to Fable 5"), picking model or effort, or tuning prompts for a different host.
 requires_claude_code: false
 min_plan: starter
 compatibility: "Reference/advisory doctrine for Claude, GPT, Gemini, DeepSeek and unknown runtimes. Host tools, provider routing and endpoint effort controls must be observed separately; documentation fetch is optional."

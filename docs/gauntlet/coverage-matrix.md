@@ -29,7 +29,7 @@ The **Must-fire** cell has three values. `yes` means the model must select the s
 | docs-agent | P4 | "write the README, API reference, and runbook" | yes | "fix this typo" |
 | observability-agent | P3 | "add structured logs, metrics, and health checks" | yes | "what is a metric?" |
 | performance-agent | P3 | "write k6 load scripts for the bid and fraud endpoints" | yes | "why does performance matter?" |
-| code-review-agent | P4 | "review this diff for correctness and conventions" | explicit | "read me this function" |
+| code-review-agent | P4 | "review this diff for correctness and conventions: - let n = list.length; + const n = list.filter(Boolean).length;" | explicit | "read me this function" |
 
 ## Contract skills
 
