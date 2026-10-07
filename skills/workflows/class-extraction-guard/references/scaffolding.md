@@ -5,15 +5,21 @@ only ratchet down a backlog — the painful manual burndown a human eventually
 notices. Installed at the **bootstrap wave**, before the first frontend-agent
 writes a line, it catches violation #1 at commit #1 and the soup never piles up.
 
+## Consented portable bootstrap (native or solo)
+
+Use the sibling design-token-guard's `scripts/bootstrap_frontend_guards.py` preview/apply path, providing this installed skill's root via `--class-guard-dir`. After scoped approval it bundles all helper scripts, selects repeated-utility/CSS ERROR policy, adds shared literal source-layout checks and a full-source runner plus CI. Hook snippet is inactive unless explicitly integrated; existing hooks/config are never overwritten. Full-tree source checks catch cross-file renamed CSS and copied chrome, unlike a staged-only subset. Missing resources/inspection failures block rather than pass. Generated output must be excluded and visible render proof still runs separately.
+
 ## Greenfield (recommended — hard gate from the start)
 
 During the orchestrator's workspace-bootstrap step, drop in:
 
 1. **Config** — copy `assets/class-guard.config.json` to `.class-guard.json` and
    set the strong rule to blocking:
+
    ```json
    { "rules": { "repeated-class-string": "error" } }
    ```
+
 2. **Pre-commit** — install `assets/pre-commit` (or wire it via husky/lefthook) so
    a developer or agent gets the finding before the commit lands.
 3. **CI** — add `assets/ci-step.yml` to the pipeline.
@@ -43,6 +49,6 @@ re-run `--write-baseline` to shrink it.
   deliverables (README, one-command dev, now the source-convention gates) are
   produced. Add `.class-guard.json` + hook + CI there, beside the design-token
   scaffolding.
-- **frontend-agent** — runs the gate on its changed files before reporting done.
+- **frontend-agent** — invokes consented bootstrap before authoring, then runs the full project source runner before done; native independent QE remains required, solo self-check is not certification.
 - **sync-skills** — the global `~/.claude/skills/class-extraction-guard` symlink is
   what the hook and agents invoke; run `/sync-skills` after installing the skill.

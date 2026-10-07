@@ -51,9 +51,16 @@ over the defaults; the `rules` object is merged key-by-key.
 }
 ```
 
+## Frontend layout profile and inspection status
+
+`--profile layout` overrides `inlineStyleMode` to `layout` and `no-inline-style` to `error`. Only explicit CSS custom-property inputs may stay inline; ordinary layout properties and opaque bound objects are reported even if values are dynamic/token-backed. Legacy literal and strict modes remain. HTML dimensions are parsed as CSS text, JSX as quoted/object values. This is conservative source inspection, not a full JS/template compiler.
+
+JSON `summary.files` and `files_scanned` count actually inspected source files, excluding token definitions; `files_with_findings` is separate. Invalid/missing explicit config, missing paths, git enumeration errors and unreadable sources return exit 2 / blocked status, never clean success. The project bootstrap selects the ERROR profile before authoring with owner consent.
+
 ## Per-rule notes
 
 ### `no-hardcoded-color` (universal)
+
 Flags `#hex` (3/4/6/8-digit), `rgb()/rgba()`, `hsl()/hsla()` literals across the
 scanned files. When the normalized value matches a declared token, the message
 names the exact token and suggests `var(--token)`. When it doesn't, it flags the
@@ -62,6 +69,7 @@ has an untracked value. Color literals inside comments and the token sources
 themselves are ignored.
 
 ### `no-inline-style` (universal)
+
 Catches `style={{…}}` (JSX), `style="…"`, `:style`, and `[style]` (Vue/Svelte/
 Angular/HTML) attributes. Default `"literal"` mode fires only when the attribute
 carries a hardcoded literal — color literals are owned by `no-hardcoded-color`
@@ -70,22 +78,27 @@ in literal mode is hardcoded **dimensions** and mixed literals. Switch to
 `"strict"` to forbid inline styles outright.
 
 ### `no-class-in-svg` (opt-in)
+
 For projects whose convention is "SVG is styled with token attributes, never
 utility/Tailwind classes." Flags `className`/`class` carrying utility-looking
 tokens on `<rect>`, `<path>`, `<g>`, `<circle>`, etc.
 
 ### `restricted-radius` (opt-in)
+
 Flags `rounded-{md,lg,xl,2xl,3xl,full}` classes and `border-radius: Npx` where
 `N > maxRadiusPx`. For editorial/sharp design systems with a hard radius cap.
 
 ### `forbidden-colors` (opt-in)
+
 Each entry is a regex tested against every line. Use for a banned second accent,
 partisan red/blue, or any class/value the project forbids. Example:
+
 ```json
 "forbiddenColors": ["\\b(?:text|bg|border)-(?:red|blue)-\\d{3}\\b", "#ff0000"]
 ```
 
 ### `no-arbitrary-tailwind` (opt-in)
+
 Flags Tailwind **arbitrary-value** utilities — `text-[10px]`, `max-w-[1100px]`,
 `leading-[1.75]`, `pb-[1px]` — that hardcode a value off the spacing/type scale.
 For projects that want strict scale discipline. Deliberately **off by default**:

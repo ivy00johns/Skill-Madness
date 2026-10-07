@@ -1,8 +1,9 @@
-<div align="center">
-
+<!-- markdownlint-configure-file {"MD033": {"allowed_elements": ["div", "p", "a", "img", "table", "tr", "td", "sub", "b", "code", "details", "summary", "br"]}} -->
 # 🧰 Skill Madness
 
-### *All the skills, all the agents, all the chaos — coordinated.*
+<div align="center">
+
+## *All the skills, all the agents, all the chaos — coordinated.*
 
 **Most AI coding setups give you one agent, one context window, one shot. Skill Madness gives you a coordinated fleet — plus the autonomous loops to keep it working until the job is provably done.**
 
@@ -81,12 +82,13 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 - 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 76-skill library stays cheap to host.
 - 🔁 **Two-runtime degradation** — Agent Teams (parallel tmux) → subagents (Task tool) → sequential. The orchestrator picks the highest mode the host supports; role skills work standalone in any of them.
 - 🧰 **76 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 7 meta-skills (including `madness`, the front-door router, and `model-adaptation`), 4 git-workflow skills, 39 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
-- 🌐 **Portable format, honest subset** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The multi-agent core — the orchestrator, the role agents, and the autonomous loops, whose contracts *are* Claude Code's runtime primitives — stays Claude-Code-only by design; the standalone conventions and workflows (git, planning, docs, review, debugging, contract authoring, and more) convert to all ten other hosts. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
+- 🌐 **Portable format, honest subset** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The native orchestrator and autonomous loops retain Claude Code's runtime primitives. All ten roles and contract-auditor now offer explicit bounded solo branches; native ownership and QE dispatch remain intact. Portable export is delivery, not live-host or independent-review certification. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
 
 > **Status — read before you pitch this to anyone:**
-> - **The orchestrator + 76-skill library is the mature part.** All bodies under 500 lines, zero ownership conflicts, zero broken cross-references, an Ubuntu lint gate plus a non-blocking macOS smoke on every push.
+>
+> - **The orchestrator + 76-skill library is the mature part.** PSFS author validation, ownership/cross-reference checks, an Ubuntu lint gate plus a non-blocking macOS smoke on every push. Body diagnostics report physical/nonblank lines and approximate tokens, not measured host context cost.
 > - **The 13 autonomous loops are the newest layer.** All built on one `loop-controller` guardrail harness and CI-linted. The build/verify loops (`fix-until-green`, `coverage-loop`, `contract-conformance-loop`) are the most exercised; the scheduled ones (`self-healing-loop`, `dependency-health-loop`) are powerful but younger — keep a human in the loop on anything irreversible.
-> - **Claude Code is the end-to-end-verified host.** Multi-agent dispatch with file-ownership exclusivity and the `qa-report.json` gate runs live on Claude Code today. The other ten hosts receive the library's portable subset and don't run the orchestrator's parallel dispatch.
+> - **Claude Code is the native orchestration target.** Teams/agents/workflows and the `qa-report.json` gate remain its native path. This audit verified local tooling and fake-root delivery, not current live-host dispatch or model efficacy. The other ten converter targets receive the portable subset, not native parallel dispatch certification.
 > - **Lossy conversion is announced.** When a skill is converted to a non-Claude-Code host, orchestration-only fields (`allowed_tools`, `owns`, `composes_with`, `spawned_by`, `requires_agent_teams`) are stripped with a stderr line per skill. Skills marked `requires_claude_code: true` are skipped entirely for those targets. See `contracts/installer/per-tool-output-spec.md`.
 
 ---
@@ -363,7 +365,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 🧰 Skill catalog
 
-76 skills organized into seven categories. All bodies under 500 lines, all frontmatter validated, zero ownership conflicts, zero broken cross-references.
+76 skills organized into seven categories. Frontmatter is validated by PSFS author schema; lint checks declared ownership and cross-references. Body guidance is advisory: diagnostics separate physical/nonblank lines, words and UTF-8-bytes/4 approximate tokens. Resource inventories check literal local references and declare external dependencies, not live-host acceptance.
 
 <details>
 <summary><b>📚 Full skill table</b> (click to expand)</summary>
@@ -453,7 +455,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 📂 Project structure
 
-```
+```text
 .
 ├── README.md                         # this file
 ├── CLAUDE.md                         # project guidance for Claude Code
@@ -503,7 +505,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 🎁 Also works on ten other hosts
 
-The orchestrator and the multi-agent QA gate are Claude-Code-native — that's the headline feature, and it stays home: skills whose contract *is* Claude Code's runtime (the orchestrator, the 10 role agents, all 13 loops, and the workflows bound to the Artifact tool, subagent dispatch, or `~/.claude` config) are marked `requires_claude_code: true` and are never converted. The canonical `SKILL.md` *format* is platform-agnostic, though, so the rest of the library — **39 of the 76 skills** today: the git conventions and the planning, docs, review, debugging, and contract-authoring workflows — converts to ten other AI coding tools. Broadening that subset is tracked as F1 in [`docs/FUTURE.md`](docs/FUTURE.md).
+The orchestrator, native hook execution and autonomous loops retain their Claude-Code runtime path. The ten role skills and contract-auditor now also have explicit bounded solo branches: user-supplied scope/contracts, the same ownership/checklists, and honest blocked/independence reporting without invented Agent calls. Thus **50 of the 76 skills** export to the ten other converter targets. Export count is not runtime certification: resource delivery is covered by local fake-root regressions; live-host efficacy and mechanical unattended controls remain tracked in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md). The broader F1 generator framework remains parked.
 
 The single-source model is deliberate, and there's a concrete counter-example for why: microsoft/SkillOpt shipped the opposite design — five bespoke per-host integrations (claude-code, codex, copilot, devin, openclaw) — and was already drifting within months of release: backend-enum mismatches between plugins, and an openclaw adapter broken-by-design against its own engine. One canonical `SKILL.md` plus converters means a fix lands once instead of five times.
 
@@ -681,7 +683,7 @@ Almost always a `pyyaml` version skew. CI installs `pyyaml` explicitly on macOS 
 <details>
 <summary><b>"My non-Claude-Code host doesn't see all 76 skills"</b></summary>
 
-Expected. Skills with `requires_claude_code: true` — the `orchestrator`, all of `roles/`, all of `loops/`, and the workflows bound to Claude Code's runtime or `~/.claude` config — are skipped for the other hosts; 39 of the 76 skills convert today. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
+Expected. Skills with `requires_claude_code: true` — the `orchestrator`, all of `loops/`, and workflows bound to Claude Code's runtime or `~/.claude` config — are skipped for the other hosts; 50 of the 76 skills export today. The roles and contract-auditor export explicit solo branches, not native orchestration emulation. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
 </details>
 
 <details>

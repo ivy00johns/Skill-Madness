@@ -1,13 +1,25 @@
 # Contract: Install Locations
 
 **Build:** Multi-Tool Installer (Slice A)
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Owner:** orchestrator (authored Phase 4)
 **Consumed by:** scripts-agent (install.sh), qe-agent (install dry-run tests)
 
 ## Purpose
 
 Defines where `scripts/install.sh` copies the artifacts produced in `integrations/` for each of the 11 tools. Also defines tool detection, scope, conflict behavior, and the interactive UI contract.
+
+## Resource delivery extension
+
+Current generated output carries a hashed resource manifest consumed by both
+installers; see [resource-delivery](resource-delivery.md). The matrix applies to
+prompt paths; companions/templates/viewer resources retain the same local skill
+root. Flat formats install `<slug>-resources/` and legacy companions. Consolidated
+formats additionally install project `.ats-skills/<tool>/skills/<slug>/`.
+Gemini keeps extension metadata plus `skills/`. Native hooks install separately
+under `.claude/ats-hooks/`; activation remains explicit. Symlink parents block,
+while native sync-managed skill directories remain skipped. Preview writes no
+files or Python caches.
 
 ## Install Matrix
 
@@ -34,7 +46,7 @@ Defines where `scripts/install.sh` copies the artifacts produced in `integration
 
 ## CLI Contract
 
-```
+```text
 Usage: scripts/install.sh [OPTIONS] [TOOL ...]
 
 Options:
@@ -56,7 +68,7 @@ If no TOOL is given and stdin is NOT a TTY, behaves as --detected.
 
 When the TUI is shown:
 
-```
+```text
 +----------------------------------------------------+
 |  Skill Madness -- Skill Installer       |
 +----------------------------------------------------+
@@ -81,6 +93,7 @@ System scan:  [*] = detected on this machine
 ```
 
 UI requirements:
+
 - Inner box width: 52 chars
 - Pure ASCII (no Unicode box characters — Windows Git Bash / non-UTF terminals)
 - Color codes stripped before length measurement (`strip_ansi` helper)

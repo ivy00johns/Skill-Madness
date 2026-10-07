@@ -1,6 +1,6 @@
 ---
 name: use-freellmapi
-version: 1.4.0
+version: 1.5.0
 description: |
   Wire any project or coding agent to FreeLLMAPI — a local proxy aggregating ~30 free LLM provider
   tiers behind one endpoint — so you can prototype without paying for API calls. Use to switch a
@@ -36,11 +36,10 @@ changes beyond a base URL and a key.
 > **Don't hardcode the roster or the numbers into advice.** Providers come and go, the catalog
 > self-updates from a signed feed, and free installs run on a 30-day catalog trail. Read the live
 > `/v1/models` and the dashboard rather than trusting any list — including this one.
-
-> **Tiering note:** a FreeLLMAPI project is the toolkit's one sanctioned multi-provider setup. The
+>
+> **Tiering note:** a FreeLLMAPI project is the toolkit's explicit aggregating multi-provider setup. The
 > model & effort tiering policy (`model-adaptation`, *Model & effort tiering*) is provider-relative —
-> within a normal build you pick tiers inside ONE provider's ladder and never mix vendors to save
-> tokens — and FreeLLMAPI is its explicit carve-out: here the aggregated free tiers ARE the ladder,
+> within a normal build you pick tiers inside ONE provider's ladder and require explicit provider/privacy/budget consent for cross-provider review — and FreeLLMAPI is its explicit carve-out: here the aggregated free tiers ARE the ladder,
 > and the scarce resource is rate/quota headroom, not dollars.
 
 ## The whole integration, in three facts
@@ -98,7 +97,9 @@ curl -fsS http://localhost:3001/api/ping
 > Kill the `npm run dev` parent (not just the node child — `tsx watch` respawns it), then re-probe.
 > Never reach for `docker compose down -v` to "reset" this; that is what actually destroys keys.
 
-If nothing answers, install and start it with the official one-liner (needs Docker running):
+If nothing answers, ask the user before installing or executing external setup scripts:
+never pipe internet scripts to bash (`curl ... | bash`) without explicit user review and confirmation.
+Once approved, install and start with the official one-liner (needs Docker running):
 
 ```bash
 curl -fsSL https://freellmapi.co/install.sh | bash

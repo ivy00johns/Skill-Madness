@@ -1,6 +1,6 @@
 ---
 name: website-walkthrough-video
-version: 1.2.0
+version: 1.3.0
 description: |
   Generate a smooth scrolling walkthrough video of an entire website — capture
   every page full-length at desktop and mobile widths, then render an mp4 that
@@ -45,10 +45,14 @@ then on to the next page. Pages that fit in one viewport just hold for a few sec
    route, set the viewport, navigate, force lazy `<img>` elements to load eagerly,
    force `prefers-reduced-motion: reduce` to defeat scroll-reveal animations,
    scroll the whole page once so remaining lazy images and on-scroll animations
-   fire, return to top, take a **full-page** screenshot (tall — the entire page,
-   not just the fold), and wait for all images to finish loading. It also samples
-   the page background color so the video never flashes black. Writes the PNGs
-   plus a `manifest.json`.
+   fire, return to top, take a screenshot, and wait for all images to finish loading.
+
+   **Enforced capture bounds:** the runner accepts 1–20 routes and refuses an image
+   over 8,000 physical pixels high or 250 MiB decoded RGBA (width × height × scale² × 4),
+   before scrolling and again after lazy content settles. Scroll/settle waits are bounded.
+   Refusal yields no success manifest: choose scoped shorter routes or a separately
+   reviewed tile workflow; do not silently truncate or stitch an oversized image.
+   The renderer applies the same limits, including `--skip-capture` inputs.
 
 2. **Render** (`scripts/build.mjs`, ffmpeg): for each screenshot, build a clip that
    overlays the tall image on a viewport-sized window and animates its vertical

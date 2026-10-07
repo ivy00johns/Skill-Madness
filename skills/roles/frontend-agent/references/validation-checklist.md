@@ -4,6 +4,12 @@ Run ALL before reporting done. Fix failures. Adapt commands for your package man
 
 > **The single most important gate is below: actually run the typecheck and any tests the package defines.** Grep-based validation (e.g., "all 9 routes are wired" by counting matches) cannot catch missing dependency declarations, broken type narrowing, or runtime errors. If `tsc --noEmit` reports errors, you are not done.
 
+## Invoked source gate (native and solo)
+
+Before UI authoring, preview and obtain consent for design-token-guard's project-local bootstrap; integrate the runner into existing pre-commit tooling without replacing hooks. Run `python3 scripts/frontend-guards/run.py` after each UI slice and before done. It enforces stylesheet layout (custom-property inputs exempt), repeated utilities, equivalent simple-class CSS declaration blocks and copied semantic source chrome. Run the **full authored source tree** so unique hashed classes or a copied page cannot evade cross-file checks. Generated output belongs in ignored build directories; configure additional generated paths explicitly. Nonzero exit, malformed config or unreadable source is BLOCKED, never a clean report. Do not weaken rules or add baselines/exceptions without owner approval.
+
+When copied-chrome findings occur, extract one owning header/nav/footer partial/component/include. Literal-copy detection is not a proof of dynamic framework composition, so inspect shared-shell ownership manually as well. Two-width visible render proof and actual project typecheck/tests are still required; same-context pre-checks do not replace native QE or independent solo review.
+
 ## Build Verification
 
 Run the project's own scripts for your package — whatever the stack provides:

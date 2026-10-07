@@ -4,7 +4,7 @@ Depth for the **Model & effort tiering** section of the model-adaptation
 SKILL.md. Everything in this file is model- and pricing-specific and therefore
 **ages** — like the SKILL.md *Current landscape* table, update it when a new
 model ships or pricing moves. Facts verified against the `claude-api` reference
-on 2026-07-03.
+on 2026-07-03. These are historical figures, not October-verified prices or account entitlements; check authoritative current pricing before reserving metered spend.
 
 ## Why tiering works — the output-token asymmetry
 
@@ -71,21 +71,40 @@ not an execution pass).
 A project's provider should be discoverable, not guessed:
 
 - Read the declared provider from `.claude/profile.yaml` (the
-  `project-profiler` / `setup-project-skills` convention). Absent that,
-  **default to Anthropic**.
+  `project-profiler` / `setup-project-skills` convention) or active host profile.
+  In confirmed native Claude sessions without a profile, assume Anthropic.
+  In any non-Claude or undetermined host session without explicit provider declaration,
+  record **unknown** and follow `references/unknown-model-adaptation.md` rather
+  than assuming Anthropic.
 - **Anthropic** → the ladder above.
 - **DeepSeek** (a project that declares it — e.g. a Freebuff session) → the
   two-model family *is* the ladder: `deepseek-v4-flash` (thinking off = grunt,
   on = mid) → `deepseek-v4-pro` (thinking high/max = the reasoning gate). The
   capability dial is thinking mode + effort (`none/low/high/max`; `xhigh` and
   `medium` both map to `high`). Full facts: `deepseek-adaptation.md`.
+- **OpenAI / GPT** (a project running under OpenAI APIs or Codex subagents) →
+  eligible cheap model (e.g. Luna / mini) for mechanical grunt work, lowest-cost
+  candidate meeting benchmarks for implementation, demanding reasoning candidate
+  (e.g. Sol) for hard verification. Full facts: `gpt-adaptation.md`.
+- **Gemini** (a project running under Gemini APIs or Gemini CLI) → eligible
+  Flash candidate for mechanical/summarization, mid candidate for scoped code,
+  Pro candidate with documented thinking level for reasoning. Full facts:
+  `gemini-adaptation.md`.
 - **FreeLLMAPI** (the project uses `use-freellmapi`) → the aggregated free
   tiers are the ladder; optimize for rate/quota and capability, not dollars;
-  multi-provider spanning is expected — and this is the *only* setup where it
-  is.
-- **Any other single provider** → that provider's own tier ladder; instantiate
-  the same shape (cheap-for-grunt, top-for-reasoning) and stay inside it. Never
-  substitute a different vendor's model to save tokens.
+  aggregation is expected only within its approved egress/quota policy; the owner
+  may separately consent to cross-provider reviewer routing below.
+- **Cross-vendor builder/reviewer routing (UA-16)** → By default, builds stay
+  within a single provider ladder. However, the repository owner can explicitly
+  opt in to cross-vendor routing (e.g., cheap builder on Provider A, independent
+  reviewer on Provider B) by declaring an explicit `provider_policy` with approved
+  providers, verified data classification, and hard monetary/quota budget ceilings.
+  Enforce cost per accepted result (Outcome + Proof + Architecture) rather than
+  token cost alone. See `cross-vendor-tiering.md`.
+- **Any other single or unknown provider** → that provider's own tier ladder;
+  instantiate the same shape (cheap-for-grunt, top-for-reasoning) and stay inside
+  it. Never substitute a different vendor's model to save tokens unless explicit
+  cross-vendor routing is authorized.
 
 ## Wiring into the consumers
 
@@ -107,7 +126,8 @@ point here — they don't duplicate the tables.
   down; the fresh-context evaluator stays on the top tier — it is the
   reasoning gate.
 - **use-freellmapi** — the carve-out described above. Within any build that is
-  not a FreeLLMAPI project, never mix vendors to save tokens.
+  not a FreeLLMAPI project, stay single-provider unless the owner approves the
+  providers/endpoints, data egress, budget and independent reviewer scope.
 - **use-pxpipe** — checks the image-proxy allowlist below before enabling the
   proxy; it wires the proxy, the SKILL.md's *Image-proxy model allowlist*
   section owns the policy.

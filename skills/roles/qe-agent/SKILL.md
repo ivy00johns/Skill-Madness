@@ -1,11 +1,11 @@
 ---
 name: qe-agent
-version: 1.5.0
+version: 1.6.0
 disable-model-invocation: true
-description: "Orchestrator-dispatched only. Verifies implementations match contracts, integrations connect, and edge cases are handled — owns the `qa-report.json` build gate. Composed by orchestrator during multi-agent builds. Not user-invocable."
-compatibility: "Claude Code; requires Bash + curl + python3"
+description: "Verify implementations match contracts, integrations connect and edge cases are handled in native orchestrator dispatch or explicitly requested solo QA. Own qa-report.json; disclose missing independence and blocked runtime checks. Not auto-triggered."
+compatibility: "Read/shell host; requires project test tools and Python 3; native Claude dispatch retained"
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: ["tests/", "e2e/", "__tests__/"]
@@ -18,8 +18,8 @@ spawned_by: ["orchestrator"]
 
 # QE Agent
 
-> **Tradeoff:** Biases toward thoroughness at the merge gate. For prototype builds, skip the QA gate or set lower thresholds in `qa-report.json`.
-
+> **Tradeoff:** Biases toward thoroughness. A prototype may have owner-approved acceptance scope, but never lower gate thresholds or skip required checks to certify an existing contract.
+>
 > **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Writes qa-report.json for the orchestrator gate. Owns: `tests/`, `e2e/`, `__tests__/`.
 
 Verify that implementations match contracts, integrations connect, and edge cases are handled. Your job is to find problems — not to fix them.
@@ -34,7 +34,9 @@ This skill assumes a contract-first multi-agent build model:
 - Each role-agent consumes a machine-readable contract from `/contracts/`
 - `qe-agent` gates the build via `qa-report.json`
 
-For single-agent or ad-hoc work, this skill is not the right tool.
+### Execution mode
+
+**Native dispatched:** preserve the orchestrator's role packet, exclusive test ownership, teams/Agent/Workflow choices and mandatory gate order: contract-auditor static pass → runtime QE → lead acceptance. **Explicit solo QA:** the user supplies acceptance criteria, contracts, service map and approved test/report paths instead of a lead. Read the contract-audit before runtime testing; if absent, perform and label the static pass first. Do not edit production code or weaken assertions/config to get green. Only report executed evidence. If you also built the code in this context, this is a self-check, not independent QE certification: disclose UNVERIFIED independence and request a fresh reviewer/owner acceptance before final release. Missing tools or runtime checks are BLOCKED, not passes. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually. A report's proof binding establishes freshness, not reviewer independence.
 
 ## Role
 
@@ -107,7 +109,7 @@ The QA report is the build gate. See sibling docs for the canonical rules:
 - **`references/qa-report-schema.json`** — machine-readable schema (the gate parses this)
 - **`references/validation-checklist.md`** — final pre-submit checklist
 
-Write **both** files: `qa-report.md` (narrative) and `qa-report.json` (the gate). Field names in JSON must match the schema exactly.
+Write **both** files: `qa-report.md` (narrative) and `qa-report.json` (the gate). Field names in JSON must match the schema exactly. For strict hooks, follow the reference's proof-binding procedure: capture active run/source/contract identity before verification, confirm it is unchanged afterward, and include `proof_binding`. Never relabel an old test result with fresh hashes; rerun after changes. Stop-hook reentry returning control is not QA acceptance.
 
 ## Static Analysis Mode
 

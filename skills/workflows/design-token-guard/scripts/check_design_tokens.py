@@ -41,7 +41,7 @@ DEFAULT_CONFIG = {
     # File extensions to scan for violations.
     "scanExtensions": [
         ".tsx", ".ts", ".jsx", ".js", ".mjs", ".cjs",
-        ".vue", ".svelte", ".astro", ".html",
+        ".vue", ".svelte", ".astro", ".html", ".php", ".erb", ".heex",
     ],
     # Directories never walked.
     "ignoreDirs": [
@@ -64,7 +64,7 @@ DEFAULT_CONFIG = {
     # no-inline-style mode: "literal" flags only inline styles carrying a
     # hardcoded literal (dynamic/token-referencing inline styles are allowed);
     # "strict" flags every inline style attribute regardless.
-    "inlineStyleMode": "literal",
+    "inlineStyleMode": "literal", # also "layout": only CSS custom properties may stay inline
     # restricted-radius: any radius value over this many px (or a rounded-*
     # utility class larger than ~2px) is flagged.
     "maxRadiusPx": 2,
@@ -183,7 +183,7 @@ def discover_token_sources(root: str, cfg: dict) -> List[str]:
         return [os.path.join(root, p) for p in cfg["tokenSources"]]
     found: List[str] = []
     name_hints = ("token", "theme", "variable", "var", "design", "palette", "color")
-    for dirpath, dirnames, filenames in os.walk(root):
+    for dirpath, dirnames, filenames in os.walk(root, onerror=lambda e: (_ for _ in ()).throw(e)):
         dirnames[:] = [d for d in dirnames if d not in cfg["ignoreDirs"]]
         for fn in filenames:
             low = fn.lower()
@@ -193,15 +193,15 @@ def discover_token_sources(root: str, cfg: dict) -> List[str]:
                 found.append(os.path.join(dirpath, fn))
     # Fallback: any css that declares many custom properties.
     if not found:
-        for dirpath, dirnames, filenames in os.walk(root):
+        for dirpath, dirnames, filenames in os.walk(root, onerror=lambda e: (_ for _ in ()).throw(e)):
             dirnames[:] = [d for d in dirnames if d not in cfg["ignoreDirs"]]
             for fn in filenames:
                 if fn.lower().endswith((".css", ".scss")):
                     p = os.path.join(dirpath, fn)
                     try:
                         txt = _read(p)
-                    except OSError:
-                        continue
+                    except OSError as exc:
+                        raise ValueError("cannot inspect token candidate %s: %s" % (p, exc))
                     if len(re.findall(r"--[\w-]+\s*:", txt)) >= 5:
                         found.append(p)
     return found
@@ -212,8 +212,8 @@ def build_token_index(sources: List[str]) -> TokenIndex:
     for src in sources:
         try:
             text = _read(src)
-        except OSError:
-            continue
+        except OSError as exc:
+            raise ValueError("cannot read token source %s: %s" % (src, exc))
         idx.sources.append(src)
         pairs: List[Tuple[str, str]] = []
         if src.lower().endswith(".json"):
@@ -279,23 +279,15 @@ def collect_files(root: str, cfg: dict, explicit: List[str], staged: bool) -> Li
         return True
 
     if staged:
-        try:
-            out = subprocess.run(
-                ["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
-                cwd=root, capture_output=True, text=True, check=True,
-            ).stdout
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            # A gate that silently passes when git can't be queried is a false
-            # green — surface it instead of reporting "nothing to check".
-            print("design-token-guard: --staged could not list staged files "
-                  "(%s); treating as no files." % e, file=sys.stderr)
-            return []
-        staged_files: List[str] = []
-        for rel in out.splitlines():
-            ap = os.path.join(root, rel)
-            if keep(ap):  # keep() needs the joined path so the ignoreDirs "/d/" test matches
-                staged_files.append(ap)
-        return staged_files
+        top = subprocess.run(["git", "-C", root, "rev-parse", "--show-toplevel"],
+                             capture_output=True, text=True, check=True).stdout.strip()
+        out = subprocess.run(
+            ["git", "-C", root, "diff", "--cached", "--name-only", "-z", "--diff-filter=ACMR"],
+            capture_output=True, text=True, check=True,
+        ).stdout
+        return sorted({os.path.join(top, rel) for rel in out.split("\0") if rel
+                       and os.path.commonpath([os.path.abspath(os.path.join(top, rel)), root]) == root
+                       and keep(os.path.join(top, rel))})
 
     if explicit:
         files: List[str] = []
@@ -305,14 +297,16 @@ def collect_files(root: str, cfg: dict, explicit: List[str], staged: bool) -> Li
                 files += _walk(ap, cfg, keep)
             elif os.path.isfile(ap) and keep(ap):
                 files.append(ap)
-        return files
+            elif not os.path.exists(ap):
+                raise ValueError("scan path does not exist: %s" % ap)
+        return sorted(set(files))
 
     return _walk(root, cfg, keep)
 
 
 def _walk(base: str, cfg: dict, keep) -> List[str]:
     files: List[str] = []
-    for dirpath, dirnames, filenames in os.walk(base):
+    for dirpath, dirnames, filenames in os.walk(base, onerror=lambda e: (_ for _ in ()).throw(e)):
         dirnames[:] = [d for d in dirnames if d not in cfg["ignoreDirs"]]
         for fn in filenames:
             p = os.path.join(dirpath, fn)
@@ -415,28 +409,52 @@ def rule_inline_style(path, rel, raw, masked, idx, cfg, sev) -> List[Finding]:
     findings = []
     mode = cfg["inlineStyleMode"]
     # JSX: style={{ ... }}
-    for m in re.finditer(r"style\s*=\s*\{\{", masked):
-        body, end = _balanced(masked, m.end() - 1)  # start at first '{'
+    for m in re.finditer(r"\bstyle\s*=\s*\{\s*\{", masked):
+        body, end = _balanced(masked, m.end() - 1)  # start at the object's '{' (inside the JSX expression)
         if body is None:
-            continue
+            raise ValueError("unbalanced JSX style object in %s" % rel)
         raw_body = raw[m.end():end - 1] if end else raw[m.end():m.end() + len(body)]
-        _maybe_inline_finding(findings, raw, masked, m.start(), raw_body, mode, sev, rel)
+        _maybe_inline_finding(findings, raw, masked, m.start(), raw_body, mode, sev, rel, jsx=True)
     # HTML/Vue/Svelte/Angular: style="..." or :style / [style]
-    for m in re.finditer(r"""(?::|\[)?style\]?\s*=\s*["']""", masked):
+    for m in re.finditer(r"""(?<![\w-])(?::|\[)?style\]?\s*=\s*["']""", masked, re.I):
         q = masked[m.end() - 1]
         close = masked.find(q, m.end())
         if close == -1:
-            continue
+            raise ValueError("unclosed style attribute in %s" % rel)
         raw_body = raw[m.end():close]
         _maybe_inline_finding(findings, raw, masked, m.start(), raw_body, mode, sev, rel)
+    if mode == "layout":
+        for m in re.finditer(r"\bstyle\s*=\s*(?![\s\"'{])([^\s>]+)", masked, re.I):
+            _maybe_inline_finding(findings, raw, masked, m.start(), m.group(1), mode, sev, rel)
+        # style={object}, spreads, bound expressions and Angular property bindings
+        # cannot be certified as custom-property-only by this source checker.
+        for m in re.finditer(r"\bstyle\s*=\s*\{(?!\s*\{)|(?:\[style(?:\.[\w-]+)?\]|:style)\s*=", masked):
+            ln, col = line_col(masked, m.start())
+            findings.append(Finding("no-inline-style", sev, rel, ln, col, line_at(raw, m.start()),
+                                    "unresolved inline style binding — move layout to a stylesheet",
+                                    "use an explicit custom-property-only object or stylesheet class"))
     return findings
 
 
-def _maybe_inline_finding(findings, raw, masked, start, raw_body, mode, sev, rel):
+def _maybe_inline_finding(findings, raw, masked, start, raw_body, mode, sev, rel, jsx=False):
     has_color = bool(COLOR_RE.search(raw_body))
-    has_dim = bool(DIM_RE.search(raw_body))
+    # HTML CSS values are not individually quoted; JSX values generally are.
+    has_dim = bool(DIM_RE.search(raw_body) if jsx else
+                   re.search(r"(?<![\w-])-?\d*\.?\d+(?:px|rem|em|vh|vw|vmin|vmax|pt|ch)\b", raw_body))
     if mode == "strict":
         fire, why = True, "inline style attribute (strict mode forbids all inline styles)"
+    elif mode == "layout":
+        # The only safe inline mechanism is per-instance custom-property input.
+        # Unknown expressions/spreads are reported rather than silently exempted.
+        if jsx:
+            parts = _object_members(raw_body)
+            custom_only = bool(parts) and all(re.fullmatch(r"\s*(['\"])--[\w-]+\1\s*:\s*.+", part, re.S)
+                                              for part in parts)
+        else:
+            declarations = [part.strip() for part in raw_body.split(";") if part.strip()]
+            custom_only = bool(declarations) and all(re.match(r"^--[\w-]+\s*:", part) for part in declarations)
+        fire = not custom_only
+        why = "inline layout/style must live in a stylesheet (custom-property inputs are exempt)"
     else:
         # Default: only fire when the inline style carries a hardcoded literal.
         # Color literals are owned by no-hardcoded-color (more specific +
@@ -454,12 +472,49 @@ def _maybe_inline_finding(findings, raw, masked, start, raw_body, mode, sev, rel
                                 "move the value into a token / utility class"))
 
 
+def _object_members(text):
+    members, start, quote, depth = [], 0, None, 0
+    i = 0
+    while i < len(text):
+        c = text[i]
+        if quote:
+            if c == "\\":
+                i += 2
+                continue
+            if c == quote:
+                quote = None
+        elif c in "\"'`":
+            quote = c
+        elif c in "([{":
+            depth += 1
+        elif c in ")]}":
+            depth -= 1
+        elif c == "," and depth == 0:
+            members.append(text[start:i].strip())
+            start = i + 1
+        i += 1
+    if quote or depth:
+        raise ValueError("unbalanced style expression")
+    if text[start:].strip():
+        members.append(text[start:].strip())
+    return members
+
+
 def _balanced(text: str, open_idx: int) -> Tuple[Optional[str], int]:
     depth = 0
     i = open_idx
     n = len(text)
+    quote = None
     while i < n:
-        if text[i] == "{":
+        if quote:
+            if text[i] == "\\":
+                i += 2
+                continue
+            if text[i] == quote:
+                quote = None
+        elif text[i] in "\"'`":
+            quote = text[i]
+        elif text[i] == "{":
             depth += 1
         elif text[i] == "}":
             depth -= 1
@@ -548,24 +603,29 @@ RULES = {
 # Driver.
 # ---------------------------------------------------------------------------
 def _read(path: str) -> str:
-    with open(path, "r", encoding="utf-8", errors="replace") as f:
+    with open(path, "r", encoding="utf-8", errors="strict") as f:
         return f.read()
 
 
 def load_config(root: str, config_path: Optional[str]) -> dict:
     cfg = json.loads(json.dumps(DEFAULT_CONFIG))  # deep copy
     path = config_path or os.path.join(root, ".design-guard.json")
+    if config_path and not os.path.isfile(path):
+        raise ValueError("config not found: %s" % path)
     if os.path.isfile(path):
         try:
             user = json.loads(_read(path))
         except (OSError, json.JSONDecodeError) as e:
-            print("design-token-guard: bad config %s: %s" % (path, e), file=sys.stderr)
-            sys.exit(2)
+            raise ValueError("bad config %s: %s" % (path, e))
         for k, v in user.items():
             if k == "rules" and isinstance(v, dict):
                 cfg["rules"].update(v)
             else:
                 cfg[k] = v
+    if cfg["inlineStyleMode"] not in ("literal", "strict", "layout"):
+        raise ValueError("invalid inlineStyleMode")
+    if any(k not in RULES or v not in ("off", "warn", "error") for k, v in cfg["rules"].items()):
+        raise ValueError("invalid rule/severity")
     return cfg
 
 
@@ -577,8 +637,8 @@ def run(root: str, cfg: dict, files: List[str], idx: TokenIndex) -> List[Finding
             continue
         try:
             raw = _read(path)
-        except OSError:
-            continue
+        except OSError as exc:
+            raise ValueError("cannot read scan source %s: %s" % (path, exc))
         masked = mask_comments(raw)
         rel = os.path.relpath(path, root)
         for rule_name, fn in RULES.items():
@@ -590,13 +650,13 @@ def run(root: str, cfg: dict, files: List[str], idx: TokenIndex) -> List[Finding
     return findings
 
 
-def report_human(findings, idx, cfg, quiet) -> None:
+def report_human(findings, idx, cfg, quiet, scanned) -> None:
     errs = sum(1 for f in findings if f.severity == "error")
     warns = sum(1 for f in findings if f.severity == "warn")
     files = len({f.file for f in findings})
     if not findings:
         if not quiet:
-            print("design-token-guard: clean — no inline styles or hardcoded CSS found.")
+            print("design-token-guard: clean — %d files scanned; no findings in enabled rules." % scanned)
             _print_footer(idx, cfg)
         return
     print("design-token-guard: %d findings (%d error%s, %d warning%s) across %d file%s\n"
@@ -625,7 +685,7 @@ def _print_footer(idx, cfg) -> None:
           % (src, idx.count, len(idx.by_value)))
 
 
-def report_json(findings, idx, cfg) -> None:
+def report_json(findings, idx, cfg, scanned) -> None:
     errs = sum(1 for f in findings if f.severity == "error")
     out = {
         "ok": errs == 0,
@@ -633,7 +693,9 @@ def report_json(findings, idx, cfg) -> None:
             "total": len(findings),
             "errors": errs,
             "warnings": sum(1 for f in findings if f.severity == "warn"),
-            "files": len({f.file for f in findings}),
+            "files": scanned,
+            "files_scanned": scanned,
+            "files_with_findings": len({f.file for f in findings}),
         },
         "tokenSources": idx.sources,
         "tokensIndexed": idx.count,
@@ -648,31 +710,41 @@ def main(argv: List[str]) -> int:
     ap.add_argument("--root", default=".", help="project root (default: cwd)")
     ap.add_argument("--config", help="path to .design-guard.json")
     ap.add_argument("--staged", action="store_true", help="scan git-staged files only")
+    ap.add_argument("--profile", choices=["layout"], help="enforce stylesheet layout; custom-property inputs remain allowed")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--quiet", action="store_true", help="suppress the clean-run message")
     ap.add_argument("paths", nargs="*", help="explicit files/dirs to scan")
     args = ap.parse_args(argv)
 
-    root = os.path.abspath(args.root)
+    root = os.path.realpath(args.root)
     if not os.path.isdir(root):
         print("design-token-guard: --root %s is not a directory" % root, file=sys.stderr)
         return 2
 
-    cfg = load_config(root, args.config)
-    sources = discover_token_sources(root, cfg)
-    idx = build_token_index(sources)
+    try:
+        cfg = load_config(root, args.config)
+        if args.profile == "layout":
+            cfg["inlineStyleMode"] = "layout"
+            cfg["rules"]["no-inline-style"] = "error"
+        sources = discover_token_sources(root, cfg)
+        idx = build_token_index(sources)
+        files = collect_files(root, cfg, args.paths, args.staged)
+        findings = run(root, cfg, files, idx)
+    except (OSError, ValueError, TypeError, KeyError, AttributeError, re.error, subprocess.SubprocessError) as exc:
+        if args.json:
+            print(json.dumps({"ok": False, "status": "blocked", "error": str(exc)}))
+        print("design-token-guard: inspection blocked: %s" % exc, file=sys.stderr)
+        return 2
     if not idx.sources and not args.json:
         print("design-token-guard: warning — no token source discovered; "
               "no-hardcoded-color can flag literals but cannot suggest tokens. "
               "Set \"tokenSources\" in .design-guard.json.\n", file=sys.stderr)
 
-    files = collect_files(root, cfg, args.paths, args.staged)
-    findings = run(root, cfg, files, idx)
-
+    scanned = len([p for p in files if os.path.abspath(p) not in {os.path.abspath(s) for s in idx.sources}])
     if args.json:
-        report_json(findings, idx, cfg)
+        report_json(findings, idx, cfg, scanned)
     else:
-        report_human(findings, idx, cfg, args.quiet)
+        report_human(findings, idx, cfg, args.quiet, scanned)
 
     return 1 if any(f.severity == "error" for f in findings) else 0
 

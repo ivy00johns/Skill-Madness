@@ -1,6 +1,6 @@
 ---
 name: maintain-context
-version: 1.2.1
+version: 1.3.0
 description: |
   Maintain a project's CONTEXT.md domain glossary and docs/adr/ decision records inline as understanding crystallizes — write the glossary entry the moment a term resolves, write an ADR only when the body's three-condition gate fires. Use after any architectural discussion, requirements clarification, or when shared terminology starts to drift. Trigger on: 'update the glossary', 'add to CONTEXT', 'record this as an ADR', 'what do we call this', 'is this the right term', 'we just decided something', 'document this decision'.
 requires_agent_teams: false
@@ -70,7 +70,7 @@ When the user states behavior — "Subscribers get a 30-day trial" — verify ag
 Before writing or reading any glossary entry or ADR, check whether the repo has `docs/agents/domain-docs.md`. That file (written by `/setup-project-skills`) declares whether this repo uses a single-context or multi-context layout, which controls where `CONTEXT.md` and `docs/adr/` live.
 
 - **If `docs/agents/domain-docs.md` exists:** read it. A single-context layout puts `CONTEXT.md` at the repo root and ADRs at `docs/adr/`. A multi-context monorepo puts them per-app at `apps/<app>/CONTEXT.md` and `apps/<app>/docs/adr/`. Use the declared paths — do not invent your own.
-- **If `docs/agents/domain-docs.md` is missing:** default to single-context (root `CONTEXT.md` and `docs/adr/`) and surface one prompt: *"This repo isn't configured for Skill-Madness yet. Run `/setup-project-skills` to make the layout choice durable; I'll use single-context defaults for this entry."* Do not silently assume — the wrong default in a monorepo lands an entry in the wrong vault.
+- **If `docs/agents/domain-docs.md` is missing:** pause before writing and ask whether to run `/setup-project-skills` or approve root `CONTEXT.md` and `docs/adr/` for this session only. Proceed only after the human selects a layout; record that decision in the handoff. Missing answer means BLOCKED, not implicit consent. Never invent contract/tracker defaults from a domain-layout approval.
 
 ## Lazy file creation
 

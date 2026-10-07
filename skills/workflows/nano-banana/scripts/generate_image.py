@@ -18,35 +18,29 @@ import sys
 import urllib.request
 import urllib.error
 
-# Resolve GEMINI_API_KEY from a .env if it isn't already exported.
-#
-# WHY THIS IS CAREFUL: this skill directory is usually a *symlink* into a separate
-# repo (e.g. ~/.claude/skills/nano-banana -> ~/Repos/.../Skill-Madness/.../nano-banana),
-# and the key lives in that repo's ROOT .env — OUTSIDE ~/.claude/skills. Path(__file__)
-# .resolve() follows the symlink, so we search from the REAL on-disk location. We then
-# walk every ancestor of both the resolved script dir and the current working directory
-# (plus ~/.env), so the key is found no matter how the repo is laid out. The nearest
-# .env that defines the key wins; we never overwrite a key already in the environment.
+# Exported GEMINI_API_KEY wins. Otherwise use explicitly selected ATS_ENV_FILE,
+# or only the canonical checkout's root .env after resolving a native symlink.
+# Installed copies never search arbitrary ancestors or per-skill credential files.
 _SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 
 
 def _candidate_env_files():
     """Yield .env paths to search, nearest-first, de-duplicated."""
-    seen = set()
-    roots = [_SCRIPT_DIR]
-    try:
-        roots.append(pathlib.Path.cwd().resolve())
-    except OSError:
-        pass
-    for root in roots:
-        for directory in [root, *root.parents]:
-            candidate = directory / ".env"
-            if candidate not in seen:
-                seen.add(candidate)
-                yield candidate
-    home_env = pathlib.Path.home() / ".env"
-    if home_env not in seen:
-        yield home_env
+    explicit = os.environ.get('ATS_ENV_FILE')
+    if explicit:
+        path = pathlib.Path(explicit).expanduser().resolve()
+        if not path.is_file():
+            raise ValueError('ATS_ENV_FILE does not name a readable file')
+        yield path
+        return
+    # Native symlink checkout behavior remains; installed copies never search
+    # arbitrary ancestors, ~/.env or per-skill credentials. Project injection
+    # is explicit via GEMINI_API_KEY or ATS_ENV_FILE.
+    for directory in [_SCRIPT_DIR, *_SCRIPT_DIR.parents]:
+        if (directory / '.env.example').is_file() and (directory / 'skills/workflows/nano-banana/SKILL.md').is_file():
+            yield directory / '.env'
+            return
+    return
 
 
 # Record where we looked so a genuine miss produces an actionable error (not a mystery).
@@ -121,7 +115,7 @@ def generate_image(prompt: str, output_path: str, aspect_ratio: str = "3:4",
             print("Searched these .env files (nearest-first) and found no GEMINI_API_KEY:", file=sys.stderr)
             for path in _SEARCHED_ENV_FILES:
                 print(f"  - {path}", file=sys.stderr)
-        print("Add GEMINI_API_KEY=... to one of the above (or export it), or get a key at "
+        print("Export GEMINI_API_KEY, select an approved root .env via ATS_ENV_FILE, or get a key at "
               "https://aistudio.google.com/apikey", file=sys.stderr)
         sys.exit(1)
 

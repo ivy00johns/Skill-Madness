@@ -1,11 +1,11 @@
 # Skill-Madness — Start Here
 
 > The one place to land. If you're lost, read this first.
-> **Last updated:** 2026-07-03
+> **Last updated:** 2026-10-05
 
 ## Status at a glance
 
-A mature library of **76 skills** (contracts · git · loops · meta · orchestrator · roles · workflows), all PSFS-validated, full Ubuntu + macOS lint matrix on every push.
+A mature library of **76 skills** (contracts · git · loops · meta · orchestrator · roles · workflows), PSFS author validation, Ubuntu CI gates and a non-blocking macOS smoke job. Structural checks do not certify live-host retrieval or model efficacy.
 
 | Effort | State |
 |--------|-------|
@@ -13,6 +13,7 @@ A mature library of **76 skills** (contracts · git · loops · meta · orchestr
 | **Ecosystem audit — surface pass** (style/compliance/cross-refs; 5 broken cross-refs, oversized descriptions, missing frontmatter) | ✅ Complete — all critical findings resolved |
 | **Runtime + install layer** (hooks, catalog CI, plan/apply install, skill-health, skill-scan, PSFS standard) | ✅ Complete — shipped PR #8 |
 | **Functional audit** (reports-v2: triggerability / completeness / real bugs) | ✅ Complete — P0 (#15) + P1 (#16) + P2 (#32) shipped; FA3 (#23) + FA6 closed; decisions FA7 (drop metadata, #34) + FA8 (advisory) resolved |
+| **Universal audit implementation** (owner approved 2026-10-03) | 31 rows locally implemented after the October 5 review; UA-19 live-host retrieval/efficacy remains open. Local CLI/regression proof only; independent QE UNVERIFIED; uncommitted. |
 | **Doc-polish / process backlog** (reference files + thinking-move docs — IMPROVEMENT_PLAN Phases 2–4) | ✅ Complete — RF1–RF5 + TM1–TM3, PR1/PR2, CL1/CL2/CL3 all closed (#32, #34) |
 | **Autonomous-loop library** (13 loops + `madness` router — DEEP-RESEARCH-LOOPS §10) | ✅ Complete — #24–#30, catalog 50 → 67, all CI green |
 | **class-extraction-guard gate + backlog clear** (styling-organization gate + the final FA/PR/CL items) | ✅ Complete — #31–#34, catalog → 68, backlog cleared |
@@ -25,12 +26,14 @@ The library, its tooling, the autonomous-loop library (13 loops + `madness`), an
 ## Which doc is which (ownership map)
 
 **Canonical — the living plan (edit these):**
+
 - [`PLAN.md`](PLAN.md) — strategic roadmap: milestones + closure log
 - [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md) — tactical ledger: every **open** item, ID'd + prioritized (stays lean)
 - [`docs/COMPLETED-WORK.md`](docs/COMPLETED-WORK.md) — tactical archive: every **closed** item, verbatim (append-only; fed by the completion sweep)
 - [`docs/FUTURE.md`](docs/FUTURE.md) — frontier: explicitly out of scope
 
 **Active reference (read, edit as the library evolves):**
+
 - [`README.md`](README.md) — user-facing project overview + quick start
 - [`CLAUDE.md`](CLAUDE.md) — agent primer (skill anatomy, categories, editing rules) · [`AGENTS.md`](AGENTS.md) — contributor workflow rules
 - [`spec/PSFS.md`](spec/PSFS.md) + `spec/frontmatter.schema.json` — the Portable Skill Frontmatter Spec (canonical, v1.1.0)
@@ -39,11 +42,13 @@ The library, its tooling, the autonomous-loop library (13 loops + `madness`), an
 - `ACKNOWLEDGMENTS.md` (living attribution) · `claude_notes.txt` (pattern catalog, reference only)
 
 **Frozen reference (read, don't edit — in the sibling DeepResearch repo):**
+
 - `../DeepResearch/skills-comparative_deepdive/` — the 3-way comparison + `PLAN-skill-creator.md` queue that drove the curation pass (now executed)
 - `../DeepResearch/AllTheSkills/alltheskills-design/` — original architectural blueprint
 - `../DeepResearch/AllTheSkills/agency-agents_deepdive/` — 184-agent / 11-tool comparison (its "convergence frontier" lives in `docs/FUTURE.md`)
 
 **Archived (history; superseded — do not treat as current):**
+
 - [`docs/archive/superseded-plans/`](docs/archive/superseded-plans/) — the finished plan docs (BUILD_RESULTS, IMPROVEMENT_PLAN, the stale audit queue), each with a breadcrumb
 - `audit/` *(gitignored — local working tree only)* — `reports-v1-sufrace/` is the completed surface/style audit campaign (MASTER_AUDIT_PLAN + per-skill reports, historical); `reports-v2/` is the newer **functional audit** (2026-05-28) whose findings were intaken to the ledger as `FA` items (see "How work flows in" below)
 - `coordination/` — finished build manifest + QA gate reports from the runtime-layer build
@@ -55,5 +60,9 @@ Reports don't rot here. A deep-dive, audit, or skill-review report becomes track
 entries, and they land in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md) + the [`PLAN.md`](PLAN.md) closure log.
 See the `living-plan` skill for the full convention.
 
-Most recent intake: the **reports-v2 functional audit** (2026-05-28) → ledger entries `FA1–FA8`, with its
-P0/P1 remediation (PRs #15 / #16) recorded in the [`PLAN.md`](PLAN.md) closure log.
+Most recent intake: owner-approved **2026-10 universal audit** → `UA-01–UA-32`.
+The [Sol review](docs/reviews/2026-10-universal-audit/10-sol-review.md) repaired inherited
+false-completion claims: 31 rows have local implementation/proof; UA-19 remains
+open for approved live-host retrieval and held-out efficacy, plus speculative CB-10.
+Changes remain uncommitted in the isolated worktree, not transferred to the main
+checkout. See [PLAN](PLAN.md) and the [open ledger](docs/REMAINING-WORK.md).

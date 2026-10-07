@@ -1,6 +1,6 @@
 ---
 name: settings-consolidator
-version: 1.3.0
+version: 1.4.0
 description: >
   Scan every .claude/settings.local.json across the user's home directory,
   deduplicate permissions, collapse supersets, and merge into the global
@@ -43,6 +43,10 @@ Permission prompts in long-running sessions come from three gaps, in order of ho
 
 ### Bootstrap Workflow
 
+Before applying global permissions or writing to `~/.claude/settings.local.json`,
+present the plan and require explicit user approval. Never install or grant global
+permissions automatically based merely on a broad intent match.
+
 1. **Back up.** Copy `~/.claude/settings.local.json` to `~/.claude/settings.local.json.bak.YYYY-MM-DD-HHMMSS`.
 
 2. **Load the baseline.** Read `references/autonomous-permissions.json` — a comprehensive template with ~350 pre-approved commands (all using space-wildcards), all shell operators, all Claude Code tool permissions, and a safety deny list.
@@ -58,6 +62,10 @@ Permission prompts in long-running sessions come from three gaps, in order of ho
 6. **Report.** Show a summary: how many permissions added, how many colon-wildcards upgraded, the deny list, and any MCP tools added.
 
 After bootstrapping, optionally run the consolidation workflow below to merge in any project-specific permissions on top.
+
+## Authority for every mode
+
+Bootstrap and consolidation default to a read-only proposed diff. The baseline is a template, not pre-approved authority. Ask for the exact global destination, permission delta and scan scope before applying; silence means stop. Never widen project-specific access into global access merely by deduplication. Preserve deny precedence and existing backups. Unattended execution additionally requires externally enforced budgets and scoped permissions; a broad shell allowlist is not a sandbox.
 
 ## Permission Syntax and Categorization
 

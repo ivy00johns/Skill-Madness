@@ -53,6 +53,19 @@ if [[ -z "$HOOK_ID" ]]; then
 fi
 
 HOOK_SCRIPT="$HOOKS_DIR/scripts/${HOOK_ID}.sh"
+if _hook_in_disabled_list "$HOOK_ID"; then
+  exit 0
+fi
+# Strict qa-gate must not be skipped because manifest/Python discovery broke.
+# Explicit disables still win, as with every native hook opt-in.
+if [[ "$HOOK_ID" == "qa-gate" && "$(hook_active_profile)" == "strict" ]]; then
+  if [[ ! -f "$HOOK_SCRIPT" ]]; then
+    printf '%s\n' '{"decision":"block","reason":"strict qa-gate script missing; restore the hook or explicitly disable it"}'
+    exit 0
+  fi
+  exec bash "$HOOK_SCRIPT" "${@:2}"
+fi
+
 if [[ ! -f "$HOOK_SCRIPT" ]]; then
   printf '[run-with-flags] unknown hook id: %s\n' "$HOOK_ID" >&2
   exit 0

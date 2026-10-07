@@ -26,6 +26,7 @@
 # ACKNOWLEDGMENTS.md at the repo root.
 
 set -euo pipefail
+export PYTHONDONTWRITEBYTECODE=1
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIB_DIR="$SCRIPT_DIR/lib"
@@ -112,7 +113,7 @@ copy_references() {
   refs_src="$(dirname "$skill_file")/references"
   if [[ -d "$refs_src" ]]; then
     mkdir -p "$dest_dir/references"
-    ats_cp_r "$refs_src" "$dest_dir/references"
+    python3 "$LIB_DIR/resource_delivery.py" copy-tree --source "$refs_src" --destination "$dest_dir/references"
   fi
 }
 
@@ -134,12 +135,12 @@ copy_scripts() {
       target="$dest_dir/scripts"
     fi
     mkdir -p "$target"
-    ats_cp_r "$scripts_src" "$target"
+    python3 "$LIB_DIR/resource_delivery.py" copy-tree --source "$scripts_src" --destination "$target" || return 2
     # Strip local build/debris dirs that have no business shipping — a skill's
     # scripts/ dir can accumulate npm installs and bytecode caches locally.
     find "$target" -type d \( -name '__pycache__' -o -name 'node_modules' \) -prune -exec rm -rf {} + 2>/dev/null || true
     find "$target" -type f -name '.DS_Store' -delete 2>/dev/null || true
-    find "$target" -type f \( -name '*.sh' -o -name '*.py' \) -exec chmod +x {} +
+    # Preserve exact source executable modes; do not invent executability.
   fi
 }
 
@@ -278,7 +279,7 @@ convert_copilot() {
   refs_src="$(dirname "$file")/references"
   if [[ -d "$refs_src" ]]; then
     mkdir -p "$dest_dir/${slug}-references"
-    ats_cp_r "$refs_src" "$dest_dir/${slug}-references"
+    python3 "$LIB_DIR/resource_delivery.py" copy-tree --source "$refs_src" --destination "$dest_dir/${slug}-references"
   fi
   copy_scripts "$file" "$dest_dir" "$slug"
 }
@@ -344,6 +345,7 @@ convert_gemini_cli() {
     printf '%s\n' "$body"
   } > "$dest_file"
 
+  python3 "$LIB_DIR/standard_export.py" "$file" "$dest_file"
   copy_references "$file" "$dest_dir"
   copy_scripts "$file" "$dest_dir"
 }
@@ -394,7 +396,7 @@ convert_opencode() {
   refs_src="$(dirname "$file")/references"
   if [[ -d "$refs_src" ]]; then
     mkdir -p "$dest_dir/${slug}-references"
-    ats_cp_r "$refs_src" "$dest_dir/${slug}-references"
+    python3 "$LIB_DIR/resource_delivery.py" copy-tree --source "$refs_src" --destination "$dest_dir/${slug}-references"
   fi
   copy_scripts "$file" "$dest_dir" "$slug"
 }
@@ -668,6 +670,9 @@ accumulate_aider() {
     printf '## %s\n\n' "$name"
     printf '> %s\n\n' "$(get_field "description" "$file")"
     printf '%s\n' "$body"
+    if [[ -d "$(dirname "$file")/scripts" || -d "$(dirname "$file")/assets" || -d "$(dirname "$file")/template" || -d "$(dirname "$file")/eval-viewer" ]]; then
+      printf '\n> Resource contract: set SKILL_ROOT to project `.ats-skills/aider/skills/%s`; read `.ats-runtime.json`. Credentials and missing checkout dependencies are explicit inputs, never bundled.\n' "$slug"
+    fi
   } >> "$AIDER_TMP"
 
   # Warn about skipped references
@@ -694,6 +699,9 @@ accumulate_windsurf() {
     printf '\n## %s\n%s\n' "$name" "$(get_field "description" "$file")"
     repeat_char '=' 80
     printf '\n\n%s\n' "$body"
+    if [[ -d "$(dirname "$file")/scripts" || -d "$(dirname "$file")/assets" || -d "$(dirname "$file")/template" || -d "$(dirname "$file")/eval-viewer" ]]; then
+      printf '\n> Resource contract: set SKILL_ROOT to project `.ats-skills/windsurf/skills/%s`; read `.ats-runtime.json`. Credentials and missing checkout dependencies are explicit inputs, never bundled.\n' "$slug"
+    fi
   } >> "$WINDSURF_TMP"
 
   # Warn about skipped references
@@ -718,17 +726,33 @@ process_skill() {
   category="$SKILL_CATEGORY"
   slug="$SKILL_SLUG"
 
-  # Check requires_claude_code for non-claude-code tools
-  if [[ "$tool" != "claude-code" ]]; then
-    local req_cc
-    req_cc="$(get_field "requires_claude_code" "$file")"
-    if [[ "$req_cc" == "true" ]]; then
-      printf '[convert] skipping %s/%s for %s (requires_claude_code: true)\n' \
-        "$category" "$slug" "$tool" >&2
-      return 1
-    fi
+  # Check capability resolver / requires_claude_code
+  local res_status
+  local res_json res_code=0
+  res_json="$(python3 "$LIB_DIR/capability_resolver.py" --skill "$file" --tool "$tool" --json)" || res_code=$?
+  if (( res_code > 2 )) || [[ -z "$res_json" ]]; then
+    printf '[convert] ERROR: capability resolution failed: %s\n' "$file" >&2
+    return 2
+  fi
+  res_status="$(printf '%s' "$res_json" | python3 -c 'import sys,json; d=json.load(sys.stdin); assert d["status"] in ("ALLOWED","SKIPPED","REFUSED"); print(d["status"],d.get("reason",""))')" || return 2
+  if [[ "$res_status" == SKIPPED* ]]; then
+    printf '[convert] skipping %s/%s for %s (%s)\n' \
+      "$category" "$slug" "$tool" "${res_status#SKIPPED }" >&2
+    return 1
+  elif [[ "$res_status" == REFUSED* ]]; then
+    printf '[convert] refusing %s/%s for %s (%s)\n' \
+      "$category" "$slug" "$tool" "${res_status#REFUSED }" >&2
+    return 1
   fi
 
+  # Resource preflight before legacy companion copies can follow any symlink.
+  python3 - "$LIB_DIR" "$file" <<'PY' || return 2
+import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+from resource_delivery import resource_files
+resource_files(Path(sys.argv[2]).parent)
+PY
   case "$tool" in
     claude-code)  convert_claude_code  "$file" "$category" "$slug" ;;
     copilot)      convert_copilot      "$file" "$category" "$slug" ;;
@@ -742,7 +766,9 @@ process_skill() {
     aider)        accumulate_aider     "$file" "$category" "$slug" ;;
     windsurf)     accumulate_windsurf  "$file" "$category" "$slug" ;;
     *) printf '[convert] ERROR: unknown tool: %s\n' "$tool" >&2; return 2 ;;
-  esac
+  esac || return 2
+  python3 "$LIB_DIR/resource_delivery.py" bundle --skill "$file" \
+    --tool-root "$OUT_DIR/$tool" --tool "$tool" --category "$category" --slug "$slug" || return 2
 }
 
 # ---------------------------------------------------------------------------
@@ -753,6 +779,7 @@ run_tool() {
   local tool="$1"
   local processed=0 skipped=0 errors=0
   local file
+  python3 "$LIB_DIR/resource_delivery.py" prepare --tool-root "$OUT_DIR/$tool" --tool "$tool" || { printf '0 0 1\n'; return 0; }
 
   while IFS= read -r file; do
     # Validate frontmatter exists
@@ -787,10 +814,7 @@ run_tool() {
 # When ATS_INSTALL_WORKER=1, run a single tool and exit.
 # (Used by parallel mode — parent spawns this script per tool.)
 # ---------------------------------------------------------------------------
-if [[ "${ATS_CONVERT_WORKER:-}" == "1" && -n "${ATS_CONVERT_TOOL:-}" ]]; then
-  run_tool "${ATS_CONVERT_TOOL}"
-  exit 0
-fi
+# Workers are dispatched only after main parses and validates their CLI context.
 
 # ---------------------------------------------------------------------------
 # Main
@@ -823,6 +847,20 @@ main() {
   if ! $valid; then
     ats_err "Unknown tool '$tool'. Valid: ${ALL_TOOLS[*]} all"
     exit 2
+  fi
+
+  if [[ ! "$parallel_jobs" =~ ^[1-9][0-9]*$ ]]; then
+    ats_err "--jobs must be a positive integer"; exit 2
+  fi
+  if [[ "${ATS_CONVERT_WORKER:-}" == "1" ]]; then
+    if [[ "$tool" == "all" || "$tool" != "${ATS_CONVERT_TOOL:-}" ]]; then
+      ats_err "Converter worker requires one matching --tool"; exit 2
+    fi
+    local worker_counts
+    worker_counts="$(run_tool "$tool")" || return 1
+    printf '%s\n' "$worker_counts"
+    [[ "${worker_counts##* }" == "0" ]]
+    return $?
   fi
 
   local tools_to_run=()
@@ -871,8 +909,7 @@ main() {
 
     if [[ ${#parallel_tools[@]} -gt 0 ]]; then
       # Export context for worker subshells
-      export ATS_CONVERT_WORKER=1
-      export OUT_DIR SKILLS_ROOT TODAY REPO_ROOT
+      # CLI arguments carry immutable paths; worker validates before dispatch.
       local pt
       # Write tool names to a temp file for xargs
       local tools_list
@@ -880,13 +917,21 @@ main() {
       for pt in "${parallel_tools[@]}"; do printf '%s\n' "$pt"; done > "$tools_list"
       # shellcheck disable=SC2016 # xargs shell uses single quotes intentionally
       xargs -P "$parallel_jobs" -I {} sh -c \
-        'ATS_CONVERT_TOOL="{}" ATS_CONVERT_WORKER=1 '"$SCRIPT_DIR"'/convert.sh --tool "{}" --out "'"$OUT_DIR"'" > "'"$par_out_dir"'/{}" 2>&1' \
-        < "$tools_list"
+        'ATS_CONVERT_TOOL="$4" ATS_CONVERT_WORKER=1 bash "$1" --tool "$4" --out "$2" > "$3/$4.counts" 2> "$3/$4.log"; printf "%s\\n" "$?" > "$3/$4.status"' \
+        _ "$SCRIPT_DIR/convert.sh" "$OUT_DIR" "$par_out_dir" {} < "$tools_list"
       rm -f "$tools_list"
-      unset ATS_CONVERT_WORKER
 
       for pt in "${parallel_tools[@]}"; do
-        [[ -f "$par_out_dir/$pt" ]] && cat "$par_out_dir/$pt"
+        cat "$par_out_dir/$pt.log" >&2
+        local p s e worker_status
+        read -r p s e < "$par_out_dir/$pt.counts" || { p=0; s=0; e=1; }
+        worker_status="$(cat "$par_out_dir/$pt.status")"
+        if [[ ! "$p $s $e" =~ ^[0-9]+[[:space:]][0-9]+[[:space:]][0-9]+$ ]]; then p=0; s=0; e=1; fi
+        if [[ "$worker_status" != "0" && "$e" == "0" ]]; then e=1; fi
+        total_processed=$(( total_processed + p ))
+        total_skipped=$(( total_skipped + s ))
+        total_errors=$(( total_errors + e ))
+        ats_ok "$pt: $p converted, $s skipped, $e errors"
       done
       rm -rf "$par_out_dir"
     fi
@@ -924,11 +969,6 @@ main() {
       total_errors=$(( total_errors + e ))
       ats_ok "$t: $p converted, $s skipped, $e errors"
 
-      # Write gemini manifest after converting gemini-cli
-      if [[ "$t" == "gemini-cli" ]]; then
-        write_gemini_manifest
-        ats_info "Wrote integrations/gemini-cli/gemini-extension.json"
-      fi
     done
   fi
 
@@ -954,10 +994,14 @@ main() {
     ats_ok "Wrote integrations/windsurf/.windsurfrules"
   fi
 
-  # Write gemini manifest when running all (sequential path)
-  if [[ "$tool" == "all" ]] && ! $use_parallel; then
-    write_gemini_manifest
-  fi
+  # Emit extension metadata once, regardless of worker mode, then seal inventory.
+  for t in "${tools_to_run[@]}"; do
+    if [[ "$t" == "gemini-cli" ]]; then write_gemini_manifest; fi
+    if (( total_errors == 0 )); then
+      python3 "$LIB_DIR/resource_delivery.py" finish --tool-root "$OUT_DIR/$t" \
+        --tool "$t" --skills-root "$SKILLS_ROOT" || total_errors=$(( total_errors + 1 ))
+    fi
+  done
 
   # Stderr summary (contract requirement)
   printf '[convert] processed %d skills across %d tools (%d skipped, %d errors)\n' \

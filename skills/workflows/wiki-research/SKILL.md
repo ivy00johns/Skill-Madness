@@ -1,6 +1,6 @@
 ---
 name: wiki-research
-version: 2.2.0
+version: 2.3.0
 description: |
   Read the project's Obsidian-style wiki (index.md + wiki/) BEFORE any codebase exploration, repo-deep-dive, or raw source reading. Reading 3-4 wiki pages (~2,000 tokens) typically replaces crawling raw source directories (~100,000-500,000 tokens). Always invoke when orchestrator, a role agent, or code-review needs project context, architecture, component knowledge, or design decisions before touching files. Trigger on "how does X work", "understand the architecture", "review this code", or "build X" when project context matters. Skip only for purely mechanical tasks (rename a variable, fix a typo) where zero project understanding is needed.
 requires_agent_teams: false
@@ -53,6 +53,7 @@ If a wiki is found → continue.
 `index.md` is the navigation layer. It contains one-line summaries of every wiki page, organized by category. Reading it takes seconds and tells you exactly which pages are relevant — don't skip this.
 
 Look for entries matching:
+
 - The systems/components your task involves (entities)
 - The patterns/principles that apply (concepts)
 - Any known source collections you'd otherwise re-read (sources)
@@ -72,15 +73,20 @@ Each page ends with a `## Related` section. Follow those links only if they're d
 
 After reading targeted pages, one of three situations applies:
 
-**Wiki covers it** → You're done. Proceed with your task using wiki knowledge.
+**Wiki covers it** → You're done with background discovery.
+However, note that wikis are discovery aids, not proof of current code implementation.
+Before making correctness or safety decisions on touched boundaries, verify
+the relevant source files at their current commit/revision and carry the source date/revision.
 
 **Wiki has a gap** (page flags "not yet documented", contradiction exists, or your specific question wasn't covered):
+
 - When synthesizing 3+ sources, apply the **contradiction-finding** move (`references/contradiction-finding.md`) before writing your summary.
 - Check the relevant source page for raw doc pointers
 - Read the specific raw files identified — not entire directories
 - Return to your task once the gap is filled
 
 **Topic isn't in the wiki at all**:
+
 - Check `CLAUDE.md` for a source map or directory pointer
 - Proceed with targeted exploration (grep/glob first, not broad reads)
 

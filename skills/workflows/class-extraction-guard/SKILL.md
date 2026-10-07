@@ -1,6 +1,6 @@
 ---
 name: class-extraction-guard
-version: 1.0.2
+version: 1.1.0
 composes_with: ["orchestrator", "frontend-agent", "design-token-guard", "render-sanity", "code-review-agent", "sync-skills"]
 description: >-
   Source-level gate that catches utility-class soup — the same long run of
@@ -16,7 +16,7 @@ description: >-
   styling uses (tokens vs hex), this checks HOW it's organized (extracted vs
   repeated) — invisible to render review since repeated utilities render
   identically.
-compatibility: Claude Code; requires Python 3.8+ (stdlib only) to run scripts/check_class_extraction.py
+compatibility: Read/edit/shell host; requires Python 3.9+ (stdlib only) to run scripts/check_class_extraction.py
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
@@ -49,20 +49,22 @@ None subsumes the others. A UI build wants all three.
 
 ## Quick start
 
+Resolve `<class-guard-root>` from this host's actual installed skill resources, not a hardcoded Claude home.
+
 ```bash
 # Human-readable report
-python3 ~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py --root .
+python3 <class-guard-root>/scripts/check_class_extraction.py --root .
 
 # JSON for a gate (same gate contract as design-token-guard: exit codes +
 # .summary.errors / .summary.warnings — the JSON key shapes differ)
-python3 ~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py --root . --json
+python3 <class-guard-root>/scripts/check_class_extraction.py --root . --json
 #   -> { "summary": { "errors": 0, "warnings": 12, "files_scanned": 98 },
 #        "findings": [ { "rule": "...", "file": "...", "line": 93, "count": 9,
 #                        "string": "...", "occurrences": [...], "suggestion": "..." } ] }
 ```
 
 Exit codes: **0** = no error-severity findings, **1** = error-severity findings,
-**2** = usage/config error. `--staged` scans only git-staged files (for a
+**2** = usage/configuration or blocked-inspection error. `--staged` scans only git-staged files (for a
 pre-commit hook). `--quiet` suppresses the human output.
 
 ## What it flags
@@ -70,6 +72,7 @@ pre-commit hook). `--quiet` suppresses the human output.
 | rule | default | fires when |
 |---|---|---|
 | `repeated-class-string` | **warning** | the same (order-normalized) class string of ≥ `minUtilities` (4) tokens appears in ≥ `minRepeats` (3) distinct call-sites |
+| `duplicate-css-block` | off (opt-in; bootstrap sets error) | at least `minCssRepeats` simple class rules share `minDeclarations` identical ordered declarations in the same media/layer/supports scope |
 | `long-class-string` | off (opt-in) | a single class string carries ≥ `maxUtilities` (12) tokens — a one-off mega-string worth splitting even unrepeated |
 | `abstraction-defeat` | off (opt-in) | extra utilities are glued onto an element that already has a named/`@apply` class (needs `namedClassPattern` set) |
 
@@ -79,6 +82,14 @@ build on adoption day. Flip a rule to `error` (and scaffold it at the bootstrap
 wave) when you want it to hard-gate a greenfield project from commit #1. See
 `references/config.md` for every option.
 
+## CSS declaration equivalence and shared source layout
+
+The project-local frontend bootstrap sets `duplicate-css-block` to error. It scans plain CSS and inline `<style>` sources; renaming repeated blocks to unique/hash classes no longer hides identical declarations. Only equivalent **simple class selectors** in identical at-rule ancestry are grouped. Declaration order, fallback values and `!important` are retained; complex selectors, nested/preprocessor syntax and CSS-in-JS require manual review, not automatic equivalence claims. Rule fingerprints can be exempted only with a reasoned owner-approved `cssAllowlist` entry; utility baselines never suppress CSS duplicates.
+
+`scripts/check_shared_layout.py --root . --json` uses the same class config/discovery and flags copied literal header/nav/footer markup across at least two authored source files. Extract one owning component/partial/include. It excludes generated build directories and script/style bodies; do not scan a static generator's published HTML as authored source. It is not a runtime component-ownership verifier or semantic near-duplicate detector. Intentional independent copies need a reasoned `sharedLayout.allowlist` fingerprint entry. Dynamic/framework composition still needs manual shell inspection.
+
+Frontend-agent invokes the consented project bootstrap from design-token-guard **before** authoring, then runs all guards together on the full source tree. Resource absence, invalid config/baseline, git/read failure or missing explicit paths blocks inspection (exit 2), never clean success. Native teams/dispatch and independent QE remain unchanged; solo self-check is not independent review.
+
 ## Adopting on an existing codebase (ratchet mode)
 
 A gate added *after* a fleet of agents has written the UI inherits a backlog —
@@ -86,7 +97,7 @@ which is why the default is non-blocking. To adopt without drowning in
 pre-existing debt, record a baseline and only flag **new** duplication:
 
 ```bash
-CEG=~/.claude/skills/class-extraction-guard/scripts/check_class_extraction.py
+CEG=<class-guard-root>/scripts/check_class_extraction.py
 python3 "$CEG" --root . --write-baseline   # snapshot today's soup
 python3 "$CEG" --root . --json             # now reports only NEW combos
 ```
@@ -114,6 +125,7 @@ complaint.
 
 ## Bundled resources
 
+- `scripts/check_shared_layout.py` + `scripts/frontend_source.py` — small shared-source-chrome and conservative CSS extraction helpers.
 - `scripts/check_class_extraction.py` — the detector (Python 3.8+ stdlib only).
 - `assets/class-guard.config.json` — a starter `.class-guard.json`.
 - `assets/pre-commit` — a git pre-commit hook running `--staged`.

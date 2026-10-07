@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.4.0
+version: 1.5.0
 description: >-
   The front door to the whole toolkit — one reliable entry point that reads what
   you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a
@@ -90,9 +90,7 @@ See "madness vs skill-explorer" below for when to use which.
 
 Route intent -> front door. Each front door owns the deeper routing from there.
 Targets marked *Claude-Code-native* (`feature-dev:feature-dev`,
-`frontend-design:frontend-design`, `orchestrator`, the loops, the role agents)
-exist only on Claude Code; on any other host, route to the nearest portable
-skill in the same row instead.
+`frontend-design:frontend-design`, `orchestrator`, the loops) need their native runtime. Role skills now offer explicit solo branches on read/edit/shell hosts; check actual availability and choose that branch instead of inventing native Agent/teams calls. Keep native dispatched roles when an orchestrator is active.
 
 | When the intent is... | Front door | Cost |
 |---|---|---|
@@ -109,6 +107,10 @@ skill in the same row instead.
 | Git: commit, PR, address feedback, cleanup | `git-commit` / `git-pr` / `git-pr-feedback` / `git-post-merge-cleanup` | cheap |
 | Docs / research / deep-dive / wiki / diagram / image | `repo-deep-dive` / `llm-wiki` / `interactive-doc` / `mermaid-charts` / `nano-banana` | cheap |
 | Onboard / profile / set up a repo or harness | `project-profiler` / `setup-project-skills` / `settings-consolidator` | cheap |
+
+### Frontend handoff (native or solo)
+
+A UI-building route hands off to frontend-agent's source-guard bootstrap before CSS/page generation, not just its design skills. The builder previews project-local guard files, obtains setup consent, integrates existing hook tooling without overwriting it, and runs the bundled source runner plus visible two-width checks before completion. Missing guard resources/setup are BLOCKED enforcement, not a reason to silently ship unguarded. On a host without a Skill tool, explicitly read the target's installed SKILL.md and required references and follow its solo branch; naming a skill alone does not activate it. No global hooks/installs are authorized by routing.
 
 ## The load budget: one skill, or none
 
@@ -183,7 +185,7 @@ the work instead of routing it.
 If you can't route confidently, don't pick at random — show the lay of the land
 and ask which door. Keep it to the front doors, not the whole library:
 
-```
+```text
 Where do you want to go?
   • Build something — multi-agent (orchestrator) or one feature (feature-dev)
   • Plan it first — turn research/PRD/goal into a build plan (plan-builder)
@@ -230,8 +232,7 @@ The one host-specific step: **route to skills that actually exist here.** The
 skills available in this session are listed in your context — check that list
 before you name a target. Some front doors in the map below are
 Claude-Code-native (`orchestrator`'s Agent Teams, every `loops/*` skill, the
-role agents, and the workflows bound to the Artifact tool or `~/.claude`
-config). On a host where those aren't present or don't run, route to the closest
+workflows bound to the Artifact tool or `~/.claude` config). The role agents have portable explicit solo branches, while native dispatch still uses orchestrator ownership and QE order. On a host where those aren't present or don't run, route to the closest
 portable skill — the git, planning, docs, review, debugging, and contract
 workflows work everywhere — and name the gap in one line. Never answer "this is
 Claude Code only"; pick the nearest live route.

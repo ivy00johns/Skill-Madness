@@ -23,13 +23,13 @@ HOOKS_MANIFEST="${HOOKS_MANIFEST:-$HOOKS_ROOT/hooks.manifest.json}"
 
 # ---------------------------------------------------------------------------
 # hook_active_profile — normalized profile, defaulting to "standard".
-# Unknown values fall back to standard (never wedge the harness).
+# Unknown values select strict: typos must not downgrade enforcement.
 # ---------------------------------------------------------------------------
 hook_active_profile() {
   local p="${ATS_HOOK_PROFILE:-standard}"
   case "$p" in
     minimal|standard|strict) printf '%s' "$p" ;;
-    *) printf 'standard' ;;
+    *) printf 'strict' ;;
   esac
 }
 

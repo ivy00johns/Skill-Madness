@@ -108,7 +108,7 @@ emit_issue() {
 _lint_py3() {
   local file="$1"
   local schema="${2:-}"
-  python3 - "$file" "$schema" <<'PYEOF'
+  python3 - "$file" "$schema" "$SCRIPT_DIR/lib" <<'PYEOF'
 import sys, json, re
 
 path = sys.argv[1]
@@ -196,6 +196,18 @@ body_lines = lines[fm_end + 1:]
 result["body_lines"] = body_lines
 result["body_word_count"] = len(' '.join(body_lines).split())
 result["body_line_count"] = len([l for l in body_lines if l.strip()])
+result["body_physical_lines"] = len('\n'.join(body_lines).splitlines())
+result["body_approx_tokens"] = (len('\n'.join(body_lines).encode('utf-8')) + 3) // 4
+
+# Shared delivery inventory validates regular files, symlinks and literal local
+# paths. This is source closure only; converted manifests and host execution are
+# separate checks. Missing helpers are an ERROR, never an empty clean inventory.
+sys.path.insert(0, sys.argv[3])
+try:
+    from resource_delivery import source_diagnostics
+    result['resources'] = source_diagnostics(path)
+except (ImportError, OSError, ValueError) as exc:
+    result['resource_error'] = str(exc)
 
 # Description char count (collapsed)
 desc = data.get('description', '')
@@ -384,8 +396,8 @@ lint_one() {
     emit_issue ERROR "$file" "1" "required field 'name' is missing or empty"
   else
     # kebab-case check
-    if ! printf '%s' "$name" | grep -qE '^[a-z][a-z0-9-]*$'; then
-      emit_issue ERROR "$file" "1" "name '$name' is not kebab-case (must match ^[a-z][a-z0-9-]*$)"
+    if ! printf '%s' "$name" | grep -qE '^[a-z][a-z0-9]*(-[a-z0-9]+)*$'; then
+      emit_issue ERROR "$file" "1" "name '$name' is not kebab-case (must match ^[a-z][a-z0-9]*(-[a-z0-9]+)*$)"
     fi
     # length check
     if (( ${#name} > 64 )); then
@@ -434,6 +446,29 @@ lint_one() {
   fi
 
   # Body line count
+  local body_physical body_tokens
+  body_physical="$(printf '%s' "$json_out" | python3 -c "import sys,json; print(json.load(sys.stdin).get('body_physical_lines',0))")"
+  body_tokens="$(printf '%s' "$json_out" | python3 -c "import sys,json; print(json.load(sys.stdin).get('body_approx_tokens',0))")"
+  emit_issue INFO "$file" "" "body: ${body_physical} physical lines; ${body_lc} nonblank lines; ${body_wc} words; ~${body_tokens} tokens (UTF-8 bytes/4 estimate, not tokenizer measurement)"
+  local resource_error resource_summary
+  resource_error="$(printf '%s' "$json_out" | python3 -c "import sys,json; print(json.load(sys.stdin).get('resource_error',''))")"
+  if [[ -n "$resource_error" ]]; then
+    emit_issue ERROR "$file" "" "resource inspection blocked: $resource_error"
+  else
+    resource_summary="$(printf '%s' "$json_out" | python3 -c "import sys,json; r=json.load(sys.stdin)['resources']; print('%d regular files; %d bytes; %d literal local references' % (r['files'],r['bytes'],r['literal_references']))")"
+    emit_issue INFO "$file" "" "source resource closure: $resource_summary (not live-host acceptance)"
+    while IFS= read -r dependency; do
+      [[ -z "$dependency" ]] && continue
+      emit_issue INFO "$file" "" "external resource dependency: $dependency (not bundled or host-verified)"
+    done < <(printf '%s' "$json_out" | python3 -c "import sys,json; [print(p) for p in json.load(sys.stdin)['resources']['external_dependencies']]")
+    while IFS= read -r missing_resource; do
+      [[ -z "$missing_resource" ]] && continue
+      emit_issue ERROR "$file" "" "missing literal local resource: $missing_resource"
+    done < <(printf '%s' "$json_out" | python3 -c "import sys,json; [print(p) for p in json.load(sys.stdin)['resources']['missing']]")
+  fi
+  if (( body_tokens > 5000 )); then
+    emit_issue WARN "$file" "" "body ~${body_tokens} approximate tokens; consider on-demand references (not a runtime measurement)"
+  fi
   if (( body_lc > 500 )); then
     emit_issue WARN "$file" "" "body is ${body_lc} non-blank lines (target ≤500; move detail to references/)"
   fi

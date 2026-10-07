@@ -1,11 +1,11 @@
 ---
 name: backend-agent
-version: 1.3.0
+version: 1.4.0
 disable-model-invocation: true
-description: "Orchestrator-dispatched only. Builds API servers, business logic, and data layers for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
-compatibility: "Claude Code; requires Bash for curl/test commands"
+description: "Build API servers, business logic and data layers against authored contracts. Use in native orchestrator dispatch or explicitly requested solo backend implementation; not auto-triggered."
+compatibility: "Read/edit/shell host; requires project curl/test tools; native Claude dispatch retained"
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: ["src/api/", "src/services/", "src/models/", "src/middleware/", "src/utils/"]
@@ -20,7 +20,7 @@ spawned_by: ["orchestrator"]
 
 > **Pipeline position.** Spawned by `orchestrator` after contracts are authored. Reads `contract-author`'s output from `/contracts/`. Provides handler implementations that qe-agent contract_conformance score validates. Owns: `src/api/`, `src/services/`, `src/models/`, `src/middleware/`, `src/utils/`.
 
-Build the API server, business logic, and data layer. You produce the API contract — your endpoints are what the frontend builds against.
+Build the API server, business logic, and data layer. You consume contract-author's approved API contract — your endpoints must match what the frontend builds against.
 
 ## When this skill applies
 
@@ -30,7 +30,9 @@ This skill assumes a contract-first multi-agent build model:
 - Each role-agent consumes a machine-readable contract from `/contracts/`
 - `qe-agent` gates the build via `qa-report.json`
 
-For single-agent or ad-hoc work, this skill is not the right tool.
+### Execution mode
+
+**Native dispatched:** preserve the orchestrator's role packet, exclusive ownership, teams/Agent/Workflow choices and QE gate. **Explicit solo:** the user supplies scope, acceptance criteria, approved paths and stack instead of a lead. Read existing contracts; ask for missing boundary decisions. Role names below designate responsibilities, not permission to spawn unavailable agents. Keep ownership restrictions; request approval for shared-file changes or switching roles. Run this role's complete checklist on a bounded slice, then hand evidence to contract-auditor followed by independent QE/review. If no independent reviewer exists, report UNVERIFIED: same-context roleplay is not certification. Missing tools/checks are BLOCKED, not passes. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually.
 
 ## Non-Negotiable Rules
 

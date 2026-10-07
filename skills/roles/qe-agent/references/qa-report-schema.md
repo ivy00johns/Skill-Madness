@@ -31,6 +31,25 @@ The `qa-report.json` is an object with these required top-level keys (all must b
 
 The orchestrator parses by name, not position — field names must match the schema exactly.
 
+## Strict proof binding
+
+Standard/minimal hooks accept the legacy report shape. Strict hooks additionally require `proof_binding`, and `build_session_id` must match the active run ID supplied by the lead (`ATS_QA_RUN_ID`, or the host hook's `session_id`). The hook recomputes the current Git revision and source/contract content hashes; old reports do not certify new or uncommitted changes.
+
+```json
+{
+  "proof_binding": {
+    "run_id": "owner-assigned-build-id",
+    "revision": "<current full Git commit ID>",
+    "source_sha256": "<64 hexadecimal characters>",
+    "contract_sha256": "<64 hexadecimal characters>"
+  }
+}
+```
+
+Use the repository's `hooks/scripts/qa-gate-validate.py <report-path> --snapshot` (or the installed `ats-hooks/scripts/` copy) to obtain this object. Set `CLAUDE_PROJECT_DIR` to the target Git worktree root; contracts default to `contracts/`, with `ATS_QA_CONTRACTS` as an in-project override. Capture before verification, compare again after, and only publish the report if the binding is unchanged. Never update a stale report's hashes without rerunning its checks. The selected QA JSON/narrative pair and conventional report pairs are excluded to avoid self-reference.
+
+The snapshot covers tracked/nonignored untracked file names, modes and bytes, not ignored credentials, external runtime state or independent-verifier authenticity. Unsupported symlink/submodule/special-file boundaries block strict certification. See `contracts/hooks/hooks-layer.md` §3 for the exact boundary. Stop-hook reentry returns control with an UNVERIFIED diagnostic, not a passing verdict.
+
 ## Scores
 
 The `scores` object MUST include all five dimensions. Each is an object with `score` (1–5 integer) and `notes` (string explaining the score). Bare integers are non-conformant.
