@@ -1,6 +1,6 @@
 ---
 name: class-extraction-guard
-version: 1.1.0
+version: 1.1.1
 composes_with: ["orchestrator", "frontend-agent", "design-token-guard", "render-sanity", "code-review-agent", "sync-skills"]
 description: >-
   Source-level gate that catches utility-class soup — the same long run of
@@ -46,6 +46,31 @@ gate that closes that seam.
 | **class-extraction-guard** | source | **the same utility combo repeated inline instead of extracted** |
 
 None subsumes the others. A UI build wants all three.
+
+## When the checker can't run (no shell, or no file read)
+
+The detector is the authority, but the gate is the **source scan**, not the
+script binary. Degrade instead of declining — never report a clean pass you did
+not observe:
+
+- **Shell + file read (full host):** run `scripts/check_class_extraction.py` as
+  below. A crash or a blocked inspection (exit 2) is never a clean pass.
+- **File read, no shell:** apply the default rule by hand. Grep the changed
+  source for class attributes (`class=`, `className=`, `:class`, `class:list`,
+  and the class-string args to `clsx` / `cn` / `classNames` / `cva` / `tv` /
+  `twMerge`), order-normalize the utility tokens in each string, and flag any
+  normalized combo of ≥ 4 utilities that appears at ≥ 3 distinct call-sites —
+  exactly the `repeated-class-string` rule the detector applies. Report each combo
+  with its occurrences as `file:line`, the same shape the checker emits. Mark
+  coverage partial where a file was unreadable.
+- **No shell and no file read:** load the skill and report **every check
+  BLOCKED** — you cannot name the repeated combos, so say so. Hand the next host
+  the command and the thresholds (`minUtilities` 4, `minRepeats` 3). Do not
+  invent findings, and do not decline the skill.
+
+**BLOCKED is not a pass.** Whether the detector ran or you hand-scanned, any check
+you could not perform is reported `BLOCKED` with its reason, and an unrun gate is
+an uncleared gate — not a clean build.
 
 ## Quick start
 

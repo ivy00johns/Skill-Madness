@@ -1,6 +1,6 @@
 ---
 name: design-token-guard
-version: 1.1.0
+version: 1.1.1
 composes_with: ["orchestrator", "frontend-agent", "render-sanity", "ux-review", "code-review-agent", "sync-skills"]
 description: >-
   Source-level gate that prevents inline styles and hardcoded CSS from
@@ -47,6 +47,32 @@ This skill is that gate. It does two things:
 It is **dynamic**: it auto-discovers whatever token system the project already
 uses and derives the rules from it. TruthLens and a vanilla Vue app are two
 *configs* of one skill, not two skills.
+
+## When the checker can't run (no shell, or no file read)
+
+The bundled checker is the authority, but the gate is the **source scan**, not the
+script binary. Degrade instead of declining — never report a clean pass you did
+not observe:
+
+- **Shell + file read (full host):** run `scripts/check_design_tokens.py` as in
+  Step 1. A crash, a missing path, or a blocked inspection (exit 2) is never a
+  clean pass.
+- **File read, no shell:** run the pass by hand with the read/grep tools you have.
+  Grep the changed source for hardcoded color literals — `#[0-9a-fA-F]{3,8}`,
+  `rgb(`, `rgba(`, `hsl(`, `hsla(` — in style contexts (`style={{…}}`,
+  `style="…"`, `:style`, `[style]`, SVG `fill`/`stroke`, Tailwind arbitrary
+  `[#…]`), and compare each literal against the tokens you can read from the
+  token source. Report each finding as `file:line` with the exact token it should
+  use, the same shape the checker emits. Mark coverage partial where a file was
+  unreadable.
+- **No shell and no file read:** load the skill and emit the audit with **every
+  check BLOCKED** — you cannot name the offending files, so say so. Hand the next
+  host the command to run and the pattern list above. Do not guess findings, and
+  do not decline the skill.
+
+**BLOCKED is not a pass.** Whether the checker ran or you hand-scanned, any check
+you could not perform is reported `BLOCKED` with its reason, and an unrun gate is
+an uncleared gate — not a clean build.
 
 ## Step 1 — Audit
 

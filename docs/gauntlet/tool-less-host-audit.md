@@ -62,17 +62,25 @@ the capability itself, so the model opens the skill and reports the blocker from
 inside it. That is the correct behavior — the probe counts the load, and the
 answer is honest.
 
+These 18 reps were recorded under the load-only rubric that predated
+`LOADED_REFUSED`. Re-graded under the current rubric the loading result is
+unchanged — **0 misses** — but every row's outcome reclassifies to
+`LOADED_REFUSED`: selected, then declined the work this host could not run. That
+is the outcome axis this audit prompted, and Finding 3 is the fix. (The re-grade
+reads stored 500-character answer excerpts, so a late `BLOCKED` fallback could be
+missed; the live re-probe in `trigger-probe-results.md` is authoritative.)
+
 ## Finding 2 — where the refusal is wrong, and where it is right
 
 Every one of these nine can only be *fully* run with a tool the probe host lacks,
 so refusing the work is honest. But two of them have a **tool-free reduced scope**
-that the current bodies do not describe, and are therefore the only candidates
-that would benefit from a `render-sanity`-style *degrade-and-mark-BLOCKED* clause:
+that their bodies did not describe, and were the only candidates that would
+benefit from a `render-sanity`-style *degrade-and-mark-BLOCKED* clause:
 
 - **`design-token-guard`** — the gate is a **source-level** check (find inline
   styles / hardcoded colors), and the skill ships `check_design_tokens.py`. On a
   host with file-read but no shell, the check is still doable by reading source;
-  the body only documents running the script, so the model reports a flat
+  the body only documented running the script, so the model reported a flat
   blocker instead of a static pass.
 - **`class-extraction-guard`** — same shape: a source-level detector
   (`check_class_extraction.py`) with a script-only body. A host that can read
@@ -84,22 +92,33 @@ have **no meaningful tool-free fallback** — the browser / ffmpeg / image API /
 network / shell is the whole job. For those, the honest refusal is the correct
 outcome and a "degrade" clause would only tempt the model to fabricate.
 
-## Finding 3 — the probe cannot see a post-load refusal
+**Both guards are now fixed (v1.1.1).** Each gained a "When the checker can't
+run" section: run the script when the host has a shell; hand-scan the source with
+the read/grep tools when it has file-read but no shell; and, with neither, load
+the skill and report every check `BLOCKED` with the command to run. Re-probed on
+the same host with the new `LOADED_REFUSED` grading, both now **PASS** — they load
+and return a BLOCKED report instead of a flat refusal — while `playwright`, which
+has no fallback, is correctly flagged `LOADED_REFUSED`.
 
-The render-sanity defect was a *loading* miss, so the probe caught it. The
-pattern the nine show — **loaded, then declined** — is invisible to the current
-rubric: loading alone scores `PASS`, and `assess_work` is only consulted when the
-skill was *not* loaded. A skill that loads and then does nothing looks identical
-to one that loads and works. Detecting this class would need a new signal
-(e.g. grading the loaded-skill answer for BLOCKED/refusal content), not another
-row in the matrix.
+## Finding 3 — the probe could not see a post-load refusal (now fixed)
+
+The render-sanity defect was a *loading* miss, so the old probe caught it. The
+pattern the nine show — **loaded, then declined** — was invisible: loading alone
+scored `PASS`, and `assess_work` was only consulted when the skill was *not*
+loaded. A skill that loads and then does nothing looked identical to one that
+loads and works.
+
+The probe now grades this. A loaded answer that declines **and** hands back no
+structured `BLOCKED` result scores `LOADED_REFUSED`, distinct from `PASS`. An
+answer that declines but still applies the skill's degraded fallback (a `BLOCKED`
+report) stays `PASS` — it did the work the skill allows. See
+`trigger-probe-results.md` for the verdict definition and the live re-probe.
 
 ## Recommendation
 
-1. Add the v1.2.2 "degrade, don't decline" directive to `design-token-guard` and
-   `class-extraction-guard` — they are source-level gates with a real reduced
-   scope, so a static pass beats a flat refusal.
+1. ~~Add the "degrade, don't decline" directive to `design-token-guard` and
+   `class-extraction-guard`.~~ **Done** (both v1.1.1) — and re-probed green.
 2. Leave the other seven as-is; their refusal is correct when the capability is
    genuinely absent.
-3. Optional: extend the probe to score a post-load refusal, so this class is
-   measurable rather than assumed.
+3. ~~Extend the probe to score a post-load refusal.~~ **Done** — the
+   `LOADED_REFUSED` verdict now surfaces this class (`--repeat` shows it per row).
