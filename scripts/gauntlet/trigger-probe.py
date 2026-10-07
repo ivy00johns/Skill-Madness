@@ -21,7 +21,10 @@ This probe measures selection directly, the same way on any model:
      description -- when the host demonstrably does the requested work without
      loading it. A skill that loads but then declines the work (a tool-less
      host, most often) scores `LOADED_REFUSED`, distinct from a `MISS` where
-     nothing was selected at all. The near-miss control must not load the skill.
+     nothing was selected at all. With `--ground-truth`, a loaded answer that
+     cites no `path:line` in an expected violation file scores
+     `LOADED_UNGROUNDED`: it claimed a scan without a finding. The near-miss
+     control must not load the skill.
 
 Each probe emits one JSONL record. `--telemetry` additionally writes
 skill-health-shaped lines that `scripts/gauntlet/trace-merge.py` can consume, so
@@ -59,6 +62,14 @@ Caveats, stated rather than buried:
   degrade report has applied its fallback and scores `PASS`. The refusal check is
   still a heuristic: a skill whose answer merely mentions "I can't" mid-prose can
   be mislabeled; read it alongside the answer excerpt, not instead of it.
+* A `LOADED_UNGROUNDED` verdict applies only when `--ground-truth` names expected
+  files for the skill **and** the host has a file-read tool. It is the
+  machine-checkable half of the hand-scan contract: the answer must locate a
+  violation at `path:line`, not merely assert that it scanned. It catches the
+  failure mode where a file-read host returns a `BLOCKED` report it could have
+  replaced with a hand-scan -- a loaded skill that would otherwise fold into
+  `PASS`. A host with no file read is never graded this way: its `BLOCKED`
+  report is the correct degraded answer.
 
 Usage:
   trigger-probe.py --model deepseek-v4-flash [--limit N] [--only NAME]
@@ -113,6 +124,17 @@ REFUSAL_MARKERS = (
 # A structured degraded result: the skill ran its fallback and labeled what it
 # could not do. Its presence means the answer did work, not just decline.
 BLOCKED_REPORT_MARKER = "blocked"
+# A structured finding locates a violation at `path:line`. A source-level guard's
+# hand-scan fallback is only trustworthy when it says *where*; prose that merely
+# claims a scan is not evidence. One capture group is the path, the other the line.
+FINDING_LOCATION = re.compile(
+    r"([\w./-]+\.(?:tsx|jsx|ts|js|mjs|cjs|css|scss|sass|less|html|vue|svelte|astro|py))\s*:\s*(\d+)"
+)
+# Tools that only read/search the filesystem. Ground-truth grading applies only
+# when the host has one of these -- declared through the toolset, or seen in the
+# trace. A host with no file read is *supposed* to return a BLOCKED report, so it
+# must not be failed for lacking findings it had no way to produce.
+FILE_READ_TOOLS = {"read_file", "search_files"}
 # The shortest answer still worth calling a deliverable. Routing answers are
 # terse on purpose ("dependency-health-loop handles that"), so this is low; a
 # request for input or a refusal is rejected before length is even considered.
@@ -325,6 +347,17 @@ def load_env_file(path: Path, environ: dict[str, str]) -> None:
             environ[key] = value
 
 
+def load_ground_truth(path: Path) -> dict[str, dict]:
+    """Read skill -> {files, kind} expectations. Non-object entries are dropped."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise SystemExit(f"error: --ground-truth unreadable: {exc}")
+    if not isinstance(data, dict):
+        raise SystemExit("error: --ground-truth must be a JSON object")
+    return {k: v for k, v in data.items() if isinstance(v, dict)}
+
+
 def run_probe(
     query: str, model: str, home: Path, work: Path, timeout: int,
     environ: dict[str, str], toolsets: str = "skills", max_turns: int = 4,
@@ -469,7 +502,40 @@ def _reports_blocked(text: str) -> bool:
     return BLOCKED_REPORT_MARKER in text.lower()
 
 
-def positive_verdict(skill: str, loaded: set[str], worked: bool, text: str) -> str:
+def cited_locations(text: str) -> set[str]:
+    """`path:line` references the answer cites -- the guard's finding shape."""
+    return {f"{m.group(1)}:{m.group(2)}" for m in FINDING_LOCATION.finditer(text)}
+
+
+def cites_expected(text: str, expected_files: list[str]) -> bool:
+    """Does the answer locate a violation at a `path:line` in an expected file?
+
+    The path match is suffix-tolerant (`Button.tsx:5` counts for
+    `src/ui/Button.tsx`), so a host that cites a basename is not failed for
+    brevity; a line number is required, so a bare path or a claim of scanning is
+    not a finding.
+    """
+    if not expected_files:
+        return False
+    for loc in cited_locations(text):
+        path = loc.rsplit(":", 1)[0].lstrip("./")
+        for exp in expected_files:
+            exp = exp.lstrip("./")
+            if path == exp or path.endswith("/" + exp) or exp.endswith("/" + path):
+                return True
+    return False
+
+
+def has_file_read(tools: list[str], toolsets: str) -> bool:
+    """Can this host read files -- so a BLOCKED report is a missed hand-scan?"""
+    if "file" in {t.strip() for t in toolsets.split(",")}:
+        return True
+    return bool(FILE_READ_TOOLS & set(tools))
+
+
+def positive_verdict(
+    skill: str, loaded: set[str], worked: bool, text: str, grounded: bool | None = None
+) -> str:
     """Grade one positive probe: selection first, then whether it did the work.
 
     A load proves selection. When the skill loaded, the answer is `LOADED_REFUSED`
@@ -481,6 +547,9 @@ def positive_verdict(skill: str, loaded: set[str], worked: bool, text: str) -> s
     if skill in loaded:
         if _is_refusal(text) and not _reports_blocked(text):
             return "LOADED_REFUSED"
+        # `grounded is None` means no expectation was supplied for this skill.
+        if grounded is False:
+            return "LOADED_UNGROUNDED"
         return "PASS"
     return "WORKED" if worked else "MISS"
 
@@ -523,10 +592,14 @@ def _group_verdict(kind: str, verdicts: list[str]) -> str:
         return "BLOCKED"
     if kind == "positive":
         # Loading is the primary axis; the work/refusal distinction refines it.
-        selected = [v for v in verdicts if v in {"PASS", "LOADED_REFUSED"}]
+        selected = [v for v in verdicts if v in {"PASS", "LOADED_REFUSED", "LOADED_UNGROUNDED"}]
         if len(selected) == len(verdicts):
-            # Selected in every rep -- PASS only if no rep declined the work.
-            return "LOADED_REFUSED" if any(v == "LOADED_REFUSED" for v in verdicts) else "PASS"
+            # Selected in every rep -- PASS only if no rep refused or found nothing.
+            if any(v == "LOADED_REFUSED" for v in verdicts):
+                return "LOADED_REFUSED"
+            if any(v == "LOADED_UNGROUNDED" for v in verdicts):
+                return "LOADED_UNGROUNDED"
+            return "PASS"
         if selected:
             return "FLAKY"
         if any(v == "WORKED" for v in verdicts):
@@ -564,6 +637,9 @@ def main() -> int:
     parser.add_argument("--seed-work", type=Path,
                         help="copy this directory's contents into the probe work dir "
                              "before probing, so a source-level fallback has source to scan")
+    parser.add_argument("--ground-truth", type=Path,
+                        help="JSON map of skill -> {files, kind}; a loaded positive answer "
+                             "that cites no expected `path:line` scores LOADED_UNGROUNDED")
     parser.add_argument("--keep-home", action="store_true", help="keep the scratch host home")
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--include-explicit", action="store_true",
@@ -634,6 +710,7 @@ def main() -> int:
     groups: list[dict] = []
     findings = 0
 
+    ground_truth = load_ground_truth(args.ground_truth) if args.ground_truth else {}
     kinds = ["positive", "negative"] if args.kind == "all" else [args.kind]
     reps = max(1, args.repeat)
 
@@ -654,11 +731,16 @@ def main() -> int:
                     worked, work_reason = (False, "") if args.strict else assess_work(trace)
                     seconds = round(time.time() - started, 2)
 
+                    wants = ground_truth.get(row.skill) if kind == "positive" else None
+                    grounded = None
+                    if wants and has_file_read(trace.tools, args.toolsets):
+                        grounded = cites_expected(trace.result_text, wants.get("files", []))
+
                     if code != 0 and not loaded:
                         verdict = "BLOCKED"
                     elif kind == "positive":
                         verdict = positive_verdict(
-                            row.skill, loaded, worked, trace.result_text
+                            row.skill, loaded, worked, trace.result_text, grounded=grounded
                         )
                     else:
                         verdict = "FALSE_POSITIVE" if row.skill in loaded else "PASS"
@@ -677,6 +759,8 @@ def main() -> int:
                         "loaded": sorted(loaded),
                         "worked": worked,
                         "work_reason": work_reason if (kind == "positive" and not row.skill in loaded) else "",
+                        "grounded": grounded,
+                        "ground_truth_files": sorted(wants.get("files", [])) if wants else [],
                         "tools": sorted({t for t in trace.tools if t}),
                         "answer": trace.result_text.strip()[:500],
                         "answer_chars": len(trace.result_text.strip()),
@@ -696,7 +780,8 @@ def main() -> int:
                         print(f"[{verdict}] {row.skill:<28} {kind:<8} rep {rep}/{reps}{extra}", file=sys.stderr)
 
                 group = _group_verdict(kind, verdicts)
-                if group in {"MISS", "FALSE_POSITIVE", "FLAKY", "LOADED_REFUSED"}:
+                if group in {"MISS", "FALSE_POSITIVE", "FLAKY", "LOADED_REFUSED",
+                             "LOADED_UNGROUNDED"}:
                     findings += 1
                 groups.append({"skill": row.skill, "kind": kind, "mode": row.mode,
                                "group": group, "verdicts": verdicts})
@@ -745,6 +830,7 @@ def main() -> int:
     passed = sum(1 for g in groups if g["group"] == "PASS")
     worked = sum(1 for g in groups if g["group"] == "WORKED")
     refused = sum(1 for g in groups if g["group"] == "LOADED_REFUSED")
+    ungrounded = sum(1 for g in groups if g["group"] == "LOADED_UNGROUNDED")
     blocked = sum(1 for g in groups if g["group"] == "BLOCKED")
     flaky = sum(1 for g in groups if g["group"] == "FLAKY")
     misses = sum(1 for g in groups if g["group"] == "MISS")
@@ -758,6 +844,7 @@ def main() -> int:
         f", {reps} rep(s) each = **{len(records)}** host calls",
         f"- host toolsets: `{args.toolsets}` (max-turns {args.max_turns})",
         f"- PASS {passed} · WORKED {worked} · LOADED_REFUSED {refused} · "
+        f"LOADED_UNGROUNDED {ungrounded} · "
         f"MISS {misses} · FLAKY {flaky} · FALSE_POSITIVE {false_pos} · BLOCKED {blocked}",
         "",
         "A PASS is the model loading the skill on its legitimate trigger. A MISS",
@@ -786,6 +873,16 @@ def main() -> int:
             if g["group"] == "LOADED_REFUSED":
                 summary.append(f"- `{g['skill']}` ({g['mode']}, {g['kind']}): {g['verdicts']}")
         summary.append("")
+    if ungrounded:
+        summary.append("## Loaded but found nothing")
+        summary.append("")
+        summary.append("The skill was selected in every rep, but the answer cited no")
+        summary.append("`path:line` in an expected violation file -- a claimed scan, not a finding.")
+        summary.append("")
+        for g in groups:
+            if g["group"] == "LOADED_UNGROUNDED":
+                summary.append(f"- `{g['skill']}` ({g['mode']}, {g['kind']}): {g['verdicts']}")
+        summary.append("")
     if worked:
         summary.append("## Worked without loading the skill")
         summary.append("")
@@ -801,9 +898,10 @@ def main() -> int:
 
     print("", file=sys.stderr)
     print(f"prompts: {len(groups)}  PASS {passed}  WORKED {worked}  LOADED_REFUSED {refused}  "
+          f"LOADED_UNGROUNDED {ungrounded}  "
           f"MISS {misses}  FLAKY {flaky}  FALSE_POSITIVE {false_pos}  BLOCKED {blocked}", file=sys.stderr)
 
-    if blocked and passed + worked + refused + misses + false_pos + flaky == 0:
+    if blocked and passed + worked + refused + ungrounded + misses + false_pos + flaky == 0:
         return 2
     return 1 if findings else 0
 

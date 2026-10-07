@@ -149,6 +149,52 @@ PY
   [ "$status" -eq 0 ]
 }
 
+@test "hand-scan fixture keeps its planted violations and ground truth" {
+  FIX="$REPO_ROOT/tests/gauntlet/fixtures/handscan-source"
+  [ -f "$FIX/ground-truth.json" ]
+  for f in theme.ts Button.tsx Card.tsx Row.tsx; do
+    [ -f "$FIX/src/ui/$f" ]
+  done
+  # The inline-style files carry the hardcoded colours the guard must cite.
+  grep -q '#1d4ed8' "$FIX/src/ui/Button.tsx"
+  grep -q 'rgb(229, 231, 235)' "$FIX/src/ui/Card.tsx"
+  grep -q 'hsl(0, 0%, 0%)' "$FIX/src/ui/Card.tsx"
+  # The repeated class string appears at exactly three call-sites.
+  count="$(grep -o 'flex items-center justify-between gap-4 rounded-md' "$FIX/src/ui/"*.tsx | wc -l | tr -d ' ')"
+  [ "$count" -eq 3 ]
+  # Ground truth names both source-level guards.
+  python3 -c "import json,sys; d=json.load(open(sys.argv[1])); assert set(d)=={'design-token-guard','class-extraction-guard'}, d; assert d['class-extraction-guard']['files']" "$FIX/ground-truth.json"
+}
+
+@test "ground truth grades a loaded answer by whether it cites a finding" {
+  probe_test <<'PY'
+ce = tp.cites_expected
+assert ce("Found src/ui/Button.tsx:5 — hardcoded #1d4ed8", ["src/ui/Button.tsx"]) is True
+# Suffix-tolerant: a cited basename still counts.
+assert ce("Button.tsx:5 bypasses the token", ["src/ui/Button.tsx"]) is True
+# A bare path, or a line in a non-expected file, is not a finding.
+assert ce("I scanned src/ui/Button.tsx thoroughly", ["src/ui/Button.tsx"]) is False
+assert ce("The guard was BLOCKED; check src/ui/theme.ts:3", ["src/ui/Button.tsx"]) is False
+# A host with no file read is not graded: its BLOCKED report is the correct answer.
+assert tp.has_file_read([], "skills") is False
+assert tp.has_file_read([], "skills,file") is True
+assert tp.has_file_read(["read_file"], "skills") is True
+pv = tp.positive_verdict
+assert pv("design-token-guard", {"design-token-guard"}, True,
+          "I hand-scanned the tree but found nothing to report.", grounded=False) == "LOADED_UNGROUNDED"
+assert pv("design-token-guard", {"design-token-guard"}, True,
+          "src/ui/Button.tsx:5 hardcodes #1d4ed8.", grounded=True) == "PASS"
+# No expectation supplied -> the load is still a PASS.
+assert pv("design-token-guard", {"design-token-guard"}, True, "scanned", grounded=None) == "PASS"
+g = tp._group_verdict
+assert g("positive", ["LOADED_UNGROUNDED", "LOADED_UNGROUNDED"]) == "LOADED_UNGROUNDED"
+assert g("positive", ["PASS", "LOADED_UNGROUNDED"]) == "LOADED_UNGROUNDED"
+assert g("positive", ["PASS", "PASS"]) == "PASS"
+PY
+  run python3 "$TMP/probe_test.py" "$PROBE"
+  [ "$status" -eq 0 ]
+}
+
 @test "launcher snapshot covers sibling launchers like hermes-acp" {
   BIN="$TMP/fakehome/.hermes/hermes-agent/.hermes/bin"
   mkdir -p "$BIN"
