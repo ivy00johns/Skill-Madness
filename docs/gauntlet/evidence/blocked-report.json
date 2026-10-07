@@ -1,0 +1,1847 @@
+{
+  "schema_version": 2,
+  "binding": {
+    "run_id": "offline-preflight",
+    "cell_id": "fixture-cell",
+    "host": "claude-code",
+    "model": "fixture-no-model",
+    "revision": "51106e1762205ab5a0b06b0d77ad8c69e8e33aba",
+    "evidence_kind": "offline-fixture"
+  },
+  "manifest_sha256": "bf76a954623a27be15ce23c4b620a5c5530150b956d5e23816335c8807c21954",
+  "scope": "full-catalog",
+  "planned_cases": 450,
+  "recorded_cases": 450,
+  "outcomes": {
+    "blocked": 450
+  },
+  "invocation_modes": {
+    "automatic": {
+      "planned_skills": 48,
+      "proven_skills": 0,
+      "skills": []
+    },
+    "dispatch": {
+      "planned_skills": 10,
+      "proven_skills": 0,
+      "skills": []
+    },
+    "explicit": {
+      "planned_skills": 17,
+      "proven_skills": 0,
+      "skills": []
+    }
+  },
+  "negative_controls_passed": 0,
+  "excluded_skills": {
+    "payload-cms": "optional/not must-fire; explicitly select this skill to test it"
+  },
+  "verdict": "FAIL",
+  "findings": [
+    {
+      "case_id": "architecture-rescue:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "architecture-rescue:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "architecture-rescue:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "architecture-rescue:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "architecture-rescue:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "architecture-rescue:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "artifact-publish:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "artifact-publish:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "artifact-publish:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "artifact-publish:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "artifact-publish:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "artifact-publish:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "babysit:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "babysit:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "babysit:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "babysit:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "babysit:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "babysit:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "backend-agent:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "backend-agent:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "backend-agent:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "backend-agent:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "backend-agent:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "backend-agent:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "caveman:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "caveman:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "caveman:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "caveman:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "caveman:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "caveman:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "class-extraction-guard:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "class-extraction-guard:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "class-extraction-guard:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "class-extraction-guard:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "class-extraction-guard:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "class-extraction-guard:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "claude-design-brief:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "claude-design-brief:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "claude-design-brief:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "claude-design-brief:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "claude-design-brief:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "claude-design-brief:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "code-review-agent:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "code-review-agent:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "code-review-agent:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "code-review-agent:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "code-review-agent:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "code-review-agent:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "codebase-exploration-loop:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "codebase-exploration-loop:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "codebase-exploration-loop:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "codebase-exploration-loop:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "codebase-exploration-loop:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "codebase-exploration-loop:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "context-manager:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "context-manager:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "context-manager:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "context-manager:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "context-manager:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "context-manager:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-auditor:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-auditor:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-auditor:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-auditor:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-auditor:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-auditor:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-author:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-author:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-author:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-author:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-author:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-author:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-conformance-loop:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-conformance-loop:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-conformance-loop:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-conformance-loop:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-conformance-loop:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "contract-conformance-loop:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "coverage-loop:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "coverage-loop:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "coverage-loop:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "coverage-loop:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "coverage-loop:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "coverage-loop:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "db-migration-agent:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "db-migration-agent:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "db-migration-agent:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "db-migration-agent:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "db-migration-agent:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "db-migration-agent:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-coordinator:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-coordinator:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-coordinator:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-coordinator:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-coordinator:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-coordinator:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-health-loop:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-health-loop:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-health-loop:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-health-loop:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-health-loop:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "dependency-health-loop:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "deployment-checklist:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "deployment-checklist:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "deployment-checklist:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "deployment-checklist:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "deployment-checklist:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "deployment-checklist:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "design-token-guard:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "design-token-guard:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "design-token-guard:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "design-token-guard:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "design-token-guard:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "design-token-guard:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "diagnose-loop:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "diagnose-loop:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "diagnose-loop:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "diagnose-loop:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "diagnose-loop:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "diagnose-loop:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "docs-agent:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "docs-agent:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "docs-agent:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "docs-agent:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "docs-agent:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "docs-agent:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "find-unknowns:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "find-unknowns:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "find-unknowns:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "find-unknowns:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "find-unknowns:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "find-unknowns:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "fix-until-green:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "fix-until-green:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "fix-until-green:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "fix-until-green:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "fix-until-green:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "fix-until-green:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "frontend-agent:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "frontend-agent:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "frontend-agent:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "frontend-agent:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "frontend-agent:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "frontend-agent:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-commit:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-commit:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-commit:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-commit:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-commit:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-commit:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-post-merge-cleanup:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-post-merge-cleanup:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-post-merge-cleanup:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-post-merge-cleanup:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-post-merge-cleanup:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-post-merge-cleanup:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr-feedback:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr-feedback:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr-feedback:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr-feedback:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr-feedback:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr-feedback:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "git-pr:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "grill-me:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "grill-me:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "grill-me:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "grill-me:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "grill-me:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "grill-me:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "infrastructure-agent:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "infrastructure-agent:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "infrastructure-agent:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "infrastructure-agent:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "infrastructure-agent:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "infrastructure-agent:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "interactive-doc:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "interactive-doc:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "interactive-doc:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "interactive-doc:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "interactive-doc:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "interactive-doc:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "living-plan:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "living-plan:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "living-plan:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "living-plan:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "living-plan:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "living-plan:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "llm-wiki:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "llm-wiki:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "llm-wiki:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "llm-wiki:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "llm-wiki:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "llm-wiki:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "loop-controller:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "loop-controller:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "loop-controller:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "loop-controller:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "loop-controller:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "loop-controller:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "madness:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "madness:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "madness:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "madness:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "madness:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "madness:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "maintain-context:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "maintain-context:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "maintain-context:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "maintain-context:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "maintain-context:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "maintain-context:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "mermaid-charts:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "mermaid-charts:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "mermaid-charts:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "mermaid-charts:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "mermaid-charts:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "mermaid-charts:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "migration-loop:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "migration-loop:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "migration-loop:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "migration-loop:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "migration-loop:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "migration-loop:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "model-adaptation:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "model-adaptation:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "model-adaptation:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "model-adaptation:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "model-adaptation:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "model-adaptation:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nano-banana:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nano-banana:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nano-banana:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nano-banana:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nano-banana:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nano-banana:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nightly-docs-and-changelog:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nightly-docs-and-changelog:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nightly-docs-and-changelog:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nightly-docs-and-changelog:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nightly-docs-and-changelog:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "nightly-docs-and-changelog:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "observability-agent:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "observability-agent:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "observability-agent:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "observability-agent:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "observability-agent:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "observability-agent:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator-task-loop:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator-task-loop:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator-task-loop:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator-task-loop:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator-task-loop:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator-task-loop:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "orchestrator:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "perf-loop:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "perf-loop:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "perf-loop:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "perf-loop:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "perf-loop:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "perf-loop:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "performance-agent:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "performance-agent:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "performance-agent:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "performance-agent:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "performance-agent:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "performance-agent:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-builder:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-builder:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-builder:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-builder:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-builder:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-builder:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-intake:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-intake:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-intake:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-intake:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-intake:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "plan-intake:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "playwright:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "playwright:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "playwright:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "playwright:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "playwright:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "playwright:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "project-profiler:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "project-profiler:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "project-profiler:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "project-profiler:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "project-profiler:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "project-profiler:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "prose-slop-guard:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "prose-slop-guard:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "prose-slop-guard:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "prose-slop-guard:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "prose-slop-guard:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "prose-slop-guard:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "qe-agent:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "qe-agent:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "qe-agent:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "qe-agent:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "qe-agent:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "qe-agent:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "railway-deploy:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "railway-deploy:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "railway-deploy:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "railway-deploy:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "railway-deploy:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "railway-deploy:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "render-sanity:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "render-sanity:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "render-sanity:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "render-sanity:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "render-sanity:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "render-sanity:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-cleanup-loop:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-cleanup-loop:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-cleanup-loop:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-cleanup-loop:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-cleanup-loop:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-cleanup-loop:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-deep-dive:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-deep-dive:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-deep-dive:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-deep-dive:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-deep-dive:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "repo-deep-dive:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "security-agent:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "security-agent:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "security-agent:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "security-agent:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "security-agent:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "security-agent:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "self-healing-loop:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "self-healing-loop:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "self-healing-loop:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "self-healing-loop:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "self-healing-loop:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "self-healing-loop:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "settings-consolidator:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "settings-consolidator:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "settings-consolidator:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "settings-consolidator:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "settings-consolidator:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "settings-consolidator:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "setup-project-skills:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "setup-project-skills:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "setup-project-skills:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "setup-project-skills:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "setup-project-skills:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "setup-project-skills:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-catalog:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-catalog:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-catalog:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-catalog:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-catalog:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-catalog:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-creator:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-creator:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-creator:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-creator:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-creator:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-creator:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-explorer:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-explorer:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-explorer:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-explorer:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-explorer:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-explorer:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-review:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-review:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-review:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-review:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-review:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-review:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-update:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-update:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-update:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-update:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-update:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-update:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-writer:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-writer:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-writer:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-writer:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-writer:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "skill-writer:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "sync-skills:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "sync-skills:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "sync-skills:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "sync-skills:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "sync-skills:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "sync-skills:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "ui-brief:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "ui-brief:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "ui-brief:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "ui-brief:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "ui-brief:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "ui-brief:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-freellmapi:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-freellmapi:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-freellmapi:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-freellmapi:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-freellmapi:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-freellmapi:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-pxpipe:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-pxpipe:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-pxpipe:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-pxpipe:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-pxpipe:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "use-pxpipe:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "website-walkthrough-video:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "website-walkthrough-video:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "website-walkthrough-video:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "website-walkthrough-video:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "website-walkthrough-video:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "website-walkthrough-video:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "wiki-research:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "wiki-research:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "wiki-research:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "wiki-research:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "wiki-research:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "wiki-research:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "work-item-brief:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "work-item-brief:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "work-item-brief:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "work-item-brief:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "work-item-brief:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "work-item-brief:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "yagni-gate:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "yagni-gate:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "yagni-gate:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "yagni-gate:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "yagni-gate:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "yagni-gate:positive:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "zoom-out:negative:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "zoom-out:negative:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "zoom-out:negative:3",
+      "status": "blocked"
+    },
+    {
+      "case_id": "zoom-out:positive:1",
+      "status": "blocked"
+    },
+    {
+      "case_id": "zoom-out:positive:2",
+      "status": "blocked"
+    },
+    {
+      "case_id": "zoom-out:positive:3",
+      "status": "blocked"
+    }
+  ],
+  "live_model_capability": "NOT_ESTABLISHED",
+  "observer_trust": "raw captures must come from a trusted host observer; hashes detect drift, not fabricated source events",
+  "efficacy": "UNVERIFIED",
+  "safety_and_degradation": "UNVERIFIED",
+  "trajectory": "not used for acceptance"
+}

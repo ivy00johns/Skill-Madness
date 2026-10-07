@@ -1,0 +1,83 @@
+
+== signed-out ==
+  PASS  reload of /auctions still renders the app — Bazaar II
+Home
+Auctions
+Sell
+Timeline
+About
+Sign in
+Auctions
+  PASS  /auctions renders content after a reload
+  PASS  reload of /auctions/does-not-exist still renders the app — Bazaar II
+Home
+Auctions
+Sell
+Timeline
+About
+Sign in
+
+Loading
+  PASS  /auctions/does-not-exist renders content after a reload
+  PASS  the signed-out dead end offers a way to sign in
+
+== seller ==
+  PASS  seller registration confirms in the UI — Registered as seller-7xv6d@playtest.test
+  PASS  deposit shows an available balance — Available $100.00 · held in escrow $0.00
+  PASS  the wallet distinguishes available from held funds — Available $100.00 · held in escrow $0.00
+  PASS  seller creates a listing — Created auction auc_185e419a1e62475aa1a3
+  PASS  new listing appears on /auctions — Bazaar II | Home | Auctions | Sell | Timeline | About | Signed in as seller-7xv6d@
+  PASS  the seller is not offered a Bid control on their own lot
+  PASS  the seller is told why they cannot bid
+  PASS  the seller is offered settlement
+
+== buyer 1 ==
+  PASS  buyer 1 registers — Registered as buyer1-7xv6d@playtest.test
+  PASS  auction detail is reachable for a signed-in buyer
+  PASS  buyer 1's bid is reflected — current price updated
+  PASS  comment appears in the auction timeline
+  PASS  a sub-floor bid is refused with a readable reason — already the leading bidder
+  PASS  a non-numeric bid shows a reason instead of failing silently — amountCents: Expected number, received null
+  PASS  a non-numeric bid does not surface a server error — amountCents: Expected number, received null
+
+== buyer 2 ==
+  PASS  buyer 2 registers — Registered as buyer2-7xv6d@playtest.test
+  PASS  buyer 2 outbids buyer 1
+  PASS  auction detail reports the websocket as live
+  PASS  an outbid user's open page updates live, without a reload — stuck at $40.00
+  PASS  the outbid buyer's escrow hold is released — {"balances":[{"kind":"escrow","balanceCents":0},{"kind":"user_available","balanceCents":10000}]}
+  PASS  the new leading bidder's funds are held in escrow — {"balances":[{"kind":"escrow","balanceCents":4100},{"kind":"user_available","balanceCents":5900}]}
+  PASS  the bidder can see their own funds held in escrow — Available $59.00 · held in escrow $41.00
+
+== settlement ==
+  PASS  settlement updates the auction status — Bazaar II Home Auctions Sell Timeline About Signed in as sel
+  PASS  settlement reports the money it moved — Settled: seller receives $39.98, platform fee $1.02.
+  PASS  the seller actually received the proceeds — {"balances":[{"kind":"user_available","balanceCents":13998}]}
+
+== fraud block ==
+  PASS  fraud probe account registers — Registered as fraud-7xv6d@playtest.test
+  PASS  bid velocity primed for the fraud probe — 12 bids in the last minute
+  PASS  a fraudulent bid is refused in the UI — bid blocked by fraud scoring — signals: actor_new:account younger than 60s; bid_velocity:>=8 bids in the last minute; amount_outlier:>= $500,000.00 in one bid
+  PASS  a blocked bid names the signals that triggered it — bid blocked by fraud scoring — signals: actor_new:account younger than 60s; bid_velocity:>=8 bids in the last minute; am
+
+== tenant isolation ==
+  PASS  the UI can name a tenant (so multi-tenancy is reachable)
+  PASS  a second, differently-named tenant registers from the UI — Registered as rival-7xv6d@playtest.test
+  PASS  rival tenant does not see the first tenant's auctions — HTTP 200, 0 rows
+  PASS  rival tenant is refused the auction detail — HTTP 404
+  PASS  rival tenant sees an empty marketplace
+
+== careless inputs ==
+  PASS  a client validation failure is a 4xx, not a 500 — HTTP 422: password: String must contain at least 8 character(s)
+  PASS  a too-short password is refused with a message — password: String must contain at least 8 character(s)
+  PASS  a duplicate email is refused with a message — email already registered
+  PASS  a signed-in user can sign out
+  PASS  the shell shows which account is signed in — occurrences of seller-7xv6d@playtest.test: 1
+  PASS  signing out clears the session from the chrome
+  PASS  signing out clears the stored token
+  PASS  the seller can sign back in
+  PASS  the signed-in happy path logs no console errors
+  PASS  no unexpected console noise (all failures are deliberate 4xx probes) — {"401":20,"403":1,"404":2,"409":2,"422":3}
+
+playtest: 0 defect(s), 0 failed check(s), 28 console error(s)
+report: traces/playtest/report.md

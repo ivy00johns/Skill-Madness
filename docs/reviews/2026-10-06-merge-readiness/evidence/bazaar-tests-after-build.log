@@ -1,0 +1,19 @@
+
+> bazaar-ii@0.1.0 test
+> npm run test -w @bazaar/api
+
+
+> @bazaar/api@0.1.0 test
+> vitest run
+
+
+ RUN  v2.1.9 /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/28e23db5-f2f5-4bac-8363-c6aecc42456f/.workspaces/today-audit/bazaar/apps/api
+
+ ✓ tests/api.test.ts (6 tests) 501ms
+ ✓ tests/ledger.test.ts (4 tests) 81ms
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  01:21:05
+   Duration  1.35s (transform 78ms, setup 0ms, collect 450ms, tests 582ms, environment 0ms, prepare 83ms)
+

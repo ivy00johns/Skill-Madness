@@ -1,0 +1,16 @@
+trap	expected	observed	verdict
+-------------------------------------------------------------
+T1	frontend solo mode applies	requires a live build	BLOCKED
+T2	strict exit 1; default reports it	strict exit 1; default 2 finding(s)	PASS
+T3	duplicate declaration group found	guard exit 1	PASS
+T4	copied chrome flagged (T4-chrome)	guard exit 1	PASS
+T4	copied chrome flagged (T4-active-nav)	guard exit 1	PASS
+T5	explicit attended plan or refusal	requires a live build	BLOCKED
+T6	wrapper cancels at cap	requires a live build	BLOCKED
+T7	frozen verifier digests	requires a live build	BLOCKED
+T8	strict gate blocks missing validator and unbound report	missing-validator block=no; unbound-report block=yes	FAIL
+T9	nested resource and exec bit preserved	fixtures present; installer check needs a live run	BLOCKED
+T10	train/dev selection, held-out once	fixtures present; eval check needs a live run	BLOCKED
+T11	unknown provider stays unknown	requires a live build	BLOCKED
+-------------------------------------------------------------
+trap-verify: 1 finding(s), 7 blocked

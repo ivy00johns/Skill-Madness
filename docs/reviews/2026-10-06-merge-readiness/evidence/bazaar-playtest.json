@@ -1,0 +1,411 @@
+{
+  "web": "http://127.0.0.1:5173",
+  "headed": true,
+  "generatedAt": "2026-10-06T06:35:45.197Z",
+  "checks": [
+    {
+      "ok": true,
+      "label": "reload of /auctions still renders the app",
+      "detail": "Bazaar II\nHome\nAuctions\nSell\nTimeline\nAbout\nSign in\nAuctions"
+    },
+    {
+      "ok": true,
+      "label": "/auctions renders content after a reload",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "reload of /auctions/does-not-exist still renders the app",
+      "detail": "Bazaar II\nHome\nAuctions\nSell\nTimeline\nAbout\nSign in\n\nLoading"
+    },
+    {
+      "ok": true,
+      "label": "/auctions/does-not-exist renders content after a reload",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "the signed-out dead end offers a way to sign in",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "seller registration confirms in the UI",
+      "detail": "Registered as seller-7xv6d@playtest.test"
+    },
+    {
+      "ok": true,
+      "label": "deposit shows an available balance",
+      "detail": "Available $100.00 · held in escrow $0.00"
+    },
+    {
+      "ok": true,
+      "label": "the wallet distinguishes available from held funds",
+      "detail": "Available $100.00 · held in escrow $0.00"
+    },
+    {
+      "ok": true,
+      "label": "seller creates a listing",
+      "detail": "Created auction auc_185e419a1e62475aa1a3"
+    },
+    {
+      "ok": true,
+      "label": "new listing appears on /auctions",
+      "detail": "Bazaar II | Home | Auctions | Sell | Timeline | About | Signed in as seller-7xv6d@"
+    },
+    {
+      "ok": true,
+      "label": "the seller is not offered a Bid control on their own lot",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "the seller is told why they cannot bid",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "the seller is offered settlement",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "buyer 1 registers",
+      "detail": "Registered as buyer1-7xv6d@playtest.test"
+    },
+    {
+      "ok": true,
+      "label": "auction detail is reachable for a signed-in buyer",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "buyer 1's bid is reflected",
+      "detail": "current price updated"
+    },
+    {
+      "ok": true,
+      "label": "comment appears in the auction timeline",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "a sub-floor bid is refused with a readable reason",
+      "detail": "already the leading bidder"
+    },
+    {
+      "ok": true,
+      "label": "a non-numeric bid shows a reason instead of failing silently",
+      "detail": "amountCents: Expected number, received null"
+    },
+    {
+      "ok": true,
+      "label": "a non-numeric bid does not surface a server error",
+      "detail": "amountCents: Expected number, received null"
+    },
+    {
+      "ok": true,
+      "label": "buyer 2 registers",
+      "detail": "Registered as buyer2-7xv6d@playtest.test"
+    },
+    {
+      "ok": true,
+      "label": "buyer 2 outbids buyer 1",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "auction detail reports the websocket as live",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "an outbid user's open page updates live, without a reload",
+      "detail": "stuck at $40.00"
+    },
+    {
+      "ok": true,
+      "label": "the outbid buyer's escrow hold is released",
+      "detail": "{\"balances\":[{\"kind\":\"escrow\",\"balanceCents\":0},{\"kind\":\"user_available\",\"balanceCents\":10000}]}"
+    },
+    {
+      "ok": true,
+      "label": "the new leading bidder's funds are held in escrow",
+      "detail": "{\"balances\":[{\"kind\":\"escrow\",\"balanceCents\":4100},{\"kind\":\"user_available\",\"balanceCents\":5900}]}"
+    },
+    {
+      "ok": true,
+      "label": "the bidder can see their own funds held in escrow",
+      "detail": "Available $59.00 · held in escrow $41.00"
+    },
+    {
+      "ok": true,
+      "label": "settlement updates the auction status",
+      "detail": "Bazaar II Home Auctions Sell Timeline About Signed in as sel"
+    },
+    {
+      "ok": true,
+      "label": "settlement reports the money it moved",
+      "detail": "Settled: seller receives $39.98, platform fee $1.02."
+    },
+    {
+      "ok": true,
+      "label": "the seller actually received the proceeds",
+      "detail": "{\"balances\":[{\"kind\":\"user_available\",\"balanceCents\":13998}]}"
+    },
+    {
+      "ok": true,
+      "label": "fraud probe account registers",
+      "detail": "Registered as fraud-7xv6d@playtest.test"
+    },
+    {
+      "ok": true,
+      "label": "bid velocity primed for the fraud probe",
+      "detail": "12 bids in the last minute"
+    },
+    {
+      "ok": true,
+      "label": "a fraudulent bid is refused in the UI",
+      "detail": "bid blocked by fraud scoring — signals: actor_new:account younger than 60s; bid_velocity:>=8 bids in the last minute; amount_outlier:>= $500,000.00 in one bid"
+    },
+    {
+      "ok": true,
+      "label": "a blocked bid names the signals that triggered it",
+      "detail": "bid blocked by fraud scoring — signals: actor_new:account younger than 60s; bid_velocity:>=8 bids in the last minute; am"
+    },
+    {
+      "ok": true,
+      "label": "the UI can name a tenant (so multi-tenancy is reachable)",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "a second, differently-named tenant registers from the UI",
+      "detail": "Registered as rival-7xv6d@playtest.test"
+    },
+    {
+      "ok": true,
+      "label": "rival tenant does not see the first tenant's auctions",
+      "detail": "HTTP 200, 0 rows"
+    },
+    {
+      "ok": true,
+      "label": "rival tenant is refused the auction detail",
+      "detail": "HTTP 404"
+    },
+    {
+      "ok": true,
+      "label": "rival tenant sees an empty marketplace",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "a client validation failure is a 4xx, not a 500",
+      "detail": "HTTP 422: password: String must contain at least 8 character(s)"
+    },
+    {
+      "ok": true,
+      "label": "a too-short password is refused with a message",
+      "detail": "password: String must contain at least 8 character(s)"
+    },
+    {
+      "ok": true,
+      "label": "a duplicate email is refused with a message",
+      "detail": "email already registered"
+    },
+    {
+      "ok": true,
+      "label": "a signed-in user can sign out",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "the shell shows which account is signed in",
+      "detail": "occurrences of seller-7xv6d@playtest.test: 1"
+    },
+    {
+      "ok": true,
+      "label": "signing out clears the session from the chrome",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "signing out clears the stored token",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "the seller can sign back in",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "the signed-in happy path logs no console errors",
+      "detail": ""
+    },
+    {
+      "ok": true,
+      "label": "no unexpected console noise (all failures are deliberate 4xx probes)",
+      "detail": "{\"401\":20,\"403\":1,\"404\":2,\"409\":2,\"422\":3}"
+    }
+  ],
+  "defects": [],
+  "consoleNoiseByStatus": {
+    "401": 20,
+    "403": 1,
+    "404": 2,
+    "409": 2,
+    "422": 3
+  },
+  "consoleNoise": [
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "seller",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+    },
+    {
+      "page": "buyer1",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    },
+    {
+      "page": "buyer1",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)"
+    },
+    {
+      "page": "fraud",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "page": "rival",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "page": "careless",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)"
+    },
+    {
+      "page": "careless",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)"
+    },
+    {
+      "page": "careless",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    }
+  ],
+  "counts": {
+    "checks": 49,
+    "failedChecks": 0,
+    "defects": 0,
+    "broken": 0,
+    "deadEnds": 0,
+    "misleading": 0,
+    "consoleErrors": 28
+  }
+}

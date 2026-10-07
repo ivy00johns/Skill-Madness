@@ -1,0 +1,38 @@
+test_blocked_all_never_counts_as_pass (__main__.Pipeline.test_blocked_all_never_counts_as_pass) ... ok
+test_case_query_and_origin_binding (__main__.Pipeline.test_case_query_and_origin_binding) ... ok
+test_catalog_matrix_and_resource_drift_rejected (__main__.Pipeline.test_catalog_matrix_and_resource_drift_rejected) ... ok
+test_cli_blocked_all_and_missing_controls_exit_one (__main__.Pipeline.test_cli_blocked_all_and_missing_controls_exit_one) ... ok
+test_cli_blocks_legacy_trace_missing_manifest_and_bad_input (__main__.Pipeline.test_cli_blocks_legacy_trace_missing_manifest_and_bad_input) ... ok
+test_cli_preflight_and_refusal_to_overwrite (__main__.Pipeline.test_cli_preflight_and_refusal_to_overwrite) ... ok
+test_cli_prepare_capture_merge_score_with_fake_home (__main__.Pipeline.test_cli_prepare_capture_merge_score_with_fake_home) ... ok
+test_correlated_result_and_exact_candidate_bytes_required (__main__.Pipeline.test_correlated_result_and_exact_candidate_bytes_required) ... ok
+test_duplicate_receipts_rejected (__main__.Pipeline.test_duplicate_receipts_rejected) ... ok
+test_explicit_and_dispatch_receipts_cannot_use_model_origin (__main__.Pipeline.test_explicit_and_dispatch_receipts_cannot_use_model_origin) ... ok
+test_forced_load_and_file_read_cannot_pass_automatic (__main__.Pipeline.test_forced_load_and_file_read_cannot_pass_automatic) ... ok
+test_full_fixture_pass_has_separate_modes_and_no_live_claim (__main__.Pipeline.test_full_fixture_pass_has_separate_modes_and_no_live_claim) ... ok
+test_json_invalid_duplicate_and_nonfinite_fail_loud (__main__.Pipeline.test_json_invalid_duplicate_and_nonfinite_fail_loud) ... ok
+test_live_single_trial_is_not_certified (__main__.Pipeline.test_live_single_trial_is_not_certified) ... ok
+test_manifest_hash_and_receipt_tampering_rejected (__main__.Pipeline.test_manifest_hash_and_receipt_tampering_rejected) ... ok
+test_matrix_duplicate_missing_and_unknown_rows_rejected (__main__.Pipeline.test_matrix_duplicate_missing_and_unknown_rows_rejected) ... ok
+test_missing_positives_and_controls_fail (__main__.Pipeline.test_missing_positives_and_controls_fail) ... ok
+test_mixed_run_cell_model_host_revision_rejected (__main__.Pipeline.test_mixed_run_cell_model_host_revision_rejected) ... ok
+test_native_adapter_refuses_contentless_telemetry_and_wrong_model (__main__.Pipeline.test_native_adapter_refuses_contentless_telemetry_and_wrong_model) ... ok
+test_native_adapters_retain_raw_evidence_and_replay_it (__main__.Pipeline.test_native_adapters_retain_raw_evidence_and_replay_it) ... ok
+test_native_import_cli (__main__.Pipeline.test_native_import_cli) ... ok
+test_native_protocol_cannot_claim_another_host (__main__.Pipeline.test_native_protocol_cannot_claim_another_host) ... ok
+test_native_refusal_is_blocked_and_negative_no_call_is_real_control (__main__.Pipeline.test_native_refusal_is_blocked_and_negative_no_call_is_real_control) ... ok
+test_non_claude_eligibility_is_explicit (__main__.Pipeline.test_non_claude_eligibility_is_explicit) ... ok
+test_optional_row_is_excluded_unless_explicitly_selected (__main__.Pipeline.test_optional_row_is_excluded_unless_explicitly_selected) ... ok
+test_pipeline_drift_and_symlink_resources_rejected (__main__.Pipeline.test_pipeline_drift_and_symlink_resources_rejected) ... ok
+test_prose_mention_is_not_retrieval (__main__.Pipeline.test_prose_mention_is_not_retrieval) ... ok
+test_refused_error_timeout_are_not_passing_negative_controls (__main__.Pipeline.test_refused_error_timeout_are_not_passing_negative_controls) ... ok
+test_schema_is_authoritative_not_just_semantic_replay (__main__.Pipeline.test_schema_is_authoritative_not_just_semantic_replay) ... ok
+test_successful_negative_retrieval_is_false_positive (__main__.Pipeline.test_successful_negative_retrieval_is_false_positive) ... ok
+test_tool_surface_drift_rejected (__main__.Pipeline.test_tool_surface_drift_rejected) ... ok
+test_trap_relative_target_and_checker_errors (__main__.Pipeline.test_trap_relative_target_and_checker_errors) ... ok
+test_unknown_skills_and_extra_events_rejected (__main__.Pipeline.test_unknown_skills_and_extra_events_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 2.620s
+
+OK

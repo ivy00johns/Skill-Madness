@@ -1,0 +1,22 @@
+[
+  {
+    "case": "legacy-blocked",
+    "cli": "score.py",
+    "exit": 2
+  },
+  {
+    "case": "legacy-blocked",
+    "cli": "trace-merge.py",
+    "exit": 2
+  },
+  {
+    "case": "prior-bazaar",
+    "cli": "score.py",
+    "exit": 2
+  },
+  {
+    "case": "prior-bazaar",
+    "cli": "trace-merge.py",
+    "exit": 2
+  }
+]

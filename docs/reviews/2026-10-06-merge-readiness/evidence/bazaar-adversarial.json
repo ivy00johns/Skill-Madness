@@ -1,0 +1,30 @@
+{
+  "target": "http://127.0.0.1:3000",
+  "fixtureTag": "audit-1791268148202",
+  "observations": [
+    {
+      "check": "uninvited tenant join and admin self-assignment",
+      "registrationRole": "admin",
+      "sameTenant": true,
+      "privateListingStatus": 200,
+      "expected": "unauthorized tenant membership/admin role must be refused"
+    },
+    {
+      "check": "anonymous websocket tenant data",
+      "commentStatus": 201,
+      "receivedPrivateCommentWithoutAuth": true,
+      "expected": "unauthenticated socket must not subscribe to tenant-private auction rooms"
+    },
+    {
+      "check": "bid after closesAt",
+      "closesAt": "2020-01-01T00:00:00.000Z",
+      "status": 201,
+      "expected": "expired auction rejects bid"
+    },
+    {
+      "check": "self-assigned admin settles another seller auction",
+      "status": 200,
+      "expected": "uninvited user must not acquire settlement authority"
+    }
+  ]
+}

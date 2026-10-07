@@ -1,0 +1,57 @@
+{
+  "verdict": "OFFLINE_PIPELINE_PASS",
+  "model_calls": 0,
+  "checks": [
+    {
+      "check": "record",
+      "expected_exit": 0,
+      "actual_exit": 0
+    },
+    {
+      "check": "merge",
+      "expected_exit": 0,
+      "actual_exit": 0
+    },
+    {
+      "check": "score",
+      "expected_exit": 0,
+      "actual_exit": 0
+    },
+    {
+      "check": "blocked-record",
+      "expected_exit": 0,
+      "actual_exit": 0
+    },
+    {
+      "check": "blocked-merge",
+      "expected_exit": 1,
+      "actual_exit": 1
+    },
+    {
+      "check": "blocked-score",
+      "expected_exit": 1,
+      "actual_exit": 1
+    }
+  ],
+  "manifest_sha256": "bf76a954623a27be15ce23c4b620a5c5530150b956d5e23816335c8807c21954",
+  "artifacts": {
+    "blocked-events.jsonl": "4106b21e7aee4357679cdba4ae7f7f9228f556521c697c3e446087a75e574b3c",
+    "blocked-merge.log": "46b3ae9bcead01cb1fcf5e406e59aa5551d1b0a4bcbc1597dbaffe00d412f906",
+    "blocked-record.log": "448ecee1743f10133b9a5786b1ebb7122e44010c1ab589f03a2e5042f5f51a57",
+    "blocked-report.json": "8a38a7365b55f9a570cf9f3dc9ba6d1693c1303ab0bff873c3d373dc9b7d800f",
+    "blocked-report.md": "7e07147d64ed0c640800058df9cdaf3444da60aaeacbb1c53cb7ae5279ae7b0c",
+    "blocked-score.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "blocked.jsonl": "83221492beebae70598ca03ed1267066616feb7b664e26ed9a5e64f8834689c7",
+    "events.jsonl": "a88bd66db043f2781ba2a6783269df868401dee6f9442666b6acf5a2c85a9454",
+    "manifest.json": "76a618c3c9980b9a14224e153ed6479267ecff60ba0c6766f0661c5c3014620e",
+    "merge.log": "8301066c3c77b5595c78167e575d4977819defcd4f3cae2bba1b295abb4a9d79",
+    "merged.jsonl": "ab6d566d6c184289ec3597c74525c2f5d3849d1cc6c0df7476348d79605c4643",
+    "receipts.jsonl": "ab6d566d6c184289ec3597c74525c2f5d3849d1cc6c0df7476348d79605c4643",
+    "record.log": "448ecee1743f10133b9a5786b1ebb7122e44010c1ab589f03a2e5042f5f51a57",
+    "report.json": "eb0ffebe92da74ee05438a45aa17c5db7a9fe129b19e9097dcd079b80956d34e",
+    "report.md": "e75c7580274666565c17411d86f3d69a097bb4f9e465b9a3ebdd41e07a481472",
+    "score.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "live_run_ready": false,
+  "limitation": "a real host recording smoke with complete positive/negative event streams is still required; this command never authorizes spending"
+}

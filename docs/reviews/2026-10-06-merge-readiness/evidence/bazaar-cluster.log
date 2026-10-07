@@ -1,0 +1,13 @@
+
+> bazaar-ii@0.1.0 e2e:cluster
+> node scripts/e2e-cluster.mjs
+
+PASS  instance A reports the redis bus  — redis
+PASS  instance B reports the redis bus  — redis
+PASS  register via instance A
+PASS  create listing via instance A  — auc_ce0ac33f027c430bbaa4
+PASS  websocket attached to instance B
+PASS  place bid via instance A  — fraud=review
+PASS  bid.placed reached the client on instance B (via Redis)  — 200 cents
+
+cluster e2e: ALL PASS

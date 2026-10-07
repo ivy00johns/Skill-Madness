@@ -1,0 +1,25 @@
+
+> bazaar-ii@0.1.0 typecheck
+> npm run typecheck -w @bazaar/contracts && npm run typecheck -w @bazaar/api && npm run typecheck -w @bazaar/web
+
+
+> @bazaar/contracts@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+
+> @bazaar/api@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+src/auctions.ts(9,8): error TS2307: Cannot find module '@bazaar/contracts' or its corresponding type declarations.
+src/auth.ts(4,54): error TS2307: Cannot find module '@bazaar/contracts' or its corresponding type declarations.
+src/bus.ts(2,36): error TS2307: Cannot find module '@bazaar/contracts' or its corresponding type declarations.
+src/fraud.ts(1,79): error TS2307: Cannot find module '@bazaar/contracts' or its corresponding type declarations.
+src/ledger.ts(2,89): error TS2307: Cannot find module '@bazaar/contracts' or its corresponding type declarations.
+src/realtime.ts(1,36): error TS2307: Cannot find module '@bazaar/contracts' or its corresponding type declarations.
+npm error Lifecycle script `typecheck` failed with error:
+npm error code 2
+npm error path /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/***/.workspaces/today-audit/bazaar/apps/api
+npm error workspace @bazaar/api@0.1.0
+npm error location /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/***/.workspaces/today-audit/bazaar/apps/api
+npm error command failed
+npm error command sh -c tsc -p tsconfig.json --noEmit

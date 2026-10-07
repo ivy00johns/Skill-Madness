@@ -1,0 +1,4 @@
+[run-all] bats version: Bats 1.13.0
+[run-all] running all .bats files under: /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/28e23db5-f2f5-4bac-8363-c6aecc42456f/tests
+1..1
+ok 1 gauntlet: offline evidence pipeline refuses false coverage and proves CLI round trips

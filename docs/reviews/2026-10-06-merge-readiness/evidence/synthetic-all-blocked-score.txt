@@ -1,0 +1,20 @@
+# Gauntlet II — scored coverage
+
+Trace records: 76 · distinct skills fired: 76
+
+| Category | Expected | Fired | Missed |
+|---|---|---|---|
+| orchestrator | 1 | 1 | 0 |
+| roles | 10 | 10 | 0 |
+| contracts | 2 | 2 | 0 |
+| meta | 7 | 7 | 0 |
+| git | 4 | 4 | 0 |
+| loops | 13 | 13 | 0 |
+| workflows | 39 | 39 | 0 |
+| **total** | **76** | **76** | **0** |
+
+## Proposed intake (`[G2]` rows)
+
+| Proposed ID | Priority | What you would notice | One-line problem | Proposed fix | Evidence | Size |
+|---|---|---|---|---|---|---|
+| — | — | no misses or unexpected firings | — | — | — | — |

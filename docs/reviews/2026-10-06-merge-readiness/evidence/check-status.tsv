@@ -1,0 +1,9 @@
+check	exit_code	seconds
+skill-lint	0	55
+version-drift	0	5
+catalog	0	1
+hooks-lint	0	1
+supply-chain	0	0
+python-tests	0	60
+bats	0	547
+convert-all	0	189

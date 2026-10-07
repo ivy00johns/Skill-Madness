@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skill-madness.local/gauntlet/trace-schema-v2.json",
+  "title": "Gauntlet II v2 correlated receipt",
+  "description": "An observer-backed case receipt; schema validity alone never proves retrieval. The grader must replay the retained capture.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "manifest_sha256", "case_id", "skill", "expected", "mode", "outcome", "retrievals", "capture_sha256", "capture"],
+  "properties": {
+    "schema_version": {"const": 2},
+    "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "case_id": {"type": "string", "minLength": 1},
+    "skill": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "expected": {"enum": ["positive", "negative"]},
+    "mode": {"enum": ["automatic", "explicit", "dispatch"]},
+    "outcome": {"enum": ["pass", "fail", "blocked", "execution-error"]},
+    "retrievals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["skill", "call_id", "tool", "origin", "counts_for_mode"],
+        "properties": {
+          "skill": {"type": "string", "minLength": 1},
+          "call_id": {"type": "string", "minLength": 1},
+          "tool": {"enum": ["skill", "role_load", "read_file"]},
+          "origin": {"enum": ["model", "user", "orchestrator"]},
+          "counts_for_mode": {"type": "boolean"}
+        }
+      }
+    },
+    "capture_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "capture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["binding", "manifest_sha256", "case_id", "events"],
+      "properties": {
+        "binding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["run_id", "cell_id", "host", "model", "revision", "evidence_kind"],
+          "properties": {
+            "run_id": {"type": "string", "minLength": 1},
+            "cell_id": {"type": "string", "minLength": 1},
+            "host": {"type": "string", "minLength": 1},
+            "model": {"type": "string", "minLength": 1},
+            "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            "evidence_kind": {"enum": ["offline-fixture", "host-capture"]}
+          }
+        },
+        "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "case_id": {"type": "string", "minLength": 1},
+        "events": {"type": "array", "minItems": 2, "items": {"type": "object"}},
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["protocol", "events", "sha256"],
+          "properties": {
+            "protocol": {"enum": ["freebuff-sdk", "hermes-stream"]},
+            "events": {"type": "array", "minItems": 2, "items": {"type": "object"}},
+            "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        }
+      }
+    }
+  }
+}

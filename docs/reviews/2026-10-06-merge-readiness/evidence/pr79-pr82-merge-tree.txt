@@ -1,0 +1,24 @@
+39647b28a9ac7d4c976e76437d30d45a4c9b0ac8
+100644 e5dbbdbce92c9187c9b49c1446f489049216cdbb 1	README.md
+100644 4abb7942d21fa891b8e9137eac57d8351216654b 2	README.md
+100644 48692e3b5656f7a0a59d527db5cb662f247841ea 3	README.md
+100644 dfaef2a8e679f50391b6d18139534e75c26ab9eb 1	START-HERE.md
+100644 5c1f173b57658d0f12fe89ddcc20c433e7c45b2d 2	START-HERE.md
+100644 2dd28eb471033513b4a4d62fc4c0a20cba33866b 3	START-HERE.md
+100644 458b7d1069c49d5e8e7edd35f30230c4b8513003 1	skills/workflows/sync-skills/SKILL.md
+100644 827e0a1d507b475337c9d21d165c0507ac010a19 2	skills/workflows/sync-skills/SKILL.md
+100644 1083b0a942ca9e0279dd0777cd3251d8062a0624 3	skills/workflows/sync-skills/SKILL.md
+100755 602e969c48da2010219c4e96a5e39c3b395a9030 1	skills/workflows/sync-skills/scripts/sync-skills.sh
+100755 aa73da5f69aabc9a2a88af49fcfa62d81df61bd4 2	skills/workflows/sync-skills/scripts/sync-skills.sh
+100755 2cf3a0e304a47e513370c3aa8e8f6d666e0851d1 3	skills/workflows/sync-skills/scripts/sync-skills.sh
+
+Auto-merging CLAUDE.md
+Auto-merging PLAN.md
+Auto-merging README.md
+CONFLICT (content): Merge conflict in README.md
+Auto-merging START-HERE.md
+CONFLICT (content): Merge conflict in START-HERE.md
+Auto-merging skills/workflows/sync-skills/SKILL.md
+CONFLICT (content): Merge conflict in skills/workflows/sync-skills/SKILL.md
+Auto-merging skills/workflows/sync-skills/scripts/sync-skills.sh
+CONFLICT (content): Merge conflict in skills/workflows/sync-skills/scripts/sync-skills.sh
