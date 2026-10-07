@@ -16,10 +16,12 @@ This probe measures selection directly, the same way on any model:
   3. Read the host's OWN skill-load events from its stream-json output. A load
      is a `skill_view` tool call by name -- the host's record, not the model's
      prose.
-  4. Score it: a positive prompt passes when the skill is loaded, or -- on an
-     index-injecting host that already carries every description -- when the
-     host demonstrably does the requested work without loading it. The
-     near-miss control must not load the skill.
+  4. Score it: a positive prompt passes when the skill is loaded and the answer
+     does the work, or -- on an index-injecting host that already carries every
+     description -- when the host demonstrably does the requested work without
+     loading it. A skill that loads but then declines the work (a tool-less
+     host, most often) scores `LOADED_REFUSED`, distinct from a `MISS` where
+     nothing was selected at all. The near-miss control must not load the skill.
 
 Each probe emits one JSONL record. `--telemetry` additionally writes
 skill-health-shaped lines that `scripts/gauntlet/trace-merge.py` can consume, so
@@ -48,6 +50,15 @@ Caveats, stated rather than buried:
   skills), so it is not counted as a finding. It is a heuristic -- it reads the
   host's tool activity and final text -- so it can be fooled; `--strict`
   disables it and reads `WORKED` as `MISS`.
+* A `LOADED_REFUSED` verdict is the post-load counterpart to a `MISS`: the skill
+  *was* selected (loaded in every rep) but the final answer declined the work --
+  typically because the host lacks the tool the skill needs. It is a finding,
+  but it is about the host's capability, not the description's pull. It is
+  detected from refusal markers in the answer, and only when the answer carries
+  no `BLOCKED` result -- a loaded skill that declines *and* hands back a folded
+  degrade report has applied its fallback and scores `PASS`. The refusal check is
+  still a heuristic: a skill whose answer merely mentions "I can't" mid-prose can
+  be mislabeled; read it alongside the answer excerpt, not instead of it.
 
 Usage:
   trigger-probe.py --model deepseek-v4-flash [--limit N] [--only NAME]
@@ -99,6 +110,9 @@ REFUSAL_MARKERS = (
     "i can't", "i cannot", "i won't", "i will not", "i'm unable", "i am unable",
     "unable to help", "not able to help", "i must decline", "as an ai",
 )
+# A structured degraded result: the skill ran its fallback and labeled what it
+# could not do. Its presence means the answer did work, not just decline.
+BLOCKED_REPORT_MARKER = "blocked"
 # The shortest answer still worth calling a deliverable. Routing answers are
 # terse on purpose ("dependency-health-loop handles that"), so this is low; a
 # request for input or a refusal is rejected before length is even considered.
@@ -437,6 +451,32 @@ def _is_refusal(text: str) -> bool:
     return bool(low) and any(marker in low for marker in REFUSAL_MARKERS)
 
 
+def _reports_blocked(text: str) -> bool:
+    """Did the answer hand back a structured BLOCKED result rather than punt?
+
+    The degrade contracts (render-sanity, the source-level guards) standardize on
+    the literal `BLOCKED` for a check the host could not run. An answer that
+    carries it applied the skill's degraded fallback; a flat refusal did not.
+    """
+    return BLOCKED_REPORT_MARKER in text.lower()
+
+
+def positive_verdict(skill: str, loaded: set[str], worked: bool, text: str) -> str:
+    """Grade one positive probe: selection first, then whether it did the work.
+
+    A load proves selection. When the skill loaded, the answer is `LOADED_REFUSED`
+    only if it both declines *and* hands back no structured BLOCKED result -- a
+    flat refusal. A refusal that still applied the skill's degraded fallback is a
+    `PASS`. When the skill did not load, the weaker work signal applies: `WORKED`
+    if the request was served anyway, else `MISS`.
+    """
+    if skill in loaded:
+        if _is_refusal(text) and not _reports_blocked(text):
+            return "LOADED_REFUSED"
+        return "PASS"
+    return "WORKED" if worked else "MISS"
+
+
 def assess_work(trace: Trace) -> tuple[bool, str]:
     """Did the host do the requested work, even without loading the skill?
 
@@ -465,18 +505,21 @@ def _group_verdict(kind: str, verdicts: list[str]) -> str:
     """Collapse repeated probes of one prompt into a single verdict.
 
     Selection is stochastic, so one call is not evidence. For a positive row,
-    loading in every rep is PASS, in some reps FLAKY, in none but doing the work
-    is WORKED, and in none with no work is MISS. For a near-miss row, never
-    loading the skill is PASS. BLOCKED requires every rep to have been blocked --
-    a row that ran and failed must not hide behind one crash.
+    loading in every rep with the work done is PASS; loading in every rep but
+    declining the work in any is LOADED_REFUSED; loading in some reps is FLAKY;
+    never loading but doing the work is WORKED; never at all is MISS. For a
+    near-miss row, never loading the skill is PASS. BLOCKED requires every rep to
+    have been blocked -- a row that ran and failed must not hide behind one crash.
     """
     if all(v == "BLOCKED" for v in verdicts):
         return "BLOCKED"
     if kind == "positive":
-        passed = sum(1 for v in verdicts if v == "PASS")
-        if passed == len(verdicts):
-            return "PASS"
-        if passed:
+        # Loading is the primary axis; the work/refusal distinction refines it.
+        selected = [v for v in verdicts if v in {"PASS", "LOADED_REFUSED"}]
+        if len(selected) == len(verdicts):
+            # Selected in every rep -- PASS only if no rep declined the work.
+            return "LOADED_REFUSED" if any(v == "LOADED_REFUSED" for v in verdicts) else "PASS"
+        if selected:
             return "FLAKY"
         if any(v == "WORKED" for v in verdicts):
             return "WORKED"
@@ -591,12 +634,9 @@ def main() -> int:
                     if code != 0 and not loaded:
                         verdict = "BLOCKED"
                     elif kind == "positive":
-                        if row.skill in loaded:
-                            verdict = "PASS"
-                        elif worked:
-                            verdict = "WORKED"
-                        else:
-                            verdict = "MISS"
+                        verdict = positive_verdict(
+                            row.skill, loaded, worked, trace.result_text
+                        )
                     else:
                         verdict = "FALSE_POSITIVE" if row.skill in loaded else "PASS"
                     verdicts.append(verdict)
@@ -632,7 +672,7 @@ def main() -> int:
                         print(f"[{verdict}] {row.skill:<28} {kind:<8} rep {rep}/{reps}{extra}", file=sys.stderr)
 
                 group = _group_verdict(kind, verdicts)
-                if group in {"MISS", "FALSE_POSITIVE", "FLAKY"}:
+                if group in {"MISS", "FALSE_POSITIVE", "FLAKY", "LOADED_REFUSED"}:
                     findings += 1
                 groups.append({"skill": row.skill, "kind": kind, "mode": row.mode,
                                "group": group, "verdicts": verdicts})
@@ -680,6 +720,7 @@ def main() -> int:
 
     passed = sum(1 for g in groups if g["group"] == "PASS")
     worked = sum(1 for g in groups if g["group"] == "WORKED")
+    refused = sum(1 for g in groups if g["group"] == "LOADED_REFUSED")
     blocked = sum(1 for g in groups if g["group"] == "BLOCKED")
     flaky = sum(1 for g in groups if g["group"] == "FLAKY")
     misses = sum(1 for g in groups if g["group"] == "MISS")
@@ -691,8 +732,8 @@ def main() -> int:
         f"- run: `{run_id}`",
         f"- prompts: **{len(groups)}** across **{len(rows)}** probed skills"
         f", {reps} rep(s) each = **{len(records)}** host calls",
-        f"- PASS {passed} · WORKED {worked} · MISS {misses} · FLAKY {flaky} · "
-        f"FALSE_POSITIVE {false_pos} · BLOCKED {blocked}",
+        f"- PASS {passed} · WORKED {worked} · LOADED_REFUSED {refused} · "
+        f"MISS {misses} · FLAKY {flaky} · FALSE_POSITIVE {false_pos} · BLOCKED {blocked}",
         "",
         "A PASS is the model loading the skill on its legitimate trigger. A MISS",
         "is a required skill the model never loaded and whose work never happened",
@@ -709,6 +750,17 @@ def main() -> int:
             if g["group"] in {"MISS", "FLAKY"}:
                 summary.append(f"- `{g['group']}` {g['skill']} ({g['mode']}, {g['kind']}): {g['verdicts']}")
         summary.append("")
+    if refused:
+        summary.append("## Loaded but declined the work")
+        summary.append("")
+        summary.append("The skill was selected in every rep, but the answer declined")
+        summary.append("the work -- usually a host missing the tool the skill needs.")
+        summary.append("Selection succeeded; the outcome did not.")
+        summary.append("")
+        for g in groups:
+            if g["group"] == "LOADED_REFUSED":
+                summary.append(f"- `{g['skill']}` ({g['mode']}, {g['kind']}): {g['verdicts']}")
+        summary.append("")
     if worked:
         summary.append("## Worked without loading the skill")
         summary.append("")
@@ -723,10 +775,10 @@ def main() -> int:
         args.summary.write_text("\n".join(summary) + "\n", encoding="utf-8")
 
     print("", file=sys.stderr)
-    print(f"prompts: {len(groups)}  PASS {passed}  WORKED {worked}  MISS {misses}  FLAKY {flaky}  "
-          f"FALSE_POSITIVE {false_pos}  BLOCKED {blocked}", file=sys.stderr)
+    print(f"prompts: {len(groups)}  PASS {passed}  WORKED {worked}  LOADED_REFUSED {refused}  "
+          f"MISS {misses}  FLAKY {flaky}  FALSE_POSITIVE {false_pos}  BLOCKED {blocked}", file=sys.stderr)
 
-    if blocked and passed + worked + misses + false_pos + flaky == 0:
+    if blocked and passed + worked + refused + misses + false_pos + flaky == 0:
         return 2
     return 1 if findings else 0
 

@@ -94,6 +94,29 @@ PY
   [ "$status" -eq 0 ]
 }
 
+@test "post-load refusal is graded apart from doing the work" {
+  probe_test <<'PY'
+g = tp._group_verdict
+# Selected in every rep, but declining the work in one is not a clean pass.
+assert g("positive", ["PASS", "LOADED_REFUSED"]) == "LOADED_REFUSED"
+assert g("positive", ["LOADED_REFUSED", "LOADED_REFUSED"]) == "LOADED_REFUSED"
+assert g("positive", ["PASS", "PASS"]) == "PASS"
+# A refusal in some reps and a load miss in others is still a load flake.
+assert g("positive", ["LOADED_REFUSED", "MISS"]) == "FLAKY"
+pv = tp.positive_verdict
+assert pv("render-sanity", {"render-sanity"}, False,
+          "I can't run this without a browser.") == "LOADED_REFUSED"
+# Declining but still handing back a BLOCKED report means the fallback ran.
+assert pv("render-sanity", {"render-sanity"}, False,
+          "I can't click through here, so every check is BLOCKED.") == "PASS"
+assert pv("render-sanity", {"render-sanity"}, True, "Applied all four checks.") == "PASS"
+assert pv("render-sanity", set(), True, "did the work anyway") == "WORKED"
+assert pv("render-sanity", set(), False, "no output") == "MISS"
+PY
+  run python3 "$TMP/probe_test.py" "$PROBE"
+  [ "$status" -eq 0 ]
+}
+
 @test "launcher snapshot covers sibling launchers like hermes-acp" {
   BIN="$TMP/fakehome/.hermes/hermes-agent/.hermes/bin"
   mkdir -p "$BIN"

@@ -163,6 +163,40 @@ build and does not settle the Venice row — re-run it with
 `--model deepseek-v4-flash --only render-sanity --repeat 6` once credits are
 restored.
 
+## Post-load refusal grading (LOADED_REFUSED)
+
+The probe used to score a skill `PASS` the moment it loaded, so a skill that
+loaded and then declined the work looked identical to one that did it. The rubric
+adds a fourth positive verdict:
+
+| Verdict | Meaning |
+|---|---|
+| `PASS` | Loaded in every rep and did the work — or applied its degraded `BLOCKED` fallback |
+| `LOADED_REFUSED` | Loaded in every rep but flatly declined: no work and no `BLOCKED` fallback |
+| `WORKED` | Not loaded, but the request was served anyway (index-injecting host) |
+| `MISS` | Not loaded and no work |
+
+An answer counts as declined only when it carries a refusal marker **and** no
+`BLOCKED` result — so a skill that folds its degrade contract into a BLOCKED
+report still scores `PASS`; only a flat punt is `LOADED_REFUSED`. `FLAKY` now
+means "loaded in some reps" specifically. `LOADED_REFUSED` is a finding: the
+selection worked, the outcome did not.
+
+Live re-probe (`deepseek-flash`, direct API, 2 reps, the same tool-less host):
+
+| Skill | Verdicts | Group | Reading |
+|---|---|---|---|
+| render-sanity | PASS, PASS | PASS | loaded + applied its BLOCKED fallback |
+| design-token-guard | PASS, PASS | PASS | loaded + applied its new degrade clause (v1.1.1) |
+| class-extraction-guard | PASS, PASS | PASS | loaded + applied its new degrade clause (v1.1.1) |
+| playwright | LOADED_REFUSED, LOADED_REFUSED | LOADED_REFUSED | loaded, then flatly refused — no fallback exists |
+
+That is the distinction the audit asked for: selection success (`PASS`) versus a
+selected skill that still declines (`LOADED_REFUSED`), with `playwright` the
+clean example of the latter on a host that cannot run a browser. The two guards
+passing here is the `design-token-guard` / `class-extraction-guard` degrade clause
+(v1.1.1) doing its job.
+
 ## Caveats
 
 - One rep per prompt. A `MISS` here is a lead, not proof; rerun with
