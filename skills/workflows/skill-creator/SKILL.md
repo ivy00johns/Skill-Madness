@@ -1,8 +1,8 @@
 ---
 name: skill-creator
-version: 1.3.0
+version: 1.4.0
 description: |
-  Create new skills, modify and improve existing skills, and measure skill performance with Hermes Agent. Use when users want to create a skill from scratch, edit or optimize an existing skill, run trigger evaluations with isolated snapshots and tri-state tracking, or run description optimization loops with strict SO-4 split hygiene (train/dev selection with single-use touch-once held-out test).
+  Create new skills, modify and improve existing skills, and measure skill performance with Hermes Agent or Freebuff (Codebuff engine, any OpenAI-compatible endpoint). Use when users want to create a skill from scratch, edit or optimize an existing skill, run trigger evaluations with isolated snapshots and tri-state tracking, or run description optimization loops with strict SO-4 split hygiene (train/dev selection with single-use touch-once held-out test).
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
@@ -415,6 +415,10 @@ This handles the full optimization loop automatically with strict SO-4 split hyg
 4. When optimization completes, real held-out items are atomically consumed before the final check, even if it errors. Persistent query claims and frozen splits prevent reuse or changing ratios/provenance across restarts. Synthetic/missing-provenance items train only. Empty splits block rather than move test items. JSON returns separate selection and final-test scores; `--results-dir` saves JSON and local HTML (no automatic browser launch). Small deltas require repeated trials, not a single lucky score.
 5. `scripts/check_matrix.py` validates frozen F3/F5 receipt records; it never dispatches models. Offline fixture/load success is not live-host efficacy. See `docs/standards/cross-host-matrix-spec.md` in the checkout for the bounded matrix protocol.
 
+### Choosing the host
+
+`--host hermes` (default) drives Hermes Agent. `--host freebuff` runs Freebuff's real root agent and skill engine through the Codebuff SDK against an OpenAI-compatible endpoint you choose (FreeLLMAPI for $0, or OpenRouter for Freebuff's hosted model) — the `freebuff` CLI itself cannot be scripted. It needs a Codebuff source checkout and `bun`, and a candidate marked `disable-model-invocation: true` cannot be scored because Freebuff never lets the model load it. Read `references/freebuff-host.md` before the first Freebuff run.
+
 ### How skill triggering works in Hermes
 
 Understanding the triggering mechanism helps design better eval queries. Skills appear in Hermes' available_skills list with their name + description, and the agent decides whether to consult a skill based on that description. The important thing to know is that the agent only consults skills for tasks it can't easily handle on its own — simple, one-step queries like "read this PDF" may not trigger a skill even if the description matches perfectly, because the agent can handle them directly with basic tools. Complex, multi-step, or specialized queries reliably trigger skills when the description matches.
@@ -438,6 +442,7 @@ The agents/ directory contains instructions for specialized subagents. Read them
 The references/ directory has additional documentation:
 
 - `references/schemas.md` — JSON structures for evals.json, grading.json, etc.
+- `references/freebuff-host.md` — setup, flags, isolation and quirks for `--host freebuff`
 
 ---
 

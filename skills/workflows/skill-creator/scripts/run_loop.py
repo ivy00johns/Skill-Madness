@@ -8,7 +8,7 @@ import sys
 
 from scripts.generate_report import generate_html
 from scripts.improve_description import improve_description
-from scripts.run_eval import run_eval, validate_eval_set
+from scripts.run_eval import add_host_arguments, host_config_from_args, run_eval, validate_eval_set
 from scripts.utils import parse_skill_md
 
 
@@ -73,7 +73,8 @@ def run_loop(eval_set: list[dict], skill_path: Path, description_override: str |
              num_workers: int, timeout: int, max_iterations: int, runs_per_query: int,
              trigger_threshold: float, holdout: float, model: str, verbose: bool,
              live_report_path: Path | None = None, log_dir: Path | None = None,
-             worker_model: str | None = None, holdout_state_dir: Path | None = None) -> dict:
+             worker_model: str | None = None, holdout_state_dir: Path | None = None,
+             host: str = "hermes", host_config: dict | None = None) -> dict:
     if max_iterations < 1 or runs_per_query < 1 or not model:
         raise ValueError("Positive iteration/trial limits and model are required")
     name, original, content = parse_skill_md(skill_path)
@@ -94,7 +95,7 @@ def run_loop(eval_set: list[dict], skill_path: Path, description_override: str |
         freeze_splits(train, dev, test, state)
     def evaluate(items, description):
         return run_eval(items, name, description, str(skill_path), num_workers, timeout,
-                        runs_per_query, trigger_threshold, worker_model or model)
+                        runs_per_query, trigger_threshold, worker_model or model, host, host_config)
     history = []
     exit_reason = "max_iterations"
     for iteration in range(1, max_iterations + 1):
@@ -118,8 +119,12 @@ def run_loop(eval_set: list[dict], skill_path: Path, description_override: str |
             break
         if iteration < max_iterations:
             blinded = [{k: v for k, v in h.items() if not k.startswith(("dev_", "test_"))} for h in history]
+            endpoint = None
+            if host == "freebuff":
+                endpoint = {k: (host_config or {}).get(k) for k in ("base_url", "api_key_env")}
             current = improve_description(name, content, current, training, blinded, model,
-                                          log_dir=log_dir, iteration=iteration)
+                                          log_dir=log_dir, iteration=iteration,
+                                          optimizer_endpoint=endpoint)
     best = max(history, key=lambda h: (h["dev_passed"], h["train_passed"])) if history else None
     final = None
     if best and test and exit_reason != "execution_error":
@@ -157,13 +162,15 @@ def main():
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--report", default="none")
     parser.add_argument("--results-dir", type=Path)
+    add_host_arguments(parser)
     args = parser.parse_args()
     report = Path(args.report) if args.report not in ("none", "auto") else None
     output = run_loop(json.loads(Path(args.eval_set).read_text()), Path(args.skill_path), args.description,
                       args.num_workers, args.timeout, args.max_iterations, args.runs_per_query,
                       args.trigger_threshold, args.holdout, args.model, args.verbose,
                       live_report_path=report, worker_model=args.worker_model,
-                      holdout_state_dir=args.holdout_state_dir)
+                      holdout_state_dir=args.holdout_state_dir,
+                      host=args.host, host_config=host_config_from_args(args))
     serialized = json.dumps(output, indent=2)
     print(serialized)
     if args.results_dir:

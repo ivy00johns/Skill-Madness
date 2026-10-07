@@ -1,6 +1,6 @@
 ---
 name: use-freellmapi
-version: 1.5.0
+version: 1.5.1
 description: |
   Wire any project or coding agent to FreeLLMAPI — a local proxy aggregating ~30 free LLM provider
   tiers behind one endpoint — so you can prototype without paying for API calls. Use to switch a
@@ -117,7 +117,18 @@ If the user already runs it on a non-default port or another host, use that `bas
 
 ### Step 2 — Get the unified key and make sure a provider can serve requests
 
-**Unified key** (`freellmapi-…`): the install-wide bearer token. Get it from:
+**Find the existing key first — never ask the user to mint or paste one.** A working install
+almost always has a key wired somewhere already. Look, printing variable *names* only, never values:
+
+1. the process environment (`FREELLMAPI_KEY`, or an `OPENAI_API_KEY` that starts with `freellmapi-` / `sk-cp-`);
+2. this project's `.env` / `.env.local`;
+3. sibling projects already wired to the proxy (their `.env` holds `FREELLMAPI_KEY` + `FREELLMAPI_BASE_URL`);
+4. saved agent memories, which often record exactly which file holds it.
+
+Load it at run time (`set -a; . path/to/.env; set +a`) and never echo it. Only if all of that comes
+up empty is a new key needed. Even then, say what you checked before involving the user.
+
+**Unified key** (`freellmapi-…`): the install-wide bearer token. If none exists anywhere yet, it is in:
 
 - the **Keys page header** at `http://localhost:3001` (the dashboard), or
 - the first-run container logs:

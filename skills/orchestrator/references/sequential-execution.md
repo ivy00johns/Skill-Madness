@@ -85,6 +85,18 @@ paths; never assume them or `~/.claude`. Resolve each role's `references/` and
 `.ats-runtime.json` listing their bundled resources). If a role cannot be found, that slice is
 `BLOCKED` — do not improvise the role from memory.
 
+**When the skill tool refuses a role.** Roles set `disable-model-invocation:
+true` so they never trigger on their own. Some hosts enforce that in their
+skill tool: Freebuff/Codebuff answers `Skill '<name>' can only be invoked by
+the user.` That flag guards against autonomous triggering, not against the
+orchestrator's dispatch — on Claude Code the orchestrator dispatches roles
+without the skill tool too. So when the tool refuses a role, read that role's
+`SKILL.md` file directly and follow it as the role packet. On Freebuff the
+skill folders are, in precedence order, `<project>/.agents/skills/`,
+`<project>/.claude/skills/`, `~/.agents/skills/` and `~/.claude/skills/`, each
+holding `<name>/SKILL.md`. This applies only to skills the approved plan
+assigns; it is never a way to load something the owner did not approve.
+
 ## Skills that are not installed on this host
 
 Some skills the phases name are Claude-Code-only and are not exported to other
