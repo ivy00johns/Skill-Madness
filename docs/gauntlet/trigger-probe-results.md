@@ -71,17 +71,97 @@ where noted below.
 The other twelve probed skills are untouched by this pass; their first-run
 results stand.
 
-DeepSeek's `render-sanity` result is genuinely flaky, not fixed: one rep loads
+DeepSeek's `render-sanity` result was flaky on Venice, not fixed: one rep loads
 the skill, two refuse. Its final checklist rewording could not be re-verified on
-DeepSeek because the Venice provider ran out of credit mid-pass (`HTTP 402`),
-which the probe reports as `BLOCKED`, never as a pass. Gemini loads it in all
-three reps.
+Venice `deepseek-v4-flash` because that provider ran out of credit mid-pass
+(`HTTP 402`), which the probe reports as `BLOCKED`, never as a pass. Gemini
+loads it in all three reps. The follow-up run below re-checks the rewording on
+DeepSeek's own API.
 
 ## Redundant on an index-injecting host
 
 `skill-explorer` scored `WORKED` on both models: neither loaded it, and both
 answered the routing prompt from the injected index. Under the old load-only
 score that read as a failure; the work signal now reports it as served.
+
+## Follow-up: render-sanity on DeepSeek, via the direct API
+
+Venice credits were still exhausted on the re-check date, so the exact
+`deepseek-v4-flash` row could not be re-run. DeepSeek's own API (`provider:
+deepseek`, `https://api.deepseek.com/v1`) was reachable and serves
+`deepseek-flash` — DeepSeek-V4.1-Flash, a point release of the same family, not
+the identical weights Venice resells. The probe was pointed at it with a
+seed config (`model.provider: deepseek`, `model.default: deepseek-flash`) and
+`render-sanity` was probed on its matrix trigger across three runs: three reps
+(`gauntlet-probe-2026-10-07T01:47:21Z`), a single rep, and then six more.
+
+| Run | Reps | PASS | MISS | Verdict |
+|---|---|---|---|---|
+| direct, 3 reps | 3 | 3 | 0 | PASS |
+| direct, 1 rep | 1 | 0 | 1 | MISS |
+| direct, 6 reps | 6 | 4 | 2 | FLAKY |
+| **combined** | **10** | **7** | **3** | **FLAKY (~70%)** |
+
+**The checklist rewording helps but does not make it reliable.** The first
+three-rep run scored a clean 3/3, which looked like a fix; a larger sample
+shows the truth — `render-sanity` still fires roughly seven times in ten on
+this build. That is a real improvement over Venice `deepseek-v4-flash` (one of
+three), but the skill remains `FLAKY`, not reliable.
+
+The residual miss mode is the original one, unchanged: on the miss reps the
+model reads the browser/shell requirement as unsatisfiable — the probe's host
+exposes only `skill_view` and `skills_list` — and declines outright instead of
+loading the skill, sometimes reaching for `frontend-agent` or `playwright`
+first. Two representative misses:
+
+> I can't run this in the current session, and I'd rather tell you that than hand
+> you a fabricated bug list. What's actually available to me here: only skill
+> loading (skills_list / skill_view).
+
+So the description front-loads the checklist framing well enough to win most
+reps, but a refusal path still wins the rest. The remaining fix belongs in the
+skill body (a hard "load this even when the host lacks a browser, then report
+what you cannot check") rather than in another description tweak.
+
+## Follow-up: the render-sanity body fix (v1.2.2)
+
+The previous section located the residual miss in the skill *body*, not the
+description. `render-sanity` v1.2.2 adds a hard directive — load and apply the
+skill even on a host with no browser or shell, run the checks the tools allow,
+and mark the rest `BLOCKED`, never decline — and reframes the non-negotiable
+rules so "no browser" no longer reads as "cannot start." The report template
+gained a `BLOCKED` verdict and an `INCOMPLETE` pass/fail outcome.
+
+Re-probed on the same DeepSeek-direct build and the same trigger, as two
+independent six-rep batches:
+
+| Run | Reps | PASS | MISS | Verdict |
+|---|---|---|---|---|
+| body fix, batch A | 6 | 6 | 0 | PASS |
+| body fix, batch B | 6 | 6 | 0 | PASS |
+| **combined** | **12** | **12** | **0** | **PASS** |
+
+Every rep now loads `render-sanity`, announces the degraded scope, and returns a
+report whose browser-dependent checks are `BLOCKED` with reasons — the behavior
+the fix targets. Two representative answers:
+
+> Using render-sanity — but in fully-blocked mode. ... Per the skill that's not a
+> reason to refuse — but it does mean every result below is BLOCKED, not a pass.
+
+and:
+
+> render-sanity loaded and applied. ... every unobservable check reported BLOCKED.
+
+Against the pre-fix 7-of-10 result above, the load rate moved from `FLAKY` (~70%)
+to 12-of-12. Selection is stochastic and the sample is small, so 12/12 is not a
+claim of 100%; it is a clean verdict on two six-rep batches in which the previous
+build produced misses.
+
+**Still open:** the exact Venice `deepseek-v4-flash` row remains unverified. The
+proxy result is evidence about the DeepSeek family, but it is a different model
+build and does not settle the Venice row — re-run it with
+`--model deepseek-v4-flash --only render-sanity --repeat 6` once credits are
+restored.
 
 ## Caveats
 
@@ -102,4 +182,13 @@ python3 scripts/gauntlet/trigger-probe.py --model gemini-3-5-flash \
   --include-explicit --kind positive --repeat 1 \
   --only code-review-agent --only grill-me --only model-adaptation \
   --only render-sanity --only skill-explorer
+```
+
+The DeepSeek-direct proxy run needs a seed config whose `model.provider` is
+`deepseek` (the built-in Hermes provider):
+
+```bash
+python3 scripts/gauntlet/trigger-probe.py --model deepseek-flash \
+  --seed-config /tmp/gauntlet-seed-deepseek.yaml \
+  --kind positive --repeat 3 --only render-sanity
 ```

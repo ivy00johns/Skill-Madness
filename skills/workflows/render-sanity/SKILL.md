@@ -1,8 +1,8 @@
 ---
 name: render-sanity
-version: 1.2.1
+version: 1.2.2
 description: |
-  Load this skill whenever a finished build may be visually broken: it is a checklist you apply with whatever tools the host has, never a reason to decline because browser tools are absent. It runs the static smell scan and reports every check it cannot run as BLOCKED. Runs the before-done visual sanity check for the failure modes that pass "tests green + dev server boots + 0 console errors" but visibly break the UI when a human clicks: stale mock IDs on live pages, lone `?` / `—` / `undefined` / `Loading…` where data should be, dead links, and "Couldn't load X / Unauthorized" shells. Four checks: smell scan, click-through every list, signed-out matrix, signed-in matrix. Use when tests pass but the checkout UI is broken, when a build is wrapping up, after ux-review or qe-agent, or when the user says "is it actually working", "broken pages", or "dead links".
+  Load and apply this skill on its trigger even when the host has no browser or shell — it is a checklist you apply with whatever tools are available, never a reason to decline because browser tools are absent. Every check you cannot run is reported as BLOCKED, not a refusal. Runs the before-done visual sanity check for the failure modes that pass "tests green + dev server boots + 0 console errors" but visibly break the UI when a human clicks: stale mock IDs on live pages, lone `?` / `—` / `undefined` / `Loading…` where data should be, dead links, and "Couldn't load X / Unauthorized" shells. Four checks: smell scan, click-through every list, signed-out matrix, signed-in matrix. Use when tests pass but the checkout UI is broken, when a build is wrapping up, after ux-review or qe-agent, or when the user says "is it actually working", "broken pages", or "dead links".
 compatibility: Claude Code; requires Playwright MCP tools
 requires_claude_code: true
 requires_agent_teams: false
@@ -28,12 +28,22 @@ spawned_by: ["orchestrator", "ux-review"]
 
 This skill is **not** subjective. It does not evaluate visual hierarchy, typography, or polish — those are `ux-review`'s job. It hunts four specific, objectively-verifiable failure modes that ship past every other gate.
 
-**Announce at start:** "Using render-sanity to click through [N routes] and check for stale data, placeholder text, dead links, and auth dead-ends."
+> **Load and apply this skill even on a host with no browser and no shell.**
+> The checks below are what a *full* host runs. On a constrained host you still load
+> the skill, build the route inventory from whatever source you *can* read, run every
+> check the available tools allow, and mark each check you could not run as
+> **BLOCKED** with the reason — never as a pass, and never as a refusal to start.
+> "I can't run this without a browser, so I won't" is the one wrong answer: it is
+> indistinguishable from a missing skill, and it discards the static smell scan
+> (Check 1), which needs no browser at all. A partial, honestly-labeled report beats
+> a clean decline every time.
+
+**Announce at start:** "Using render-sanity to click through [N routes] and check for stale data, placeholder text, dead links, and auth dead-ends." On a host without browser tools, announce the degraded scope instead: "Using render-sanity in static-only mode — no browser here, so the route passes will be reported BLOCKED."
 
 ## Non-Negotiable Rules
 
-- **UI design and function validation is ALWAYS non-headless.** These checks exist because "the app renders" is not "the app works" — so they must be run in a **visible** Playwright browser. Never run the route passes in headless mode, never validate via curl/source-reading, and never skip the browser because the smoke tests passed.
-- **Never infer — observe.** Every finding must be a route you actually navigated and content you actually saw in the browser. If you haven't clicked it, you haven't verified it. Do not guess what a page renders from its component source, from the router, or from a passing test suite.
+- **Non-headless when a browser exists; honest when it doesn't.** These checks exist because "the app renders" is not "the app works" — so on a host that *has* a browser they must run in a **visible** Playwright browser: never headless, never via curl or source-reading, and never skipped because the smoke tests passed. On a host with *no* browser tools, do not fake the check and do not decline the skill: load it anyway, run the checks that need no browser (the Check 1 static scan, plus any source-level signal), and mark every browser-dependent check **BLOCKED**.
+- **Never infer — observe.** Every finding must be a route you actually navigated and content you actually saw in the browser. If you haven't clicked it, you haven't verified it. Do not guess what a page renders from its component source, from the router, or from a passing test suite. **BLOCKED is not inference** — it is the honest report that this host could not observe the check; report it as BLOCKED, never as a guessed Pass or Critical.
 - **No blind edits.** render-sanity is read-only — it reports failures, it does not fix them. When a finding points at a component, read the actual source before describing the cause; don't hypothesize from the symptom.
 
 ## The Four Checks
@@ -114,7 +124,10 @@ done
 curl -fsS http://localhost:<port>/ > /dev/null && echo "Frontend responsive"
 ```
 
-If nothing is listening, **stop**. Don't run render-sanity against a dead port and call it a pass. Either bring up the stack (`pnpm dev` / `npm run dev` from the project root, or whatever the workspace's `dev` script is) or report "Cannot run — dev server not responding."
+Never call a pass against a dead port. But "the stack is down" is **not** a reason to abandon the skill: bring up the stack if you have a shell (`pnpm dev` / `npm run dev` from the project root, or the workspace's `dev` script); if this host has no shell, mark the live-navigation checks (2, 3, 4) **BLOCKED — dev stack unreachable, no shell** and continue with the source-derivable work in Step 1 and Check 1. Only if neither route is available *and* no source is readable do you report the skill as fully blocked — and you still deliver the route inventory and the BLOCKED rows rather than a bare refusal.
+
+**Full host:** dev stack down and no way to start it → report the run as BLOCKED (not PASS).
+**Constrained host (no shell/browser):** skip straight to the static-only path — the route inventory from the router file plus the Check 1 scan — with the browser-dependent checks BLOCKED.
 
 ### Step 3 — Run the four checks
 
@@ -128,16 +141,42 @@ For each route in the inventory:
 
 Then sign in as a seed user (or hit the demo button) and re-walk auth-gated routes for Check 4.
 
+**Static-only mode (no browser tools).** If the host exposes no browser tool, do not
+invent observations and do not stop. Instead: build the route inventory from the router
+file, run Check 1 as far as source allows (grep the rendered text constants, mock imports,
+placeholder vocabulary, and the routes' data sources with whatever read tools you have),
+and mark Checks 2–4 BLOCKED with the reason. The static pass alone catches the highest-value
+class — a live page wired to `mocks.ts` — because that is a *source* fact, not a pixel fact.
+
 ### Step 4 — Write the report
 
-Save to `docs/render-sanity-YYYY-MM-DD.md` using the template in `references/report-template.md`. The template's structure is fixed so a reviewer can scan any render-sanity report and find the same sections in the same order.
+Save to `docs/render-sanity-YYYY-MM-DD.md` using the template in `references/report-template.md`. The template's structure is fixed so a reviewer can scan any render-sanity report and find the same sections in the same order. Every check you could not run is a **BLOCKED** row with its reason — never omitted, never written up as a pass.
 
 ### Step 5 — Decide pass/fail
 
-- **PASS**: zero critical findings across all four checks.
+- **PASS**: zero critical findings across all four checks, and every check actually ran.
 - **FAIL**: one or more critical findings. The report names them; the build cannot be declared done until they're fixed and render-sanity is re-run.
+- **INCOMPLETE / BLOCKED**: the host could not run one or more checks (no browser, no shell, dev stack unreachable). Report exactly which checks were blocked and why. Do **not** collapse an incomplete run into a PASS — an unimplemented check is not a clean check.
 
-A FAIL is a gate, not a recommendation. The orchestrator's Definition of Done depends on render-sanity returning PASS on a UI build.
+A FAIL is a gate, not a recommendation. The orchestrator's Definition of Done depends on render-sanity returning PASS on a UI build; an INCOMPLETE run means the gate did not clear, and the orchestrator must supply a host that can run the blocked checks (or accept a static-only result at the user's explicit direction).
+
+## Hosts without a browser or shell
+
+Many hosts expose only skill loading, file reading, or plain text. The skill still loads,
+and it still produces a report — the shape changes like this:
+
+| Step / Check | Full host (browser + shell) | Constrained host (no browser / no shell) |
+|---|---|---|
+| Route inventory (Step 1) | From the router file | From the router file — unchanged |
+| Check 1 — smell scan | `document.body.innerText` per route | Grep rendered-text constants, `mocks`/fixture imports, placeholder vocabulary, and each route's data source in **source** — a partial pass, marking routes you could not observe |
+| Check 2 — click-through | Navigate the first item's `href` | **BLOCKED** — needs a browser |
+| Check 3 — signed-out matrix | Navigate every route signed out | **BLOCKED** — needs a browser |
+| Check 4 — signed-in matrix | Sign in, re-walk auth-gated routes | **BLOCKED** — needs a browser + seeded creds |
+
+The static pass is not worthless: the highest-value bug class this skill catches — a "live"
+page importing `mocks.ts` — is a **source** fact, plainly visible without a browser. Report
+it Critical even in static-only mode. What you must not do is guess the browser-dependent
+checks: mark them **BLOCKED** with the reason and move on.
 
 ## What this skill is NOT
 
@@ -162,7 +201,8 @@ This skill catches one specific failure mode: **the app renders, but renders bro
 - **Click, don't just look.** Lists that render but link to nowhere are this skill's primary catch. Snapshots and screenshots don't catch them. Clicking does.
 - **Both auth states.** "It works when I'm logged in" is half a test. "It works when I'm signed out" is the other half. A skill that only walks one state misses the half its build session happened to be in.
 - **Treat mock-ID leakage as a P0.** The "frontend imports mocks.ts directly into a 'live' page" bug class is silent, common, and embarrassing. A mock ID on a live page = "page is wired to fake data" Critical, not a polish item.
-- **Refuse to pass a dead stack.** If the dev server isn't listening, this skill must not say "passed." Either bring it up or report that you couldn't run.
+- **Never decline — degrade instead.** A constrained host is a *scope* problem, not a reason to refuse. Load the skill, run what you can, and mark the rest BLOCKED. A refusal produces no inventory, no static scan, and no signal; a degraded report produces all three and tells the next host exactly which checks to finish.
+- **Never pass a dead stack or an unrun check.** If the dev server isn't listening, or a check had no tools to run with, the report must not say "passed." Bring the stack up, run the check, or mark it BLOCKED — a blocked check is a blocked gate.
 
 ## Reference files
 
