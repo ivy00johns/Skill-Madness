@@ -94,6 +94,32 @@ PY
   [ "$status" -eq 0 ]
 }
 
+@test "launcher snapshot covers sibling launchers like hermes-acp" {
+  BIN="$TMP/fakehome/.hermes/hermes-agent/.hermes/bin"
+  mkdir -p "$BIN"
+  for name in hermes hermes-acp; do
+    cat > "$BIN/$name" <<'SH'
+#!/bin/sh
+exec /usr/bin/env python3 -I -c '' "$@"
+SH
+  done
+  printf 'not a launcher\n' > "$BIN/README"
+  probe_test <<'PY'
+import os, pathlib
+os.environ["HOME"] = os.environ["FAKE_HOME"]
+bindir = pathlib.Path(os.environ["FAKE_HOME"]) / ".hermes/hermes-agent/.hermes/bin"
+got = tp.host_launchers("hermes")
+# Both launchers the host rewrites are captured, whatever name is on PATH.
+siblings = sorted(p.name for p in got if p.parent == bindir)
+assert siblings == ["hermes", "hermes-acp"], siblings
+# The non-launcher file in the same directory is not snapshotted.
+assert all(p.name != "README" for p in got)
+assert tp.host_launcher_dir("hermes") == bindir
+PY
+  FAKE_HOME="$TMP/fakehome" run python3 "$TMP/probe_test.py" "$PROBE"
+  [ "$status" -eq 0 ]
+}
+
 @test "trace-merge treats an explicit skill as reachable, not a false positive" {
   echo '{"skill": "frontend-agent"}' > "$TMP/telemetry.jsonl"
   run python3 "$REPO_ROOT/scripts/gauntlet/trace-merge.py" "$TMP/telemetry.jsonl" --matrix "$MATRIX"

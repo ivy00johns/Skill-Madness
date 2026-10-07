@@ -28,8 +28,10 @@ a probe result can stand in for the run telemetry that was never produced.
 Caveats, stated rather than buried:
 
 * Moving `HERMES_HOME` makes the host re-bootstrap its runtime and rewrite its
-  own launcher against the scratch profile. This probe snapshots that launcher
-  and restores it afterwards, but a crash (SIGKILL) can still leave it pointing
+  own launchers against the scratch profile. It rewrites every launcher in its
+  profile bin directory, so this probe snapshots each one -- `hermes` and its
+  siblings like `hermes-acp`, not only the binary named on the command line --
+  and restores them afterwards. A crash (SIGKILL) can still leave one pointing
   at a scratch path. Re-run the probe, or `cp` the `.bak` beside the launcher.
 * The scratch profile carries a copy of the real `config.yaml` with its skills
   policy cleared (`--seed-config`). The host resolves model -> provider ->
@@ -161,18 +163,43 @@ def parse_matrix(path: Path) -> list[Row]:
     return rows
 
 
+def host_launcher_dir(host: str) -> Path:
+    """The profile directory whose launcher scripts the host re-points."""
+    return Path.home() / ".hermes" / "hermes-agent" / ".hermes" / "bin"
+
+
+def _looks_like_launcher(path: Path) -> bool:
+    """True when a file is a launcher script (it `exec`s an interpreter)."""
+    try:
+        return launcher_interpreter(path.read_bytes()) is not None
+    except OSError:
+        return False
+
+
 def host_launchers(host: str) -> list[Path]:
-    """Every file the host may rewrite to re-point itself.
+    """Every launcher file the host may rewrite to re-point itself.
 
     `host` on PATH is often a tiny shim; the launcher that actually carries the
-    interpreter path lives deeper in the profile. Snapshot all candidates, or
-    the repair silently misses the file that matters.
+    interpreter path lives deeper in the profile. The host rewrites *every*
+    launcher in its profile bin directory, not only the one matching `host` --
+    a sibling such as `hermes-acp` is re-pointed too. Snapshot them all, or a
+    crashed run strands one on a deleted scratch interpreter with nothing to
+    restore it from.
     """
     candidates: list[Path] = []
     found = shutil.which(host)
     if found:
         candidates.append(Path(found))
-    candidates.append(Path.home() / ".hermes" / "hermes-agent" / ".hermes" / "bin" / host)
+    bin_dir = host_launcher_dir(host)
+    try:
+        entries = sorted(bin_dir.iterdir())
+    except OSError:
+        entries = []
+    for entry in entries:
+        # Only real launchers: a README or a stale `.bak` is not a file the host
+        # re-points, and snapshotting it would only add restore noise.
+        if entry.is_file() and _looks_like_launcher(entry):
+            candidates.append(entry)
     out: list[Path] = []
     seen: set[str] = set()
     for path in candidates:
@@ -509,8 +536,9 @@ def main() -> int:
     environ = dict(os.environ)
     load_env_file(args.env_file.expanduser(), environ)
 
-    # The host rewrites its own launcher when HERMES_HOME moves. Snapshot every
-    # candidate so the run cannot leave the user's install pointing at a deleted
+    # The host rewrites its own launchers when HERMES_HOME moves -- every script
+    # in the profile bin dir, not just the one on the command line. Snapshot them
+    # all so the run cannot leave the user's install pointing at a deleted
     # scratch dir.
     launcher_before: dict[Path, bytes] = {}
     for path in host_launchers(args.host):
