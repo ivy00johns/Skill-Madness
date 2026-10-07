@@ -123,7 +123,10 @@ findings. Re-probed on a host with **file read but no shell**: the probe gained 
 terminal), a `--max-turns` flag raised to 8 for a multi-file scan, and a
 `--seed-work` flag that plants a five-file source tree with deliberate
 violations (four hardcoded colours; one five-utility class string at three
-call-sites).
+call-sites). That fixture is now committed at
+`tests/gauntlet/fixtures/handscan-source/`, with a `ground-truth.json` map of
+skill → expected violation files beside it, and an offline bats assertion pinning
+both.
 
 | Skill | Reps | Tools used | Outcome |
 |---|---|---|---|
@@ -133,10 +136,19 @@ call-sites).
 All four reps loaded the skill, named the missing shell, and returned source
 findings located by `file:line`; **none** returned a `BLOCKED` report. Both
 guards therefore degrade correctly at every rung — script when there is a shell,
-hand-scan when there is only file read, `BLOCKED` when there is neither. The
-hand-scan is a model heuristic, so the finding count wobbles between reps; the
-axis this audit asked about, findings rather than a refusal, is stable. Raw data:
-`.workspaces/gauntlet-trigger-probe/handscan.{jsonl,md}` (gitignored).
+hand-scan when there is only file read, `BLOCKED` when there is neither.
+
+A `PASS` now also requires a *finding*, not just a load. Supplying
+`--ground-truth` makes the probe extract `path:line` locations from the answer
+and mark a loaded positive answer with no expected location `LOADED_UNGROUNDED` —
+only when the host actually has a file-read tool, so a host that cannot read is
+never penalised for its correct `BLOCKED` report. All four graded reps cited an
+expected `file:line` (`grounded = true`); as a control, the same guards on the
+tool-less host stay `PASS` with `grounded = null`. The hand-scan is a model
+heuristic, so the finding count wobbles between reps; the axis this audit asked
+about — findings rather than a refusal — is stable. Raw data:
+`.workspaces/gauntlet-trigger-probe/handscan-graded.{jsonl,md}` and
+`handscan-tool-less-control.{jsonl,md}` (gitignored).
 
 ## Recommendation
 
@@ -147,3 +159,9 @@ axis this audit asked about, findings rather than a refusal, is stable. Raw data
    genuinely absent.
 3. ~~Extend the probe to score a post-load refusal.~~ **Done** — the
    `LOADED_REFUSED` verdict now surfaces this class (`--repeat` shows it per row).
+4. ~~Re-run the whole matrix on both hosts.~~ **Done** — the full positive sweep
+   on the tool-less and file-read hosts is in `trigger-probe-results.md`
+   ("Full matrix on both hosts"). File read turns 36 of the tool-less host's 46
+   refusals into work (20 to `PASS`, 16 to `WORKED`), with no new `MISS`, `FLAKY`,
+   or `FALSE_POSITIVE`, confirming the nine-skill refusal pattern is a capability
+   gap rather than a description bug.

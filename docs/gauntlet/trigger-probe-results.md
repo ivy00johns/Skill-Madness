@@ -212,19 +212,41 @@ three flags:
   a multi-file hand-scan has room to read and search.
 - `--seed-work DIR` — copies a source tree into the probe work dir before
   probing, so a source-level fallback has source to scan.
+- `--ground-truth PATH` — a skill → expected-files map; a loaded positive answer
+  that cites no `path:line` in an expected file scores `LOADED_UNGROUNDED`.
 
-The fixture is a five-file tree with planted violations: `src/ui/theme.ts` (the
-token source of truth) plus `Button.tsx`, `Card.tsx`, and `Row.tsx`, carrying
-hardcoded colors (`#1d4ed8`, `#ffffff`, `rgb(229, 231, 235)`, `hsl(0, 0%, 0%)`)
-and one five-utility class string copy-pasted at three call-sites.
+The fixture now lives in the repo at `tests/gauntlet/fixtures/handscan-source/`
+(committed, so the run is reproducible), with `ground-truth.json` beside it. It is
+a five-file tree with planted violations: `src/ui/theme.ts` (the token source of
+truth) plus `Button.tsx`, `Card.tsx`, and `Row.tsx`, carrying hardcoded colors
+(`#1d4ed8`, `#ffffff`, `rgb(229, 231, 235)`, `hsl(0, 0%, 0%)`) and one
+five-utility class string copy-pasted at three call-sites. An offline bats
+assertion (`tests/gauntlet/01-trigger-probe.bats`) pins the fixture's planted
+violations and the ground-truth map, so the probe cannot silently lose its teeth.
+
+### A machine-checkable hand-scan contract
+
+A `PASS` should require *correct findings*, not just a loaded skill. The probe
+now extracts `path:line` locations from the answer and, when `--ground-truth`
+names expected files **and the host has a file-read tool**, marks a loaded answer
+with no expected location `LOADED_UNGROUNDED`. The file-read gate matters: a host
+with no file read is *supposed* to return a `BLOCKED` report, so it is never
+graded this way.
+
+| Verdict | Meaning |
+|---|---|
+| `PASS` | Loaded and, when ground truth applies, cited an expected `path:line` |
+| `LOADED_UNGROUNDED` | Loaded on a file-read host but cited no expected finding |
+| `LOADED_REFUSED` | Loaded but flatly declined: no work and no `BLOCKED` fallback |
 
 Re-probed on the file-read host (`deepseek-flash`, direct API, 2 reps,
-`--toolsets skills,file --max-turns 8 --seed-work …`):
+`--toolsets skills,file --max-turns 8 --seed-work …/handscan-source
+--ground-truth …/ground-truth.json`):
 
-| Skill | Verdicts | Group | Tools used | Outcome |
+| Skill | Verdicts | Group | Grounded | Outcome |
 |---|---|---|---|---|
-| design-token-guard | PASS, PASS | PASS | read_file, search_files, skill_view | hand-scan, `file:line` findings |
-| class-extraction-guard | PASS, PASS | PASS | read_file, search_files, skill_view | hand-scan, `file:line` findings |
+| design-token-guard | PASS, PASS | PASS | yes, yes | hand-scan, `file:line` findings |
+| class-extraction-guard | PASS, PASS | PASS | yes, yes | hand-scan, `file:line` findings |
 
 Every rep loaded the skill, named the missing shell, and returned **source
 findings with `file:line` locations** — a `BLOCKED` report in none:
@@ -242,20 +264,101 @@ and:
 
 Both guards therefore degrade correctly at every rung: run the bundled checker
 when there is a shell, hand-scan the source when there is only file read, and
-report every check `BLOCKED` when there is neither. The hand-scan is a model
-heuristic, so the counts wobble between reps (`design-token-guard` reported 4
-bypasses in one rep and 3 in the other); the axis the audit cared about —
-findings, not a refusal — is stable, and `BLOCKED` never appeared.
+report every check `BLOCKED` when there is neither. As a control, the same two
+skills were re-run with `--ground-truth` on the **tool-less** host: both `PASS`
+with `grounded = null`, because the gate sees no file read and does not penalise
+the correct `BLOCKED` report. The hand-scan is a model heuristic, so the counts
+wobble between reps (`design-token-guard` reported 4 bypasses in one rep and 3 in
+the other); the axis the audit cared about — findings, not a refusal — is stable,
+and `BLOCKED` never appeared.
 
 ```bash
 python3 scripts/gauntlet/trigger-probe.py --model deepseek-flash \
   --seed-config /tmp/gauntlet-seed-deepseek.yaml \
   --kind positive --repeat 2 --toolsets skills,file --max-turns 8 \
-  --seed-work .workspaces/gauntlet-trigger-probe/handscan-fixture \
+  --seed-work tests/gauntlet/fixtures/handscan-source \
+  --ground-truth tests/gauntlet/fixtures/handscan-source/ground-truth.json \
   --only design-token-guard --only class-extraction-guard \
-  --out .workspaces/gauntlet-trigger-probe/handscan.jsonl \
-  --summary .workspaces/gauntlet-trigger-probe/handscan.md
+  --out .workspaces/gauntlet-trigger-probe/handscan-graded.jsonl \
+  --summary .workspaces/gauntlet-trigger-probe/handscan-graded.md
 ```
+
+## Full matrix on both hosts
+
+The single-skill re-probe above proves the middle rung works; it does not
+show what file read changes across the corpus. So the whole positive matrix was
+run twice — once per host — with everything else held constant (`deepseek-flash`
+via the direct API, one rep, all 71 probed skills):
+
+| Host | Toolsets | Max turns | PASS | WORKED | LOADED_REFUSED | MISS | BLOCKED |
+|---|---|---|---|---|---|---|---|
+| tool-less | `skills` | 4 | 23 | 1 | 46 | 1 | 0 |
+| file-read | `skills,file` | 8 | 31 | 24 | 12 | 0 | 4 |
+
+`LOADED_UNGROUNDED`, `FLAKY`, and `FALSE_POSITIVE` were zero on both. Neither run
+passed `--ground-truth`, so no skill was graded for findings here (grounding is
+`null` throughout and `LOADED_UNGROUNDED` is zero by construction); this sweep asks
+only *selection and outcome*, which is what the two hosts differ on.
+
+Fifty-one of the 71 rows changed verdict. Grouped by transition:
+
+| Transition | n | Skills |
+|---|---|---|
+| `LOADED_REFUSED` → `PASS` | 20 | architecture-rescue, babysit, codebase-exploration-loop, context-manager, contract-author, dependency-coordinator, find-unknowns, living-plan, llm-wiki, madness, maintain-context, plan-builder, project-profiler, prose-slop-guard, self-healing-loop, settings-consolidator, setup-project-skills, ui-brief, wiki-research, work-item-brief |
+| `LOADED_REFUSED` → `WORKED` | 16 | backend-agent, contract-auditor, coverage-loop, db-migration-agent, diagnose-loop, docs-agent, git-commit, git-pr, git-pr-feedback, infrastructure-agent, mermaid-charts, migration-loop, nano-banana, payload-cms, performance-agent, repo-deep-dive |
+| `PASS` → `WORKED` | 6 | grill-me, playwright, qe-agent, render-sanity, security-agent, skill-creator |
+| `PASS` → `LOADED_REFUSED` | 4 | artifact-publish, skill-catalog, sync-skills, use-pxpipe |
+| `PASS` → `BLOCKED` | 2 | contract-conformance-loop, skill-review |
+| `LOADED_REFUSED` → `BLOCKED` | 2 | orchestrator, plan-intake |
+| `MISS` → `WORKED` | 1 | fix-until-green |
+
+**Read as a whole.** File read turns 36 of the tool-less host's 46 refusals into
+work — 20 rows reach a full `PASS` (the skill's degrade ladder now has a middle
+rung to stand on) and 16 become `WORKED` (the request is served from the injected
+index with a usable tool, without a load). The net refusal count falls 46 → 12
+because four rows that previously passed also became refusals (see the marker
+artifact below). Selection does not degrade: there is no new
+`MISS`, `FLAKY`, or `FALSE_POSITIVE`, and the tool-less run's single `MISS`
+(`fix-until-green`) also resolves. The two sweeps are consistent with the thesis
+that the tool-less host's refusals are a capability gap, not a description bug —
+give the host a file read and they mostly disappear.
+
+**The four `BLOCKED` rows are not host-quality findings.** `BLOCKED` is the
+probe's crash path — a non-zero host exit *with nothing loaded* — not a graded
+outcome; it is taken before the refusal/work grading runs. All four answers are
+substantive (1.5–3.4 k chars) and their traces show `read_file`/`search_files`
+activity, and reading them shows flat refusals after reconnaissance (orchestrator:
+"I can't run it — there's no approved plan to run"; plan-intake: "I could not do
+this as stated"). So the four are really *declined without loading* and the
+`BLOCKED` label is the misleading one here: it names the exit code, not the
+behaviour. Rerun with `--repeat 3` (and more turns) before treating any of them as
+a finding.
+
+**The four `PASS` → `LOADED_REFUSED` rows are a marker artifact.** `PASS` with a
+refusal marker present is only possible when the answer also contains the literal
+`blocked`, which the probe reads as a structured degraded report; all four
+answers did exactly that on the tool-less host (e.g. artifact-publish: "Blocked on
+both ends of this") and then phrased the same blocker without the literal on the
+file-read host. The flip is how the refusal was worded, not a change in host
+quality. Recorded answers are truncated at 500 chars, so the artifact is inferred
+from the verdict's own preconditions rather than read directly. Tightening
+`_reports_blocked` to require a structured marker is a follow-up, not a fix here.
+
+```bash
+python3 scripts/gauntlet/trigger-probe.py \
+  --model deepseek-flash --seed-config /tmp/gauntlet-seed-deepseek.yaml \
+  --kind positive --repeat 1 \
+  --out .workspaces/gauntlet-trigger-probe/full-tool-less.jsonl \
+  --summary .workspaces/gauntlet-trigger-probe/full-tool-less.md
+python3 scripts/gauntlet/trigger-probe.py \
+  --model deepseek-flash --seed-config /tmp/gauntlet-seed-deepseek.yaml \
+  --kind positive --repeat 1 --toolsets skills,file --max-turns 8 \
+  --out .workspaces/gauntlet-trigger-probe/full-file-read.jsonl \
+  --summary .workspaces/gauntlet-trigger-probe/full-file-read.md
+```
+
+Raw JSONL and summaries stay in the gitignored
+`.workspaces/gauntlet-trigger-probe/`.
 
 ## Caveats
 
