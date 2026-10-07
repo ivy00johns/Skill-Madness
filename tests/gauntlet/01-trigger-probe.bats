@@ -131,6 +131,10 @@ PY
   echo '{"skill": "frontend-agent"}' > "$TMP/trace.jsonl"
   run python3 "$REPO_ROOT/scripts/gauntlet/score.py" "$TMP/trace.jsonl" --matrix "$MATRIX"
   [ "$status" -eq 0 ]
-  [[ "$output" != *"Missed must-fire skills"* ]]
-  [[ "$output" != *"frontend-agent"* ]]
+  # A one-record trace legitimately misses every OTHER must-fire skill, so the
+  # report always carries a "Missed must-fire skills" section here; asserting
+  # the section is absent would fail. The real invariant is narrower: an
+  # explicit (disable-model-invocation) skill must never appear IN that list.
+  missed_section="$(printf '%s\n' "$output" | sed -n '/## Missed must-fire skills/,/^## /p')"
+  [[ "$missed_section" != *"frontend-agent"* ]]
 }
