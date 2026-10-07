@@ -114,10 +114,35 @@ answer that declines but still applies the skill's degraded fallback (a `BLOCKED
 report) stays `PASS` — it did the work the skill allows. See
 `trigger-probe-results.md` for the verdict definition and the live re-probe.
 
+## Finding 4 — the hand-scan rung actually finds things (now verified)
+
+The tool-less host reaches only the guards' *last* rung — a `BLOCKED` report — so
+it cannot show whether the middle rung, a hand-scan of the source, produces
+findings. Re-probed on a host with **file read but no shell**: the probe gained a
+`--toolsets` flag (`skills,file` exposes `read_file`/`search_files` and no
+terminal), a `--max-turns` flag raised to 8 for a multi-file scan, and a
+`--seed-work` flag that plants a five-file source tree with deliberate
+violations (four hardcoded colours; one five-utility class string at three
+call-sites).
+
+| Skill | Reps | Tools used | Outcome |
+|---|---|---|---|
+| design-token-guard | 2 | read_file, search_files, skill_view | hand-scan, `file:line` findings (3–4 colour bypasses) |
+| class-extraction-guard | 2 | read_file, search_files, skill_view | hand-scan, `file:line` findings (1 repeated-class-string, 3 call-sites) |
+
+All four reps loaded the skill, named the missing shell, and returned source
+findings located by `file:line`; **none** returned a `BLOCKED` report. Both
+guards therefore degrade correctly at every rung — script when there is a shell,
+hand-scan when there is only file read, `BLOCKED` when there is neither. The
+hand-scan is a model heuristic, so the finding count wobbles between reps; the
+axis this audit asked about, findings rather than a refusal, is stable. Raw data:
+`.workspaces/gauntlet-trigger-probe/handscan.{jsonl,md}` (gitignored).
+
 ## Recommendation
 
 1. ~~Add the "degrade, don't decline" directive to `design-token-guard` and
-   `class-extraction-guard`.~~ **Done** (both v1.1.1) — and re-probed green.
+   `class-extraction-guard`.~~ **Done** (both v1.1.1) — re-probed green on the
+   tool-less host, and the hand-scan rung verified on a file-read host (Finding 4).
 2. Leave the other seven as-is; their refusal is correct when the capability is
    genuinely absent.
 3. ~~Extend the probe to score a post-load refusal.~~ **Done** — the

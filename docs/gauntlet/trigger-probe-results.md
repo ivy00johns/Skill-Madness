@@ -197,6 +197,66 @@ clean example of the latter on a host that cannot run a browser. The two guards
 passing here is the `design-token-guard` / `class-extraction-guard` degrade clause
 (v1.1.1) doing its job.
 
+## Follow-up: the guards on a file-read-without-shell host
+
+The tool-less host exercises only the *last* rung of the two source-level guards'
+degrade ladder: no checker and no file read, so the answer is a `BLOCKED` report.
+That proves a skill no longer declines flatly, but not that the middle rung — a
+hand-scan of the source — actually finds anything. To exercise it, the probe grew
+three flags:
+
+- `--toolsets TOOLSETS` — the host's `-t` value. The default `skills` is the
+  tool-less host; `skills,file` adds `read_file`/`search_files` **without a
+  shell** (the `file` toolset carries no terminal).
+- `--max-turns N` — tool-calling iterations per probe (default 4), raised to 8 so
+  a multi-file hand-scan has room to read and search.
+- `--seed-work DIR` — copies a source tree into the probe work dir before
+  probing, so a source-level fallback has source to scan.
+
+The fixture is a five-file tree with planted violations: `src/ui/theme.ts` (the
+token source of truth) plus `Button.tsx`, `Card.tsx`, and `Row.tsx`, carrying
+hardcoded colors (`#1d4ed8`, `#ffffff`, `rgb(229, 231, 235)`, `hsl(0, 0%, 0%)`)
+and one five-utility class string copy-pasted at three call-sites.
+
+Re-probed on the file-read host (`deepseek-flash`, direct API, 2 reps,
+`--toolsets skills,file --max-turns 8 --seed-work …`):
+
+| Skill | Verdicts | Group | Tools used | Outcome |
+|---|---|---|---|---|
+| design-token-guard | PASS, PASS | PASS | read_file, search_files, skill_view | hand-scan, `file:line` findings |
+| class-extraction-guard | PASS, PASS | PASS | read_file, search_files, skill_view | hand-scan, `file:line` findings |
+
+Every rep loaded the skill, named the missing shell, and returned **source
+findings with `file:line` locations** — a `BLOCKED` report in none:
+
+> No shell in this environment, so the bundled checker could not be executed — I
+> ran the gate by hand with the checker's exact semantics (read every source
+> file, enumerated the full tree: 5 files…). VERDICT: NOT clean. 4 error-severity
+> token bypasses across 2 files. — `design-token-guard`, rep 1
+
+and:
+
+> one finding — repeated-class-string (warning) … five utilities, three
+> call-sites: `src/ui/Button.tsx:4`, `src/ui/Row.tsx:3`, `src/ui/Card.tsx:4` —
+> `class-extraction-guard`, rep 2
+
+Both guards therefore degrade correctly at every rung: run the bundled checker
+when there is a shell, hand-scan the source when there is only file read, and
+report every check `BLOCKED` when there is neither. The hand-scan is a model
+heuristic, so the counts wobble between reps (`design-token-guard` reported 4
+bypasses in one rep and 3 in the other); the axis the audit cared about —
+findings, not a refusal — is stable, and `BLOCKED` never appeared.
+
+```bash
+python3 scripts/gauntlet/trigger-probe.py --model deepseek-flash \
+  --seed-config /tmp/gauntlet-seed-deepseek.yaml \
+  --kind positive --repeat 2 --toolsets skills,file --max-turns 8 \
+  --seed-work .workspaces/gauntlet-trigger-probe/handscan-fixture \
+  --only design-token-guard --only class-extraction-guard \
+  --out .workspaces/gauntlet-trigger-probe/handscan.jsonl \
+  --summary .workspaces/gauntlet-trigger-probe/handscan.md
+```
+
 ## Caveats
 
 - One rep per prompt. A `MISS` here is a lead, not proof; rerun with

@@ -326,16 +326,24 @@ def load_env_file(path: Path, environ: dict[str, str]) -> None:
 
 
 def run_probe(
-    query: str, model: str, home: Path, work: Path, timeout: int, environ: dict[str, str]
+    query: str, model: str, home: Path, work: Path, timeout: int,
+    environ: dict[str, str], toolsets: str = "skills", max_turns: int = 4,
 ) -> tuple[Trace, int, str]:
-    """Ask the host one query; return (trace, exit code, note)."""
+    """Ask the host one query; return (trace, exit code, note).
+
+    ``toolsets`` is the host's ``-t`` value. The default ``skills`` reproduces
+    the tool-less host the refusal audit used -- only ``skill_view`` /
+    ``skills_list`` are exposed. ``skills,file`` adds read/search *without* a
+    shell, which is the host a source-level skill's read-only fallback needs:
+    the guard scripts cannot run, but their source can still be scanned.
+    """
     query_file = work / "query.txt"
     query_file.write_text(query + "\n", encoding="utf-8")
     cmd = [
         "hermes", "chat", "--query-file", str(query_file), "--oneshot", "-Q",
         "--format", "stream-json", "--in", str(work), "-m", model,
-        "--ignore-rules", "--max-turns", "4",
-        "--run-budget", str(timeout), "-t", "skills",
+        "--ignore-rules", "--max-turns", str(max_turns),
+        "--run-budget", str(timeout), "-t", toolsets,
     ]
     # NOTE: no --ignore-user-config. The host resolves the model's provider and
     # endpoint from config.yaml; ignoring it pins every model to `provider:
@@ -548,6 +556,14 @@ def main() -> int:
     parser.add_argument("--env-file", type=Path, default=Path.home() / ".hermes" / ".env")
     parser.add_argument("--seed-config", type=Path, default=Path.home() / ".hermes" / "config.yaml",
                         help="config copied into the scratch profile (skills policy cleared)")
+    parser.add_argument("--toolsets", default="skills",
+                        help="host -t toolsets (default: skills, the tool-less host; "
+                             "add `,file` for read/search without a shell)")
+    parser.add_argument("--max-turns", type=int, default=4,
+                        help="host tool-calling iterations per probe (default: 4)")
+    parser.add_argument("--seed-work", type=Path,
+                        help="copy this directory's contents into the probe work dir "
+                             "before probing, so a source-level fallback has source to scan")
     parser.add_argument("--keep-home", action="store_true", help="keep the scratch host home")
     parser.add_argument("--quiet", action="store_true")
     parser.add_argument("--include-explicit", action="store_true",
@@ -603,6 +619,12 @@ def main() -> int:
     home.mkdir(), work.mkdir()
     installed = install_skills(root, home)
     config_seed = seed_profile_config(args.seed_config.expanduser(), home)
+    if args.seed_work:
+        seed_dir = args.seed_work.expanduser()
+        if not seed_dir.is_dir():
+            print(f"error: --seed-work is not a directory: {seed_dir}", file=sys.stderr)
+            return 2
+        shutil.copytree(seed_dir, work, dirs_exist_ok=True)
     if not args.quiet:
         print(f"installed {installed} skills; profile config: {config_seed}", file=sys.stderr)
 
@@ -625,7 +647,8 @@ def main() -> int:
                 for rep in range(1, reps + 1):
                     started = time.time()
                     trace, code, note = run_probe(
-                        query, args.model, home, work, args.timeout, environ
+                        query, args.model, home, work, args.timeout, environ,
+                        toolsets=args.toolsets, max_turns=args.max_turns,
                     )
                     loaded = trace.loaded
                     worked, work_reason = (False, "") if args.strict else assess_work(trace)
@@ -661,7 +684,8 @@ def main() -> int:
                         "rep": rep,
                         "reps": reps,
                         "host": {"name": args.host, "mode": "isolated-home", "skills_installed": installed,
-                                 "config_seed": config_seed},
+                                 "config_seed": config_seed, "toolsets": args.toolsets,
+                                 "max_turns": args.max_turns},
                         "model": {"id": args.model},
                         "seconds": seconds,
                         "note": note,
@@ -732,6 +756,7 @@ def main() -> int:
         f"- run: `{run_id}`",
         f"- prompts: **{len(groups)}** across **{len(rows)}** probed skills"
         f", {reps} rep(s) each = **{len(records)}** host calls",
+        f"- host toolsets: `{args.toolsets}` (max-turns {args.max_turns})",
         f"- PASS {passed} · WORKED {worked} · LOADED_REFUSED {refused} · "
         f"MISS {misses} · FLAKY {flaky} · FALSE_POSITIVE {false_pos} · BLOCKED {blocked}",
         "",

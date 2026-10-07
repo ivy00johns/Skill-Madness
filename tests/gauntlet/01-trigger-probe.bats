@@ -117,6 +117,38 @@ PY
   [ "$status" -eq 0 ]
 }
 
+@test "host toolsets are selectable so a file-read host can be exercised" {
+  probe_test <<'PY'
+import pathlib, tempfile, types
+from unittest import mock
+
+captured = {}
+def fake_run(cmd, **kwargs):
+    captured["cmd"] = cmd
+    return types.SimpleNamespace(returncode=0, stdout="", stderr="")
+
+work = pathlib.Path(tempfile.mkdtemp())
+with mock.patch.object(tp.subprocess, "run", fake_run):
+    trace, code, note = tp.run_probe(
+        "verify no inline styles bypass the design tokens",
+        "deepseek-flash", work / "home", work, 30, {},
+        toolsets="skills,file", max_turns=8,
+    )
+cmd = captured["cmd"]
+assert cmd[cmd.index("-t") + 1] == "skills,file"
+assert cmd[cmd.index("--max-turns") + 1] == "8"
+assert code == 0
+# The defaults still describe the original tool-less host: only `skills`, 4 turns.
+with mock.patch.object(tp.subprocess, "run", fake_run):
+    tp.run_probe("q", "m", work / "home", work, 30, {})
+cmd = captured["cmd"]
+assert cmd[cmd.index("-t") + 1] == "skills"
+assert cmd[cmd.index("--max-turns") + 1] == "4"
+PY
+  run python3 "$TMP/probe_test.py" "$PROBE"
+  [ "$status" -eq 0 ]
+}
+
 @test "launcher snapshot covers sibling launchers like hermes-acp" {
   BIN="$TMP/fakehome/.hermes/hermes-agent/.hermes/bin"
   mkdir -p "$BIN"
