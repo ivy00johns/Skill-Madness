@@ -92,19 +92,31 @@ def main() -> int:
         categories, must, explicit = {}, set(), set()
     records = load_jsonl(args.trace)
 
+    # A record proves firing only when it passed with a retrieval proof. A
+    # blocked/skipped/errored record, or one whose proof says it was never
+    # retrieved, is recorded but not fired — counting it would certify a run
+    # where nothing loaded.
     by_skill: dict[str, list[dict]] = {}
+    not_fired: dict[str, list[dict]] = {}
     for record in records:
         skill = str(record.get("skill", "")).strip()
-        if skill:
-            by_skill.setdefault(skill, []).append(record)
+        if not skill:
+            continue
+        proof = str(record.get("retrieval_proof", "")).strip()
+        fired = (record.get("outcome") == "pass" and proof
+                 and proof.upper() != "NOT RETRIEVED")
+        (by_skill if fired else not_fired).setdefault(skill, []).append(record)
 
-    counted = Counter(categories.get(skill, "unknown") for skill in by_skill)
+    counted = Counter(categories.get(skill, "unknown") for skill in must & set(by_skill))
     total_by_cat = Counter(categories.get(skill, "unknown") for skill in must)
 
     lines: list[str] = []
     lines.append("# Gauntlet II — scored coverage")
     lines.append("")
-    lines.append(f"Trace records: {len(records)} · distinct skills fired: {len(by_skill)}")
+    lines.append(
+        f"Trace records: {len(records)} · distinct skills fired: {len(by_skill)}"
+        f" · recorded but not fired (blocked/error/unproven): {len(set(not_fired) - set(by_skill))}"
+    )
     lines.append("")
     lines.append("| Category | Expected | Fired | Missed |")
     lines.append("|---|---|---|---|")
