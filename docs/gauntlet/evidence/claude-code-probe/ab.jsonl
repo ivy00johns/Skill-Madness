@@ -1,0 +1,12 @@
+{"skill": "orchestrator", "kind": "positive", "prompt": "run the approved plan with an agent team", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 19.9, "version": "head", "rep": 0}
+{"skill": "orchestrator", "kind": "positive", "prompt": "run the approved plan with an agent team", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 24.1, "version": "head", "rep": 1}
+{"skill": "orchestrator", "kind": "positive", "prompt": "run the approved plan with an agent team", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 34.9, "version": "head", "rep": 2}
+{"skill": "orchestrator", "kind": "positive", "prompt": "run the approved plan with an agent team", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 22.2, "version": "main", "rep": 0}
+{"skill": "orchestrator", "kind": "positive", "prompt": "run the approved plan with an agent team", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 27.5, "version": "main", "rep": 1}
+{"skill": "orchestrator", "kind": "positive", "prompt": "run the approved plan with an agent team", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 20.2, "version": "main", "rep": 2}
+{"skill": "skill-explorer", "kind": "positive", "prompt": "which skill handles dependency freshness?", "loads": ["skill-explorer"], "first_tool": "Bash", "hit": true, "error": null, "secs": 22.3, "version": "head", "rep": 0}
+{"skill": "skill-explorer", "kind": "positive", "prompt": "which skill handles dependency freshness?", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 25.7, "version": "head", "rep": 1}
+{"skill": "skill-explorer", "kind": "positive", "prompt": "which skill handles dependency freshness?", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 20.5, "version": "head", "rep": 2}
+{"skill": "skill-explorer", "kind": "positive", "prompt": "which skill handles dependency freshness?", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 24.3, "version": "main", "rep": 0}
+{"skill": "skill-explorer", "kind": "positive", "prompt": "which skill handles dependency freshness?", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 18.8, "version": "main", "rep": 1}
+{"skill": "skill-explorer", "kind": "positive", "prompt": "which skill handles dependency freshness?", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 24.7, "version": "main", "rep": 2}
