@@ -20,15 +20,15 @@ The **Must-fire** cell has three values. `yes` means the model must select the s
 
 | Skill | Phase | Legitimate trigger | Must-fire | Near-miss control (must not fire) |
 |---|---|---|---|---|
-| backend-agent | P3 | "implement the Fastify auction and ledger endpoints" | yes | "explain how Fastify routing works" |
+| backend-agent | P3 | "implement the Fastify auction and ledger endpoints" | explicit | "explain how Fastify routing works" |
 | frontend-agent | P3 | "build the item, auction, and checkout pages" | explicit | "list React state libraries" |
-| infrastructure-agent | P3 | "write the Dockerfile, compose file, and CI workflow" | yes | "what is CI?" |
-| db-migration-agent | P3 | "add the staged Postgres migration for the ledger tables" | yes | "what is a migration?" |
-| qe-agent | P4 | "verify the build against the contracts and emit qa-report.json" | yes | "write one unit test" |
-| security-agent | P4 | "audit authz and run the OWASP top-ten sweep" | yes | "is OAuth2 secure?" |
-| docs-agent | P4 | "write the README, API reference, and runbook" | yes | "fix this typo" |
-| observability-agent | P3 | "add structured logs, metrics, and health checks" | yes | "what is a metric?" |
-| performance-agent | P3 | "write k6 load scripts for the bid and fraud endpoints" | yes | "why does performance matter?" |
+| infrastructure-agent | P3 | "write the Dockerfile, compose file, and CI workflow" | explicit | "what is CI?" |
+| db-migration-agent | P3 | "add the staged Postgres migration for the ledger tables" | explicit | "what is a migration?" |
+| qe-agent | P4 | "verify the build against the contracts and emit qa-report.json" | explicit | "write one unit test" |
+| security-agent | P4 | "audit authz and run the OWASP top-ten sweep" | explicit | "is OAuth2 secure?" |
+| docs-agent | P4 | "write the README, API reference, and runbook" | explicit | "fix this typo" |
+| observability-agent | P3 | "add structured logs, metrics, and health checks" | explicit | "what is a metric?" |
+| performance-agent | P3 | "write k6 load scripts for the bid and fraud endpoints" | explicit | "why does performance matter?" |
 | code-review-agent | P4 | "review this diff for correctness and conventions: - let n = list.length; + const n = list.filter(Boolean).length;" | explicit | "read me this function" |
 
 ## Contract skills
@@ -36,7 +36,7 @@ The **Must-fire** cell has three values. `yes` means the model must select the s
 | Skill | Phase | Legitimate trigger | Must-fire | Near-miss control (must not fire) |
 |---|---|---|---|---|
 | contract-author | P2 | "author the REST and event contracts before any code" | yes | "show me an example OpenAPI snippet" |
-| contract-auditor | P4 | "audit the implementation against the ledger contract" | yes | "what is an OpenAPI file?" |
+| contract-auditor | P4 | "audit the implementation against the ledger contract" | explicit | "what is an OpenAPI file?" |
 
 ## Meta skills
 
@@ -64,18 +64,18 @@ The **Must-fire** cell has three values. `yes` means the model must select the s
 | Skill | Phase | Legitimate trigger | Must-fire | Near-miss control (must not fire) |
 |---|---|---|---|---|
 | loop-controller | P3 | "keep the ledger suite green until it passes" (routes to a primitive) | explicit | "what is a loop?" |
-| fix-until-green | P3 | "do not stop until tests, lint, and typecheck are green" | yes | "run the tests once" |
-| contract-conformance-loop | P3 | "build until every ledger contract criterion holds" | yes | "explain the contract" |
-| coverage-loop | P3 | "get coverage of the ledger module to 85%" | yes | "what is coverage?" |
+| fix-until-green | P3 | "do not stop until tests, lint, and typecheck are green" | explicit | "run the tests once" |
+| contract-conformance-loop | P3 | "build until every ledger contract criterion holds" | explicit | "explain the contract" |
+| coverage-loop | P3 | "get coverage of the ledger module to 85%" | explicit | "what is coverage?" |
 | perf-loop | P3 | "optimize the bid endpoint until p95 is under 200ms" | explicit | "what is p95?" |
-| migration-loop | P7 | "migrate every module off the legacy pricing API" | yes | "what is a migration?" |
-| babysit | P6 | "keep the open PR rebased and green while review comes in" | yes | "what does a PR do?" |
-| self-healing-loop | P7 | "watch CI and self-heal the failures" | yes | "what is CI?" |
-| nightly-docs-and-changelog | P7 | "run the nightly docs and changelog sweep" | yes | "write the changelog once" |
-| dependency-health-loop | P7 | "audit dependencies and propose one gated bump" | yes | "list our dependencies" |
-| codebase-exploration-loop | P7 | "map the Bazaar II codebase and answer the seed questions" | yes | "what is a module?" |
-| orchestrator-task-loop | P3 | "drain the shared task board until every task passes its gate" | yes | "make a todo list" |
-| repo-cleanup-loop | P9 | "weekly branch and worktree hygiene, recover before deleting" | yes | "delete this branch" |
+| migration-loop | P7 | "migrate every module off the legacy pricing API" | explicit | "what is a migration?" |
+| babysit | P6 | "keep the open PR rebased and green while review comes in" | explicit | "what does a PR do?" |
+| self-healing-loop | P7 | "watch CI and self-heal the failures" | explicit | "what is CI?" |
+| nightly-docs-and-changelog | P7 | "run the nightly docs and changelog sweep" | explicit | "write the changelog once" |
+| dependency-health-loop | P7 | "audit dependencies and propose one gated bump" | explicit | "list our dependencies" |
+| codebase-exploration-loop | P7 | "map the Bazaar II codebase and answer the seed questions" | explicit | "what is a module?" |
+| orchestrator-task-loop | P3 | "drain the shared task board until every task passes its gate" | explicit | "make a todo list" |
+| repo-cleanup-loop | P9 | "weekly branch and worktree hygiene, recover before deleting" | explicit | "delete this branch" |
 
 ## Workflow skills
 
@@ -90,11 +90,11 @@ The **Must-fire** cell has three values. `yes` means the model must select the s
 | architecture-rescue | P1 | "find the shallow modules and missing seams in the ledger" | yes | "what is architecture?" |
 | work-item-brief | P1 | "write an agent-ready ticket for the fraud service" | yes | "make a todo" |
 | yagni-gate | P2 | "before we build the fraud service, climb the reuse ladder" | yes | "what is YAGNI?" |
-| dependency-coordinator | P2 | "build the cross-package dependency manifest before dispatch" | yes | "what is a dependency?" |
+| dependency-coordinator | P2 | "build the cross-package dependency manifest before dispatch" | explicit | "what is a dependency?" |
 | context-manager | P3 | "the orchestrator context is filling — plan the handoff" | yes | "what is context?" |
 | maintain-context | P3 | "update the CONTEXT glossary and ADR for the escrow decision" | yes | "what is a glossary?" |
 | project-profiler | P0 | "profile the skeleton and emit profile.yaml" | yes | "what is a profile?" |
-| setup-project-skills | P0 | "bootstrap the per-repo config for Bazaar II" | yes | "what is a config?" |
+| setup-project-skills | P0 | "bootstrap the per-repo config for Bazaar II" | explicit | "what is a config?" |
 | diagnose-loop | P4 | "the bid race is flaky — build the fast feedback loop first" | yes | "fix this bug" |
 | repo-deep-dive | P0 | "deep-dive the Stripe SDK for the payments architecture" | yes | "summarize this repo" |
 | wiki-research | P0 | "read the relevant wiki pages before crawling source" | yes | "what is a wiki?" |

@@ -30,15 +30,23 @@ PY
   cat >> "$TMP/probe_test.py"
 }
 
-@test "matrix marks exactly the five disable-model-invocation skills explicit" {
+@test "matrix marks exactly the disable-model-invocation skills explicit" {
   probe_test <<'PY'
+import re
 from pathlib import Path
 mode = {r.skill: r.mode for r in tp.parse_matrix(Path("docs/gauntlet/coverage-matrix.md"))}
 explicit = sorted(s for s, m in mode.items() if m == "explicit")
-assert explicit == ["code-review-agent", "frontend-agent", "loop-controller", "perf-loop", "zoom-out"], explicit
-assert mode["backend-agent"] == "must_fire"
+# Derived from disk, not pinned: a skill that ships the flag can never be
+# auto-selected on Claude Code, so grading it must-fire scores a design choice as a miss.
+flagged = sorted(
+    f.parent.name for f in Path("skills").rglob("SKILL.md")
+    if f.parent.name in mode
+    and re.search(r"^disable-model-invocation:\s*true", f.read_text(), re.M)
+)
+assert explicit == flagged, (explicit, flagged)
+assert mode["backend-agent"] == "explicit"
 assert mode["payload-cms"] == "optional"
-assert sum(1 for m in mode.values() if m == "must_fire") == 70
+assert sum(1 for m in mode.values() if m == "must_fire") == 48
 assert len(mode) == 76
 PY
   run python3 "$TMP/probe_test.py" "$PROBE"
@@ -238,4 +246,20 @@ PY
   # explicit (disable-model-invocation) skill must never appear IN that list.
   missed_section="$(printf '%s\n' "$output" | sed -n '/## Missed must-fire skills/,/^## /p')"
   [[ "$missed_section" != *"frontend-agent"* ]]
+}
+
+@test "score never counts a blocked or unproven record as fired" {
+  {
+    echo '{"skill": "grill-me", "outcome": "blocked", "retrieval_proof": "NOT RETRIEVED"}'
+    echo '{"skill": "render-sanity", "outcome": "pass", "retrieval_proof": "NOT RETRIEVED"}'
+    echo '{"skill": "living-plan", "outcome": "execution-error", "retrieval_proof": "traces/x#L1"}'
+    echo '{"skill": "mermaid-charts", "outcome": "pass", "retrieval_proof": "traces/x#L2"}'
+  } > "$TMP/trace.jsonl"
+  run python3 "$REPO_ROOT/scripts/gauntlet/score.py" "$TMP/trace.jsonl" --matrix "$MATRIX"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"distinct skills fired: 1 "* ]]
+  [[ "$output" == *"recorded but not fired (blocked/error/unproven): 3"* ]]
+  missed_section="$(printf '%s\n' "$output" | sed -n '/## Missed must-fire skills/,/^## /p')"
+  [[ "$missed_section" == *"grill-me"* ]]
+  [[ "$missed_section" != *"mermaid-charts"* ]]
 }
