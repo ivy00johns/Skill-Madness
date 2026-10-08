@@ -7,14 +7,19 @@ security). None of them can see a hardcoded color, because it renders identicall
 to the token it should have used. That's how inline CSS shipped through a "passing"
 build. This gate closes that hole by reading source, not pixels.
 
+## Current native/solo gate
+
+After consented bootstrap, run `python3 scripts/frontend-guards/run.py` on the **full authored source tree** after every UI slice and at the wave/done gate. It enforces layout ERROR policy plus CSS organization and shared-source chrome. Any nonzero exit, including blocked inspection, fails the gate. Resolve actual skill roots on the current host. The single-checker/changed-file snippets below are diagnostic/legacy integrations, not replacements for that cross-file runner. Visible mobile/desktop proof and independent QE remain separate.
+
 ## Frontend-agent self-check (before reporting done)
 
 Add to the frontend-agent's done criteria: run the checker against the files it
 changed and treat error-severity findings as "not done."
 
 ```bash
-python3 ~/.claude/skills/design-token-guard/scripts/check_design_tokens.py \
+python3 <design-guard-root>/scripts/check_design_tokens.py \
   --root . --json src/components/<the-files-it-touched> > /tmp/dtg.json
+# Check exit status before JSON; nonzero blocks, including inspection errors.
 # Parse: if .summary.errors > 0, the task is NOT done — fix and re-run.
 ```
 
@@ -32,6 +37,8 @@ deterministic, parse-once gate:
 
 ```bash
 python3 scripts/check_design_tokens.py --root . --json > /tmp/dtg.json
+RC=$?
+if [ "$RC" -ne 0 ]; then cat /tmp/dtg.json; exit "$RC"; fi
 ERRORS=$(python3 -c "import json;print(json.load(open('/tmp/dtg.json'))['summary']['errors'])")
 # ERRORS > 0  →  block the wave, route findings back to the owning frontend-agent.
 ```
@@ -42,8 +49,8 @@ is the same failure-routing protocol as a failed typecheck.
 
 ## Definition of Done line this closes
 
-The orchestrator's Definition of Done has render-level gates (#10 render-sanity)
-but no source-convention gate. Add one:
+Keep the orchestrator's source-convention Definition of Done item alongside
+its render-level gates (#10 render-sanity):
 
 > **Source-convention gate passed** — `design-token-guard` returns zero
 > error-severity findings for UI code (no inline styles or hardcoded colors

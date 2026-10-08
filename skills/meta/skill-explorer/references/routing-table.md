@@ -12,7 +12,7 @@ Common user requests → recommended skill. Use this as a fallback when SKILL.md
 | "build a feature in this codebase" | `feature-dev:feature-dev` | Single-developer feature flow |
 | "build a [website/app/page] from this research/PRD" | `plan-builder` then `orchestrator` | Plan first, build second |
 | "build the API / backend" (within an orchestrated build) | `backend-agent` | Spawned by orchestrator |
-| "build the UI / frontend" (within an orchestrated build) | `frontend-agent` | Spawned by orchestrator |
+| "build the UI / frontend" (native or solo) | `frontend-agent` | Native dispatch preserved; solo branch invokes consented project source-guard bootstrap before CSS |
 | "build the deployment / Docker / CI" | `infrastructure-agent` | |
 | "set up the database / migrations" | `db-migration-agent` | |
 
@@ -21,7 +21,7 @@ Common user requests → recommended skill. Use this as a fallback when SKILL.md
 | User says... | Use | Notes |
 |---|---|---|
 | "the UI sucks, redesign it" / "write me a design brief" | `ui-brief` | Produces the brief; hand off to a builder after |
-| "build a polished frontend page/component" | `frontend-design:frontend-design` | High-design-quality output |
+| "build a polished frontend page/component" | `frontend-agent` (compose `frontend-design:frontend-design` when installed) | Source guard bootstrap + shared shell first; native design plugin remains optional by availability |
 | "design / plan a UI but make it look like [reference]" | `ui-brief` | Captures the reference and constraints |
 | "comprehensive UI/UX review of the running app" | `ux-review` | Opens browser, takes screenshots, fixes |
 | "general UI/UX guidance, palettes, fonts, layout" | `ui-ux-pro-max` | Library of styles + component examples |

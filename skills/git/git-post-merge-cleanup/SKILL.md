@@ -1,6 +1,6 @@
 ---
 name: git-post-merge-cleanup
-version: 1.2.0
+version: 1.3.0
 description: >
   Clean up everything stale after merges in one pass: local branches fully
   merged into the default branch, remote-tracking refs whose remote is gone,
@@ -43,22 +43,18 @@ Default (no flags): scan, present plan, wait for confirmation.
 
 ## Step 1 — Refresh remote state
 
-```bash
-git fetch origin --prune
-```
+The default scan and `--dry-run` are read-only: use existing refs and `git ls-remote --heads --tags origin` to observe remote state without updating local refs. Record freshness; remote failure means UNKNOWN, not safe to delete. Fetch/prune is an optional approved mutation, never part of the nonmutating preview.
 
-Without `--prune`, stale `origin/*` refs linger for branches GitHub already
-deleted on merge. Also scan for orphan tags (e.g. `freebuff-snapshot/*`) that
-were left behind when their source branches were deleted — there is no
-`--prune` equivalent for tags, so remove them explicitly:
+Tags: scan and classify tags nonmutantly before any deletion actions.
+A name is not provenance. Enumerate `git for-each-ref refs/tags --format='%(refname) %(objectname) %(*objectname)'`, peel each tag with `git rev-parse 'refs/tags/<tag>^{commit}'` and check `git merge-base --is-ancestor <target> origin/$DEFAULT` (0 reachable, 1 not reachable, other status inspection error). Record object ID, peeled commit, active-branch reachability, remote object, release status and explicit retention policy. Reachable does not mean disposable: release/signed/unknown-policy tags are KEEP; unreachable tags may be the only recovery handle and are KEEP/NEEDS ATTENTION. Only owner-approved disposable tags are deletion candidates.
+Include candidate tags in the presented plan (Step 4) and ONLY delete tags after
+explicit user approval:
 
 ```bash
+# Executed only after user confirmation in Step 5:
 git tag -d <tag-name>                        # delete locally
 git push origin --delete refs/tags/<tag-name> # delete remotely
 ```
-
-List all tags with `git tag` and decide which are orphaned by checking if
-they reference a deleted branch (the tag name often embeds the branch UUID).
 
 ## Step 2 — Detect the default branch
 
@@ -120,6 +116,11 @@ Local branches to delete (fully merged) — N:
 Remote branches to delete (fully merged) — M:
   - origin/feat/add-retry  (or: already pruned by GitHub)
 
+Tags to delete (owner-approved disposable policy) — T:
+  - snapshot/example [object SHA, peeled commit SHA, remote SHA, retention reason]
+Tags kept / unknown — U:
+  - v1.0.0 [release]
+
 Worktrees to remove (safe) — P:
   - .claude/worktrees/heuristic-northcutt  [claude/heuristic-northcutt] — branch merged
   - .worktrees/auth-feature                [feat/auth]                 — squash-merged (empty diff)
@@ -138,7 +139,7 @@ than omitting it — the user should see every category was checked.
 
 - Default: wait for the user to confirm before any destructive command runs.
 - `--dry-run`: print the plan and stop.
-- `--yes`: proceed without confirmation. Still print the plan first.
+- `--yes`: authorizes only the explicitly requested cleanup scope; it never implies remote tag deletion or an unknown retention policy. Still print the exact plan first.
 
 ## Step 6 — Execute
 
@@ -174,7 +175,9 @@ git push origin --delete branch1 branch2 branch3
 Use bare names — strip `origin/`. "remote ref does not exist" is expected
 when GitHub already deleted on PR merge; note and move on.
 
-Prune worktree metadata and tracking refs:
+Before deleting tags, recheck local and remote object IDs against the approved plan. Any drift blocks deletion. Delete only listed local/remote tag scopes; remote deletion requires explicit authorization and a lease bound to the observed object. A failed remote command is not success.
+
+Prune worktree metadata and tracking refs (approved execution only):
 
 ```bash
 git worktree prune

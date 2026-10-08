@@ -1,0 +1,555 @@
+$ bash scripts/convert.sh --out /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/generated-sequential
+
+Skill Madness — Converting skills to tool-specific formats
+  Repo:    /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145
+  Output:  /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145/docs/reviews/2026-10-universal-audit/evidence/generated-sequential
+  Tools:   claude-code copilot antigravity gemini-cli opencode cursor openclaw qwen kimi aider windsurf
+  Date:    2026-10-02
+
+
+  [=>                  ] 1/11
+
+
+Converting: claude-code (1/11)
+[OK]  claude-code: 76 converted, 0 skipped, 0 errors
+
+  [===>                ] 2/11
+
+
+Converting: copilot (2/11)
+[convert] skipping contracts/contract-auditor for copilot (requires_claude_code: true)
+[copilot] stripped allowed-tools/owns from contract-author
+[copilot] stripped allowed-tools/owns from git-commit
+[copilot] stripped allowed-tools/owns from git-post-merge-cleanup
+[copilot] stripped allowed-tools/owns from git-pr-feedback
+[copilot] stripped allowed-tools/owns from git-pr
+[convert] skipping loops/babysit for copilot (requires_claude_code: true)
+[convert] skipping loops/codebase-exploration-loop for copilot (requires_claude_code: true)
+[convert] skipping loops/contract-conformance-loop for copilot (requires_claude_code: true)
+[convert] skipping loops/coverage-loop for copilot (requires_claude_code: true)
+[convert] skipping loops/dependency-health-loop for copilot (requires_claude_code: true)
+[convert] skipping loops/fix-until-green for copilot (requires_claude_code: true)
+[convert] skipping loops/loop-controller for copilot (requires_claude_code: true)
+[convert] skipping loops/migration-loop for copilot (requires_claude_code: true)
+[convert] skipping loops/nightly-docs-and-changelog for copilot (requires_claude_code: true)
+[convert] skipping loops/orchestrator-task-loop for copilot (requires_claude_code: true)
+[convert] skipping loops/perf-loop for copilot (requires_claude_code: true)
+[convert] skipping loops/repo-cleanup-loop for copilot (requires_claude_code: true)
+[convert] skipping loops/self-healing-loop for copilot (requires_claude_code: true)
+[copilot] stripped allowed-tools/owns from madness
+[copilot] stripped allowed-tools/owns from model-adaptation
+[convert] skipping meta/skill-catalog for copilot (requires_claude_code: true)
+[copilot] stripped allowed-tools/owns from skill-explorer
+[copilot] stripped allowed-tools/owns from skill-review
+[copilot] stripped allowed-tools/owns from skill-update
+[copilot] stripped allowed-tools/owns from skill-writer
+[convert] skipping orchestrator/orchestrator for copilot (requires_claude_code: true)
+[convert] skipping roles/backend-agent for copilot (requires_claude_code: true)
+[convert] skipping roles/code-review-agent for copilot (requires_claude_code: true)
+[convert] skipping roles/db-migration-agent for copilot (requires_claude_code: true)
+[convert] skipping roles/docs-agent for copilot (requires_claude_code: true)
+[convert] skipping roles/frontend-agent for copilot (requires_claude_code: true)
+[convert] skipping roles/infrastructure-agent for copilot (requires_claude_code: true)
+[convert] skipping roles/observability-agent for copilot (requires_claude_code: true)
+[convert] skipping roles/performance-agent for copilot (requires_claude_code: true)
+[convert] skipping roles/qe-agent for copilot (requires_claude_code: true)
+[convert] skipping roles/security-agent for copilot (requires_claude_code: true)
+[copilot] stripped allowed-tools/owns from architecture-rescue
+[convert] skipping workflows/artifact-publish for copilot (requires_claude_code: true)
+[copilot] stripped allowed-tools/owns from caveman
+[copilot] stripped allowed-tools/owns from class-extraction-guard
+[copilot] stripped allowed-tools/owns from claude-design-brief
+[convert] skipping workflows/context-manager for copilot (requires_claude_code: true)
+[convert] skipping workflows/dependency-coordinator for copilot (requires_claude_code: true)
+[convert] skipping workflows/deployment-checklist for copilot (requires_claude_code: true)
+[copilot] stripped allowed-tools/owns from design-token-guard
+[copilot] stripped allowed-tools/owns from diagnose-loop
+[copilot] stripped allowed-tools/owns from find-unknowns
+[copilot] stripped allowed-tools/owns from grill-me
+[copilot] stripped allowed-tools/owns from interactive-doc
+[copilot] stripped allowed-tools/owns from living-plan
+[copilot] stripped allowed-tools/owns from llm-wiki
+[copilot] stripped allowed-tools/owns from maintain-context
+[copilot] stripped allowed-tools/owns from mermaid-charts
+[copilot] stripped allowed-tools/owns from nano-banana
+[copilot] stripped allowed-tools/owns from plan-builder
+[copilot] stripped allowed-tools/owns from plan-intake
+[copilot] stripped allowed-tools/owns from playwright
+[convert] skipping workflows/project-profiler for copilot (requires_claude_code: true)
+[copilot] stripped allowed-tools/owns from prose-slop-guard
+[copilot] stripped allowed-tools/owns from railway-deploy
+[convert] skipping workflows/render-sanity for copilot (requires_claude_code: true)
+[convert] skipping workflows/repo-deep-dive for copilot (requires_claude_code: true)
+[convert] skipping workflows/settings-consolidator for copilot (requires_claude_code: true)
+[copilot] stripped allowed-tools/owns from setup-project-skills
+[copilot] stripped allowed-tools/owns from skill-creator
+[convert] skipping workflows/sync-skills for copilot (requires_claude_code: true)
+[copilot] stripped allowed-tools/owns from ui-brief
+[copilot] stripped allowed-tools/owns from use-freellmapi
+[convert] skipping workflows/use-pxpipe for copilot (requires_claude_code: true)
+[convert] skipping workflows/website-walkthrough-video for copilot (requires_claude_code: true)
+[copilot] stripped allowed-tools/owns from wiki-research
+[copilot] stripped allowed-tools/owns from work-item-brief
+[copilot] stripped allowed-tools/owns from yagni-gate
+[copilot] stripped allowed-tools/owns from zoom-out
+[OK]  copilot: 39 converted, 37 skipped, 0 errors
+
+  [=====>              ] 3/11
+
+
+Converting: antigravity (3/11)
+[convert] skipping contracts/contract-auditor for antigravity (requires_claude_code: true)
+[convert] skipping loops/babysit for antigravity (requires_claude_code: true)
+[convert] skipping loops/codebase-exploration-loop for antigravity (requires_claude_code: true)
+[convert] skipping loops/contract-conformance-loop for antigravity (requires_claude_code: true)
+[convert] skipping loops/coverage-loop for antigravity (requires_claude_code: true)
+[convert] skipping loops/dependency-health-loop for antigravity (requires_claude_code: true)
+[convert] skipping loops/fix-until-green for antigravity (requires_claude_code: true)
+[convert] skipping loops/loop-controller for antigravity (requires_claude_code: true)
+[convert] skipping loops/migration-loop for antigravity (requires_claude_code: true)
+[convert] skipping loops/nightly-docs-and-changelog for antigravity (requires_claude_code: true)
+[convert] skipping loops/orchestrator-task-loop for antigravity (requires_claude_code: true)
+[convert] skipping loops/perf-loop for antigravity (requires_claude_code: true)
+[convert] skipping loops/repo-cleanup-loop for antigravity (requires_claude_code: true)
+[convert] skipping loops/self-healing-loop for antigravity (requires_claude_code: true)
+[convert] skipping meta/skill-catalog for antigravity (requires_claude_code: true)
+[convert] skipping orchestrator/orchestrator for antigravity (requires_claude_code: true)
+[convert] skipping roles/backend-agent for antigravity (requires_claude_code: true)
+[convert] skipping roles/code-review-agent for antigravity (requires_claude_code: true)
+[convert] skipping roles/db-migration-agent for antigravity (requires_claude_code: true)
+[convert] skipping roles/docs-agent for antigravity (requires_claude_code: true)
+[convert] skipping roles/frontend-agent for antigravity (requires_claude_code: true)
+[convert] skipping roles/infrastructure-agent for antigravity (requires_claude_code: true)
+[convert] skipping roles/observability-agent for antigravity (requires_claude_code: true)
+[convert] skipping roles/performance-agent for antigravity (requires_claude_code: true)
+[convert] skipping roles/qe-agent for antigravity (requires_claude_code: true)
+[convert] skipping roles/security-agent for antigravity (requires_claude_code: true)
+[convert] skipping workflows/artifact-publish for antigravity (requires_claude_code: true)
+[convert] skipping workflows/context-manager for antigravity (requires_claude_code: true)
+[convert] skipping workflows/dependency-coordinator for antigravity (requires_claude_code: true)
+[convert] skipping workflows/deployment-checklist for antigravity (requires_claude_code: true)
+[convert] skipping workflows/project-profiler for antigravity (requires_claude_code: true)
+[convert] skipping workflows/render-sanity for antigravity (requires_claude_code: true)
+[convert] skipping workflows/repo-deep-dive for antigravity (requires_claude_code: true)
+[convert] skipping workflows/settings-consolidator for antigravity (requires_claude_code: true)
+[convert] skipping workflows/sync-skills for antigravity (requires_claude_code: true)
+[convert] skipping workflows/use-pxpipe for antigravity (requires_claude_code: true)
+[convert] skipping workflows/website-walkthrough-video for antigravity (requires_claude_code: true)
+[OK]  antigravity: 39 converted, 37 skipped, 0 errors
+
+  [=======>            ] 4/11
+
+
+Converting: gemini-cli (4/11)
+[convert] skipping contracts/contract-auditor for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/babysit for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/codebase-exploration-loop for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/contract-conformance-loop for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/coverage-loop for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/dependency-health-loop for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/fix-until-green for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/loop-controller for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/migration-loop for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/nightly-docs-and-changelog for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/orchestrator-task-loop for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/perf-loop for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/repo-cleanup-loop for gemini-cli (requires_claude_code: true)
+[convert] skipping loops/self-healing-loop for gemini-cli (requires_claude_code: true)
+[convert] skipping meta/skill-catalog for gemini-cli (requires_claude_code: true)
+[convert] skipping orchestrator/orchestrator for gemini-cli (requires_claude_code: true)
+[convert] skipping roles/backend-agent for gemini-cli (requires_claude_code: true)
+[convert] skipping roles/code-review-agent for gemini-cli (requires_claude_code: true)
+[convert] skipping roles/db-migration-agent for gemini-cli (requires_claude_code: true)
+[convert] skipping roles/docs-agent for gemini-cli (requires_claude_code: true)
+[convert] skipping roles/frontend-agent for gemini-cli (requires_claude_code: true)
+[convert] skipping roles/infrastructure-agent for gemini-cli (requires_claude_code: true)
+[convert] skipping roles/observability-agent for gemini-cli (requires_claude_code: true)
+[convert] skipping roles/performance-agent for gemini-cli (requires_claude_code: true)
+[convert] skipping roles/qe-agent for gemini-cli (requires_claude_code: true)
+[convert] skipping roles/security-agent for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/artifact-publish for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/context-manager for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/dependency-coordinator for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/deployment-checklist for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/project-profiler for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/render-sanity for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/repo-deep-dive for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/settings-consolidator for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/sync-skills for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/use-pxpipe for gemini-cli (requires_claude_code: true)
+[convert] skipping workflows/website-walkthrough-video for gemini-cli (requires_claude_code: true)
+[OK]  gemini-cli: 39 converted, 37 skipped, 0 errors
+[--]  Wrote integrations/gemini-cli/gemini-extension.json
+
+  [=========>          ] 5/11
+
+
+Converting: opencode (5/11)
+[convert] skipping contracts/contract-auditor for opencode (requires_claude_code: true)
+[convert] skipping loops/babysit for opencode (requires_claude_code: true)
+[convert] skipping loops/codebase-exploration-loop for opencode (requires_claude_code: true)
+[convert] skipping loops/contract-conformance-loop for opencode (requires_claude_code: true)
+[convert] skipping loops/coverage-loop for opencode (requires_claude_code: true)
+[convert] skipping loops/dependency-health-loop for opencode (requires_claude_code: true)
+[convert] skipping loops/fix-until-green for opencode (requires_claude_code: true)
+[convert] skipping loops/loop-controller for opencode (requires_claude_code: true)
+[convert] skipping loops/migration-loop for opencode (requires_claude_code: true)
+[convert] skipping loops/nightly-docs-and-changelog for opencode (requires_claude_code: true)
+[convert] skipping loops/orchestrator-task-loop for opencode (requires_claude_code: true)
+[convert] skipping loops/perf-loop for opencode (requires_claude_code: true)
+[convert] skipping loops/repo-cleanup-loop for opencode (requires_claude_code: true)
+[convert] skipping loops/self-healing-loop for opencode (requires_claude_code: true)
+[convert] skipping meta/skill-catalog for opencode (requires_claude_code: true)
+[convert] skipping orchestrator/orchestrator for opencode (requires_claude_code: true)
+[convert] skipping roles/backend-agent for opencode (requires_claude_code: true)
+[convert] skipping roles/code-review-agent for opencode (requires_claude_code: true)
+[convert] skipping roles/db-migration-agent for opencode (requires_claude_code: true)
+[convert] skipping roles/docs-agent for opencode (requires_claude_code: true)
+[convert] skipping roles/frontend-agent for opencode (requires_claude_code: true)
+[convert] skipping roles/infrastructure-agent for opencode (requires_claude_code: true)
+[convert] skipping roles/observability-agent for opencode (requires_claude_code: true)
+[convert] skipping roles/performance-agent for opencode (requires_claude_code: true)
+[convert] skipping roles/qe-agent for opencode (requires_claude_code: true)
+[convert] skipping roles/security-agent for opencode (requires_claude_code: true)
+[convert] skipping workflows/artifact-publish for opencode (requires_claude_code: true)
+[convert] skipping workflows/context-manager for opencode (requires_claude_code: true)
+[convert] skipping workflows/dependency-coordinator for opencode (requires_claude_code: true)
+[convert] skipping workflows/deployment-checklist for opencode (requires_claude_code: true)
+[convert] skipping workflows/project-profiler for opencode (requires_claude_code: true)
+[convert] skipping workflows/render-sanity for opencode (requires_claude_code: true)
+[convert] skipping workflows/repo-deep-dive for opencode (requires_claude_code: true)
+[convert] skipping workflows/settings-consolidator for opencode (requires_claude_code: true)
+[convert] skipping workflows/sync-skills for opencode (requires_claude_code: true)
+[convert] skipping workflows/use-pxpipe for opencode (requires_claude_code: true)
+[convert] skipping workflows/website-walkthrough-video for opencode (requires_claude_code: true)
+[OK]  opencode: 39 converted, 37 skipped, 0 errors
+
+  [==========>         ] 6/11
+
+
+Converting: cursor (6/11)
+[convert] skipping contracts/contract-auditor for cursor (requires_claude_code: true)
+[convert] skipping loops/babysit for cursor (requires_claude_code: true)
+[convert] skipping loops/codebase-exploration-loop for cursor (requires_claude_code: true)
+[convert] skipping loops/contract-conformance-loop for cursor (requires_claude_code: true)
+[convert] skipping loops/coverage-loop for cursor (requires_claude_code: true)
+[convert] skipping loops/dependency-health-loop for cursor (requires_claude_code: true)
+[convert] skipping loops/fix-until-green for cursor (requires_claude_code: true)
+[convert] skipping loops/loop-controller for cursor (requires_claude_code: true)
+[convert] skipping loops/migration-loop for cursor (requires_claude_code: true)
+[convert] skipping loops/nightly-docs-and-changelog for cursor (requires_claude_code: true)
+[convert] skipping loops/orchestrator-task-loop for cursor (requires_claude_code: true)
+[convert] skipping loops/perf-loop for cursor (requires_claude_code: true)
+[convert] skipping loops/repo-cleanup-loop for cursor (requires_claude_code: true)
+[convert] skipping loops/self-healing-loop for cursor (requires_claude_code: true)
+[convert] skipping meta/skill-catalog for cursor (requires_claude_code: true)
+[convert] skipping orchestrator/orchestrator for cursor (requires_claude_code: true)
+[convert] skipping roles/backend-agent for cursor (requires_claude_code: true)
+[convert] skipping roles/code-review-agent for cursor (requires_claude_code: true)
+[convert] skipping roles/db-migration-agent for cursor (requires_claude_code: true)
+[convert] skipping roles/docs-agent for cursor (requires_claude_code: true)
+[convert] skipping roles/frontend-agent for cursor (requires_claude_code: true)
+[convert] skipping roles/infrastructure-agent for cursor (requires_claude_code: true)
+[convert] skipping roles/observability-agent for cursor (requires_claude_code: true)
+[convert] skipping roles/performance-agent for cursor (requires_claude_code: true)
+[convert] skipping roles/qe-agent for cursor (requires_claude_code: true)
+[convert] skipping roles/security-agent for cursor (requires_claude_code: true)
+[convert] skipping workflows/artifact-publish for cursor (requires_claude_code: true)
+[convert] skipping workflows/context-manager for cursor (requires_claude_code: true)
+[convert] skipping workflows/dependency-coordinator for cursor (requires_claude_code: true)
+[convert] skipping workflows/deployment-checklist for cursor (requires_claude_code: true)
+[convert] skipping workflows/project-profiler for cursor (requires_claude_code: true)
+[convert] skipping workflows/render-sanity for cursor (requires_claude_code: true)
+[convert] skipping workflows/repo-deep-dive for cursor (requires_claude_code: true)
+[convert] skipping workflows/settings-consolidator for cursor (requires_claude_code: true)
+[convert] skipping workflows/sync-skills for cursor (requires_claude_code: true)
+[convert] skipping workflows/use-pxpipe for cursor (requires_claude_code: true)
+[convert] skipping workflows/website-walkthrough-video for cursor (requires_claude_code: true)
+[OK]  cursor: 39 converted, 37 skipped, 0 errors
+
+  [============>       ] 7/11
+
+
+Converting: openclaw (7/11)
+[convert] skipping contracts/contract-auditor for openclaw (requires_claude_code: true)
+[convert] skipping loops/babysit for openclaw (requires_claude_code: true)
+[convert] skipping loops/codebase-exploration-loop for openclaw (requires_claude_code: true)
+[convert] skipping loops/contract-conformance-loop for openclaw (requires_claude_code: true)
+[convert] skipping loops/coverage-loop for openclaw (requires_claude_code: true)
+[convert] skipping loops/dependency-health-loop for openclaw (requires_claude_code: true)
+[convert] skipping loops/fix-until-green for openclaw (requires_claude_code: true)
+[convert] skipping loops/loop-controller for openclaw (requires_claude_code: true)
+[convert] skipping loops/migration-loop for openclaw (requires_claude_code: true)
+[convert] skipping loops/nightly-docs-and-changelog for openclaw (requires_claude_code: true)
+[convert] skipping loops/orchestrator-task-loop for openclaw (requires_claude_code: true)
+[convert] skipping loops/perf-loop for openclaw (requires_claude_code: true)
+[convert] skipping loops/repo-cleanup-loop for openclaw (requires_claude_code: true)
+[convert] skipping loops/self-healing-loop for openclaw (requires_claude_code: true)
+[convert] skipping meta/skill-catalog for openclaw (requires_claude_code: true)
+[convert] skipping orchestrator/orchestrator for openclaw (requires_claude_code: true)
+[convert] skipping roles/backend-agent for openclaw (requires_claude_code: true)
+[convert] skipping roles/code-review-agent for openclaw (requires_claude_code: true)
+[convert] skipping roles/db-migration-agent for openclaw (requires_claude_code: true)
+[convert] skipping roles/docs-agent for openclaw (requires_claude_code: true)
+[convert] skipping roles/frontend-agent for openclaw (requires_claude_code: true)
+[convert] skipping roles/infrastructure-agent for openclaw (requires_claude_code: true)
+[convert] skipping roles/observability-agent for openclaw (requires_claude_code: true)
+[convert] skipping roles/performance-agent for openclaw (requires_claude_code: true)
+[convert] skipping roles/qe-agent for openclaw (requires_claude_code: true)
+[convert] skipping roles/security-agent for openclaw (requires_claude_code: true)
+[convert] skipping workflows/artifact-publish for openclaw (requires_claude_code: true)
+[convert] skipping workflows/context-manager for openclaw (requires_claude_code: true)
+[convert] skipping workflows/dependency-coordinator for openclaw (requires_claude_code: true)
+[convert] skipping workflows/deployment-checklist for openclaw (requires_claude_code: true)
+[convert] skipping workflows/project-profiler for openclaw (requires_claude_code: true)
+[convert] skipping workflows/render-sanity for openclaw (requires_claude_code: true)
+[convert] skipping workflows/repo-deep-dive for openclaw (requires_claude_code: true)
+[convert] skipping workflows/settings-consolidator for openclaw (requires_claude_code: true)
+[convert] skipping workflows/sync-skills for openclaw (requires_claude_code: true)
+[convert] skipping workflows/use-pxpipe for openclaw (requires_claude_code: true)
+[convert] skipping workflows/website-walkthrough-video for openclaw (requires_claude_code: true)
+[OK]  openclaw: 39 converted, 37 skipped, 0 errors
+
+  [==============>     ] 8/11
+
+
+Converting: qwen (8/11)
+[convert] skipping contracts/contract-auditor for qwen (requires_claude_code: true)
+[convert] skipping loops/babysit for qwen (requires_claude_code: true)
+[convert] skipping loops/codebase-exploration-loop for qwen (requires_claude_code: true)
+[convert] skipping loops/contract-conformance-loop for qwen (requires_claude_code: true)
+[convert] skipping loops/coverage-loop for qwen (requires_claude_code: true)
+[convert] skipping loops/dependency-health-loop for qwen (requires_claude_code: true)
+[convert] skipping loops/fix-until-green for qwen (requires_claude_code: true)
+[convert] skipping loops/loop-controller for qwen (requires_claude_code: true)
+[convert] skipping loops/migration-loop for qwen (requires_claude_code: true)
+[convert] skipping loops/nightly-docs-and-changelog for qwen (requires_claude_code: true)
+[convert] skipping loops/orchestrator-task-loop for qwen (requires_claude_code: true)
+[convert] skipping loops/perf-loop for qwen (requires_claude_code: true)
+[convert] skipping loops/repo-cleanup-loop for qwen (requires_claude_code: true)
+[convert] skipping loops/self-healing-loop for qwen (requires_claude_code: true)
+[convert] skipping meta/skill-catalog for qwen (requires_claude_code: true)
+[convert] skipping orchestrator/orchestrator for qwen (requires_claude_code: true)
+[convert] skipping roles/backend-agent for qwen (requires_claude_code: true)
+[convert] skipping roles/code-review-agent for qwen (requires_claude_code: true)
+[convert] skipping roles/db-migration-agent for qwen (requires_claude_code: true)
+[convert] skipping roles/docs-agent for qwen (requires_claude_code: true)
+[convert] skipping roles/frontend-agent for qwen (requires_claude_code: true)
+[convert] skipping roles/infrastructure-agent for qwen (requires_claude_code: true)
+[convert] skipping roles/observability-agent for qwen (requires_claude_code: true)
+[convert] skipping roles/performance-agent for qwen (requires_claude_code: true)
+[convert] skipping roles/qe-agent for qwen (requires_claude_code: true)
+[convert] skipping roles/security-agent for qwen (requires_claude_code: true)
+[convert] skipping workflows/artifact-publish for qwen (requires_claude_code: true)
+[convert] skipping workflows/context-manager for qwen (requires_claude_code: true)
+[convert] skipping workflows/dependency-coordinator for qwen (requires_claude_code: true)
+[convert] skipping workflows/deployment-checklist for qwen (requires_claude_code: true)
+[convert] skipping workflows/project-profiler for qwen (requires_claude_code: true)
+[convert] skipping workflows/render-sanity for qwen (requires_claude_code: true)
+[convert] skipping workflows/repo-deep-dive for qwen (requires_claude_code: true)
+[convert] skipping workflows/settings-consolidator for qwen (requires_claude_code: true)
+[convert] skipping workflows/sync-skills for qwen (requires_claude_code: true)
+[convert] skipping workflows/use-pxpipe for qwen (requires_claude_code: true)
+[convert] skipping workflows/website-walkthrough-video for qwen (requires_claude_code: true)
+[OK]  qwen: 39 converted, 37 skipped, 0 errors
+
+  [================>   ] 9/11
+
+
+Converting: kimi (9/11)
+[convert] skipping contracts/contract-auditor for kimi (requires_claude_code: true)
+[convert] skipping loops/babysit for kimi (requires_claude_code: true)
+[convert] skipping loops/codebase-exploration-loop for kimi (requires_claude_code: true)
+[convert] skipping loops/contract-conformance-loop for kimi (requires_claude_code: true)
+[convert] skipping loops/coverage-loop for kimi (requires_claude_code: true)
+[convert] skipping loops/dependency-health-loop for kimi (requires_claude_code: true)
+[convert] skipping loops/fix-until-green for kimi (requires_claude_code: true)
+[convert] skipping loops/loop-controller for kimi (requires_claude_code: true)
+[convert] skipping loops/migration-loop for kimi (requires_claude_code: true)
+[convert] skipping loops/nightly-docs-and-changelog for kimi (requires_claude_code: true)
+[convert] skipping loops/orchestrator-task-loop for kimi (requires_claude_code: true)
+[convert] skipping loops/perf-loop for kimi (requires_claude_code: true)
+[convert] skipping loops/repo-cleanup-loop for kimi (requires_claude_code: true)
+[convert] skipping loops/self-healing-loop for kimi (requires_claude_code: true)
+[convert] skipping meta/skill-catalog for kimi (requires_claude_code: true)
+[convert] skipping orchestrator/orchestrator for kimi (requires_claude_code: true)
+[convert] skipping roles/backend-agent for kimi (requires_claude_code: true)
+[convert] skipping roles/code-review-agent for kimi (requires_claude_code: true)
+[convert] skipping roles/db-migration-agent for kimi (requires_claude_code: true)
+[convert] skipping roles/docs-agent for kimi (requires_claude_code: true)
+[convert] skipping roles/frontend-agent for kimi (requires_claude_code: true)
+[convert] skipping roles/infrastructure-agent for kimi (requires_claude_code: true)
+[convert] skipping roles/observability-agent for kimi (requires_claude_code: true)
+[convert] skipping roles/performance-agent for kimi (requires_claude_code: true)
+[convert] skipping roles/qe-agent for kimi (requires_claude_code: true)
+[convert] skipping roles/security-agent for kimi (requires_claude_code: true)
+[convert] skipping workflows/artifact-publish for kimi (requires_claude_code: true)
+[convert] skipping workflows/context-manager for kimi (requires_claude_code: true)
+[convert] skipping workflows/dependency-coordinator for kimi (requires_claude_code: true)
+[convert] skipping workflows/deployment-checklist for kimi (requires_claude_code: true)
+[convert] skipping workflows/project-profiler for kimi (requires_claude_code: true)
+[convert] skipping workflows/render-sanity for kimi (requires_claude_code: true)
+[convert] skipping workflows/repo-deep-dive for kimi (requires_claude_code: true)
+[convert] skipping workflows/settings-consolidator for kimi (requires_claude_code: true)
+[convert] skipping workflows/sync-skills for kimi (requires_claude_code: true)
+[convert] skipping workflows/use-pxpipe for kimi (requires_claude_code: true)
+[convert] skipping workflows/website-walkthrough-video for kimi (requires_claude_code: true)
+[OK]  kimi: 39 converted, 37 skipped, 0 errors
+
+  [==================> ] 10/11
+
+
+Converting: aider (10/11)
+[convert] skipping contracts/contract-auditor for aider (requires_claude_code: true)
+[aider] skipped references for contract-author
+[aider] skipped references for git-post-merge-cleanup
+[convert] skipping loops/babysit for aider (requires_claude_code: true)
+[convert] skipping loops/codebase-exploration-loop for aider (requires_claude_code: true)
+[convert] skipping loops/contract-conformance-loop for aider (requires_claude_code: true)
+[convert] skipping loops/coverage-loop for aider (requires_claude_code: true)
+[convert] skipping loops/dependency-health-loop for aider (requires_claude_code: true)
+[convert] skipping loops/fix-until-green for aider (requires_claude_code: true)
+[convert] skipping loops/loop-controller for aider (requires_claude_code: true)
+[convert] skipping loops/migration-loop for aider (requires_claude_code: true)
+[convert] skipping loops/nightly-docs-and-changelog for aider (requires_claude_code: true)
+[convert] skipping loops/orchestrator-task-loop for aider (requires_claude_code: true)
+[convert] skipping loops/perf-loop for aider (requires_claude_code: true)
+[convert] skipping loops/repo-cleanup-loop for aider (requires_claude_code: true)
+[convert] skipping loops/self-healing-loop for aider (requires_claude_code: true)
+[aider] skipped references for model-adaptation
+[convert] skipping meta/skill-catalog for aider (requires_claude_code: true)
+[aider] skipped references for skill-explorer
+[aider] skipped references for skill-review
+[aider] skipped references for skill-update
+[aider] skipped references for skill-writer
+[convert] skipping orchestrator/orchestrator for aider (requires_claude_code: true)
+[convert] skipping roles/backend-agent for aider (requires_claude_code: true)
+[convert] skipping roles/code-review-agent for aider (requires_claude_code: true)
+[convert] skipping roles/db-migration-agent for aider (requires_claude_code: true)
+[convert] skipping roles/docs-agent for aider (requires_claude_code: true)
+[convert] skipping roles/frontend-agent for aider (requires_claude_code: true)
+[convert] skipping roles/infrastructure-agent for aider (requires_claude_code: true)
+[convert] skipping roles/observability-agent for aider (requires_claude_code: true)
+[convert] skipping roles/performance-agent for aider (requires_claude_code: true)
+[convert] skipping roles/qe-agent for aider (requires_claude_code: true)
+[convert] skipping roles/security-agent for aider (requires_claude_code: true)
+[aider] skipped references for architecture-rescue
+[convert] skipping workflows/artifact-publish for aider (requires_claude_code: true)
+[aider] skipped references for class-extraction-guard
+[aider] skipped references for claude-design-brief
+[convert] skipping workflows/context-manager for aider (requires_claude_code: true)
+[convert] skipping workflows/dependency-coordinator for aider (requires_claude_code: true)
+[convert] skipping workflows/deployment-checklist for aider (requires_claude_code: true)
+[aider] skipped references for design-token-guard
+[aider] skipped references for diagnose-loop
+[aider] skipped references for interactive-doc
+[aider] skipped references for llm-wiki
+[aider] skipped references for maintain-context
+[aider] skipped references for mermaid-charts
+[aider] skipped references for nano-banana
+[aider] skipped references for payload-cms
+[aider] skipped references for plan-builder
+[aider] skipped references for playwright
+[convert] skipping workflows/project-profiler for aider (requires_claude_code: true)
+[aider] skipped references for prose-slop-guard
+[aider] skipped references for railway-deploy
+[convert] skipping workflows/render-sanity for aider (requires_claude_code: true)
+[convert] skipping workflows/repo-deep-dive for aider (requires_claude_code: true)
+[convert] skipping workflows/settings-consolidator for aider (requires_claude_code: true)
+[aider] skipped references for setup-project-skills
+[aider] skipped references for skill-creator
+[convert] skipping workflows/sync-skills for aider (requires_claude_code: true)
+[aider] skipped references for ui-brief
+[aider] skipped references for use-freellmapi
+[convert] skipping workflows/use-pxpipe for aider (requires_claude_code: true)
+[convert] skipping workflows/website-walkthrough-video for aider (requires_claude_code: true)
+[aider] skipped references for wiki-research
+[aider] skipped references for work-item-brief
+[OK]  aider: 39 converted, 37 skipped, 0 errors
+
+  [====================] 11/11
+
+
+Converting: windsurf (11/11)
+[convert] skipping contracts/contract-auditor for windsurf (requires_claude_code: true)
+[windsurf] skipped references for contract-author
+[windsurf] skipped references for git-post-merge-cleanup
+[convert] skipping loops/babysit for windsurf (requires_claude_code: true)
+[convert] skipping loops/codebase-exploration-loop for windsurf (requires_claude_code: true)
+[convert] skipping loops/contract-conformance-loop for windsurf (requires_claude_code: true)
+[convert] skipping loops/coverage-loop for windsurf (requires_claude_code: true)
+[convert] skipping loops/dependency-health-loop for windsurf (requires_claude_code: true)
+[convert] skipping loops/fix-until-green for windsurf (requires_claude_code: true)
+[convert] skipping loops/loop-controller for windsurf (requires_claude_code: true)
+[convert] skipping loops/migration-loop for windsurf (requires_claude_code: true)
+[convert] skipping loops/nightly-docs-and-changelog for windsurf (requires_claude_code: true)
+[convert] skipping loops/orchestrator-task-loop for windsurf (requires_claude_code: true)
+[convert] skipping loops/perf-loop for windsurf (requires_claude_code: true)
+[convert] skipping loops/repo-cleanup-loop for windsurf (requires_claude_code: true)
+[convert] skipping loops/self-healing-loop for windsurf (requires_claude_code: true)
+[windsurf] skipped references for model-adaptation
+[convert] skipping meta/skill-catalog for windsurf (requires_claude_code: true)
+[windsurf] skipped references for skill-explorer
+[windsurf] skipped references for skill-review
+[windsurf] skipped references for skill-update
+[windsurf] skipped references for skill-writer
+[convert] skipping orchestrator/orchestrator for windsurf (requires_claude_code: true)
+[convert] skipping roles/backend-agent for windsurf (requires_claude_code: true)
+[convert] skipping roles/code-review-agent for windsurf (requires_claude_code: true)
+[convert] skipping roles/db-migration-agent for windsurf (requires_claude_code: true)
+[convert] skipping roles/docs-agent for windsurf (requires_claude_code: true)
+[convert] skipping roles/frontend-agent for windsurf (requires_claude_code: true)
+[convert] skipping roles/infrastructure-agent for windsurf (requires_claude_code: true)
+[convert] skipping roles/observability-agent for windsurf (requires_claude_code: true)
+[convert] skipping roles/performance-agent for windsurf (requires_claude_code: true)
+[convert] skipping roles/qe-agent for windsurf (requires_claude_code: true)
+[convert] skipping roles/security-agent for windsurf (requires_claude_code: true)
+[windsurf] skipped references for architecture-rescue
+[convert] skipping workflows/artifact-publish for windsurf (requires_claude_code: true)
+[windsurf] skipped references for class-extraction-guard
+[windsurf] skipped references for claude-design-brief
+[convert] skipping workflows/context-manager for windsurf (requires_claude_code: true)
+[convert] skipping workflows/dependency-coordinator for windsurf (requires_claude_code: true)
+[convert] skipping workflows/deployment-checklist for windsurf (requires_claude_code: true)
+[windsurf] skipped references for design-token-guard
+[windsurf] skipped references for diagnose-loop
+[windsurf] skipped references for interactive-doc
+[windsurf] skipped references for llm-wiki
+[windsurf] skipped references for maintain-context
+[windsurf] skipped references for mermaid-charts
+[windsurf] skipped references for nano-banana
+[windsurf] skipped references for payload-cms
+[windsurf] skipped references for plan-builder
+[windsurf] skipped references for playwright
+[convert] skipping workflows/project-profiler for windsurf (requires_claude_code: true)
+[windsurf] skipped references for prose-slop-guard
+[windsurf] skipped references for railway-deploy
+[convert] skipping workflows/render-sanity for windsurf (requires_claude_code: true)
+[convert] skipping workflows/repo-deep-dive for windsurf (requires_claude_code: true)
+[convert] skipping workflows/settings-consolidator for windsurf (requires_claude_code: true)
+[windsurf] skipped references for setup-project-skills
+[windsurf] skipped references for skill-creator
+[convert] skipping workflows/sync-skills for windsurf (requires_claude_code: true)
+[windsurf] skipped references for ui-brief
+[windsurf] skipped references for use-freellmapi
+[convert] skipping workflows/use-pxpipe for windsurf (requires_claude_code: true)
+[convert] skipping workflows/website-walkthrough-video for windsurf (requires_claude_code: true)
+[windsurf] skipped references for wiki-research
+[windsurf] skipped references for work-item-brief
+[OK]  windsurf: 39 converted, 37 skipped, 0 errors
+[OK]  Wrote integrations/claude-code/hooks/ + hooks.json
+[--]  hooks: unsupported for copilot
+[--]  hooks: unsupported for antigravity
+[--]  hooks: unsupported for gemini-cli
+[--]  hooks: unsupported for opencode
+[--]  hooks: unsupported for cursor
+[--]  hooks: unsupported for openclaw
+[--]  hooks: unsupported for qwen
+[--]  hooks: unsupported for kimi
+[--]  hooks: unsupported for aider
+[--]  hooks: unsupported for windsurf
+[OK]  Wrote integrations/aider/CONVENTIONS.md
+[OK]  Wrote integrations/windsurf/.windsurfrules
+[convert] processed 466 skills across 11 tools (370 skipped, 0 errors)
+
+EXIT_CODE=0

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Improve a skill description based on eval results using Hermes CLI.
+"""Improve a skill description based on eval results.
 
 Takes eval results (from run_eval.py) and generates an improved description
-by calling `hermes chat -q --oneshot -Q` as a subprocess.
+by calling `hermes chat -q --oneshot -Q` as a subprocess, or, when an
+optimizer endpoint is given (the Freebuff host), one OpenAI-compatible
+`chat/completions` request.
 
 Usage:
     python -m scripts.improve_description --eval-results <path> --skill-path <path> --model <model>
@@ -14,6 +16,8 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
+import urllib.request
 from pathlib import Path
 
 from scripts.utils import parse_skill_md
@@ -29,16 +33,21 @@ def _call_hermes(prompt: str, model: str | None = None, timeout: int = 300) -> s
     if model:
         cmd.extend(["-m", model])
 
-    env = {k: v for k, v in os.environ.items()}
-
-    result = subprocess.run(
-        cmd,
-        input=prompt,
-        capture_output=True,
-        text=True,
-        env=env,
-        timeout=timeout,
-    )
+    if not model:
+        raise ValueError('Optimizer model must be explicitly pinned')
+    with tempfile.TemporaryDirectory(prefix='hermes-optimizer-') as temporary:
+        root = Path(temporary)
+        home = root / 'home'
+        hermes_home = home / '.hermes'
+        hermes_home.mkdir(parents=True)
+        (hermes_home / '.no-bundled-skills').write_text('isolated optimizer\n')
+        env = dict(os.environ, HOME=str(home), USERPROFILE=str(home), HERMES_HOME=str(hermes_home),
+                   XDG_CONFIG_HOME=str(home / '.config'), PYTHONDONTWRITEBYTECODE='1')
+        for key in ('HERMES_PROFILE', 'HERMES_CONFIG', 'HERMES_ENV', 'HERMES_YOLO_MODE'):
+            env.pop(key, None)
+        cmd.extend(['--ignore-user-config', '--ignore-rules', '--max-turns', '1', '--run-budget', str(timeout), '-t', 'skills'])
+        result = subprocess.run(cmd, input=prompt, capture_output=True, text=True,
+                                cwd=root, env=env, timeout=timeout)
     if result.returncode != 0:
         raise RuntimeError(
             f"hermes chat exited {result.returncode}\nstderr: {result.stderr}"
@@ -51,6 +60,29 @@ def _call_hermes(prompt: str, model: str | None = None, timeout: int = 300) -> s
     return output
 
 
+def _call_openai_compatible(prompt: str, model: str, endpoint: dict, timeout: int = 300) -> str:
+    """One non-streaming chat completion; the key is read from the named env var."""
+    if not model:
+        raise ValueError('Optimizer model must be explicitly pinned')
+    key = os.environ.get(endpoint.get('api_key_env') or '')
+    if not endpoint.get('base_url') or not key:
+        raise ValueError('Optimizer endpoint needs base_url and a non-empty api_key_env')
+    request = urllib.request.Request(
+        endpoint['base_url'].rstrip('/') + '/chat/completions',
+        data=json.dumps({'model': model, 'messages': [{'role': 'user', 'content': prompt}]}).encode(),
+        headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'}, method='POST')
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        body = json.loads(response.read())
+    content = body['choices'][0]['message']['content']
+    if not isinstance(content, str) or not content.strip():
+        raise RuntimeError('Optimizer endpoint returned no text')
+    return content
+
+
+def _call_optimizer(prompt: str, model: str, endpoint: dict | None) -> str:
+    return _call_openai_compatible(prompt, model, endpoint) if endpoint else _call_hermes(prompt, model)
+
+
 def improve_description(
     skill_name: str,
     skill_content: str,
@@ -61,8 +93,13 @@ def improve_description(
     test_results: dict | None = None,
     log_dir: Path | None = None,
     iteration: int | None = None,
+    optimizer_endpoint: dict | None = None,
 ) -> str:
-    """Call Hermes to improve the description based on eval results."""
+    """Ask the optimizer model (Hermes, or the Freebuff host's endpoint) for a better description."""
+    if test_results is not None or any(any(k.startswith('test_') for k in h) for h in history):
+        raise ValueError('Held-out results must never reach the optimizer')
+    if eval_results['summary'].get('errored', 0):
+        raise ValueError('Execution errors are not description failures')
     failed_triggers = [
         r for r in eval_results["results"]
         if r["should_trigger"] and not r["pass"]
@@ -145,7 +182,7 @@ I'd encourage you to be creative and mix up the style in different iterations si
 
 Please respond with only the new description text in <new_description> tags, nothing else."""
 
-    text = _call_hermes(prompt, model)
+    text = _call_optimizer(prompt, model, optimizer_endpoint)
 
     match = re.search(r"<new_description>(.*?)</new_description>", text, re.DOTALL)
     description = match.group(1).strip().strip('"') if match else text.strip().strip('"')
@@ -171,7 +208,7 @@ Please respond with only the new description text in <new_description> tags, not
             f"important trigger words and intent coverage. Respond with only "
             f"the new description in <new_description> tags."
         )
-        shorten_text = _call_hermes(shorten_prompt, model)
+        shorten_text = _call_optimizer(shorten_prompt, model, optimizer_endpoint)
         match = re.search(r"<new_description>(.*?)</new_description>", shorten_text, re.DOTALL)
         shortened = match.group(1).strip().strip('"') if match else shorten_text.strip().strip('"')
 

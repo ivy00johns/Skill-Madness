@@ -1,0 +1,62 @@
+$ git rev-parse HEAD
+51106e1762205ab5a0b06b0d77ad8c69e8e33aba
+
+EXIT_CODE=0
+$ git status --short
+?? docs/reviews/2026-10-universal-audit/
+
+EXIT_CODE=0
+$ git ls-files integrations
+
+EXIT_CODE=0
+$ git check-ignore integrations/claude-code
+integrations/claude-code
+
+EXIT_CODE=0
+$ git worktree list --porcelain
+worktree /Users/johns/Repos/the-hive-ecosystem/Skill-Madness
+HEAD d06cc28ce058d3e0604680fafb39231699d965ce
+branch refs/heads/feat/cloudflare-pages-deploy-all-hosts
+
+worktree /Users/johns/Repos/the-hive-ecosystem/Skill-Madness/.freebuff/worktrees/e1ab2a96-7570-4f3f-8333-87a7bf914145
+HEAD 51106e1762205ab5a0b06b0d77ad8c69e8e33aba
+branch refs/heads/freebuff/role-e1ab2a96-7570-4f3f-8333-87a7bf914145
+
+
+EXIT_CODE=0
+{
+  "categories": {
+    "contracts": {
+      "active": 2,
+      "gated": 1
+    },
+    "git": {
+      "active": 4,
+      "gated": 0
+    },
+    "loops": {
+      "active": 13,
+      "gated": 13
+    },
+    "meta": {
+      "active": 7,
+      "gated": 1
+    },
+    "orchestrator": {
+      "active": 1,
+      "gated": 1
+    },
+    "roles": {
+      "active": 10,
+      "gated": 10
+    },
+    "workflows": {
+      "active": 39,
+      "gated": 11
+    }
+  },
+  "active": 76,
+  "gated": 37,
+  "root_env_present": false,
+  "skill_workspace_dirs": []
+}

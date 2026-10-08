@@ -1,8 +1,8 @@
 ---
 name: sync-skills
-version: 2.1.0
+version: 2.2.1
 description: |
-  Sync skills between this repo and the global skill directories for Claude Code (~/.claude/skills/) and Cursor (~/.cursor/skills-cursor/) using symlinks (default) or copies. Use when the user wants to link, sync, publish, push, or copy skills globally, check sync status, unlink, or pull a skill from a global location back into the repo. Trigger on "sync skills", "link skills", "publish skills", "skill status", "/sync-skills", "are my skills linked", "unlink skills".
+  Sync approved Skill-Madness skills into Claude Code and Cursor skill directories with links or resource-complete copies. Use for "sync skills", "link skills", "skill status", "unlink skills", or importing an explicitly selected local skill. Honor category/skill subsets, preserve unrelated copies and links, and require explicit backed-up collision approval. Global mutation is never implicit in catalog maintenance.
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter
@@ -17,120 +17,86 @@ spawned_by: []
 
 # Sync Skills Between Repo and Global Locations
 
-Link or copy skills between this repo and the global skill directories that Claude Code and Cursor read from. Symlinks are the default — edits in the repo are instantly available everywhere without copying.
+Native link/copy behavior remains available for **Claude Code and Cursor only**.
+Do not imply additional host acceptance. Converted rules and native skill-directory
+sync are distinct format adapters, but share eligibility and resource policy.
 
-## Skill Locations
+## Runtime and authority
 
-| Location | Path | Used by |
-| -------- | ---- | ------- |
-| Repo (source of truth) | `skills/` | This workspace |
-| Claude Code (global) | `~/.claude/skills/` | All Claude Code projects |
-| Cursor (global) | `~/.cursor/skills-cursor/` | All Cursor workspaces |
+Run `scripts/sync-skills.sh` under this skill's actual `SKILL_ROOT`. A native
+symlink resolves the canonical checkout; an installed copy requires explicit
+`ATS_CHECKOUT_ROOT` pointing at the approved Skill-Madness checkout. The shared
+resolver is root tooling and is not bundled as a fake independent checkout.
+Missing checkout/helpers are BLOCKED.
 
-The repo organizes skills into category directories (`contracts/`, `meta/`, `roles/`, `workflows/`, `orchestrator/`, `git/`). For Claude Code, symlinks are **flattened** — each individual skill is linked directly under `~/.claude/skills/` (no category subdirs) because Claude Code only discovers skills at `~/.claude/skills/<skill-name>/SKILL.md`. For Cursor, symlinks are created at the category level.
+Global mutation requires owner approval for target, subset and mode. Preview
+first. `--replace-with-backup` is a separate explicit collision approval; it
+renames the existing item to a unique sibling backup before replacement.
+Never use the flag merely to get past a warning.
 
-### Excluded directories
+## Locations and projection
 
-Two top-level directories under `skills/` are excluded from discovery and never get symlinked:
+| Host | Destination | Layout |
+|---|---|---|
+| Claude Code | `~/.claude/skills/<slug>/` | Individual native skill links/copies |
+| Cursor | `~/.cursor/skills-cursor/<slug>/` | Individual skill-directory links/copies |
 
-- `skills/archive/` — retired skills kept as reference-only audit trail
-- `skills/in-progress/` — drafts under active development
+Individual entries make category/skill subsets exact. Old category links are
+not automatically removed or migrated. Archive/in-progress are excluded.
+Claude retains native gated skills; Cursor uses conversion's
+`requires_claude_code` filter. Native metadata is unchanged.
 
-The exclusion list lives in `SKIP_CATEGORIES` near the top of `scripts/sync-skills.sh`. Add a new entry there if another staging directory ever gets introduced. The corresponding paths must also be kept out of `.claude-plugin/plugin.json`'s `skills` array — otherwise the plugin would load them even though `sync-skills` doesn't.
+Copy mode retains scripts, references, assets, agents, viewer and template
+resources, exact source executable modes and runtime receipts. It excludes env
+files, keys, node modules, bytecode and evaluation-workspace debris. Link mode
+points at live source; source checkout security still matters.
 
-## Quick Reference
-
-```bash
-SCRIPT="skills/workflows/sync-skills/scripts/sync-skills.sh"
-
-# Link all repo skill categories to both Claude Code and Cursor
-$SCRIPT --link --to-all
-
-# Check what's linked, copied, or missing
-$SCRIPT --status
-
-# Remove broken symlinks (e.g. after deleting a skill from the repo)
-$SCRIPT --clean
-
-# Link just one category to Claude Code
-$SCRIPT --link --to-claude meta
-
-# Copy instead of link (for machines without repo access)
-$SCRIPT --copy --to-all
-
-# Remove symlinks (restore independence)
-$SCRIPT --unlink --to-all
-
-# Pull a skill from Cursor into the repo
-$SCRIPT --from-cursor shell
-
-# Preview what would happen
-$SCRIPT --dry-run --link --to-all
-```
-
-## Modes
-
-### Link Mode (default for `--to-*`)
-
-Creates symlinks from global locations pointing to repo directories. This is the development workflow — edit skills in the repo and they're instantly live in Claude Code and Cursor.
-
-- **Claude Code**: Skills are **flattened** — each individual skill gets its own symlink directly under `~/.claude/skills/` (e.g., `~/.claude/skills/skill-review` → `repo/skills/meta/skill-review`). This is required because Claude Code only discovers skills at `~/.claude/skills/<skill-name>/SKILL.md`.
-- **Cursor**: Symlinks are created at the **category level** (e.g., `~/.cursor/skills-cursor/meta` → `repo/skills/meta`)
-- Non-repo skills in global locations (e.g., `~/.claude/skills/builtWithAgent/`) are untouched
-- If a copy already exists where a symlink would go, the script reports it and replaces the copy with a symlink (use `--dry-run` to preview first)
-
-### Copy Mode (`--copy`)
-
-Copies skill directories instead of symlinking. Use this when:
-
-- Deploying skills to a machine that doesn't have the repo cloned
-- You need a frozen snapshot that won't change with repo edits
-- The target location is on a different filesystem that doesn't support symlinks
-
-### Pull Mode (`--from-cursor`, `--from-claude`)
-
-Copies skills FROM global locations INTO the repo. Always copies (not symlinks) since the repo is the destination. Useful for importing skills created outside this repo.
-
-## Script Flags
-
-| Flag | Purpose |
-| ---- | ------- |
-| `--link` | Create symlinks (default for `--to-*` operations) |
-| `--copy` | Copy files instead of symlinking |
-| `--unlink` | Remove symlinks to repo (restores global locations to independent state) |
-| `--to-cursor` | Target `~/.cursor/skills-cursor/` |
-| `--to-claude` | Target `~/.claude/skills/` |
-| `--to-all` | Target both Claude Code and Cursor |
-| `--from-cursor` | Pull from Cursor into repo |
-| `--from-claude` | Pull from Claude Code into repo |
-| `--from-all` | Pull from both |
-| `--status` | Show what's linked, copied, or missing across all locations |
-| `--clean` | Remove broken symlinks from global locations |
-| `--dry-run` | Preview what would happen without making changes |
-| `-h, --help` | Show help |
-
-Append category or skill names after flags to target specific ones:
+## CLI
 
 ```bash
-$SCRIPT --link --to-claude meta roles    # Link only meta/ and roles/
-$SCRIPT --from-cursor shell              # Pull only the shell skill
+SCRIPT="$SKILL_ROOT/scripts/sync-skills.sh"
+# Read-only status / preview:
+bash "$SCRIPT" --status
+bash "$SCRIPT" --dry-run --link --to-claude meta
+# After scoped approval:
+bash "$SCRIPT" --link --to-claude skill-review
+bash "$SCRIPT" --copy --to-cursor workflows
+# After explicit collision backup approval:
+bash "$SCRIPT" --link --to-claude --replace-with-backup skill-review
+# Only recorded exact links are eligible for these operations:
+bash "$SCRIPT" --unlink --to-all skill-review
+bash "$SCRIPT" --clean
+# Import selected skills; collisions need explicit backup approval:
+bash "$SCRIPT" --dry-run --from-cursor my-skill
 ```
 
-## How It Works
+Supported directions: `--to-claude`, `--to-cursor`, `--to-all`,
+`--from-claude`, `--from-cursor`, `--from-all`. Modes: `--link` (default),
+`--copy`, `--unlink`, `--status`, `--clean`. Category, slug or category/slug
+arguments select exact subsets; unknown selections fail.
 
-**Linking:** For Claude Code, discovers every individual skill within category directories and creates a flattened symlink for each (e.g., `~/.claude/skills/skill-review` → `repo/skills/meta/skill-review`). For Cursor, creates category-level symlinks. If the target already exists as a real directory, warns before replacing.
+## Ownership and failures
 
-**Status detection:** Checks each expected location and reports whether it's a symlink (and where it points), a copy, or missing. Also detects broken symlinks.
+Each destination holds `.ats-sync-owned.json` recording this checkout's links
+or copy byte/mode fingerprint. Unowned/edited collisions block before changes,
+and every one is listed (`collision: <path> (existing …)`) so the owner sees the
+full set; the `--replace-with-backup --dry-run` preview marks each line that
+`backs up existing …`. Show that preview before asking for approval;
+no `rm -rf` or `rsync --delete` against arbitrary local skills. Only unchanged
+owned copies may be replaced automatically. An exact canonical-source link
+can be adopted without deleting it. Unlink/clean affect only recorded links
+whose target still matches; unrelated broken links remain untouched.
 
-**Non-repo skills are safe:** The script only manages categories that exist in this repo. Skills like `~/.claude/skills/builtWithAgent/` or Cursor's native skills are never touched.
+A receipt belonging to a different checkout blocks until the owner explicitly
+reconciles it. Dry run writes no receipt or destination. Status is discovery,
+not certification that a host loaded the skill. Pull/import copies only selected
+skill source/resources into a real category, skips links back into the checkout,
+and requires backed-up approval for existing destinations. Review imported
+instructions before use.
 
-## After Linking
+## Verification
 
-Once linked, skills are available automatically:
-
-- **Claude Code**: Skills in `~/.claude/skills/` are picked up by new sessions
-- **Cursor**: Skills in `~/.cursor/skills-cursor/` appear in all workspaces
-
-Edit any skill in the repo and the change is live immediately — no sync step needed.
-
-To verify: `$SCRIPT --status`
+Inspect the reported subset and backups, then run status. A copied helper should
+run from its resource root in an isolated project; missing runtime/credentials
+remain BLOCKED. No provider calls or real global install is part of the offline
+delivery tests.

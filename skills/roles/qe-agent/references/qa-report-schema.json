@@ -11,6 +11,18 @@
     "agent_role": { "type": "string", "const": "qe" },
     "build_session_id": { "type": "string" },
     "status": { "type": "string", "enum": ["PASS", "FAIL", "PARTIAL", "BLOCKED"] },
+    "proof_binding": {
+      "description": "Required by the strict QA hook; generated from the active run and current Git worktree/contract bytes by qa-gate-validate.py --snapshot.",
+      "type": "object",
+      "required": ["run_id", "revision", "source_sha256", "contract_sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "run_id": { "type": "string", "minLength": 1 },
+        "revision": { "type": "string", "pattern": "^[a-f0-9]{40,64}$" },
+        "source_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "contract_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
     "scores": {
       "type": "object",
       "required": ["correctness", "completeness", "code_quality", "security", "contract_conformance"],

@@ -1,6 +1,6 @@
 ---
 name: railway-deploy
-version: 1.3.1
+version: 1.4.0
 description: >
   Deploy projects to Railway — Dockerfile creation, railway.toml config, environment variables,
   multi-service setups (web + worker), and deployment via CLI or GraphQL API. Trigger on "deploy to
@@ -28,7 +28,7 @@ Railway builds and runs your app from a Dockerfile (or auto-detects with Nixpack
 
 ## Prerequisites
 
-**Railway credentials** (for GraphQL API deployments) go in the current project's repo-root `.env` file — see `.env.example` for the full list. Get your API token at https://railway.app/account/tokens.
+**Railway credentials** (for GraphQL API deployments) go in the current project's repo-root `.env` file — see `.env.example` for the full list. Get your API token at `https://railway.app/account/tokens`.
 
 **Railway CLI** should be installed and authenticated. Verify:
 
@@ -37,7 +37,9 @@ railway --version    # Should show v4.x+
 railway whoami       # Should show logged-in user
 ```
 
-If not installed: `brew install railway` (macOS) or `npm i -g @railway/cli`, then `railway login`.
+If not installed, prompt the user before any global package installation or production deployment:
+`brew install railway` (macOS) or `npm i -g @railway/cli`, then `railway login`. Production actions,
+service scaling, and cloud deploys require explicit confirmation.
 
 ## Deployment Approaches
 

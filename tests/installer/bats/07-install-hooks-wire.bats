@@ -29,6 +29,9 @@ setup_file() {
   cp "$SCRIPTS_DIR/lib/slug.sh"        "$FAKEREPO/scripts/lib/slug.sh"
   cp "$SCRIPTS_DIR/lib/term.sh"        "$FAKEREPO/scripts/lib/term.sh"
   cp "$SCRIPTS_DIR/lib/platform.sh"    "$FAKEREPO/scripts/lib/platform.sh"
+  cp "$SCRIPTS_DIR/lib/resource_delivery.py" "$FAKEREPO/scripts/lib/resource_delivery.py"
+  cp "$SCRIPTS_DIR/lib/capability_resolver.py" "$FAKEREPO/scripts/lib/capability_resolver.py"
+  cp "$SCRIPTS_DIR/lib/standard_export.py" "$FAKEREPO/scripts/lib/standard_export.py"
   cp -r "$FIXTURE_SKILLS"              "$FAKEREPO/skills"
   # The real hooks/ tree so convert emits integrations/claude-code/hooks.json.
   cp -r "$REPO_ROOT/hooks"             "$FAKEREPO/hooks"
@@ -36,6 +39,7 @@ setup_file() {
   export INTEG_DIR
   INTEG_DIR="$(mktemp -d /tmp/ats-hookinteg.XXXXXX)"
   bash "$FAKEREPO/scripts/convert.sh" --tool claude-code --out "$INTEG_DIR" 2>/dev/null
+  bash "$FAKEREPO/scripts/convert.sh" --tool gemini-cli --out "$INTEG_DIR" 2>/dev/null
   ln -sf "$INTEG_DIR" "$FAKEREPO/integrations"
 
   export INSTALL
@@ -153,6 +157,20 @@ assert any('skill-usage' in c for c in post), post
 # ---------------------------------------------------------------------------
 # Dry-run: previews the wiring, writes nothing
 # ---------------------------------------------------------------------------
+
+@test "install --parallel --dry-run --wire-hooks: preserves settings and project bytes" {
+  mkdir -p "$FAKE_HOME/.claude"
+  printf '{ "theme": "dark" }\n' > "$(SETTINGS)"
+  local before; before="$(shasum -a 256 "$(SETTINGS)" | awk '{print $1}')"
+  cd "$WORKDIR"
+  run bash "$INSTALL" --tool claude-code --tool gemini-cli --parallel --jobs 2 --dry-run --no-interactive --wire-hooks
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qi "would merge hooks.json"
+  local after; after="$(shasum -a 256 "$(SETTINGS)" | awk '{print $1}')"
+  [ "$before" = "$after" ]
+  [ "$(find "$FAKE_HOME" -type f | wc -l | tr -d ' ')" = "1" ]
+  [ -z "$(find "$WORKDIR" -mindepth 1 -print)" ]
+}
 
 @test "install --dry-run --wire-hooks: previews the merge and writes no settings.json" {
   cd "$WORKDIR" && run bash "$INSTALL" --tool claude-code --dry-run --no-interactive --wire-hooks

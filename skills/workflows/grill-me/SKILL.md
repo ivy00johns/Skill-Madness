@@ -1,8 +1,8 @@
 ---
 name: grill-me
-version: 1.1.2
+version: 1.1.3
 description: |
-  Get relentlessly interviewed about a plan, design, or change until every branch of the decision tree is resolved — depth-first, one question at a time, recommendation-attached, code-checked before user-asked. Use before any non-trivial change, when scope feels fuzzy, or to stress-test a plan before committing. Trigger on: 'grill me', 'interview me', 'challenge my plan', 'ask me questions', "I'm not sure what I want", 'help me think this through', 'is this the right approach', 'walk me through it', 'stress test this plan'.
+  Run a relentless interview of the user about a plan, design, or change — depth-first, one question at a time, each question carrying a recommended answer and code-checked before it is asked — until every branch of the decision tree is resolved. Use before any non-trivial change, when scope feels fuzzy, or to stress-test a plan before committing. Trigger on "grill me", "interview me about this", "ask me one question at a time", "challenge my plan", "ask me questions", "I'm not sure what I want", "help me think this through", "is this the right approach", "stress test this plan".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
@@ -20,7 +20,7 @@ spawned_by: []
 Walk the design tree depth-first. Resolve the current branch before backing out. Three rules:
 
 1. **One question at a time.** Wait for the user's response before asking the next. Don't batch.
-2. **Recommend, then ask.** Every question takes the form: "I think *<X>* because *<reason>*. Do you agree, or do you want *<alternative>*?" The recommendation is the default — the user accepts with "yes" or steers with an alternative.
+2. **Recommend, then ask.** Every question takes the form: "I think `<X>` because `<reason>`. Do you agree, or do you want `<alternative>`?" The recommendation is the default — the user accepts with "yes" or steers with an alternative.
 3. **Ask code, not user, when possible.** Before asking, check: can `Read`, `Grep`, or `Glob` answer this? If yes, do that and proceed. Only ask the user when the answer is genuinely in their head.
 
 **Exit condition:** every decision in the tree has a chosen answer plus your analysis attached. Output a final `Decisions` section the user can paste into a plan or brief — one bullet per decision, with the chosen answer and a one-line rationale.

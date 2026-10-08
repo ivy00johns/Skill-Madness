@@ -1,6 +1,6 @@
 ---
 name: llm-wiki
-version: 1.2.0
+version: 1.3.0
 description: |
   Bootstrap and operate LLM-maintained personal knowledge bases (wikis) for any project or domain — a persistent, compounding artifact, not RAG. Four modes: setup, ingest, query, lint. Trigger on "set up a wiki for X", "build me a knowledge base", "create an llm wiki", "organize my notes", "set up my second brain", "maintain a wiki for this project", and (inside an existing wiki) "add this article to the wiki", "what does the wiki say about X", "clean up the wiki", "process this source".
 requires_agent_teams: false
@@ -46,6 +46,7 @@ Bootstrap a new wiki from scratch. Quick interview, then create the structure.
 ### Step 1: Interview (3 questions max, combine if possible)
 
 Ask:
+
 1. **Domain and purpose** — What is this wiki for? (topic, project, use case)
 2. **Location** — Where should the wiki live? (default: `~/wikis/<domain-name>/` — confirm or let them specify a path)
 3. **Sources you already have** — Any existing docs/articles/notes to ingest immediately? (optional — can start empty)
@@ -54,7 +55,7 @@ If the user's initial message already answers some of these, don't re-ask. Bias 
 
 ### Step 2: Create directory structure
 
-```
+```text
 <wiki-root>/
 ├── CLAUDE.md          ← the wiki schema (LLM operating manual)
 ├── index.md           ← entry-point content catalog (root; updated on every ingest)
@@ -73,6 +74,7 @@ Create these directories and files. The root `index.md` is the entry point; `wik
 ### Step 3: Write the wiki CLAUDE.md
 
 Load `references/wiki-schema-template.md` and fill in the placeholders:
+
 - `{{WIKI_NAME}}` — human-readable wiki name (e.g., "AI Research Wiki")
 - `{{DOMAIN}}` — brief domain description (e.g., "AI safety research papers and blog posts")
 - `{{WIKI_ROOT}}` — absolute path to the wiki root directory
@@ -83,6 +85,7 @@ Write the filled template to `<wiki-root>/CLAUDE.md`.
 ### Step 4: Initialize index.md and log.md
 
 **`index.md`** (root entry point):
+
 ```markdown
 # Index
 
@@ -99,6 +102,7 @@ Write the filled template to `<wiki-root>/CLAUDE.md`.
 ```
 
 **`wiki/log.md`:**
+
 ```markdown
 # Log
 
@@ -117,6 +121,7 @@ Wiki root: {{WIKI_ROOT}}
 Tell the user:
 
 > "Wiki created at `<path>`. Structure:
+>
 > - `raw/` — drop your source documents here
 > - `wiki/` — I maintain this; you read it
 > - `CLAUDE.md` — the schema that governs how I work in this wiki
@@ -165,6 +170,7 @@ Health-check the wiki and surface improvements.
 Read `references/operations.md` § Lint for the full workflow. Summary:
 
 Check for:
+
 - Contradictions between pages (newer sources superseding old claims)
 - Orphan pages (no inbound links from other wiki pages)
 - Concepts mentioned but lacking their own page
@@ -184,6 +190,7 @@ The user reads; the LLM writes. Some principles:
 - **Cross-references are the point** — a page with no links to other wiki pages is a missed opportunity
 - **File good answers back** — if a query produces a valuable synthesis, create a wiki page for it
 - **Note contradictions explicitly** — when new sources conflict with existing claims, update the relevant pages to flag the tension rather than silently overwriting
+- **Carry provenance** — each ingested claim records source path/URL, observed date, and source commit/hash where available. Unknown revision stays unknown. Query answers distinguish historical source assertions from current implementation proof; re-read touched code/config at the current revision before a correctness, security, or deployment decision.
 
 When the wiki grows large (100+ pages), suggest adding a search tool like `qmd` for more efficient navigation.
 

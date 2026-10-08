@@ -1,6 +1,6 @@
 ---
 name: git-pr
-version: 1.4.0
+version: 1.5.0
 description: >
   Guide for creating and updating GitHub pull requests in this repository:
   PR title format, body structure, clean descriptions, and the gh CLI workflow.
@@ -84,14 +84,18 @@ for the size and complexity of the change — small fixes may only need the summ
    ```
 
 2. **Check for an existing PR first** — the branch may already have a PR from
-   a previous push or another session:
+   a previous push or another session. Note: `gh pr view` takes the branch name directly
+   as an argument (do not use unsupported `--head` flag):
 
    ```bash
-   gh pr view --head <branch> --json number,state,title 2>/dev/null
+   gh pr view <branch> --json number,state,title
    ```
 
-   If a PR already exists, update it with `gh pr edit` instead of creating
-   a duplicate. If it's in a MERGED state, note that the work is already
+   Preserve the exit status and stderr. A lookup failure is not proof that no PR
+   exists: authentication, network, repository and permission errors are BLOCKED.
+   Verify an empty result with a successful `gh pr list --head <branch> --state all
+   --json number,state,title` before creating anything. If a PR already exists,
+   update it with `gh pr edit` instead of creating a duplicate. If it's in a MERGED state, note that the work is already
    shipped — do not create a new PR.
 
 3. **Create the PR** using `gh pr create`. Pass the body via a HEREDOC to

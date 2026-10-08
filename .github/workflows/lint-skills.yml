@@ -219,9 +219,14 @@ jobs:
       # Without it, the linter falls back to a degraded check that flags
       # every skill — install it so the smoke job mirrors Ubuntu coverage.
       # jsonschema keeps the tests/standard/ real-tree gate from SKIPping.
-      # --break-system-packages is required on PEP 668-managed Pythons.
+      # Installed into a venv on PATH, not `pip --user`: the resource-delivery
+      # tests swap HOME for isolation, which hides the user site-packages and
+      # made subprocess Python fail with `No module named 'yaml'`.
       - name: Install pyyaml + jsonschema
-        run: python3 -m pip install --user --break-system-packages pyyaml jsonschema
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install pyyaml jsonschema
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
 
       # brew is preinstalled on macos-latest. The package is 'bats-core'
       # (not 'bats') on Homebrew — distinct from the Ubuntu apt package name.

@@ -14,8 +14,16 @@ defaults below. Pass `--config none` semantics by simply not having the file.
 | `minRepeats` | `3` | how many distinct call-sites a combo must appear in before `repeated-class-string` fires |
 | `maxUtilities` | `12` | threshold for `long-class-string` (a single over-stuffed element) |
 | `allowlist` | `[]` | exact class strings to never flag (order-independent). Escape hatch for a combo you've deliberately chosen not to extract |
-| `namedClassPattern` | `""` | regex marking your project's named/`@apply` classes (e.g. `"^(lab|ui)-"`). Required for `abstraction-defeat` |
+| `namedClassPattern` | `""` | regex marking your project's named/`@apply` classes (e.g. `"^(lab\|ui)-"`). Required for `abstraction-defeat` |
 | `rules` | see below | severity per rule: `"off"`, `"warning"`, or `"error"` |
+
+## CSS and shared layout fields
+
+`duplicate-css-block` is off by default and error in the consented frontend bundle. It uses `minDeclarations` (3) and `minCssRepeats` (3); compares ordered normalized declarations only for simple class selectors with identical at-rule ancestry; retains fallback order, quoted whitespace and `!important`. `cssAllowlist` entries require `{ "fingerprint": "<reported hash>", "reason": "owner-approved rationale" }`. Utility baselines do not suppress CSS duplication. Complex selectors/nesting/CSS-in-JS are manual-review boundaries, not equivalent-rule claims.
+
+`sharedLayout` defaults to `{ "tags": ["header", "nav", "footer"], "minRepeats": 2, "allowlist": [] }`. Its small bundled checker detects literal copied semantic chrome across distinct authored source files. Shared includes/components pass; published/generated HTML belongs in ignored directories. Intentional independent copies require an allowlist fingerprint plus reason. The check does not certify dynamic runtime ownership or near-duplicate semantics.
+
+Git/read/config/baseline failures and missing explicit paths exit 2; no unreadable source is counted as scanned or reported clean. The full project runner scans all source, so cross-file duplication cannot hide behind staged-only subsets. Config `scanExtensions` also includes `.css`, `.php`, `.erb`, `.heex` by default.
 
 ## Rules and severity
 
@@ -50,6 +58,7 @@ warnings, never blocks. Good for an existing codebase you want visibility on.
 ```json
 { "rules": { "repeated-class-string": "error" } }
 ```
+
 ```bash
 python3 check_class_extraction.py --root . --write-baseline   # snapshot existing soup
 # commit .class-guard-baseline.json — now only NEW combos are errors and block.

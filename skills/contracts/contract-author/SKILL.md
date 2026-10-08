@@ -1,8 +1,8 @@
 ---
 name: contract-author
-version: 1.5.0
+version: 1.6.1
 description: |
-  Generate machine-readable integration contracts (API, data layer, shared types, events) before any implementation begins in a multi-agent build. This is orchestrator Phase 4 — contracts written here BEFORE any implementation agent is spawned. Use when authoring API contracts, OpenAPI specs, AsyncAPI specs, Pydantic models, TypeScript interfaces, JSON Schema definitions, data layer interfaces, shared type schemas, integration boundaries between agents, or domain business rules. Trigger on "write the API contract", "define the shared types", "spec out the endpoints", "create the OpenAPI", "author the contract", or when the orchestrator needs contracts authored for a plan. Bundles six templates (OpenAPI, AsyncAPI, Pydantic, TypeScript, JSON Schema, data-layer YAML) — pick the one matching the project's stack.
+  Generate machine-readable integration contracts (API, data layer, shared types, events) before any implementation begins in a multi-agent build or explicitly requested solo contract design. Use when authoring API contracts, OpenAPI specs, AsyncAPI specs, Pydantic models, TypeScript interfaces, JSON Schema definitions, data layer interfaces, shared type schemas, integration boundaries between agents, or domain business rules. Trigger on "write the API contract", "define the shared types", "spec out the endpoints", "create the OpenAPI", "author the contract", or when the orchestrator needs contracts authored for a plan. Bundles six templates (OpenAPI, AsyncAPI, Pydantic, TypeScript, JSON Schema, data-layer YAML) — pick the one matching the project's stack.
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
@@ -17,19 +17,22 @@ spawned_by: ["orchestrator"]
 
 # Contract Author
 
-> **Tradeoff:** Biases toward upfront design over fast iteration. For prototypes, skip contracts and use direct module imports.
+> **Tradeoff:** Biases toward upfront design over ad-hoc assumptions. Prototype builds may have explicit minimal contract scope approved by the owner, but never skip contract boundaries entirely where services or components integrate.
 
 ## When this skill applies
 
-This skill assumes a contract-first multi-agent build model:
+This skill defines integration contracts in contract-first multi-agent builds or explicitly requested solo contract work:
 
-- An orchestrator dispatches role-agents in parallel
-- Each role-agent consumes a machine-readable contract from `/contracts/`
+- In native orchestration, the orchestrator dispatches role-agents after contracts are authored
+- Each implementation role consumes a machine-readable contract from `/contracts/`
 - `qe-agent` gates the build via `qa-report.json`
+- In solo builds, contracts establish the frozen interface boundary before implementation begins
 
-For single-agent or ad-hoc work, this skill is not the right tool.
+### Execution mode
 
-<what-to-do>
+**Dispatched** (the orchestrator supplied a role packet — natively, or in its sequential mode on any host): author contracts during Phase 4 per the orchestrator plan. Output machine-readable contracts to `contracts/` and wait for the orchestrator's verification (not the owner's — the approved plan covers contracts in scope) before implementation agents spawn. **Explicit solo:** the user provides system requirements, domain entities, and target stack. Read project architecture, extract interfaces, author flat `contracts/types.<ext>` and relevant API/data contracts, and freeze them before writing application code. Disclose unreviewed contracts if independent audit is unavailable. Missing tools are BLOCKED, not passed. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually.
+
+## Execution instructions
 
 Generate machine-readable integration contracts before any implementation begins. Contracts are the foundation of reliable multi-agent builds — specification problems cause ~42% of multi-agent failures.
 
@@ -140,7 +143,7 @@ Document these in `contracts/README.md` under a "Domain Rules" section.
 
 In `contracts/README.md`, include a table mapping which agent owns which files/directories. This prevents conflicts during parallel implementation:
 
-```
+```text
 | Agent    | Owns                              |
 |----------|-----------------------------------|
 | Backend  | src/api/, src/services/, src/models/ |
@@ -206,9 +209,7 @@ Over-engineered contracts waste agent time implementing unnecessary complexity.
 
 > **Forbidden:** Authoring contracts speculatively for future features. Author only contracts the current dispatch needs.
 
-</what-to-do>
-
-<supporting-info>
+## Supporting information
 
 ## Output
 
@@ -235,5 +236,3 @@ The `schemas/` directory is for standalone JSON Schema files when the project us
 ## Naming Convention Rule
 
 When the API uses camelCase (OpenAPI/TypeScript) but the backend uses snake_case (Python), document the transform explicitly in `contracts/README.md`. The Pydantic template includes `alias_generator=to_camel` for this — both sides must agree on the wire format.
-
-</supporting-info>

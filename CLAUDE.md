@@ -49,7 +49,7 @@ All SKILL.md files use the frontmatter convention defined in `skills/meta/skill-
 
 - **File ownership is exclusive** — no two agent roles can own the same file. The orchestrator resolves conflicts before spawning. The canonical ownership map lives in the orchestrator skill.
 - **QE gates the build** — the qe-agent outputs `qa-report.json` per `skills/roles/qe-agent/references/qa-report-schema.json`. Build blocks on CRITICAL blockers or contract_conformance/security scores < 3.
-- **Two-runtime degradation** — Agent Teams → subagents → sequential. Only the orchestrator needs this logic; role skills work standalone *of the runtime* (the same skill body works whether dispatched as an Agent Teams teammate, a subagent, or run sequentially) — they are still orchestrator-dispatched, not user-invocable.
+- **Native dispatch and explicit solo roles** — Agent Teams → subagents → sequential remains the orchestrator's runtime path. The ten roles and contract-auditor also accept explicitly requested bounded solo work on read/edit/shell hosts; native dispatch/ownership/QE order is unchanged. Same-context review is UNVERIFIED independence, not certification. Frontend entry invokes consented project source guards before authoring and requires visible two-width proof.
 - **Progressive disclosure** — frontmatter (~100 tokens) always loaded, SKILL.md body loaded on trigger, references loaded on demand.
 - **Descriptions are "pushy"** — skill descriptions intentionally over-enumerate trigger contexts to combat under-triggering.
 
@@ -57,7 +57,7 @@ All SKILL.md files use the frontmatter convention defined in `skills/meta/skill-
 
 When modifying a skill:
 
-- Keep SKILL.md body ≤5,000 words (Anthropic guideline); soft warning past 500 lines. Move detail to `references/`. Heavy skills may exceed when the length is load-bearing.
+- Aim for SKILL.md bodies under 5,000 tokens; lint reports a UTF-8-bytes/4 approximation (not a tokenizer measurement), words, physical lines and nonblank lines separately. The 500-line warning counts nonblank lines, not physical lines. Move detail to `references/`. Heavy skills may exceed when the length is load-bearing.
 - Description field is the primary trigger mechanism — include action verbs, specific contexts, and keyword variations
 - `owns.directories` must not overlap with other agent roles
 - Maintain the frontmatter convention (see `skills/meta/skill-writer/references/frontmatter-spec.md`)

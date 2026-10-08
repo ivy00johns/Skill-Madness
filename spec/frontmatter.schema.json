@@ -9,7 +9,7 @@
     "name": {
       "type": "string",
       "description": "Skill identifier. Kebab-case, must match the skill folder name (folder match enforced by lint-skills.sh, not this schema).",
-      "pattern": "^[a-z][a-z0-9-]*$",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
       "maxLength": 64
     },
     "version": {
@@ -108,6 +108,44 @@
       "type": "array",
       "description": "Extended: which skills spawn this one.",
       "items": { "type": "string", "pattern": "^[^<>]*$" }
+    },
+
+    "requires_capabilities": {
+      "type": "array",
+      "description": "Extended: semantic capabilities required for execution (e.g. read_files, write_files, run_shell).",
+      "items": { "type": "string", "pattern": "^[^<>]*$" }
+    },
+    "optional_capabilities": {
+      "type": "array",
+      "description": "Extended: optional capabilities that enhance execution if available.",
+      "items": { "type": "string", "pattern": "^[^<>]*$" }
+    },
+    "refuse_if": {
+      "type": "array",
+      "description": "Extended: condition identifiers under which execution must be refused (e.g. unattended_without_budget_enforcement).",
+      "items": { "type": "string", "pattern": "^[^<>]*$" }
+    },
+    "execution_modes": {
+      "type": "object",
+      "description": "Extended: named execution modes with capability prerequisites, adapter references, and quality ratings.",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "requires": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[^<>]*$" }
+          },
+          "adapter": {
+            "type": "string",
+            "pattern": "^[^<>]*$"
+          },
+          "quality": {
+            "type": "string",
+            "enum": ["equivalent", "degraded-safe", "unverified"]
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
   "additionalProperties": false

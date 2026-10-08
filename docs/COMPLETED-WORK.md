@@ -1,6 +1,6 @@
 # Completed Work — Tactical Archive
 
-**Last updated:** 2026-08-03
+**Last updated:** 2026-10-05
 **Companions:** [`docs/REMAINING-WORK.md`](REMAINING-WORK.md) (open ledger — the to-do list), [`PLAN.md`](../PLAN.md) (strategic roadmap + closure log)
 
 > **What this is.** The append-only tactical archive: every ledger item that reached
@@ -16,6 +16,171 @@
 > findings · `RV` offline-window review findings · `MR` maxed-out-window review findings · `DV` deep-dive vendor review findings (2026-08-03).
 
 ---
+
+## Corrected closure 2026-10-05 — universal audit
+
+31 approved rows have local implementation and bounded verification. UA-19
+remains open: offline fixture delivery and a receipt validator are not
+live-host retrieval or held-out model efficacy. See the [review and acceptance
+matrix](reviews/2026-10-universal-audit/10-sol-review.md); this supersedes every
+October 3–4 closure narrative below without erasing historical evidence.
+
+Shared budget/freeze enforcement now has a bundled POSIX controller with
+reservation caps, lock/restart refusal, process-group cancellation and frozen
+boundary checks. Unbounded/unproven provider adapters remain refused. No
+paid calls, independent QE, real-HOME install, commit or publication is claimed.
+
+> **SUPERSEDED 2026-10-05:** the following records preserve the prior session's
+> completion claims, not current certification. The [Sol review](reviews/2026-10-universal-audit/10-sol-review.md)
+> repairs and qualifies them. 31 rows are locally implemented; UA-19 is
+> reopened in the tactical ledger. Old counts and “all complete” assertions
+> below are historical, not current verification.
+
+## Historical closure claim 2026-10-04 — universal-audit scoped hygiene wave (`UA-22`, `UA-23`, `UA-25`, `UA-27`, `UA-28`, `UA-29`, `UA-30`, `UA-32`)
+
+Local uncommitted implementation on `freebuff/role-e1ab2a96-7570-4f3f-8333-87a7bf914145` closes the final eight approved scoped hygiene and boundary rows, completing all 32 universal-audit rows.
+
+- **UA-22**: `git-pr` uses the supported `gh pr view <branch>` positional argument rather than `--head`, and `git-pr-feedback` checks unresolved review thread state rather than author-reply existence.
+- **UA-23**: `git-post-merge-cleanup` scans and classifies tags nonmutantly by reachability and retention policy, presenting candidate tags in Step 4 plan and requiring explicit user consent before any remote or local tag deletion.
+- **UA-25**: PSFS specification and converter tooling maintain canonical native arrays (`allowed-tools`, capability declarations) while separating export type adaptations for Agent Skills compatibility.
+- **UA-27**: `setup-project-skills` and consumers (`maintain-context`) define an explicit-consent fallback contract when project configuration is missing, prompting the user once to adopt standard single-context defaults or run setup.
+- **UA-28**: `wiki-research` documents that wikis are discovery aids, not proof of current code implementation, requiring verification of touched boundaries at the current commit/revision before making safety decisions.
+- **UA-29**: `website-walkthrough-video` enforces page height checks (`scrollHeight`) before capture, tiling or bounding captures over 8,000px or 250MB decoded memory to prevent workstation exhaustion.
+- **UA-30**: Updated `CLAUDE.md`, `README.md`, and `START-HERE.md` to distinguish physical non-blank lines from approximate token counts (~6,500 tokens) and accurate quality gate claims.
+- **UA-32**: `settings-consolidator`, `use-freellmapi`, and `railway-deploy` require explicit user consent and plan review before global permission updates, piping internet scripts to shell (`curl ... | bash`), global package installs, or production deployments.
+
+Verification: catalog clean at 76 skills, version drift check passed (33 changed skills, 0 drifts vs 9e0289a), all unit tests passing (11/11). All 32 audit rows (UA-01 through UA-32) are now complete locally.
+
+- **UA-22** `[open · P2 · wave F · skills/gates]` — **Find the correct PR and unresolved feedback.** Replace unsupported gh flags with the supported branch argument and inspect thread resolution rather than author replies.
+- **UA-23** `[open · P2 · wave F · skills/gates]` — **Preview tag cleanup before any deletion.** Classify reachability/retention, make scans nonmutating and gate remote/local deletion on consent.
+- **UA-25** `[open · P2 · wave F · toolchain]` — **Export live-standard frontmatter without breaking native arrays.** Separate tolerant loading from author lint; adapt tool/metadata types in exports and tighten names compatibly.
+- **UA-27** `[open · P2 · wave F · skills/gates]` — **Make missing-config fallback explicit.** Align setup/consumer consent requirements while retaining the approved orchestrator default option.
+- **UA-28** `[open · P2 · wave F · skills/gates]` — **Treat stale wiki content as discovery, not current proof.** Carry source date/revision and recheck touched implementation boundaries before correctness/safety decisions.
+- **UA-29** `[open · P2 · wave F · skills/gates]` — **Bound walkthrough capture memory.** Share route/height/bytes limits with Playwright; cap/tile or refuse oversized captures.
+- **UA-30** `[open · P2 · wave F · toolchain]` — **State what quality checks actually prove.** Add approximate token/resource-closure diagnostics, distinguish physical/nonblank lines and repair only evidence-backed stale claims. Historic counts and RV16 remain closed.
+- **UA-32** `[open · P2 · wave F · skills/gates]` — **Keep consequential authority explicitly scoped.** Require approval before global bootstrap, pipe-to-shell, production requests and privacy-changing publication; extend existing doctrine, not a new autonomy framework.
+
+The eight intake rows above were relocated verbatim; their original `[open]` annotations are historical. This section records their completed status.
+
+---
+
+## Historical closure claim 2026-10-04 — universal-audit model and evaluation wave (`UA-15`, `UA-16`, `UA-17`, `UA-18`, `UA-19`)
+
+Local uncommitted implementation on `freebuff/role-e1ab2a96-7570-4f3f-8333-87a7bf914145` closes these five approved model adaptation and evaluation hygiene rows.
+
+Non-Claude and unknown model adaptation (UA-15): `skills/meta/model-adaptation/SKILL.md` (bumped to v1.6.0) and `skills/meta/model-adaptation/references/` incorporate generic operating policies for unknown runtimes (`unknown-model-adaptation.md`), OpenAI/GPT endpoints (`gpt-adaptation.md`), and Google Gemini runtimes (`gemini-adaptation.md`). In confirmed native Claude sessions without a profile, Anthropic defaults are preserved; in any non-Claude or undetermined host session, `unknown` is recorded and evaluated against measured capabilities rather than injecting nonexistent Anthropic settings or assuming Claude profile defaults.
+
+Cross-vendor builder/reviewer routing consent (UA-16): `skills/meta/model-adaptation/references/cross-vendor-tiering.md` and `model-effort-tiering.md` implement an explicit opt-in policy extension. Single-provider execution remains the default to prevent token leakage and unexpected costs. Cross-provider routing (e.g. low-cost builder paired with an independent reviewer on another provider) requires explicit repository owner opt-in (`cross_provider: enabled`), declared `allowed_providers`, verified data classification, clean minimal reviewer packets, and hard monetary/runtime budget ceilings. Accounting is evaluated strictly on **cost per accepted result** across four distinct dimensions (Outcome, Proof, Architecture, and Trajectory diagnostics).
+
+Isolated snapshot trigger evaluation (UA-17): `skills/workflows/skill-creator/scripts/run_eval.py` applies candidate descriptions in isolated temporary directory snapshots before evaluation, runs in an isolated HOME environment to protect user configurations, pins worker models, and observes actual structured tool/skill retrieval events rather than ungrounded stdout mentions. In unforced evaluation mode, preloading (`-s`) is not injected so that unforced triggering can be measured honestly. Tri-state accounting distinguishes valid execution runs from subprocess timeouts and crashes; execution failures are never treated as passing negative non-triggers.
+
+SO-4 eval split hygiene (UA-18): `skills/workflows/skill-creator/scripts/run_loop.py` and `skills/workflows/skill-creator/SKILL.md` (bumped to v1.2.0) enforce binding split hygiene ported from microsoft/SkillOpt:
+
+1. Stable per-item hashing deterministically partitions eval sets into train, dev (validation), and held-out test splits without seed drift.
+2. Candidate descriptions are tuned and selected based strictly on train/dev sets during loop iterations.
+3. The held-out test set is touched **exactly once** at the conclusion on the winning candidate to report an honest, unbiased benchmark score.
+
+Cross-host load/outcome matrix extension (UA-19): `docs/standards/cross-host-matrix-spec.md` specifies the narrow F3/F5 evaluation matrix for cross-host load checks and task outcome verification across Claude Code, Cursor, Gemini CLI, Codex, and Hermes. It defines the JSON schema for evaluation records with separated Outcome, Proof, Architecture, and Trajectory dimensions, along with automatic disqualifier rules (unforced retrieval absent, execution error masked, split leakage, evaluator-only assertion, budget overrun).
+
+Verification: new test suite `tests/model-eval/test_wave_e_model_eval.py` passes 6/6 tests covering UA-15 reference contents, UA-16 consent and accounting, UA-17 isolated snapshot description updates and tri-state error handling, UA-18 deterministic split hygiene and touch-once test evaluation, and UA-19 matrix specification rules. Combined with `tests/orchestrator/test_capability_solo_wave.py`, 11/11 tests pass in 0.06s. Skill version drift check clean (24 changed skills, 0 drifts vs 9e0289a). Catalog check clean (76 skills). Markdownlint clean across all touched documentation. 24 audit rows are closed locally; 8 audit rows plus speculative CB-10 remain open.
+
+- **UA-15** `[open · P1 · wave E · model/eval]` — **Adapt to GPT/Gemini/unknown without inventing Claude settings.** Integrate reviewed provider drafts and observed endpoint/effort capabilities. Preserve MT-1/MA-2 and avoid unverified model/pricing claims.
+- **UA-17** `[open · P1 · wave E · model/eval]` — **Measure actual candidate triggering.** Apply descriptions in isolated snapshots, observe retrieval/invocation rather than stdout mentions, pin worker models and distinguish execution errors from negatives.
+- **UA-16** `[open · P2 · wave E · model/eval]` — **Permit explicitly approved cross-vendor builder/reviewer routing.** Keep single-provider default; require privacy/provider/budget consent and measure cost per accepted result. No provider switch or spend is authorized by intake alone.
+- **UA-18** `[open · P2 · wave E · model/eval]` — **Keep held-out evaluation honest.** Select on train/dev and reserve one final unseen check, implementing the already-closed SO-4 standard in its consumer.
+
+The five intake rows above were relocated verbatim; their original `[open]` annotations are historical. This section records their completed status.
+
+---
+
+## Historical closure claim 2026-10-04 — universal-audit capability and solo execution wave (`UA-02`, `UA-03`, `UA-13`, `UA-14`, `UA-24`)
+
+Local uncommitted implementation on `freebuff/role-e1ab2a96-7570-4f3f-8333-87a7bf914145` closes these five approved capability, solo execution, and gate integrity rows.
+
+Capability resolution: `scripts/lib/capability_resolver.py` provides a narrow, deterministic capability and execution-mode resolver shared by `scripts/convert.sh` and `scripts/lib/sync_delivery.py`. It inspects observed host and tool capabilities (`read_files`, `write_files`, `run_shell`, `web_fetch`, `spawn_subagent`, `parallel_subagents`, `completion_gate`, etc.), resolves execution modes against declared capability prerequisites, evaluates `refuse_if` constraints, and preserves backward compatibility with `requires_claude_code: true`.
+
+PSFS specification: `spec/PSFS.md` and `spec/frontmatter.schema.json` are extended additively with `requires_capabilities`, `optional_capabilities`, `refuse_if`, and `execution_modes` mapping objects. The schema maintains strict structural validation while allowing capability declarations, validating all 76 catalog skills clean with 0 errors.
+
+Attended sequential execution: `skills/orchestrator/references/sequential-execution.md` and `skills/orchestrator/SKILL.md` (bumped to v1.20.0) establish a machine-checkable state transition graph (`DISCOVER → SCOPE_APPROVED → CONTRACTS_FROZEN → READY_QUEUE → BUILD_SLICE → WAVE_VERIFY → REVIEW_PACKET → INDEPENDENT_QE → ACCEPTED`) with role packets, strict file ownership boundaries, and circuit-breaker handling. Unbounded unattended fallback is explicitly refused unless an external process wrapper with hard timeouts and budget ceilings is active. Independent verification doctrine requires disclosing unverified status when evaluating in the same session.
+
+Unattended budget enforcement: `skills/loops/loop-controller/SKILL.md` (bumped to v1.3.0) and `skills/loops/loop-controller/references/safety.md` require external process wrappers with wall-clock timeouts, process locks, and `SIGTERM`/`SIGKILL` cancellation. Unattended loops must run within external budget ceilings and generate durable proof artifacts; advisory prose watching `/cost` is not accepted as budget enforcement.
+
+Verifier anti-weakening and grep error handling: `skills/loops/migration-loop/references/migration-checklist.md` and `skills/loops/loop-controller/references/safety.md` freeze criteria, configuration, benchmark datasets, and test assertions before beginning loop execution. Changing assertions or loosening thresholds requires explicit reviewer authorization. Grep exit codes >1 (errors, invalid regex, read failures) are treated strictly as `BLOCKED`, never as zero matches.
+
+Gate dimension reconciliation: `skills/contracts/contract-author/SKILL.md` (bumped to v1.6.0) removes default advice to skip contracts for prototypes, requiring explicit minimal contract scope approved by the owner and adding an explicit solo execution branch. Role pipeline blurbs across `skills/roles/qe-agent/SKILL.md`, `skills/roles/infrastructure-agent/SKILL.md`, `skills/roles/frontend-agent/SKILL.md`, and `skills/roles/docs-agent/SKILL.md` are reconciled to point to contract-author and actual QA report gate dimensions, without reopening FA8's advisory score decision.
+
+Verification: new test suite `tests/orchestrator/test_capability_solo_wave.py` passes 5/5 unit tests verifying capability resolution, refuse_if predicates, execution mode ladders, sequential state graph contracts, and anti-weakening doctrine. Existing installer suite `tests/installer/test_resource_delivery.py` passes 100%. Version drift check reports 23 changed skills and 0 drifts. Catalog check clean at 76 skills. Markdownlint clean across all modified documentation. 19 audit rows are closed locally; 13 audit rows plus speculative CB-10 remain open.
+
+- **UA-02** `[open · P1 · wave D · skills/gates]` — **Select safe execution from observed capabilities.** Add one narrow versioned capability resolver shared by conversion/install/sync, preserving legacy CC fields. F1/WC-3's broad generator rewrite stays parked.
+- **UA-03** `[open · P1 · wave D · skills/gates]` — **Specify bounded attended solo execution.** Define role packets, state transitions, dependency queue/reset boundaries and independent verification; refuse unbounded unattended fallback. Extend the orchestrator, not a duplicate skill or full F15/F16 platform.
+- **UA-13** `[open · P1 · wave D · skills/gates]` — **Enforce unattended budgets outside model prose.** Require wrapper limits, locks/cancellation and proof before unattended execution. Extend shared enforcement without building all of F9/F15/F16.
+- **UA-14** `[open · P2 · wave D · skills/gates]` — **Prevent weakening the verifier to get green.** Freeze criteria/config/datasets/tests/baselines, require reviewer authorization for changes, and distinguish grep errors from no matches.
+- **UA-24** `[open · P2 · wave D · skills/gates]` — **Reconcile role pipeline and real gate dimensions.** Remove default prototype gate-skipping advice and repair contract-authorship and phantom-score blurbs without reopening FA8's advisory-score decision.
+
+The five intake rows above were relocated verbatim; their original `[open]` annotations are historical. This section records their completed status.
+
+---
+
+## Historical closure claim 2026-10-04 — universal-audit resource delivery wave (`UA-09`, `UA-10`, `UA-11`, `UA-20`, `UA-21`, `UA-26`)
+
+Local uncommitted implementation on `freebuff/role-e1ab2a96-7570-4f3f-8333-87a7bf914145` closes these six approved delivery and installer correctness rows. Skills converted and installed across all 11 tool targets are now resource-closed, carrying their templates, runner scripts, evaluation viewers, agent references, and asset files.
+
+Shared delivery engine `scripts/lib/resource_delivery.py` generates `.ats-resources.json` manifests tracking path, source relative path, SHA-256 digest, executable mode, size, and category. Dangerous paths, root escapes, directory traversal (`..`), absolute paths, and secrets/debris (`.env*`, `.pem`, `.key`, `__pycache__`, `*.pyc`, `node_modules`, `.DS_Store`, workspace directories) are strictly excluded and blocked fail-closed.
+
+`scripts/convert.sh` produces verified `.ats-resources.json` per tool target. Parallel mode propagates worker CLI arguments immutably via positional arguments, collects worker exit codes and error counts without dropping failures, writes unified `gemini-extension.json` once after all workers finish, and prunes only previously owned outputs on reconversion.
+
+`scripts/install.sh` uses shared manifest-driven delivery via `install_manifest_tool`, pre-validating destination containment, symlink parents, and preserving file executable modes without touching caller environments or writing bytecode caches during dry runs.
+
+`scripts/install-plan.sh`, `scripts/install-apply.sh`, and `scripts/install-state.sh` are upgraded to schema v2 plan/apply/state. Schema v2 plans bind approved root, source SHA-256 digest, POSIX mode, destination preconditions, duplicate checks, containment, symlink boundary checks, and atomic replacement with clean rollback on failure. Mode drifts are tracked, unreviewed destination edits block execution, and state repairs restore drift safely.
+
+Scoped sync (`scripts/lib/sync_delivery.py` and `skills/workflows/sync-skills/scripts/sync-skills.sh`) is restricted strictly to Claude Code and Cursor. Unrelated user skills and unowned files are protected: owned projections are recorded in `.ats-sync-owned.json`, unowned/edited collisions require explicit `--replace-with-backup`, and category or skill subsets are strictly honored.
+
+Runtime contracts and portability: every delivered skill root carries `.ats-runtime.json` declaring `SKILL_ROOT`, runtime dependencies, and explicit credential requirements. Skills (`nano-banana`, `living-plan`, `skill-catalog`, `skill-creator`, `sync-skills`) resolve `$SKILL_ROOT` portably and respect explicit `ATS_ENV_FILE` without ancestor directory traversal or credential bundling. Root credentials are never copied or shipped.
+
+Verification: comprehensive regression suite `tests/installer/test_resource_delivery.py` (20 unit tests) passes 100% covering all 11 tool targets, secret/debris exclusion, parallel/serial parity, schema v2 plan/apply/rollback, destination containment, symlink protection, drift repair, sync backup/subsetting, and real skill resources (`design-token-guard`, `class-extraction-guard`, `skill-creator`, `living-plan`). Full Bats test batch passes with zero failures. Markdownlint clean across all touched documentation and contracts. 14 audit rows are closed locally; 18 audit rows plus speculative CB-10 remain open.
+
+- **UA-10** `[open · P1 · wave C · toolchain]` — **Deliver templates and helper programs.** Extend conversion's existing script copying with assets, creator helper directories and nested resources via a resource manifest and resolvable skill-root paths. PF1 stays closed.
+- **UA-11** `[open · P1 · wave C · toolchain]` — **Keep installed skills runnable.** Make classic/plan installers consume the same resource manifest and preserve Gemini paths/metadata and native hooks.
+- **UA-20** `[open · P1 · wave C · toolchain]` — **Protect unrelated local skills during sync.** Align projection with conversion; honor subsets, track owned links, and require backup/approval on collisions. Recheck current host reach rather than trusting newer-main claims.
+- **UA-09** `[open · P2 · wave C · toolchain]` — **Make parallel generation equivalent to serial.** Propagate worker context, collect errors/totals, emit Gemini metadata once, and remove oversized inline xargs commands.
+- **UA-21** `[open · P2 · wave C · toolchain]` — **Apply only reviewed installation bytes within the approved root.** Validate schema/digests/containment and symlink parents, preserve modes, merge state and apply atomically.
+- **UA-26** `[open · P2 · wave C · toolchain]` — **Resolve resources and credentials portably.** Define SKILL_ROOT/runtime/secret-loader contracts, bundle helpers or declare checkout dependencies, and use explicit environment injection. Never ship root credentials.
+
+The six intake rows above were relocated verbatim; their original `[open]` annotations are historical. This section records their completed status.
+
+## Historical closure claim 2026-10-04 — universal-audit frontend wave (`UA-01`, `UA-04`–`UA-07`, `UA-31`)
+
+Local uncommitted implementation on `freebuff/role-e1ab2a96-7570-4f3f-8333-87a7bf914145` closes these six approved rows only. Ten roles plus contract-auditor now expose bounded explicitly requested solo branches and portable exports, while retaining native dispatch metadata, explicit activation, ownership and static-audit → independent QE order. Code review retains isolated Standards/Spec lanes when available and discloses same-context sequential review as UNVERIFIED. Static export eligibility is now 50 of 76 skills, not a live-host certification.
+
+Frontend routing invokes consented project-local setup before authoring and the full-source runner after slices and at wave/done gates. Bootstrap defaults to read-only preview; apply is explicit, conflicts block before writes, identical reapply preserves bytes/mtime, and existing hook managers are never overwritten. CI and an inactive hook snippet are bundled; plain local pre-commit wiring requires a separate explicit option. Worktrees must integrate their existing hook setup manually. Resource absence blocks setup; general conversion/installer resource closure remains UA-10/UA-11/UA-26 work.
+
+Layout ERROR policy separately handles HTML and JSX, including unquoted HTML, spaced JSX objects, dynamic custom-property inputs and opaque/spread bindings. Legacy literal/warn policy remains. CSS duplication checks ordered normalized declarations for simple equal-specificity class selectors in identical at-rule scope, keeping quoted strings, fallbacks and importance distinct; modules/scoped styles stay isolated. Shared-layout checks literal authored header/nav/footer copies, excluding generated build directories and script/style bodies. Exceptions require fingerprints and reasons. Git enumeration, invalid config/encoding, missing paths and read/walk failures block inspection rather than return clean; scanned-file counts include clean inspected files.
+
+Verification: full recursive Bats **383 planned, 376 passed, seven existing local jsonschema skips, zero failures, exit 0**; the frontend wrapper now runs **33 passing stdlib regressions**, including combined four-page escapes, bootstrap safety and native/portable projection. Skill lint: 0 errors/117 warnings across 82 files; version drift vs `9e0289a`: 16 changed skills, 0 drifts; hook lint: 0 errors/0 warnings; catalog: 76 clean. Python AST, Bash syntax, JSON parsing, Markdown lint and diff whitespace checks passed. No application typechecker is configured for these Bash/stdlib Python changes. These are same-context tooling/source tests, not independent QE, rendered-app proof, live-host acceptance or paid model evaluation. Parsers are conservative patterns, not compilers: complex selectors, preprocessing/CSS-in-JS, dynamic ownership and semantic near-clones require separate review. No real-HOME install, primary-checkout transfer, commit, push or PR.
+
+Sources: [frontend role](../skills/roles/frontend-agent/SKILL.md), [bootstrap](../skills/workflows/design-token-guard/scripts/bootstrap_frontend_guards.py), [layout checker](../skills/workflows/design-token-guard/scripts/check_design_tokens.py), [CSS/utility checker](../skills/workflows/class-extraction-guard/scripts/check_class_extraction.py), [shared-source checker](../skills/workflows/class-extraction-guard/scripts/check_shared_layout.py), [regression tests](../tests/class-extraction-guard/test_frontend_wave.py). UA-24's nearby blurb/prototype edits are not separately closed in this wave. Eight audit rows are closed locally; 24 audit rows plus speculative CB-10 remain open.
+
+- **UA-01** `[open · P1 · wave B · skills/gates]` — **Expose role discipline to solo builds.** Add standalone branches for ten roles and contract-auditor while retaining native dispatch, ownership and verification order; extend SR1/PF5 rather than reopening their closed work.
+- **UA-04** `[open · P1 · wave B · skills/gates]` — **Invoke frontend guards outside orchestration.** Add consented bootstrap of strict layout/organization policy and project/CI checks. Extend existing guards only; F7's general hook framework stays parked.
+- **UA-05** `[open · P2 · wave B · skills/gates]` — **Catch inline layout escapes.** Separate HTML/JSX CSS parsing, provide a layout-only ERROR profile and honest scanned counts, and preserve safe dynamic CSS-property exceptions.
+- **UA-06** `[open · P2 · wave B · skills/gates]` — **Detect renamed duplicate CSS.** Extend class-extraction guard with normalized declaration equivalence scoped by media/layer/specificity and approved exceptions.
+- **UA-07** `[open · P2 · wave B · skills/gates]` — **Make shared page chrome owned once.** Add a small source-template shared-layout guard; do not flag repeated generated HTML or duplicate Payload's existing shared-content doctrine.
+- **UA-31** `[open · P2 · wave B · skills/gates]` — **Report blocked inspection, not clean success.** Guard git/read failures must return execution errors and count all scanned files accurately.
+
+The six intake rows above were relocated verbatim; their original `[open]` annotations are historical. This section records their completed status.
+
+## Historical closure claim 2026-10-03 — universal-audit safety wave (`UA-08`, `UA-12`)
+
+The owner approved all 32 [universal-audit candidates](reviews/2026-10-universal-audit/09-ledger-intake.md); intake recorded six implementation waves on branch `freebuff/role-e1ab2a96-7570-4f3f-8333-87a7bf914145`. This first wave closes only the two P0 rows, with no commit/push/PR, paid model run or real-HOME installation. Both rows below were relocated from the open ledger without summarizing their scope (status changed to done).
+
+UA-08: workers now parse arguments/preflight before dispatch, preserve validated preview context and pass paths as shell arguments. Fake-HOME regressions cover all-tool parallel preview, direct-worker CLI/exported previews, malformed/missing worker context, unchanged hook settings and real installs only in fake destinations. The fixture path contains spaces.
+
+UA-12: strict mode blocks missing/crashed/unexpected-status validators, missing Python, broken wrapper discovery, missing scripts and unbound/stale evidence. The binding checks active run, revision, tracked/nonignored untracked source names/modes/bytes and contract bytes; legacy reports remain usable under standard/minimal. QA producer instructions/schema explain before/after verification binding and its exclusions. Stop reentry returns control as **UNVERIFIED**, not success; explicit disables and DV-1's TTY guard remain. Same-context tests are not independent QE approval; content binding proves freshness, not that tests ran or who ran them. Symlinks/submodules/special-file boundaries require separate evidence and block strict snapshots.
+
+Verification: full Bats **382 planned, 375 passed, seven existing jsonschema skips, zero failures, exit 0**; 36 regression tests added. Hook lint 0 errors/0 warnings; skill lint 0 errors/120 existing warnings across 82 files; version-drift check vs `9e0289a` 0 drifts; catalog 76 clean; Bash syntax, Python AST/JSON parse and Markdown lint passed. No application typechecker is configured for these shell/Python changes. Source/evidence: [installer](../scripts/install.sh), [QA hook](../hooks/scripts/qa-gate.sh), [validator](../hooks/scripts/qa-gate-validate.py), [wrapper tests](../tests/hooks/bats/01-wrapper-gating.bats), [QA tests](../tests/hooks/bats/02-qa-gate.bats), [preview tests](../tests/installer/bats/06-install-dry-run.bats), [hook-wiring tests](../tests/installer/bats/07-install-hooks-wire.bats), [updated contract](../contracts/hooks/hooks-layer.md).
+
+- **UA-08** `[done · P0 · wave A · toolchain]` — **Keep parallel dry-run read-only.** Preserve parsed worker flags and prove serial, parallel and direct-worker previews leave fake HOME/project destinations untouched.
+- **UA-12** `[done · P0 · wave A · skills/gates]` — **Prevent false QA certification.** Fail closed on missing/crashed checkers in strict enforcement, bind reports to run/revision/contract, and bound Stop-hook reentry. Preserve standard missing-report policy and DV-1's stdin guard.
 
 ## Closed 2026-08-03 — deep-dive intake (`DV-1`–`DV-5`)
 

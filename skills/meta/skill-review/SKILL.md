@@ -3,7 +3,7 @@ name: skill-review
 version: 1.3.0
 argument-hint: skill-name or 'all'
 description: |
-  Review skills for quality, consistency, triggering accuracy, and adherence to the 5000-word / 500-line body guideline. Two modes: 'all' (bulk ecosystem-wide scan for ownership conflicts, length outliers, weak triggers, dead xrefs) or a single skill name (deep dive on description quality, body structure, anti-pattern naming, cross-references). Outputs a structured markdown report plus JSON sidecar consumable by skill-update. Trigger on "audit skills", "review this skill", "health check skills", "bulk review", "deep review", "what needs fixing".
+  Audit and review skills for quality, consistency, and triggering accuracy — including skills that under-trigger or mis-fire. Two modes: 'all' (bulk ecosystem scan for ownership conflicts, length outliers, weak triggers, dead cross-references) or one skill name (deep dive on description quality, body structure, naming, cross-references). Outputs a structured markdown report plus a JSON sidecar consumable by skill-update. Use when asked to "audit skills", "review this skill", "health check skills", "which skills under-trigger", "why didn't this skill fire", "bulk review", or "deep review".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

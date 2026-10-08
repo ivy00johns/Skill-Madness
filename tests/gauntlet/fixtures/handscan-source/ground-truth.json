@@ -1,0 +1,10 @@
+{
+  "design-token-guard": {
+    "kind": "hardcoded-color",
+    "files": ["src/ui/Button.tsx", "src/ui/Card.tsx"]
+  },
+  "class-extraction-guard": {
+    "kind": "repeated-class-string",
+    "files": ["src/ui/Button.tsx", "src/ui/Card.tsx", "src/ui/Row.tsx"]
+  }
+}

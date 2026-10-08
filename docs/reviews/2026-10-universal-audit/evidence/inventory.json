@@ -1,0 +1,3184 @@
+[
+  {
+    "path": "skills/contracts/contract-auditor/SKILL.md",
+    "frontmatter": {
+      "name": "contract-auditor",
+      "version": "1.2.1",
+      "description": "Orchestrator-dispatched only. Audits implementations against integration contracts (API, data layer, shared types) to find mismatches before integration testing. Static analysis pass \u2014 reads code and contracts, never runs the app. Not user-invocable.",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "contracts/",
+          "src/",
+          "backend/",
+          "frontend/",
+          "docs/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Grep",
+        "Glob",
+        "Bash"
+      ],
+      "composes_with": [
+        "contract-author",
+        "contract-conformance-loop",
+        "qe-agent",
+        "backend-agent",
+        "frontend-agent"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 181,
+    "body_words": 1174,
+    "sha256": "7782dc1a582d470a4dc6eb296ac2e163b9a7b02cbfdfcaa45af8f6515b847814",
+    "references": [
+      "skills/contracts/contract-auditor/references/pact-setup.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/contracts/contract-author/SKILL.md",
+    "frontmatter": {
+      "name": "contract-author",
+      "version": "1.5.0",
+      "description": "Generate machine-readable integration contracts (API, data layer, shared types, events) before any implementation begins in a multi-agent build. This is orchestrator Phase 4 \u2014 contracts written here BEFORE any implementation agent is spawned. Use when authoring API contracts, OpenAPI specs, AsyncAPI specs, Pydantic models, TypeScript interfaces, JSON Schema definitions, data layer interfaces, shared type schemas, integration boundaries between agents, or domain business rules. Trigger on \"write the API contract\", \"define the shared types\", \"spec out the endpoints\", \"create the OpenAPI\", \"author the contract\", or when the orchestrator needs contracts authored for a plan. Bundles six templates (OpenAPI, AsyncAPI, Pydantic, TypeScript, JSON Schema, data-layer YAML) \u2014 pick the one matching the project's stack.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "contracts/",
+          "schemas/"
+        ],
+        "patterns": [
+          "openapi.yaml",
+          "asyncapi.yaml"
+        ],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "backend-agent",
+        "frontend-agent",
+        "contract-auditor",
+        "contract-conformance-loop",
+        "qe-agent"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 239,
+    "body_words": 1746,
+    "sha256": "5b396f17543bcad8175d62d53cc3901e89124a046f4fd6debaed362ee8ca8551",
+    "references": [
+      "skills/contracts/contract-author/references/asyncapi-template.yaml",
+      "skills/contracts/contract-author/references/data-layer-template.yaml",
+      "skills/contracts/contract-author/references/json-schema-template.json",
+      "skills/contracts/contract-author/references/openapi-template.yaml",
+      "skills/contracts/contract-author/references/pydantic-template.py",
+      "skills/contracts/contract-author/references/typescript-template.ts"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/git/git-commit/SKILL.md",
+    "frontmatter": {
+      "name": "git-commit",
+      "version": "1.3.0",
+      "description": "Guide for creating git commits in this repository: conventional commit format, allowed types, and branch naming conventions. Use when staging changes and writing a commit message, creating a branch, or naming a branch. Trigger on: \"commit\", \"create a commit\", \"git commit\", \"stage changes\", \"write a commit message\", \"make a commit\", \"branch name\", \"new branch\", \"create branch\". Also use proactively whenever you are about to run `git commit` \u2014 even if the user did not explicitly mention this skill.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": []
+      },
+      "allowed-tools": [
+        "Read",
+        "Bash"
+      ],
+      "composes_with": [
+        "git-pr",
+        "git-pr-feedback",
+        "git-post-merge-cleanup"
+      ],
+      "spawned_by": []
+    },
+    "lines": 127,
+    "body_words": 447,
+    "sha256": "58cd732313ae9db513399727690383c71b48267f518ee098cdcca9ac50e75dcd",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/git/git-post-merge-cleanup/SKILL.md",
+    "frontmatter": {
+      "name": "git-post-merge-cleanup",
+      "version": "1.2.0",
+      "description": "Clean up everything stale after merges in one pass: local branches fully merged into the default branch, remote-tracking refs whose remote is gone, and worktrees that look \"modified\" but are already on main. Scans, classifies, presents a clear plan, and only acts on confirmation. Supports `--dry-run` and `--yes`. Use whenever the user mentions cleaning up branches OR worktrees, tidying git state after a batch of PRs landed, or noticing stale debris. Trigger on: \"clean up branches\", \"delete merged branches\", \"prune branches\", \"stale branches\", \"branch cleanup\", \"remove old branches\", \"clean up worktrees\", \"remove old worktrees\", \"worktree confusion\", \"phantom modified files\", \"post-merge cleanup\". Also trigger proactively when `git worktree list` shows entries beyond the main worktree, or after a batch of PRs land.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": []
+      },
+      "allowed-tools": [
+        "Bash",
+        "Read",
+        "Write"
+      ],
+      "composes_with": [
+        "git-commit",
+        "git-pr",
+        "git-pr-feedback"
+      ],
+      "spawned_by": []
+    },
+    "lines": 222,
+    "body_words": 1026,
+    "sha256": "eb5e9f56689ef14ea102a1fef9872bbe5b57159b81a21357d1cc7536e6bc3b6e",
+    "references": [
+      "skills/git/git-post-merge-cleanup/references/branch-classification.md",
+      "skills/git/git-post-merge-cleanup/references/worktree-cleanup-rules.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/git/git-pr/SKILL.md",
+    "frontmatter": {
+      "name": "git-pr",
+      "version": "1.4.0",
+      "description": "Guide for creating and updating GitHub pull requests in this repository: PR title format, body structure, clean descriptions, and the gh CLI workflow. Use when creating a pull request, writing a PR description, updating a PR, or preparing changes for review. Trigger on: \"create a PR\", \"open a PR\", \"pull request\", \"PR description\", \"PR body\", \"ready for review\", \"gh pr create\", \"open pull request\", \"submit PR\", \"PR template\". Also use proactively whenever you are about to run `gh pr create` \u2014 even if the user did not explicitly mention this skill.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": []
+      },
+      "allowed-tools": [
+        "Read",
+        "Bash"
+      ],
+      "composes_with": [
+        "git-commit",
+        "git-pr-feedback"
+      ],
+      "spawned_by": []
+    },
+    "lines": 148,
+    "body_words": 498,
+    "sha256": "15bffdedf2ca60e1d99cf937aff969411e226c5294e1fd7afd7bc98cca95c3f4",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/git/git-pr-feedback/SKILL.md",
+    "frontmatter": {
+      "name": "git-pr-feedback",
+      "version": "1.3.0",
+      "description": "Fetch, triage, and address PR review comments from GitHub Copilot and human reviewers. Use when the user asks to check PR feedback, review comments, address reviewer suggestions, or fix PR issues. Trigger on: \"check PR comments\", \"what did copilot say\", \"address PR feedback\", \"fix review comments\", \"handle PR suggestions\", \"review feedback\", \"PR comments\", \"copilot review\", \"reviewer feedback\", or any mention of responding to pull request comments. Also trigger when the user returns to a PR after some time and wants to handle accumulated feedback.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep"
+      ],
+      "composes_with": [
+        "git-pr",
+        "git-commit",
+        "git-post-merge-cleanup",
+        "babysit"
+      ],
+      "spawned_by": []
+    },
+    "lines": 195,
+    "body_words": 904,
+    "sha256": "1843767e654ee2dabfceb82aaa8366dcd932a09982769e7c04b628b7a546cf53",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/babysit/SKILL.md",
+    "frontmatter": {
+      "name": "babysit",
+      "version": "1.1.0",
+      "description": "Keep one of your open PRs healthy on a schedule: poll for new review activity, auto-address bot/Copilot nits and routine rebases, re-run the project gate, and reconcile the PR thread \u2014 looping until the PR has zero blocking findings and is mergeable, with HITL checkpoints on anything irreversible. This is the scheduled, guardrailed loop around git-pr-feedback (which does the per-pass fetch/triage/fix). Run it as Boris Cherny's daily-driver \"/loop 5m /babysit\", or invoke /babysit once. Use when you want a PR babysat while you work elsewhere, want review comments auto-handled on a cadence, or want a PR kept rebased and green. Trigger on \"babysit my PR\", \"babysit prs\", \"watch this PR\", \"keep my PR green\", \"auto-address review comments on a schedule\", \"loop 5m babysit\", \"keep the PR rebased\", \"poll the PR for new feedback\". Never auto-merges and never force-pushes a shared branch unattended. A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "git-pr-feedback",
+        "git-pr",
+        "git-commit",
+        "loop"
+      ],
+      "spawned_by": []
+    },
+    "lines": 175,
+    "body_words": 1300,
+    "sha256": "e67cfc6b7dd8edc3fa6fbc4bd20f63a631fc9a01d40d60a44c12c2f2230fc072",
+    "references": [
+      "skills/loops/babysit/references/scheduling.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/codebase-exploration-loop/SKILL.md",
+    "frontmatter": {
+      "name": "codebase-exploration-loop",
+      "version": "1.0.0",
+      "description": "Build a working mental model of an unfamiliar codebase by looping: fan out read-only subagents to map subsystems, synthesize, find the gaps in your understanding, and repeat until a written architecture summary answers every seed question \u2014 each answer citing where in the code it comes from. The deep-research fan-out shape applied to the LOCAL codebase (Read/Grep, no web), with a subagent-parallelism cap and a loop-until-dry stop on understanding gaps. Use when onboarding to a new repo, reverse-engineering someone else's code, or answering \"I don't understand how X works here\" before you touch it. Trigger on \"help me understand this codebase\", \"onboard me to this repo\", \"how does X work in this code\", \"build a mental model of this project\", \"explore this codebase\", \"map this codebase\", \"I don't understand this code\", \"explore until I understand\". A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Grep",
+        "Glob",
+        "Bash",
+        "Agent",
+        "Workflow"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "project-profiler",
+        "repo-deep-dive",
+        "orchestrator"
+      ],
+      "spawned_by": []
+    },
+    "lines": 179,
+    "body_words": 1392,
+    "sha256": "3f33cb76c7ca5cba63bd508f2d590426b0a1d6380eec0aa439c163759401dd07",
+    "references": [
+      "skills/loops/codebase-exploration-loop/references/exploration.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/contract-conformance-loop/SKILL.md",
+    "frontmatter": {
+      "name": "contract-conformance-loop",
+      "version": "1.0.0",
+      "description": "Drive an implementation until EVERY criterion of an authored contract holds \u2014 a Plan-Generate-Evaluate (PGE / GAN-style) loop where the builder implements toward one not-yet-passing criterion and a FRESH-CONTEXT evaluator subagent (contract-auditor, spawned with no Write/Edit tools, default-FAIL) grades all criteria against evidence and never lets the builder self-grade. This is the loop form of the contract-author / contract-auditor pair. Use when a contract or acceptance-criteria spec exists and an implementation must be built or verified against it. Trigger on \"build until the contract passes\", \"implement the spec until all criteria hold\", \"conform to the contract\", \"drive this to spec\", \"make the implementation match the contract\", \"loop until acceptance criteria pass\", \"build-until-spec\", \"PGE loop\", \"evaluate against the contract\", \"/contract-conformance-loop\". A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob",
+        "Agent"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "contract-author",
+        "contract-auditor",
+        "orchestrator",
+        "fix-until-green"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 184,
+    "body_words": 1405,
+    "sha256": "661ba8feec8fc32a85752dcb44e25c32c80391481642cf0042e01713e583fb7e",
+    "references": [
+      "skills/loops/contract-conformance-loop/references/pge-loop.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/coverage-loop/SKILL.md",
+    "frontmatter": {
+      "name": "coverage-loop",
+      "version": "1.0.0",
+      "description": "Grow a test suite until a coverage target is met: run coverage, find the lowest-covered meaningful unit, add REAL behavior-checking tests for it, then re-measure the whole report \u2014 looping until total (and per-target) coverage is at or above the configured target AND the full suite is green. Reads the target from .claude/profile.yaml (no hard-coded 80 or 100). Forbids gaming the number with assertion-free tests or excluding files from the coverage config \u2014 both are findings. Use when coverage is below target, when a build wave needs more tests, or as the QE coverage inner loop under an orchestrated build. Trigger on: \"raise coverage\", \"hit the coverage target\", \"add tests until coverage\", \"get to N percent coverage\", \"coverage is too low\", \"loop until coverage passes\", \"grow the test suite\", \"cover the untested code\", \"/coverage-loop\". A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "fix-until-green",
+        "qe-agent",
+        "orchestrator"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 194,
+    "body_words": 1546,
+    "sha256": "73810ecd0296ec77119b9375ee8e4958b18f62d69776e7218b584593af412ba5",
+    "references": [
+      "skills/loops/coverage-loop/references/coverage.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/dependency-health-loop/SKILL.md",
+    "frontmatter": {
+      "name": "dependency-health-loop",
+      "version": "1.0.0",
+      "description": "Keep a project's dependencies healthy on a schedule: audit for known vulnerabilities and over-stale pins, apply ONE safe update (or a vuln fix) per pass, run the full gate to prove the update is non-breaking, and open or update a PR \u2014 looping on a sprint cadence with HITL on every major version bump and never auto-merging. Use when you want deps watched while you build, want security advisories acted on a cadence, want lockfiles kept fresh without breaking the build, or want a dependency audit run every 30 minutes during a sprint. Trigger on \"audit my dependencies\", \"keep deps up to date\", \"dependency health\", \"check for vulnerable packages\", \"npm audit on a schedule\", \"pip-audit loop\", \"cargo audit loop\", \"update dependencies safely\", \"watch for CVEs\", \"keep the lockfile fresh\", \"dependabot-style loop\", \"bump deps and test\". Routes major/breaking bumps to a human and never merges. A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "security-agent",
+        "infrastructure-agent",
+        "fix-until-green",
+        "git-pr",
+        "loop"
+      ],
+      "spawned_by": []
+    },
+    "lines": 200,
+    "body_words": 1577,
+    "sha256": "4e659744f6f24b77d58d2f0612e28e7ad45844b252b08b20766117a15b6f3545",
+    "references": [
+      "skills/loops/dependency-health-loop/references/ecosystems.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/fix-until-green/SKILL.md",
+    "frontmatter": {
+      "name": "fix-until-green",
+      "version": "1.0.0",
+      "description": "Drive a failing build to passing in a disciplined loop: run the project's full gate (tests + lint + typecheck), fix one root cause, re-run the whole gate, and repeat until all three exit clean \u2014 with a hard iteration cap, no-progress detection, and a rule against cheating the gate green. Use when tests/CI are red and you want them green, when a build wave fails its checks, or as the QE inner loop under an orchestrated build. Trigger on: \"fix until green\", \"make the tests pass\", \"get CI green\", \"fix the failing tests\", \"make it green\", \"drive the build to passing\", \"red to green\", \"loop until tests pass\", \"fix lint and type errors\", \"keep fixing until the suite is clean\", \"make the wave gate pass\". A configuration of loop-controller \u2014 it supplies the harness; this skill supplies the proof (three exit codes) and the fix discipline.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "orchestrator-task-loop",
+        "qe-agent",
+        "diagnose-loop",
+        "git-commit",
+        "orchestrator"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 180,
+    "body_words": 1431,
+    "sha256": "ec224d3ff89ef60a965e0874e0b794aa9279fbbb5d9641911f7e711199e91a83",
+    "references": [
+      "skills/loops/fix-until-green/references/gate-commands.md",
+      "skills/loops/fix-until-green/references/stop-hook.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/loop-controller/SKILL.md",
+    "frontmatter": {
+      "name": "loop-controller",
+      "version": "1.2.1",
+      "description": "Wrap any task in a verifiable stop condition plus a mandatory guardrail stack so an autonomous loop converges instead of thrashing or burning the budget \u2014 the foundation harness every loop skill composes on. Use whenever you want Claude to keep working until something is provably true (tests pass, coverage hits a target, a contract's criteria hold, a queue is empty), to schedule a recurring check, or to pick the right loop primitive (/goal vs /loop vs Stop-hook vs a bash Ralph loop vs a dynamic workflow). Trigger on: \"loop until\", \"keep going until\", \"run until green\", \"work until done\", \"autonomous loop\", \"agentic loop\", \"ralph loop\", \"/goal\", \"iterate until\", \"loop safely\", \"iteration cap\", \"loop budget\", \"runaway agent\", \"overnight build\". Read it first when authoring any new loop skill.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep",
+        "Agent",
+        "Workflow"
+      ],
+      "composes_with": [
+        "orchestrator",
+        "fix-until-green",
+        "orchestrator-task-loop",
+        "contract-conformance-loop",
+        "babysit",
+        "coverage-loop",
+        "perf-loop",
+        "self-healing-loop",
+        "migration-loop",
+        "nightly-docs-and-changelog",
+        "dependency-health-loop",
+        "codebase-exploration-loop",
+        "repo-cleanup-loop",
+        "qe-agent",
+        "contract-auditor",
+        "diagnose-loop",
+        "context-manager",
+        "model-adaptation",
+        "find-unknowns",
+        "loop",
+        "schedule"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 348,
+    "body_words": 3264,
+    "sha256": "878cebccd26f315eeb227cace0636024d6d265bc834078ffc21dfba719261167",
+    "references": [
+      "skills/loops/loop-controller/references/authoring.md",
+      "skills/loops/loop-controller/references/primitives.md",
+      "skills/loops/loop-controller/references/safety.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/migration-loop/SKILL.md",
+    "frontmatter": {
+      "name": "migration-loop",
+      "version": "1.1.0",
+      "description": "Migrate a known, enumerated set of targets one at a time until EVERY one is done \u2014 one iteration picks the next un-migrated target from a checklist, transforms it, verifies behaviour-identical (the suite stays green), commits a checkpoint, and marks it migrated, with a hard exit that BOTH the suite is green AND a grep for the old pattern returns zero. The only loop over a fixed target set whose proof is \"no legacy pattern remains,\" not just \"tests pass.\" Use for a codemod across a repo, a Jest-to-Vitest swap, an API version bump, a framework migration, an import/dependency rename, or any mechanical transform applied to a finite list of files. Trigger on \"migrate everything from X to Y\", \"run the codemod across the repo\", \"bump every call site\", \"swap the framework\", \"migrate all the tests\", \"finish the migration\", \"no old pattern left\", \"/migration-loop\". A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob",
+        "Agent"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "orchestrator",
+        "fix-until-green",
+        "db-migration-agent"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 230,
+    "body_words": 1877,
+    "sha256": "d773cbf5992b85a0f47933cf4f6a620236f057e936c8b5109c87b0e7c9faa253",
+    "references": [
+      "skills/loops/migration-loop/references/migration-checklist.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/nightly-docs-and-changelog/SKILL.md",
+    "frontmatter": {
+      "name": "nightly-docs-and-changelog",
+      "version": "1.0.1",
+      "description": "Run a nightly sweep that keeps an existing repo's docs and changelog from rotting: diff the code since the last run, bring the docs for the changed surface back in line with the implementation, append every user-relevant change to CHANGELOG.md (or record a no-change night), and open ONE reviewable PR \u2014 never auto-merging. Scheduled to survive laptop-off via a cloud routine / Desktop scheduled task, NOT a session-scoped loop. Use when you want docs and the changelog kept current automatically while you sleep, when docs keep drifting behind code, when the changelog is always stale, or when you want a morning PR of doc+changelog updates to review. Trigger on: \"keep the docs current\", \"nightly docs sweep\", \"update the changelog nightly\", \"docs keep drifting\", \"stale changelog\", \"overnight docs\", \"stop the docs rotting\", \"nightly doc PR\". Drafts AFK; merges HITL. A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "docs-agent",
+        "git-pr",
+        "schedule"
+      ],
+      "spawned_by": []
+    },
+    "lines": 188,
+    "body_words": 1608,
+    "sha256": "3c31ed121f580181c657cba3fcd67c54e70d73a036a1f3cbaebe9a9fe6c23395",
+    "references": [
+      "skills/loops/nightly-docs-and-changelog/references/scheduling.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/orchestrator-task-loop/SKILL.md",
+    "frontmatter": {
+      "name": "orchestrator-task-loop",
+      "version": "1.0.1",
+      "description": "The outer orchestration loop over the Agent Teams shared task list: the lead loops the board until EVERY task is completed AND each passes its TaskCompleted gate, feeding idle workers via the TeammateIdle hook so the team never stalls. One pass = read the board, assign the highest-priority unblocked task to each idle teammate, gate each completed task (pass counts it; fail rolls it back), re-verify the whole board. Experimental \u2014 gated behind CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1; falls back to the orchestrator's subagent/sequential path when off. Use to drain a task board or keep the team working until done under a build. Trigger on: \"loop over the task list\", \"drain the task board\", \"keep the team working until done\", \"agent teams loop\", \"orchestrator task loop\", \"keep idle teammates fed\". A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "requires_agent_teams": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep",
+        "Agent",
+        "Task",
+        "Workflow"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "orchestrator",
+        "fix-until-green",
+        "qe-agent",
+        "contract-auditor",
+        "context-manager",
+        "diagnose-loop",
+        "git-commit",
+        "loop",
+        "schedule"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 239,
+    "body_words": 1993,
+    "sha256": "43a22c2e3b32988744867f8f9b3dbd5f9ad68ca8fd43c23d0057e1283f80aced",
+    "references": [
+      "skills/loops/orchestrator-task-loop/references/agent-teams.md",
+      "skills/loops/orchestrator-task-loop/references/hooks.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/perf-loop/SKILL.md",
+    "frontmatter": {
+      "name": "perf-loop",
+      "version": "1.0.0",
+      "description": "Drive a metric under its budget in a disciplined profile-optimize-reprofile loop run under REPEATABLE conditions: benchmark the whole measured set under a fixed environment, find the single highest-leverage hotspot or regression, optimize one thing, re-benchmark the WHOLE set, and repeat until the metric is under target on every measured path with no functional regression. The proof is a measured number from a named benchmark artifact, not a hunch. Use for latency, throughput, page-load, bundle-size, memory, or test-suite-speed targets, or as the performance-role inner loop under an orchestrated build. Trigger on: \"optimize until under Nms\", \"get page load under budget\", \"profile and speed this up\", \"make it faster until target\", \"reduce latency loop\", \"performance budget\", \"shrink the bundle\", \"speed up the test suite\", \"benchmark until green\", \"perf loop\", \"/perf-loop\". A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "fix-until-green",
+        "performance-agent",
+        "orchestrator"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 195,
+    "body_words": 1502,
+    "sha256": "3d77f0884d3951c0029f4b128405331f619765ac3a50c00c1c835dc2852e5edc",
+    "references": [
+      "skills/loops/perf-loop/references/benchmark-discipline.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/repo-cleanup-loop/SKILL.md",
+    "frontmatter": {
+      "name": "repo-cleanup-loop",
+      "version": "1.0.1",
+      "description": "Keep a repo's git state intentional on a weekly cadence: scan every branch, PR, commit trail, and worktree, classify each as current / owned / safely removable-with-evidence, RECOVER any valuable work before deleting, then remove exactly one class of stale items with evidence \u2014 looping until every item is accounted for, with an HITL checkpoint on anything ambiguous and never a force-delete of unmerged work. The broad recurring evidence-gated loop that delegates the post-merge-branch case to git-post-merge-cleanup. Use when you want a repo kept tidy on a schedule, stale branches and worktrees pruned safely after sprints, or a weekly hygiene sweep that recovers before it deletes. Trigger on \"clean up the repo weekly\", \"weekly repo hygiene\", \"prune stale branches and worktrees on a schedule\", \"tidy git state every week\", \"scheduled repo cleanup\", \"sweep stale PRs and worktrees\". A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "git-post-merge-cleanup",
+        "loop"
+      ],
+      "spawned_by": []
+    },
+    "lines": 193,
+    "body_words": 1491,
+    "sha256": "8bdd29b32ae345700f5af4c35b2b77025ae96e587bf8798d197cbe3f6a671dfd",
+    "references": [
+      "skills/loops/repo-cleanup-loop/references/cleanup-algorithm.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/loops/self-healing-loop/SKILL.md",
+    "frontmatter": {
+      "name": "self-healing-loop",
+      "version": "1.1.0",
+      "description": "Watch a production or CI error signal on a cadence and, when an ACTIONABLE error appears, trace its root cause, fix it in a branch, verify the failing signal now passes, and open a PR for a human to merge \u2014 never auto-deploy and never auto-merge a prod hotfix. One pass polls the error source: actionable error present means hand the hard diagnosis to diagnose-loop, fix the cause, verify, open or update a PR; no actionable error means record a clean-log confirmation. Use when you want an unattended watcher over CI status, error logs, alerts, or an observability feed that heals reversible failures and escalates the rest. Trigger on \"watch the logs and fix errors\", \"self-heal CI\", \"production error sweep\", \"poll for failures and open a fix PR\", \"auto-fix the red build\", \"watch CI and heal it\", \"error sweep loop\", \"auto-heal production errors\", \"/self-healing-loop\". A configuration of loop-controller.",
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "disable-model-invocation": true,
+      "allowed-tools": [
+        "Read",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "loop-controller",
+        "observability-agent",
+        "diagnose-loop",
+        "fix-until-green",
+        "loop"
+      ],
+      "spawned_by": []
+    },
+    "lines": 195,
+    "body_words": 1583,
+    "sha256": "4d89e4cecb81c4438b1d6b3334ec95f3b94b080bfc1013351c3b1cfff86287e1",
+    "references": [
+      "skills/loops/self-healing-loop/references/watch-and-heal.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/meta/madness/SKILL.md",
+    "frontmatter": {
+      "name": "madness",
+      "version": "1.4.0",
+      "description": "The front door to the whole toolkit \u2014 one reliable entry point that reads what you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a role or workflow skill, or skill-explorer), and launches it for you \u2014 so you stop reaching for `orchestrator` on everything just to be sure a skill fires. Use when you don't know which skill to start with, want to kick off work but aren't sure of the entry point, or just want to summon the toolkit. Confirms before anything expensive (agent swarms, autonomous loops, full builds) and fires cheap routes immediately. Trigger on: \"/madness\", \"madness\", \"where do I start\", \"which skill do I use\", \"route me\", \"kick this off\", \"get me into the right workflow\", \"I don't know what skill\", \"use the toolkit\", \"what's the front door\", \"what should I run for this\". It routes and hands off \u2014 it does not do the work itself and it is not a meta-orchestrator.",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "skills/"
+        ]
+      },
+      "composes_with": [
+        "skill-explorer",
+        "orchestrator",
+        "plan-builder",
+        "loop-controller",
+        "use-pxpipe"
+      ],
+      "spawned_by": []
+    },
+    "lines": 250,
+    "body_words": 2202,
+    "sha256": "82afd844612e175c2a5640d84789d61b86babbf78dd99cf6e6412efd15807aca",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/meta/model-adaptation/SKILL.md",
+    "frontmatter": {
+      "name": "model-adaptation",
+      "version": "1.5.0",
+      "description": "Adapt prompts, skills, and agent scaffolding when the underlying model changes \u2014 currently the Claude 5 family (Fable 5/Mythos 5) vs Opus 4.x, plus the cross-vendor DeepSeek landscape. Stronger models need LESS scaffolding: this skill says what to PRUNE, what backfires (narrating reasoning trips a reasoning_extraction refusal), and what to add for long autonomous runs. Canonical home of the model & effort tiering policy (declared-provider ladder \u2014 Anthropic or DeepSeek; FreeLLMAPI carve-out) and the capability-handoff technique \u2014 extract an operating manual from a stronger model to run on a cheaper one. Use when migrating a skill to a new model, agents get refused, or picking model/effort per role. Trigger on \"migrate to Fable\", \"Fable 5\", \"Mythos 5\", \"deepseek\", \"model migration\", \"reasoning_extraction\", \"tune effort\", \"model tiering\", \"long-running agent hygiene\", \"extract operating manual\", \"pxpipe\", \"image proxy\".\n",
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "compatibility": "Claude Code, Claude.ai, or DeepSeek hosts (e.g. Freebuff); reference/advisory skill. No special tools required \u2014 WebFetch is optional, only to re-pull the live Anthropic or DeepSeek guide.",
+      "allowed-tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Edit",
+        "WebFetch"
+      ],
+      "composes_with": [
+        "skill-writer",
+        "skill-review",
+        "skill-update",
+        "loop-controller",
+        "orchestrator",
+        "use-freellmapi",
+        "use-pxpipe",
+        "claude-api"
+      ],
+      "spawned_by": []
+    },
+    "lines": 355,
+    "body_words": 3596,
+    "sha256": "98fdae8ebcd13187e5b6ff71dac409fa07a930d32aba13f38d01f73e7aa36a04",
+    "references": [
+      "skills/meta/model-adaptation/references/capability-handoff.md",
+      "skills/meta/model-adaptation/references/deepseek-adaptation.md",
+      "skills/meta/model-adaptation/references/long-run-hygiene.md",
+      "skills/meta/model-adaptation/references/model-effort-tiering.md",
+      "skills/meta/model-adaptation/references/operating-manual.md",
+      "skills/meta/model-adaptation/references/refusal-and-fallback.md"
+    ],
+    "scripts": [
+      "skills/meta/model-adaptation/scripts/extract_operating_manual.py"
+    ]
+  },
+  {
+    "path": "skills/meta/skill-catalog/SKILL.md",
+    "frontmatter": {
+      "name": "skill-catalog",
+      "version": "1.0.0",
+      "description": "Keep the Skill-Madness catalog in sync with the filesystem. The published\nplugin.json `skills` array and every advertised skill count (README, CLAUDE.md,\nPLAN.md, START-HERE.md, marketplace.json) are DERIVED from disk by one command,\nso they never drift. Use this whenever you add, remove, or rename a skill,\nregister a skill in plugin.json, notice mismatched skill counts (\"47 vs 49\"),\nhit a CI \"catalog drift\" failure, ask \"how many skills are there\", or need\nskills symlinked into ~/.claude for global use. The filesystem is the single\nsource of truth: run `scripts/catalog.sh --sync` (a pre-commit hook also\nauto-fixes drift on commit), then `sync-skills` for the global symlinks. Never\nhand-edit the counts or the plugin.json array \u2014 let the tooling regenerate them.\n",
+      "compatibility": "Claude Code",
+      "requires_claude_code": true,
+      "requires_agent_teams": false,
+      "min_plan": "starter",
+      "allowed-tools": [
+        "Read",
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "composes_with": [
+        "sync-skills",
+        "skill-writer",
+        "skill-update",
+        "skill-review"
+      ]
+    },
+    "lines": 157,
+    "body_words": 977,
+    "sha256": "e7d2c9fd63b7958f4bc459547df25db549a4b2677f9e1b1dff95e9e99de3d737",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/meta/skill-explorer/SKILL.md",
+    "frontmatter": {
+      "name": "skill-explorer",
+      "version": "1.4.0",
+      "description": "Help the user discover, recall, understand, and pick the right skill from the available toolkit. Names the skill; does NOT invoke it. Use when the user is trying to find a skill (\"I forgot the name of the one that does X\", \"what was that skill called\"), asking what skills exist (\"what skills do I have\", \"list all my skills\", \"show me the catalog\"), asking what a specific skill does (\"what does X do\", \"explain the X skill\"), asking how skills relate (\"how do these connect\", \"what does orchestrator spawn\"), or asking for routing help (\"which skill for this task\", \"what should I use to Y\"). Also trigger when the user reaches for orchestrator on something that isn't a multi-agent build, or asks any meta-question about the skill ecosystem itself.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "skills/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash"
+      ],
+      "composes_with": [
+        "skill-review",
+        "skill-writer"
+      ],
+      "spawned_by": []
+    },
+    "lines": 157,
+    "body_words": 1421,
+    "sha256": "42cb0815ded387e07a74abe2e89df5d08fea9376d12c3ebf831dc66278db089d",
+    "references": [
+      "skills/meta/skill-explorer/references/routing-table.md",
+      "skills/meta/skill-explorer/references/troubleshooting.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/meta/skill-review/SKILL.md",
+    "frontmatter": {
+      "name": "skill-review",
+      "version": "1.3.0",
+      "argument-hint": "skill-name or 'all'",
+      "description": "Review skills for quality, consistency, triggering accuracy, and adherence to the 5000-word / 500-line body guideline. Two modes: 'all' (bulk ecosystem-wide scan for ownership conflicts, length outliers, weak triggers, dead xrefs) or a single skill name (deep dive on description quality, body structure, anti-pattern naming, cross-references). Outputs a structured markdown report plus JSON sidecar consumable by skill-update. Trigger on \"audit skills\", \"review this skill\", \"health check skills\", \"bulk review\", \"deep review\", \"what needs fixing\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "skills/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Bash",
+        "Write"
+      ],
+      "composes_with": [
+        "skill-update",
+        "skill-writer",
+        "skill-creator:skill-creator",
+        "model-adaptation"
+      ],
+      "spawned_by": []
+    },
+    "lines": 161,
+    "body_words": 1277,
+    "sha256": "2fb2385b1a0d9a8c50d699e47d86c8e9af1a6c72e719124a32732c34fbed25c6",
+    "references": [
+      "skills/meta/skill-review/references/audit-checklist.md",
+      "skills/meta/skill-review/references/deep-review-rubric.md",
+      "skills/meta/skill-review/references/report-format.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/meta/skill-update/SKILL.md",
+    "frontmatter": {
+      "name": "skill-update",
+      "version": "1.2.1",
+      "description": "Plan and apply changes to an existing skill in one workflow. Reads a skill-review report (bulk or deep-dive) or inline findings, drafts an edit list with the agent's recommended answer attached, walks the edits one at a time, applies them, and re-runs lint and frontmatter checks. Use after skill-review when you're ready to ship the changes. Trigger on \"apply the review\", \"update this skill\", \"fix the skill\", \"ship the recommendations\", \"edit this skill\", \"apply the plan\", \"implement the changes\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": []
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "skill-review",
+        "skill-writer",
+        "sync-skills"
+      ],
+      "spawned_by": []
+    },
+    "lines": 155,
+    "body_words": 1000,
+    "sha256": "2079bc63b6820091357925e3edde81452bf7beae64a94fd74081d3da01209f0f",
+    "references": [
+      "skills/meta/skill-update/references/plan-format.md",
+      "skills/meta/skill-update/references/validation-checklist.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/meta/skill-writer/SKILL.md",
+    "frontmatter": {
+      "name": "skill-writer",
+      "version": "1.6.0",
+      "description": "Generate new SKILL.md files conforming to the ecosystem's frontmatter spec and structure conventions. Use when creating a new agent role, meta skill, workflow skill, or contract skill \u2014 anything that needs a SKILL.md scaffold. Trigger on \"create a skill\", \"new agent\", \"write a SKILL.md\", \"scaffold a skill\", \"add a role to the skill ecosystem\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": []
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "project-profiler",
+        "orchestrator",
+        "skill-review",
+        "skill-update"
+      ],
+      "spawned_by": []
+    },
+    "lines": 177,
+    "body_words": 1393,
+    "sha256": "3c9e0661e6e8aab7628c239a06ca2887c5d4aeca5311bcb7f16213fe48dfea25",
+    "references": [
+      "skills/meta/skill-writer/references/body-template.md",
+      "skills/meta/skill-writer/references/description-patterns.md",
+      "skills/meta/skill-writer/references/frontmatter-spec.md",
+      "skills/meta/skill-writer/references/patterns.md",
+      "skills/meta/skill-writer/references/performance-notes.md",
+      "skills/meta/skill-writer/references/quick-checklist.md",
+      "skills/meta/skill-writer/references/validation-script-pattern.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/orchestrator/SKILL.md",
+    "frontmatter": {
+      "name": "orchestrator",
+      "version": "1.18.0",
+      "description": "Coordinate multi-agent Claude Code builds end-to-end: read the plan/mission, design integration contracts, dispatch role-agents in parallel, gate on QA, ship. Under ultracode (standing opt-in) or an explicit \"workflow\" ask, it drives the implement + verify phases with the Workflow tool \u2014 fanning out role-agents against the contracts and adversarially verifying instead of hand-spawning agents one message at a time. Use when the user mentions agent teams, parallel/swarm builds, multi-agent work, a MISSION.md file, a multi-phase mission, or splitting work across Claude sessions. Triggers on \"agent team\", \"parallel build\", \"team build\", \"multi-agent\", \"swarm build\", \"build X with agents\", \"coordinate the build\", \"run the mission\", \"workflow\", \"dynamic workflows\", \"ultracode build\", \"orchestrate with workflows\". Does NOT preempt brainstorming, planning, design-brief, or feature-dev \u2014 it picks up after those produce artifacts.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [
+          ".gitignore"
+        ],
+        "shared_read": [
+          "contracts/",
+          ".claude/handoffs/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep",
+        "Agent",
+        "Workflow"
+      ],
+      "composes_with": [
+        "wiki-research",
+        "llm-wiki",
+        "repo-deep-dive",
+        "superpowers:brainstorming",
+        "plan-builder",
+        "superpowers:writing-plans",
+        "backend-agent",
+        "frontend-agent",
+        "infrastructure-agent",
+        "qe-agent",
+        "security-agent",
+        "docs-agent",
+        "observability-agent",
+        "db-migration-agent",
+        "performance-agent",
+        "contract-author",
+        "contract-auditor",
+        "dependency-coordinator",
+        "context-manager",
+        "deployment-checklist",
+        "code-review-agent",
+        "project-profiler",
+        "mermaid-charts",
+        "playwright",
+        "claude-design-brief",
+        "ui-brief",
+        "frontend-design:frontend-design",
+        "ui-ux-pro-max",
+        "ux-review",
+        "render-sanity",
+        "design-token-guard",
+        "nano-banana",
+        "claude-api",
+        "feature-dev:feature-dev",
+        "git-commit",
+        "git-pr",
+        "git-pr-feedback",
+        "git-post-merge-cleanup",
+        "claude-mem:mem-search",
+        "claude-mem:timeline-report",
+        "claude-mem:knowledge-agent",
+        "skill-writer",
+        "skill-review",
+        "skill-update",
+        "model-adaptation",
+        "railway-deploy",
+        "loop",
+        "schedule",
+        "loop-controller",
+        "fix-until-green",
+        "orchestrator-task-loop",
+        "contract-conformance-loop",
+        "coverage-loop",
+        "perf-loop",
+        "migration-loop"
+      ],
+      "spawned_by": []
+    },
+    "lines": 310,
+    "body_words": 5463,
+    "sha256": "9c44a8bfd528fac216dcba67c6088441e9e037e9330bb7ed7df3af4e90be2929",
+    "references": [
+      "skills/orchestrator/references/agent-spawning.md",
+      "skills/orchestrator/references/circuit-breaker.md",
+      "skills/orchestrator/references/file-ownership.md",
+      "skills/orchestrator/references/handoff-protocol.md",
+      "skills/orchestrator/references/mission-interpretation.md",
+      "skills/orchestrator/references/phase-guide.md",
+      "skills/orchestrator/references/port-conventions.md",
+      "skills/orchestrator/references/team-sizing.md",
+      "skills/orchestrator/references/wave-gate.md",
+      "skills/orchestrator/references/workflow-orchestration.md",
+      "skills/orchestrator/references/workspace-bootstrap.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/roles/backend-agent/SKILL.md",
+    "frontmatter": {
+      "name": "backend-agent",
+      "version": "1.3.0",
+      "disable-model-invocation": true,
+      "description": "Orchestrator-dispatched only. Builds API servers, business logic, and data layers for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable.",
+      "compatibility": "Claude Code; requires Bash for curl/test commands",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "src/api/",
+          "src/services/",
+          "src/models/",
+          "src/middleware/",
+          "src/utils/"
+        ],
+        "patterns": [],
+        "shared_read": [
+          "contracts/",
+          "shared/",
+          "src/types/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "frontend-agent",
+        "qe-agent",
+        "infrastructure-agent",
+        "contract-author",
+        "db-migration-agent",
+        "observability-agent",
+        "wiki-research"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 171,
+    "body_words": 1292,
+    "sha256": "4000443d74e348a1de297723e2689b719ad190e7fe30dd2bcea79b4b2129cf30",
+    "references": [
+      "skills/roles/backend-agent/references/validation-checklist.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/roles/code-review-agent/SKILL.md",
+    "frontmatter": {
+      "name": "code-review-agent",
+      "version": "1.5.0",
+      "disable-model-invocation": true,
+      "description": "Explicitly-invoked read-only code review along two independent axes \u2014 Standards (does it follow the repo's conventions + a built-in code-smell baseline) and Spec (does it faithfully implement the originating issue/contract) \u2014 run as separate sub-agents and reported side-by-side, never merged into one score. Run on request for a thorough standalone review of a set of files or a diff; not auto-triggered and not an automatic build phase. During an orchestrated build, build-time diff review is handled by the external /code-review CLI, not this skill.",
+      "compatibility": "Claude Code",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Grep",
+        "Glob",
+        "Bash",
+        "Agent"
+      ],
+      "composes_with": [
+        "wiki-research",
+        "qe-agent",
+        "security-agent",
+        "backend-agent",
+        "frontend-agent"
+      ],
+      "spawned_by": []
+    },
+    "lines": 174,
+    "body_words": 1272,
+    "sha256": "d3cb86f144e1fb26774c5e705084ee8cad41d189189a2ee1fbc7a6629f5a7e30",
+    "references": [
+      "skills/roles/code-review-agent/references/review-rubric.md",
+      "skills/roles/code-review-agent/references/standards-baseline.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/roles/db-migration-agent/SKILL.md",
+    "frontmatter": {
+      "name": "db-migration-agent",
+      "version": "1.2.0",
+      "disable-model-invocation": true,
+      "description": "Orchestrator-dispatched only. Manages database schema migrations, seed data, and schema evolution for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable.",
+      "compatibility": "Claude Code; requires Bash + DB CLI",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "migrations/",
+          "seeds/",
+          "prisma/",
+          "alembic/",
+          "knex/migrations/"
+        ],
+        "patterns": [],
+        "shared_read": [
+          "src/models/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "backend-agent",
+        "infrastructure-agent",
+        "qe-agent"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 121,
+    "body_words": 669,
+    "sha256": "e86577df877a9840ecf0cd1afac9280f1dddd1fb7b058f3fbab3f568cfb21a75",
+    "references": [
+      "skills/roles/db-migration-agent/references/migration-checklist.md",
+      "skills/roles/db-migration-agent/references/validation-checklist.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/roles/docs-agent/SKILL.md",
+    "frontmatter": {
+      "name": "docs-agent",
+      "version": "1.2.0",
+      "disable-model-invocation": true,
+      "description": "Orchestrator-dispatched only. Generates project documentation, API docs, READMEs, and changelogs for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable.",
+      "compatibility": "Claude Code",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "docs/"
+        ],
+        "patterns": [
+          "README.md",
+          "CHANGELOG.md",
+          "CONTRIBUTING.md"
+        ],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "backend-agent",
+        "frontend-agent",
+        "infrastructure-agent",
+        "mermaid-charts",
+        "contract-author"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 120,
+    "body_words": 731,
+    "sha256": "f673325d1beb133fa40e5048522d89f16fd12e4df621c610bee78ef504f34764",
+    "references": [
+      "skills/roles/docs-agent/references/doc-templates.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/roles/frontend-agent/SKILL.md",
+    "frontmatter": {
+      "name": "frontend-agent",
+      "version": "1.6.0",
+      "disable-model-invocation": true,
+      "description": "Orchestrator-dispatched only. Builds user interfaces, client-side state, and presentation layers for multi-agent builds. Composes with frontend-design and ui-ux-pro-max for visual quality. Not user-invocable.",
+      "compatibility": "Claude Code; requires Bash + Node toolchain",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "src/components/",
+          "src/pages/",
+          "src/hooks/",
+          "src/styles/",
+          "public/"
+        ],
+        "patterns": [
+          "*.tsx",
+          "*.jsx",
+          "*.vue",
+          "*.svelte",
+          "*.css"
+        ],
+        "shared_read": [
+          "contracts/",
+          "shared/",
+          "src/types/",
+          "assets/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "backend-agent",
+        "qe-agent",
+        "infrastructure-agent",
+        "contract-author",
+        "frontend-design:frontend-design",
+        "ui-ux-pro-max",
+        "ui-brief",
+        "nano-banana"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 185,
+    "body_words": 1757,
+    "sha256": "cbcc0bf59ea31ed5a6165ddabe2f98ff8e76463afa43796026459b722af59d17",
+    "references": [
+      "skills/roles/frontend-agent/references/mobile-responsive.md",
+      "skills/roles/frontend-agent/references/validation-checklist.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/roles/infrastructure-agent/SKILL.md",
+    "frontmatter": {
+      "name": "infrastructure-agent",
+      "version": "1.2.0",
+      "disable-model-invocation": true,
+      "description": "Orchestrator-dispatched only. Builds containerization, orchestration, CI/CD, and deployment configuration for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable.",
+      "compatibility": "Claude Code; requires Bash + docker CLI + lsof",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          ".github/workflows/",
+          "nginx/",
+          "k8s/",
+          "terraform/",
+          "scripts/deploy/"
+        ],
+        "patterns": [
+          "Dockerfile*",
+          "docker-compose*",
+          "Makefile",
+          "justfile",
+          ".env.example"
+        ],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "backend-agent",
+        "frontend-agent",
+        "qe-agent",
+        "deployment-checklist",
+        "observability-agent"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 131,
+    "body_words": 886,
+    "sha256": "1af59e625cd5a30fb1d0ab66ad599783699aa28999af15851ca91a8f06ca132c",
+    "references": [
+      "skills/roles/infrastructure-agent/references/validation-checklist.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/roles/observability-agent/SKILL.md",
+    "frontmatter": {
+      "name": "observability-agent",
+      "version": "1.2.0",
+      "disable-model-invocation": true,
+      "description": "Orchestrator-dispatched only. Sets up logging, monitoring, metrics, and alerting for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable.",
+      "compatibility": "Claude Code; requires Bash for instrumentation tooling",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "src/telemetry/",
+          "src/logging/",
+          "monitoring/",
+          "alerts/"
+        ],
+        "patterns": [],
+        "shared_read": [
+          "src/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "backend-agent",
+        "infrastructure-agent",
+        "frontend-agent"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 131,
+    "body_words": 758,
+    "sha256": "30e3406485ffc17f99d10b817f0b2968d63bb62da07d0402801017573e32b312",
+    "references": [
+      "skills/roles/observability-agent/references/monitoring-patterns.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/roles/performance-agent/SKILL.md",
+    "frontmatter": {
+      "name": "performance-agent",
+      "version": "1.3.0",
+      "disable-model-invocation": true,
+      "description": "Orchestrator-dispatched only. Designs and executes performance tests, load tests, and benchmarks for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable.",
+      "compatibility": "Claude Code; requires Bash + k6",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "tests/performance/",
+          "load-tests/"
+        ],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "backend-agent",
+        "infrastructure-agent",
+        "qe-agent"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 137,
+    "body_words": 908,
+    "sha256": "3b19a212c110c3c462f1b9ca7a8236dfff8fa82f0766d7c4f8e8791e529c98e0",
+    "references": [
+      "skills/roles/performance-agent/references/k6-patterns.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/roles/qe-agent/SKILL.md",
+    "frontmatter": {
+      "name": "qe-agent",
+      "version": "1.5.0",
+      "disable-model-invocation": true,
+      "description": "Orchestrator-dispatched only. Verifies implementations match contracts, integrations connect, and edge cases are handled \u2014 owns the `qa-report.json` build gate. Composed by orchestrator during multi-agent builds. Not user-invocable.",
+      "compatibility": "Claude Code; requires Bash + curl + python3",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "tests/",
+          "e2e/",
+          "__tests__/"
+        ],
+        "patterns": [
+          "*.test.*",
+          "*.spec.*",
+          "qa-report.md",
+          "qa-report.json"
+        ],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "backend-agent",
+        "frontend-agent",
+        "infrastructure-agent",
+        "security-agent",
+        "contract-auditor",
+        "performance-agent",
+        "playwright"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 131,
+    "body_words": 1182,
+    "sha256": "0d2924cbc870982232b02a11dc122796a50cd43cec0675274d87eb0eb585118f",
+    "references": [
+      "skills/roles/qe-agent/references/llm-judge-rubrics.md",
+      "skills/roles/qe-agent/references/qa-report-schema.json",
+      "skills/roles/qe-agent/references/qa-report-schema.md",
+      "skills/roles/qe-agent/references/severity-thresholds.md",
+      "skills/roles/qe-agent/references/validation-checklist.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/roles/security-agent/SKILL.md",
+    "frontmatter": {
+      "name": "security-agent",
+      "version": "1.2.0",
+      "disable-model-invocation": true,
+      "description": "Orchestrator-dispatched only. Audits codebases for security vulnerabilities, reviews auth implementations, and verifies OWASP compliance for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable.",
+      "compatibility": "Claude Code; requires Bash + npm/pip/govulncheck",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          ".github/security/"
+        ],
+        "patterns": [
+          "SECURITY.md"
+        ],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Grep",
+        "Glob",
+        "Bash"
+      ],
+      "composes_with": [
+        "backend-agent",
+        "frontend-agent",
+        "qe-agent",
+        "code-review-agent",
+        "infrastructure-agent"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 166,
+    "body_words": 922,
+    "sha256": "f2247351ae49ec196488596f09d93966f1674c6bb8675975de75bf4be173b75c",
+    "references": [
+      "skills/roles/security-agent/references/owasp-checklist.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/architecture-rescue/SKILL.md",
+    "frontmatter": {
+      "name": "architecture-rescue",
+      "version": "1.1.1",
+      "description": "Find deepening opportunities in a codebase \u2014 shallow modules, missing seams, leaky abstractions \u2014 and present them as numbered candidates ready for a grilling session before any interface is proposed. Use when the codebase feels tangled, tests are hard to write, modules feel 'shallow', or it's quarterly-architecture-review time. Trigger on: 'improve architecture', 'rescue this codebase', 'find refactoring opportunities', 'this is a mess', 'ball of mud', 'consolidate modules', 'make it testable', 'shallow modules', 'deepen modules', 'leaky abstraction', 'two-adapter rule', 'deletion test'.",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Write"
+      ],
+      "composes_with": [
+        "grill-me",
+        "maintain-context",
+        "diagnose-loop"
+      ],
+      "spawned_by": []
+    },
+    "lines": 66,
+    "body_words": 561,
+    "sha256": "23422fce8a679d1483a82fcd80c93c2a76d746fdc96b6cc1c45db6aec969c4e6",
+    "references": [
+      "skills/workflows/architecture-rescue/references/architecture-language.md",
+      "skills/workflows/architecture-rescue/references/interface-design.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/artifact-publish/SKILL.md",
+    "frontmatter": {
+      "name": "artifact-publish",
+      "version": "1.0.1",
+      "description": "Publish a visual or interactive deliverable as a Claude Code Artifact \u2014 a self-contained HTML/Markdown file rendered to a hosted, default-private claude.ai web page the user can share with a link \u2014 instead of leaving it as a local file. Use whenever a result reads better as a page than as text: a dashboard, rendered report, chart or diagram, comparison, prototype, walkthrough, or mockup you built in code. Trigger on \"publish this as an artifact\", \"make a shareable link\", \"host this page\", \"turn this into a web page\", \"claude artifact\", \"publish the dashboard\", \"share this report as a page\", \"give me a link to this\", \"put this on claude.ai\". This is the Claude Code Artifact feature (code.claude.com), NOT the claude.ai design canvas (that is claude-design-brief). It is the publish step for the visual-output skills \u2014 interactive-doc, mermaid-charts, dataviz, nano-banana \u2014 and defers all look-and-feel to the artifact-design skill.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "pro",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Artifact",
+        "WebFetch"
+      ],
+      "composes_with": [
+        "artifact-design",
+        "interactive-doc",
+        "mermaid-charts",
+        "dataviz",
+        "nano-banana",
+        "ui-brief",
+        "claude-design-brief"
+      ],
+      "spawned_by": []
+    },
+    "lines": 97,
+    "body_words": 1259,
+    "sha256": "911dff77bc737e3e04504422415048452030cf573689e6cb6070aa1deca5e0b4",
+    "references": [
+      "skills/workflows/artifact-publish/references/artifact-tool.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/caveman/SKILL.md",
+    "frontmatter": {
+      "name": "caveman",
+      "version": "1.1.1",
+      "description": "Ultra-compressed communication mode. Cuts response tokens ~75% by dropping articles, filler, pleasantries, and hedging while preserving full technical accuracy (code, error strings, file paths untouched). Persists across every response until the user says 'stop caveman', 'normal mode', or 'be normal again'; body covers the auto-clarity exception list. Trigger on: 'caveman mode', 'talk like caveman', 'less tokens', 'be terse', 'compress', '/caveman', 'fewer tokens', 'stop being verbose'.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": []
+      },
+      "allowed-tools": [],
+      "composes_with": [],
+      "spawned_by": []
+    },
+    "lines": 59,
+    "body_words": 245,
+    "sha256": "a91bffad0ca2f142edda5e9d87db5c41d71d4706c916cc81b42530be14bb4fc9",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/class-extraction-guard/SKILL.md",
+    "frontmatter": {
+      "name": "class-extraction-guard",
+      "version": "1.0.2",
+      "composes_with": [
+        "orchestrator",
+        "frontend-agent",
+        "design-token-guard",
+        "render-sanity",
+        "code-review-agent",
+        "sync-skills"
+      ],
+      "description": "Source-level gate that catches utility-class soup \u2014 the same long run of utility classes (e.g. `flex items-center gap-1.5 text-fg-muted hover:text-accent`) copy-pasted inline across many files instead of extracted into a named class or component. Use whenever frontend work touches className/class markup: before committing or declaring a UI task done, when auditing for utility soup, when a Tailwind combo is repeated everywhere, or as an orchestrator/agent wave-gate. Trigger on: \"utility soup\", \"repeated tailwind classes\", \"extract into named classes\", \"className duplication\", \"class string copy-pasted\", \"DRY up the styles\", \"class-extraction\". Framework-agnostic (React/JSX, Vue, Svelte, Astro, HTML; clsx/cn/cva). Sibling to design-token-guard: it checks WHICH values styling uses (tokens vs hex), this checks HOW it's organized (extracted vs repeated) \u2014 invisible to render review since repeated utilities render identically.",
+      "compatibility": "Claude Code; requires Python 3.8+ (stdlib only) to run scripts/check_class_extraction.py",
+      "allowed-tools": [
+        "Bash",
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ]
+    },
+    "lines": 124,
+    "body_words": 767,
+    "sha256": "cbb7b7342e3ced2031ecc0cc826a1fc927d75432b845f34ea3240c8c5fe444d6",
+    "references": [
+      "skills/workflows/class-extraction-guard/references/config.md",
+      "skills/workflows/class-extraction-guard/references/extraction-convention.md",
+      "skills/workflows/class-extraction-guard/references/scaffolding.md",
+      "skills/workflows/class-extraction-guard/references/wiring-into-orchestrator.md"
+    ],
+    "scripts": [
+      "skills/workflows/class-extraction-guard/scripts/check_class_extraction.py"
+    ]
+  },
+  {
+    "path": "skills/workflows/claude-design-brief/SKILL.md",
+    "frontmatter": {
+      "name": "claude-design-brief",
+      "version": "1.4.2",
+      "description": "Generate paste-ready prompts for Claude Design (the artifact / design-canvas tool at claude.ai, NOT Claude Code) that are committed enough to skip its Q&A loop and start drawing on message one. Use when the user wants hi-fi mockups, an interactive prototype, multiple directions on a canvas, or a safe / bold / experimental comparison inside Claude. Trigger on: \"build mockups in Claude Design\", \"design canvas prompt\", \"hi-fi design mockup\", \"interactive prototype in claude\", \"claude design prompt\", \"I want directions A/B/C in claude\", \"stop letting claude design ask me 15 questions\", \"claude design keeps asking\", \"compare safe / bold / experimental\". Sibling skill `ui-brief` targets Claude Code production builds \u2014 this one targets the design canvas. Works for any product type.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Bash"
+      ],
+      "composes_with": [
+        "ui-brief",
+        "ui-ux-pro-max",
+        "frontend-design:frontend-design",
+        "superpowers:brainstorming"
+      ],
+      "spawned_by": []
+    },
+    "lines": 120,
+    "body_words": 1252,
+    "sha256": "cab8147f5a684945c8b89861de5cbd5d805072d3badd51f1f2642b70fb153d2e",
+    "references": [
+      "skills/workflows/claude-design-brief/references/anti-patterns.md",
+      "skills/workflows/claude-design-brief/references/canvas-constraints.md",
+      "skills/workflows/claude-design-brief/references/direction-examples/bold.md",
+      "skills/workflows/claude-design-brief/references/direction-examples/experimental.md",
+      "skills/workflows/claude-design-brief/references/direction-examples/safe.md",
+      "skills/workflows/claude-design-brief/references/prompt-template.md",
+      "skills/workflows/claude-design-brief/references/usage-modes.md",
+      "skills/workflows/claude-design-brief/references/variation-and-risks.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/context-manager/SKILL.md",
+    "frontmatter": {
+      "name": "context-manager",
+      "version": "1.2.1",
+      "description": "Manage context window usage, compaction strategy, and session handoffs for long-running multi-agent builds. Writes and validates structured handoff files so continuation agents can pick up cleanly. Trigger on: \"compact this\", \"handoff this conversation\", \"we're running out of context\", \"save state\", \"transfer to a new session\", \"context is too full\", \"summarize this session for the next one\", \"continue in a fresh session\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          ".claude/handoffs/"
+        ],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob"
+      ],
+      "composes_with": [
+        "orchestrator"
+      ],
+      "spawned_by": []
+    },
+    "lines": 105,
+    "body_words": 573,
+    "sha256": "f9da531a5ec3dd0431eb5473d8eacd2483cb3ef285268a90232650c876eed2d4",
+    "references": [
+      "skills/workflows/context-manager/references/compaction-guide.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/dependency-coordinator/SKILL.md",
+    "frontmatter": {
+      "name": "dependency-coordinator",
+      "version": "1.1.0",
+      "description": "Orchestrator-dispatched only. Authors the cross-package dependency manifest before parallel implementation agents are dispatched, preventing transitive version drift. Composed by orchestrator during multi-agent builds. Not user-invocable.",
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob"
+      ],
+      "disable-model-invocation": true,
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "contracts/",
+          ".claude/profile.yaml"
+        ]
+      },
+      "composes_with": [
+        "contract-author",
+        "infrastructure-agent",
+        "contract-auditor",
+        "orchestrator"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 119,
+    "body_words": 979,
+    "sha256": "ad0bb2955eaee877371cfd73ec7b1b96b340fe53943ced2be74cfb5d53fe6713",
+    "references": [
+      "skills/workflows/dependency-coordinator/references/dependencies-md-template.md",
+      "skills/workflows/dependency-coordinator/references/known-conflict-deps.md",
+      "skills/workflows/dependency-coordinator/references/pinning-strategies.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/deployment-checklist/SKILL.md",
+    "frontmatter": {
+      "name": "deployment-checklist",
+      "version": "1.2.0",
+      "description": "Run pre-deployment verification before pushing to staging or production \u2014 build, tests, env config, security, DB, infra, integration \u2014 and return a READY / NOT READY verdict. Trigger on: \"pre-deploy check\", \"deployment checklist\", \"ready to ship\", \"is this ready for prod\", \"deploy readiness\", \"release checklist\", \"can we deploy\", \"verify the build\", \"pre-flight check\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "infrastructure-agent",
+        "qe-agent",
+        "security-agent",
+        "observability-agent"
+      ],
+      "spawned_by": [
+        "orchestrator"
+      ]
+    },
+    "lines": 81,
+    "body_words": 412,
+    "sha256": "1dbd57c9444ac9e2cb9c3bdc6a1e62ed188119fadc85c9dde76b5c1622c4886f",
+    "references": [
+      "skills/workflows/deployment-checklist/references/assumption-audit.md",
+      "skills/workflows/deployment-checklist/references/pre-deploy.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/design-token-guard/SKILL.md",
+    "frontmatter": {
+      "name": "design-token-guard",
+      "version": "1.0.2",
+      "composes_with": [
+        "orchestrator",
+        "frontend-agent",
+        "render-sanity",
+        "ux-review",
+        "code-review-agent",
+        "sync-skills"
+      ],
+      "description": "Source-level gate that prevents inline styles and hardcoded CSS from bypassing a project's design-token system. Use whenever frontend work touches colors, styling, or themes \u2014 before committing or declaring a UI task done, when auditing for hardcoded hex/rgb/inline styles, when setting up enforcement so inline CSS can't slip in again, or as an orchestrator/agent wave-gate. Trigger on: \"inline CSS\", \"inline styles\", \"hardcoded colors\", \"hardcoded hex\", \"style={{}}\", \"theme/token drift\", \"design tokens\", \"we keep shipping inline styles\", \"lint for tokens\", \"why did this get through review\". Framework- and stack-agnostic (React/JSX, Vue, Svelte, Angular, Astro, HTML; CSS variables, SCSS/Less, JS theme objects, design-token JSON) \u2014 auto-discovers the project's tokens; NOT specific to any one repo or to Tailwind. Don't skip it because a render review passed: render gates can't see a hardcoded color \u2014 it renders identically to the token.",
+      "compatibility": "Claude Code; requires Python 3.8+ (stdlib only) to run scripts/check_design_tokens.py; ESLint scaffolding step is optional",
+      "allowed-tools": [
+        "Bash",
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ]
+    },
+    "lines": 171,
+    "body_words": 1126,
+    "sha256": "146d1889496658e5058762e67e0a88015121a8cc7f1e5c20343728b38a16866a",
+    "references": [
+      "skills/workflows/design-token-guard/references/config.md",
+      "skills/workflows/design-token-guard/references/scaffolding.md",
+      "skills/workflows/design-token-guard/references/wiring-into-orchestrator.md"
+    ],
+    "scripts": [
+      "skills/workflows/design-token-guard/scripts/check_design_tokens.py"
+    ]
+  },
+  {
+    "path": "skills/workflows/diagnose-loop/SKILL.md",
+    "frontmatter": {
+      "name": "diagnose-loop",
+      "version": "1.2.0",
+      "description": "Disciplined bug-diagnosis loop where Phase 1 \u2014 building a fast, deterministic, binary-signal feedback loop \u2014 IS the skill; the rest of the phases mechanically consume that signal. Use whenever the user reports a hard bug, a flaky test, a performance regression, or says they've been \"staring at this for an hour.\" Trigger on: \"diagnose this\", \"debug this\", \"why is this broken\", \"it sometimes fails\", \"performance regression\", \"I can't reproduce it\", \"what's wrong with this\", \"this test is flaky\", \"intermittent failure\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": []
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "playwright",
+        "qe-agent",
+        "architecture-rescue"
+      ],
+      "spawned_by": []
+    },
+    "lines": 86,
+    "body_words": 1000,
+    "sha256": "8d2a0ba88a8bdf58edfc8796bf93dc62287d61da203a932d28632c6e8c738102",
+    "references": [
+      "skills/workflows/diagnose-loop/references/feedback-loop-recipes.md",
+      "skills/workflows/diagnose-loop/references/hypothesis-format.md"
+    ],
+    "scripts": [
+      "skills/workflows/diagnose-loop/scripts/hitl-loop.template.sh"
+    ]
+  },
+  {
+    "path": "skills/workflows/find-unknowns/SKILL.md",
+    "frontmatter": {
+      "name": "find-unknowns",
+      "version": "1.0.1",
+      "description": "Convert your unknown-unknowns to known \u2014 cheaply, before they get expensive to fix. Owns two moves: a blindspot pass (research an unfamiliar domain and learn the questions you don't yet know to ask) and a comprehension quiz (after a big change, explain the diff and verify you understand it before merging). Routes the rest of the unknowns lifecycle to the owning skills. Use when you're in unfamiliar territory, can't articulate what \"good\" looks like, feel like you're missing something, or want to be sure you understand what got built. Trigger on \"find my unknown unknowns\", \"blindspot pass\", \"what am I missing\", \"I don't know this domain/codebase\", \"teach me my blind spots\", \"map my unknowns\", \"quiz me on this change\", \"do I actually understand this diff\", \"only merge if I understand it\", \"comprehension check\". Sibling to grill-me \u2014 that interviews you on decisions you already hold opinions about; this surfaces the ones you don't.",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Grep",
+        "Glob",
+        "Bash",
+        "WebSearch",
+        "WebFetch"
+      ],
+      "composes_with": [
+        "grill-me",
+        "plan-builder",
+        "maintain-context",
+        "repo-deep-dive",
+        "interactive-doc",
+        "artifact-publish",
+        "superpowers:brainstorming"
+      ],
+      "spawned_by": []
+    },
+    "lines": 155,
+    "body_words": 1202,
+    "sha256": "b826864e32c33713b469db4cbcab0a1d4b7d9cab911213d7b385f97e9b55b87a",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/grill-me/SKILL.md",
+    "frontmatter": {
+      "name": "grill-me",
+      "version": "1.1.2",
+      "description": "Get relentlessly interviewed about a plan, design, or change until every branch of the decision tree is resolved \u2014 depth-first, one question at a time, recommendation-attached, code-checked before user-asked. Use before any non-trivial change, when scope feels fuzzy, or to stress-test a plan before committing. Trigger on: 'grill me', 'interview me', 'challenge my plan', 'ask me questions', \"I'm not sure what I want\", 'help me think this through', 'is this the right approach', 'walk me through it', 'stress test this plan'.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": []
+      },
+      "allowed-tools": [
+        "Read",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "architecture-rescue",
+        "maintain-context",
+        "plan-builder",
+        "find-unknowns"
+      ],
+      "spawned_by": []
+    },
+    "lines": 28,
+    "body_words": 211,
+    "sha256": "5b4d882c583a69b0baf075e5257efddb6529be1f42a0caef8a64d3b425a9bc4e",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/interactive-doc/SKILL.md",
+    "frontmatter": {
+      "name": "interactive-doc",
+      "version": "1.2.1",
+      "description": "Produce rich documentation as a paired Obsidian-friendly markdown source plus a self-contained HTML companion built from it \u2014 the .md is canonical, the HTML is the experience. Two workflows: (A) render an existing research markdown file into an HTML companion (the .md stays read-only by default), or (B) write both for a new doc, .md first as the substantive source and the HTML derived from it. Trigger for architecture deep-dives, module maps, concept explainers with interactive demos, side-by-side repo/approach comparisons, feature walkthroughs, or whenever the user says \"interactive doc\", \"wiki page\", \"Obsidian doc\", \"explainer\", \"render this research\", \"architecture diagram\", or \"compare these repos\". Output is always a pair: an Obsidian-native `.md` plus a self-contained `.html`.\n",
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Bash"
+      ],
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "composes_with": [
+        "llm-wiki",
+        "wiki-research",
+        "docs-agent",
+        "artifact-publish"
+      ],
+      "spawned_by": []
+    },
+    "lines": 198,
+    "body_words": 1987,
+    "sha256": "8ce6c2b1a94cda217af1934fd38ddeb9e5699e873137f3b12dfe53dd57afe479",
+    "references": [
+      "skills/workflows/interactive-doc/references/architecture-map.md",
+      "skills/workflows/interactive-doc/references/comparison.md",
+      "skills/workflows/interactive-doc/references/concept-explainer.md",
+      "skills/workflows/interactive-doc/references/house-style.md",
+      "skills/workflows/interactive-doc/references/markdown-document.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/living-plan/SKILL.md",
+    "frontmatter": {
+      "name": "living-plan",
+      "version": "1.2.1",
+      "description": "Document and set up the living-plan convention: a front door (START-HERE.md), a\nstrategic roadmap, tactical ledger, done-archive, and frontier doc, wired to an\nintake loop so reports become tracked entries instead of rotting. The ledger\ntrio is often named by file \u2014 the \"remaining\" / \"completed\" / \"future\" set\n(REMAINING-WORK / COMPLETED-WORK / FUTURE). Use when the user says \"set up a\nliving plan\", \"make this plan a living doc\", \"stop my docs from rotting\", \"set\nup the remaining/completed/future files\", \"where are my remaining/completed/future\nmd files\", \"my ledger is full of done rows\", \"sweep done rows to the archive\",\nor wants a report-to-ledger intake loop. Key disambiguation: if the user asks\nfor their \"remaining / completed / future\" files and THIS project lacks them,\nset the convention up HERE \u2014 never hunt across other repos; reading or editing\none existing file is a normal file operation, not this skill.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Bash"
+      ],
+      "composes_with": [
+        "plan-intake",
+        "plan-builder",
+        "repo-deep-dive",
+        "work-item-brief"
+      ],
+      "spawned_by": []
+    },
+    "lines": 178,
+    "body_words": 1533,
+    "sha256": "493aa4de1a04d9b8ed4f83affdf6fd4f22f15ed7b04b69ab04ce70879a188332",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/llm-wiki/SKILL.md",
+    "frontmatter": {
+      "name": "llm-wiki",
+      "version": "1.2.0",
+      "description": "Bootstrap and operate LLM-maintained personal knowledge bases (wikis) for any project or domain \u2014 a persistent, compounding artifact, not RAG. Four modes: setup, ingest, query, lint. Trigger on \"set up a wiki for X\", \"build me a knowledge base\", \"create an llm wiki\", \"organize my notes\", \"set up my second brain\", \"maintain a wiki for this project\", and (inside an existing wiki) \"add this article to the wiki\", \"what does the wiki say about X\", \"clean up the wiki\", \"process this source\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [
+          "index.md",
+          "wiki/log.md",
+          "wiki/overview.md"
+        ],
+        "shared_read": [
+          "raw/",
+          "wiki/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "wiki-research",
+        "repo-deep-dive",
+        "project-profiler",
+        "mermaid-charts"
+      ],
+      "spawned_by": []
+    },
+    "lines": 193,
+    "body_words": 1111,
+    "sha256": "606ca9309f36fea3414f5527adbe1509384a5d551d5f8ec9e0f63c407d305a75",
+    "references": [
+      "skills/workflows/llm-wiki/references/operations.md",
+      "skills/workflows/llm-wiki/references/wiki-schema-template.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/maintain-context/SKILL.md",
+    "frontmatter": {
+      "name": "maintain-context",
+      "version": "1.2.1",
+      "description": "Maintain a project's CONTEXT.md domain glossary and docs/adr/ decision records inline as understanding crystallizes \u2014 write the glossary entry the moment a term resolves, write an ADR only when the body's three-condition gate fires. Use after any architectural discussion, requirements clarification, or when shared terminology starts to drift. Trigger on: 'update the glossary', 'add to CONTEXT', 'record this as an ADR', 'what do we call this', 'is this the right term', 'we just decided something', 'document this decision'.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "docs/adr/"
+        ],
+        "patterns": [
+          "CONTEXT.md"
+        ],
+        "shared_read": []
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "grill-me",
+        "architecture-rescue",
+        "setup-project-skills"
+      ],
+      "spawned_by": []
+    },
+    "lines": 92,
+    "body_words": 881,
+    "sha256": "ee7c02d3ee1f84f59d221d18eb09e3d7ee32c581fd028b10798562b25ee9e0df",
+    "references": [
+      "skills/workflows/maintain-context/references/adr-format.md",
+      "skills/workflows/maintain-context/references/context-format.md",
+      "skills/workflows/maintain-context/references/three-condition-gate.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/mermaid-charts/SKILL.md",
+    "frontmatter": {
+      "name": "mermaid-charts",
+      "version": "2.5.0",
+      "description": "Create expert-quality mermaid diagrams \u2014 flowcharts, sequence, state, ER, Gantt, mindmap, block-beta and more \u2014 including dense 15-30+ node architecture maps that stay readable. Use whenever the user wants to visualize a system, process, workflow, architecture, data model, timeline, or relationship, or when another skill needs an embedded mermaid diagram. Trigger on \"diagram this\", \"draw this\", \"show me how X works\", \"map the architecture\", \"chart the flow\", \"visualize this\", or any request for a technical visual \u2014 even without the word \"mermaid\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "docs-agent",
+        "backend-agent",
+        "frontend-agent",
+        "skill-writer",
+        "project-profiler",
+        "orchestrator",
+        "infrastructure-agent",
+        "contract-author",
+        "observability-agent",
+        "artifact-publish"
+      ],
+      "spawned_by": []
+    },
+    "lines": 101,
+    "body_words": 706,
+    "sha256": "4c3c22c3fdf33f8ae1a8837757f215b9bb58b372740aebf5816a85cd4f57b3c1",
+    "references": [
+      "skills/workflows/mermaid-charts/references/advanced-patterns.md",
+      "skills/workflows/mermaid-charts/references/chart-types/er.md",
+      "skills/workflows/mermaid-charts/references/chart-types/flowchart.md",
+      "skills/workflows/mermaid-charts/references/chart-types/mindmap.md",
+      "skills/workflows/mermaid-charts/references/chart-types/other.md",
+      "skills/workflows/mermaid-charts/references/chart-types/sequence.md",
+      "skills/workflows/mermaid-charts/references/chart-types/state.md",
+      "skills/workflows/mermaid-charts/references/complexity-and-output.md",
+      "skills/workflows/mermaid-charts/references/styling.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/nano-banana/SKILL.md",
+    "frontmatter": {
+      "name": "nano-banana",
+      "version": "1.5.0",
+      "description": "Generate images using Google's Nano Banana (Gemini Image Generation) API and save them to the project. Use whenever the user asks to generate images, create product photos, hero banners, or lifestyle shots, mentions \"Nano Banana\" / \"generate an image\" / \"make a banner\", or wants batch image generation. Also trigger for any AI image task using Gemini models \u2014 even casual phrasings like \"let's do images\" or \"make me a picture of\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "frontend-agent",
+        "docs-agent"
+      ],
+      "spawned_by": []
+    },
+    "lines": 137,
+    "body_words": 1162,
+    "sha256": "f16a025a6f2643e40e30ace638d6321ce81411041d2296f63166e8bb4475fdb8",
+    "references": [
+      "skills/workflows/nano-banana/references/example-project-config.md",
+      "skills/workflows/nano-banana/references/imagen-4-prompting.md"
+    ],
+    "scripts": [
+      "skills/workflows/nano-banana/scripts/generate_image.py"
+    ]
+  },
+  {
+    "path": "skills/workflows/payload-cms/SKILL.md",
+    "frontmatter": {
+      "name": "payload-cms",
+      "version": "1.0.0",
+      "description": "Build, extend, deploy and debug websites on Payload CMS (payloadcms.com): collections, blocks and layout builder, live preview, drafts, plugins, Postgres or Mongo, Vercel, migrations, plus cloning or rebuilding an existing site (including payloadcms.com itself) onto Payload. Use this skill whenever the user mentions Payload, Payload CMS, payload.config.ts, @payloadcms packages, a headless CMS or CMS for their websites, moving a site onto a CMS, cloning payloadcms.com, or asks how to model pages, blocks, a blog, redirects, SEO, forms or preview in Payload, even without saying \"Payload\". Complements Payload's own official payload skill with the website workflow, version pinning and verified pitfalls.\n",
+      "compatibility": "Any coding agent host; needs shell, file access and web access. Browser checks use Playwright.",
+      "composes_with": [
+        "playwright",
+        "website-walkthrough-video",
+        "design-token-guard",
+        "class-extraction-guard",
+        "render-sanity",
+        "orchestrator",
+        "ui-brief"
+      ]
+    },
+    "lines": 90,
+    "body_words": 1445,
+    "sha256": "6b24152648d7e7a6b755657e1e32204fd97dd30973a11067f89d62b765bf1ffc",
+    "references": [
+      "skills/workflows/payload-cms/references/access-and-hooks.md",
+      "skills/workflows/payload-cms/references/clone-a-site-workflow.md",
+      "skills/workflows/payload-cms/references/clone-recipes.md",
+      "skills/workflows/payload-cms/references/config-and-collections.md",
+      "skills/workflows/payload-cms/references/database-and-migrations.md",
+      "skills/workflows/payload-cms/references/fields.md",
+      "skills/workflows/payload-cms/references/live-preview-and-drafts.md",
+      "skills/workflows/payload-cms/references/local-api-and-queries.md",
+      "skills/workflows/payload-cms/references/payloadcms-com-anatomy.md",
+      "skills/workflows/payload-cms/references/performance-and-troubleshooting.md",
+      "skills/workflows/payload-cms/references/plugins.md",
+      "skills/workflows/payload-cms/references/scaffolding-and-deploy.md",
+      "skills/workflows/payload-cms/references/v4-delta.md",
+      "skills/workflows/payload-cms/references/website-template.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/plan-builder/SKILL.md",
+    "frontmatter": {
+      "name": "plan-builder",
+      "version": "1.4.1",
+      "description": "Transform research documents, Compass artifacts, PRDs, and conversational goals into structured project plans the orchestrator can execute. Use when the user has source material plus a build request, says \"make a plan\" / \"plan this out\", or @-mentions files alongside a build ask. Also trigger when orchestrator would be the next step but no plan exists yet. Produces the plan \u2014 orchestrator consumes it.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "orchestrator",
+        "project-profiler",
+        "mermaid-charts",
+        "contract-author"
+      ],
+      "spawned_by": []
+    },
+    "lines": 120,
+    "body_words": 1065,
+    "sha256": "43612e75d615bb6a0fbae519295982ca03ee5f10056acbf5dd3beac68a5a43ae",
+    "references": [
+      "skills/workflows/plan-builder/references/plan-format.md",
+      "skills/workflows/plan-builder/references/research-extraction.md",
+      "skills/workflows/plan-builder/references/second-order-effects.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/plan-intake/SKILL.md",
+    "frontmatter": {
+      "name": "plan-intake",
+      "version": "1.3.0",
+      "description": "Turn any report (repo-deep-dive output, audit, skill-review, QA findings, design audit) into approved entries in a project's living-plan ledger. Use when the user says \"intake this report\", \"add findings to the plan\", \"turn this audit into work items\", \"update the ledger from this report\", \"feed the deep-dive into the plan\", or has a finished report and wants it tracked instead of rotting. Format-agnostic: adopts the target project's existing entry format.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Bash"
+      ],
+      "composes_with": [
+        "plan-builder",
+        "repo-deep-dive",
+        "skill-review",
+        "work-item-brief"
+      ],
+      "spawned_by": []
+    },
+    "lines": 156,
+    "body_words": 2010,
+    "sha256": "c311095a2417175395ab216f0610f7ced831428ed753a20b4af9dae5779b7cbb",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/playwright/SKILL.md",
+    "frontmatter": {
+      "name": "playwright",
+      "version": "1.6.0",
+      "description": "Run browser-based E2E tests, capture screenshots, and validate user flows using Playwright with visible Chrome. Use this skill when testing a web UI end-to-end, capturing screenshots for visual review, checking responsive layouts, or auditing accessibility in a real browser. Trigger on: \"e2e test\", \"screenshot the UI\", \"click through the app\", \"responsive layout check\", \"accessibility audit\". Also invoke when qe-agent needs browser-level integration testing.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "qe-agent",
+        "frontend-agent",
+        "deployment-checklist"
+      ],
+      "spawned_by": [
+        "orchestrator",
+        "qe-agent"
+      ]
+    },
+    "lines": 105,
+    "body_words": 919,
+    "sha256": "20f4f4cf9a5919df8988a634ff63e5e16371d22fbe600533122e66b83485db03",
+    "references": [
+      "skills/workflows/playwright/references/screenshot-workflow.md",
+      "skills/workflows/playwright/references/selectors-guide.md",
+      "skills/workflows/playwright/references/setup.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/project-profiler/SKILL.md",
+    "frontmatter": {
+      "name": "project-profiler",
+      "version": "1.2.0",
+      "description": "Analyze a codebase and generate a project profile (CLAUDE.md + profile.yaml) so agents have shared context. Use when onboarding a new project, generating CLAUDE.md, or profiling tech stack and conventions. Trigger on: \"profile this project\", \"generate CLAUDE.md\", \"onboard this codebase\", \"describe this repo\", \"set up this repo for agents\", \"scan the codebase for me\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [
+          "CLAUDE.md",
+          ".claude/profile.yaml"
+        ],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "skill-writer",
+        "contract-author",
+        "orchestrator"
+      ],
+      "spawned_by": []
+    },
+    "lines": 125,
+    "body_words": 549,
+    "sha256": "33b8abfc9deeaee26d48cfbc0dfe01a0dc5ecdaacd8d074c9a61b5f545c7b59b",
+    "references": [
+      "skills/workflows/project-profiler/references/profile-schema.yaml"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/prose-slop-guard/SKILL.md",
+    "frontmatter": {
+      "name": "prose-slop-guard",
+      "version": "1.0.0",
+      "composes_with": [
+        "orchestrator",
+        "docs-agent",
+        "code-review-agent",
+        "git-pr",
+        "wiki-research",
+        "interactive-doc",
+        "llm-wiki",
+        "skill-writer"
+      ],
+      "description": "Source-level gate that catches AI-slop prose (\"claudenese\") before it ships: em dashes, AI vocabulary (delve, leverage, seamless, tapestry), negative parallelism (\"it's not X, it's Y\"), throat-clearing openers, sycophantic filler, rule-of-three rhythm, bullet soup. Use whenever writing or reviewing outward prose \u2014 READMEs, docs, announcements, blog posts, PR descriptions, wiki pages, marketing copy \u2014 before committing or declaring a writing task done, when setting up enforcement so slop can't ship again, or as an orchestrator/docs-agent wave-gate. Trigger on: \"sounds like AI\", \"reads as AI-written\", \"humanize this\", \"make it sound human\", \"de-AI this\", \"too ChatGPT\", \"AI tells\", \"AI slop\", \"claudenese\", \"stop writing like a bot\". A deterministic lexical checker plus a judgment rewrite pass; don't skip it because it \"looks fine\" \u2014 self-grading is the failure mode this guards.",
+      "compatibility": "Claude Code or any host with Bash; requires Python 3.8+ (stdlib only) for scripts/check_prose_slop.py",
+      "allowed-tools": [
+        "Bash",
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep"
+      ]
+    },
+    "lines": 170,
+    "body_words": 1104,
+    "sha256": "36451e14473068c04758d12928017e31b95f62399e63a40e8cf6fc503c44d7af",
+    "references": [
+      "skills/workflows/prose-slop-guard/references/slop-patterns.md",
+      "skills/workflows/prose-slop-guard/references/wiring-into-agents.md"
+    ],
+    "scripts": [
+      "skills/workflows/prose-slop-guard/scripts/check_prose_slop.py"
+    ]
+  },
+  {
+    "path": "skills/workflows/railway-deploy/SKILL.md",
+    "frontmatter": {
+      "name": "railway-deploy",
+      "version": "1.3.1",
+      "description": "Deploy projects to Railway \u2014 Dockerfile creation, railway.toml config, environment variables, multi-service setups (web + worker), and deployment via CLI or GraphQL API. Trigger on \"deploy to Railway\", \"ship it on Railway\", or \"set up Railway hosting\", and on questions about Railway configuration, health checks, deployment status, or env var management.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [
+          "railway.toml"
+        ],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "infrastructure-agent",
+        "deployment-checklist"
+      ],
+      "spawned_by": []
+    },
+    "lines": 90,
+    "body_words": 463,
+    "sha256": "a6d85b9d98102ad45ffb284e14f379a6717d8fbcc0d943ec6b2730f119383bb7",
+    "references": [
+      "skills/workflows/railway-deploy/references/deploy-script.md",
+      "skills/workflows/railway-deploy/references/dockerfile-recipes.md",
+      "skills/workflows/railway-deploy/references/multi-service-setup.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/render-sanity/SKILL.md",
+    "frontmatter": {
+      "name": "render-sanity",
+      "version": "1.2.0",
+      "description": "Lightweight visual sanity check that catches failure modes passing\n\"tests green + dev server boots + 0 console errors\" but visibly breaking\nthe app when a human clicks \u2014 stale mock IDs on \"live\" pages, lone `?` /\n`\u2014` / `undefined` / `Loading\u2026` where data should be, dead links from\nlist pages, and \"Couldn't load X / Unauthorized\" dead-end shells. Runs\nfour objective checks BEFORE the build is declared done: smell scan,\nclick-through every list, signed-out matrix, signed-in matrix. Use when\na build is wrapping up, after ux-review or qe-agent finishes, when the\nuser says \"is it actually working\", \"broken pages\", \"dead links\", or\npastes a screenshot showing `?`, `undefined`, or a \"Not found\" page.\nAlso invoke proactively when a frontend agent rewires mocks \u2192 real\nbackend, when auth was added, or when seed data is regenerated.\n",
+      "compatibility": "Claude Code; requires Playwright MCP tools",
+      "requires_claude_code": true,
+      "requires_agent_teams": false,
+      "min_plan": "starter",
+      "allowed-tools": [
+        "Read",
+        "Bash",
+        "Glob",
+        "Grep",
+        "mcp__plugin_playwright_playwright__browser_navigate",
+        "mcp__plugin_playwright_playwright__browser_snapshot",
+        "mcp__plugin_playwright_playwright__browser_click",
+        "mcp__plugin_playwright_playwright__browser_evaluate",
+        "mcp__plugin_playwright_playwright__browser_console_messages",
+        "mcp__plugin_playwright_playwright__browser_network_requests"
+      ],
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "composes_with": [
+        "ux-review",
+        "orchestrator",
+        "frontend-agent",
+        "feature-dev:feature-dev",
+        "playwright"
+      ],
+      "spawned_by": [
+        "orchestrator",
+        "ux-review"
+      ]
+    },
+    "lines": 181,
+    "body_words": 1778,
+    "sha256": "28dd2564eb4d06358f98e03fd31e1ba4c6dc4ed1838e2d7104ed9529a5847649",
+    "references": [
+      "skills/workflows/render-sanity/references/report-template.md",
+      "skills/workflows/render-sanity/references/smell-patterns.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/repo-deep-dive/SKILL.md",
+    "frontmatter": {
+      "name": "repo-deep-dive",
+      "version": "1.5.1",
+      "description": "Perform a comprehensive technical deep dive on an open-source repository, combining a deep-research markdown document with hands-on codebase analysis to produce a structured 12-14 document reference series. Use this skill whenever the user wants to deeply analyze a repo, do a deep dive on a project, reverse-engineer a codebase, create a technical reference for an open-source tool, understand how a project works inside and out, or compare another project's architecture against a reference project. Also trigger when the user mentions \"deep dive\", \"deep research\", \"analyze this repo\", \"break down this codebase\", \"technical reference\", \"how does this project work\", or has a deep-research markdown alongside a cloned repo ready for analysis.",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep",
+        "Agent"
+      ],
+      "composes_with": [
+        "project-profiler",
+        "plan-builder",
+        "mermaid-charts",
+        "wiki-research",
+        "llm-wiki"
+      ],
+      "spawned_by": []
+    },
+    "lines": 121,
+    "body_words": 1546,
+    "sha256": "843aea102113759bad24c382d885f684825cb4148c345da1481f5ee6270826bf",
+    "references": [
+      "skills/workflows/repo-deep-dive/references/document-template.md",
+      "skills/workflows/repo-deep-dive/references/parallelization.md",
+      "skills/workflows/repo-deep-dive/references/phases.md",
+      "skills/workflows/repo-deep-dive/references/vault-integration.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/settings-consolidator/SKILL.md",
+    "frontmatter": {
+      "name": "settings-consolidator",
+      "version": "1.3.0",
+      "description": "Scan every .claude/settings.local.json across the user's home directory, deduplicate permissions, collapse supersets, and merge into the global ~/.claude/settings.local.json with a categorized report. Also bootstraps permissions for autonomous/unattended sessions using a 350+ command baseline (shell operators, Claude tools, safety deny list). Trigger on \"consolidate settings\", \"merge permissions\", \"stop prompting me\", \"bootstrap permissions\", \"autonomous mode\", \"unattended session\", \"overnight build setup\", \"I want to go to sleep and let this run\", or upgrading colon-wildcards to space-wildcards across Claude Code permissions.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [
+          "settings.local.json"
+        ],
+        "shared_read": [
+          "~/.claude/",
+          "**/.claude/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob"
+      ],
+      "composes_with": [
+        "sync-skills"
+      ],
+      "spawned_by": []
+    },
+    "lines": 115,
+    "body_words": 810,
+    "sha256": "cf30d6cc76068191e020303abaf0574920a6a625c32d302b112a507cdb1099ab",
+    "references": [
+      "skills/workflows/settings-consolidator/references/autonomous-permissions.json",
+      "skills/workflows/settings-consolidator/references/permission-categories.md",
+      "skills/workflows/settings-consolidator/references/safety-deny-list.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/setup-project-skills/SKILL.md",
+    "frontmatter": {
+      "name": "setup-project-skills",
+      "version": "1.1.1",
+      "description": "Bootstrap the per-repo config other Skill-Madness skills consume: domain doc layout (CONTEXT.md, ADRs), contract format (OpenAPI / Pydantic / TS / JSON Schema), and work-item tracker (Beads / GitHub / GitLab / local). Writes docs/agents/ plus an \"## Agent skills\" block in CLAUDE.md or AGENTS.md (never both, never overwriting). Downstream skills fail loud if this config is missing. Run once per repo. Trigger on \"setup project skills\", \"configure project skills\", \"bootstrap this repo\", \"/setup-project-skills\".\n",
+      "disable-model-invocation": true,
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "docs/agents/"
+        ],
+        "patterns": [],
+        "shared_read": []
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "project-profiler",
+        "sync-skills"
+      ],
+      "spawned_by": []
+    },
+    "lines": 127,
+    "body_words": 770,
+    "sha256": "bb046b8abf3dd7e130e9863999328ee8158f4da8de963b19a5b5062d58d2f0c8",
+    "references": [
+      "skills/workflows/setup-project-skills/references/templates/contract-format-jsonschema.md",
+      "skills/workflows/setup-project-skills/references/templates/contract-format-openapi.md",
+      "skills/workflows/setup-project-skills/references/templates/contract-format-pydantic.md",
+      "skills/workflows/setup-project-skills/references/templates/contract-format-ts.md",
+      "skills/workflows/setup-project-skills/references/templates/domain-docs-multi.md",
+      "skills/workflows/setup-project-skills/references/templates/domain-docs-single.md",
+      "skills/workflows/setup-project-skills/references/templates/work-item-tracker-beads.md",
+      "skills/workflows/setup-project-skills/references/templates/work-item-tracker-github.md",
+      "skills/workflows/setup-project-skills/references/templates/work-item-tracker-gitlab.md",
+      "skills/workflows/setup-project-skills/references/templates/work-item-tracker-local.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/skill-creator/SKILL.md",
+    "frontmatter": {
+      "name": "skill-creator",
+      "version": "1.0.0",
+      "description": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, edit, or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Bash"
+      ],
+      "composes_with": [
+        "skill-review",
+        "skill-update",
+        "skill-writer"
+      ],
+      "spawned_by": []
+    },
+    "lines": 447,
+    "body_words": 4112,
+    "sha256": "522dff4c0ed180e51cc3a862cda445626335ad618c9403854d1930e30954ae09",
+    "references": [
+      "skills/workflows/skill-creator/references/schemas.md"
+    ],
+    "scripts": [
+      "skills/workflows/skill-creator/scripts/__init__.py",
+      "skills/workflows/skill-creator/scripts/aggregate_benchmark.py",
+      "skills/workflows/skill-creator/scripts/generate_report.py",
+      "skills/workflows/skill-creator/scripts/improve_description.py",
+      "skills/workflows/skill-creator/scripts/package_skill.py",
+      "skills/workflows/skill-creator/scripts/quick_validate.py",
+      "skills/workflows/skill-creator/scripts/run_eval.py",
+      "skills/workflows/skill-creator/scripts/run_loop.py",
+      "skills/workflows/skill-creator/scripts/utils.py"
+    ]
+  },
+  {
+    "path": "skills/workflows/sync-skills/SKILL.md",
+    "frontmatter": {
+      "name": "sync-skills",
+      "version": "2.1.0",
+      "description": "Sync skills between this repo and the global skill directories for Claude Code (~/.claude/skills/) and Cursor (~/.cursor/skills-cursor/) using symlinks (default) or copies. Use when the user wants to link, sync, publish, push, or copy skills globally, check sync status, unlink, or pull a skill from a global location back into the repo. Trigger on \"sync skills\", \"link skills\", \"publish skills\", \"skill status\", \"/sync-skills\", \"are my skills linked\", \"unlink skills\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [
+          "skills/workflows/sync-skills/"
+        ],
+        "patterns": [],
+        "shared_read": [
+          "skills/"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Bash"
+      ],
+      "composes_with": [
+        "skill-update",
+        "skill-review"
+      ],
+      "spawned_by": []
+    },
+    "lines": 136,
+    "body_words": 828,
+    "sha256": "a58070384bdbd8276f6bca38a159453e6dfe1568e447d2d5cf12f75f3e55de68",
+    "references": [],
+    "scripts": [
+      "skills/workflows/sync-skills/scripts/sync-skills.sh"
+    ]
+  },
+  {
+    "path": "skills/workflows/ui-brief/SKILL.md",
+    "frontmatter": {
+      "name": "ui-brief",
+      "version": "1.2.1",
+      "description": "Generate opinionated, design-led briefs for building or rebuilding UIs so they lead with the product's actual moat instead of converging on a generic shadcn-default SaaS dashboard. Use whenever the user wants a detailed UI prompt or spec to hand off \u2014 greenfield OR rebuild. Trigger on \"write me a UI brief\", \"the current UI sucks, redesign it\", \"make this not look like every shadcn admin\", \"I need a prompt for the frontend\", \"design brief for X\", \"the design feels generic\", \"build a UI for [project] like [reference]\", or before non-trivial UI work when the user names a reference app or named visual style. Output is a standalone Markdown file with positioning, design-language rules, page-by-page treatment, component primitives, motion discipline, and a verifiable Definition of Done.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Bash"
+      ],
+      "composes_with": [
+        "ui-ux-pro-max",
+        "frontend-design:frontend-design",
+        "superpowers:brainstorming",
+        "ux-review",
+        "frontend-agent",
+        "orchestrator",
+        "playwright"
+      ],
+      "spawned_by": []
+    },
+    "lines": 190,
+    "body_words": 2707,
+    "sha256": "f624655d4d6f635b0ebe08a92d03585f27cad9e41d5217762dec9c7be1b1c622",
+    "references": [
+      "skills/workflows/ui-brief/references/brief-template.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/use-freellmapi/SKILL.md",
+    "frontmatter": {
+      "name": "use-freellmapi",
+      "version": "1.4.0",
+      "description": "Wire any project or coding agent to FreeLLMAPI \u2014 a local proxy aggregating ~30 free LLM provider\ntiers behind one endpoint \u2014 so you can prototype without paying for API calls. Use to switch a\nproject off paid OpenAI/Anthropic/etc. onto free models, point an app or CLI agent at a local LLM\nproxy, or stand up FreeLLMAPI itself. Speaks OpenAI, Anthropic Messages, native Gemini, and Ollama\nwire formats, covering Claude Code, Codex CLI, Gemini CLI, Cline, Aider, Continue, Zed, and\nJetBrains AI. Detects the project's LLM client, ensures the proxy is running, rewires base_url +\napi_key behind an env toggle, and verifies with a live test call. Trigger on \"use freellmapi\",\n\"switch this to free models\", \"point this at freellmapi\", \"stop paying for openai here\", \"free llm\nproxy\", \"prototype without api costs\", \"run claude code on free models\", \"point claude\ncode/codex/gemini cli at freellmapi\", \"free models for my coding agent\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "project-profiler",
+        "model-adaptation",
+        "use-pxpipe"
+      ],
+      "spawned_by": []
+    },
+    "lines": 294,
+    "body_words": 2611,
+    "sha256": "b54251f7aa0779c1f99e71bca0f54cbf1859a886da5c6dda9b4e4b14d6dbf3f9",
+    "references": [
+      "skills/workflows/use-freellmapi/references/agent-clients.md",
+      "skills/workflows/use-freellmapi/references/capabilities.md",
+      "skills/workflows/use-freellmapi/references/recipes.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/use-pxpipe/SKILL.md",
+    "frontmatter": {
+      "name": "use-pxpipe",
+      "version": "1.0.1",
+      "description": "Wire the Claude Code agent harness to pxpipe \u2014 a local, loopback-only proxy that renders re-sent\nbulk (system prompt, tool docs, older history) into dense PNGs so long sessions cost roughly half\nto a third as much in input tokens, with a live savings dashboard and a one-line off switch. Use\nwhen the user wants to cut Claude Code's own token bill, enable the token-saver proxy for a long or\nmulti-agent run, point the harness at pxpipe, or check whether compression is actually paying.\nOpt-in and reversible: ANTHROPIC_BASE_URL behind an env toggle, model scope deferred to\nmodel-adaptation's allowlist, verification that compression fired AND the prompt cache stayed warm.\nTrigger on \"use pxpipe\", \"token saver proxy\", \"compress my context\", \"cut session input tokens\",\n\"optical context compression\", \"my Claude Code sessions are expensive\". Sibling use-freellmapi\nrewires an app's LLM client; this one rewires the agent harness itself.\n",
+      "compatibility": "Claude Code; requires Bash + Node/npx (proxy runs via npx pxpipe-proxy)",
+      "requires_agent_teams": false,
+      "requires_claude_code": true,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "model-adaptation",
+        "use-freellmapi",
+        "madness"
+      ],
+      "spawned_by": []
+    },
+    "lines": 170,
+    "body_words": 1197,
+    "sha256": "c8e09f579b296cd3aae5b12b1ba1566069e595ba3dce29147beb096ec9e4ed8e",
+    "references": [
+      "skills/workflows/use-pxpipe/references/verification.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/website-walkthrough-video/SKILL.md",
+    "frontmatter": {
+      "name": "website-walkthrough-video",
+      "version": "1.2.0",
+      "description": "Generate a smooth scrolling walkthrough video of an entire website \u2014 capture\nevery page full-length at desktop and mobile widths, then render an mp4 that\npans down each page, stitched into one continuous tour. Use whenever the user\nwants a video tour, demo reel, screen-recording, walkthrough, \"show me the\nsite as a video\", a marketing/launch clip, a before/after of a redesign, or a\ndesktop + mobile walkthrough mp4 \u2014 even if they don't say the word \"video\" but\ndescribe wanting to show the whole site scrolling. Triggers on \"walkthrough\nvideo\", \"video tour of the site\", \"record the site\", \"demo video of all the\npages\", \"scrolling screen recording\", \"make a reel of the site\", \"capture the\nwhole site as a video\", \"smooth scroll-through\". Also reach for it after a\nbuild or redesign wraps. Prefer it over hand-driving the Playwright MCP\nscreenshot-by-screenshot \u2014 the bundled scripts capture and pan\ndeterministically.\n",
+      "compatibility": "Claude Code; requires ffmpeg + Node.js + Playwright (Chromium)",
+      "requires_claude_code": true,
+      "requires_agent_teams": false,
+      "min_plan": "starter",
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep"
+      ],
+      "owns": {
+        "directories": [],
+        "patterns": []
+      }
+    },
+    "lines": 188,
+    "body_words": 1177,
+    "sha256": "1d7466208d06c91bde287a36463626355a4178dcfeb74b1e13a56f98cc37c3b4",
+    "references": [
+      "skills/workflows/website-walkthrough-video/references/tuning.md"
+    ],
+    "scripts": [
+      "skills/workflows/website-walkthrough-video/scripts/build.mjs",
+      "skills/workflows/website-walkthrough-video/scripts/capture.mjs",
+      "skills/workflows/website-walkthrough-video/scripts/package.json",
+      "skills/workflows/website-walkthrough-video/scripts/walkthrough.mjs"
+    ]
+  },
+  {
+    "path": "skills/workflows/wiki-research/SKILL.md",
+    "frontmatter": {
+      "name": "wiki-research",
+      "version": "2.2.0",
+      "description": "Read the project's Obsidian-style wiki (index.md + wiki/) BEFORE any codebase exploration, repo-deep-dive, or raw source reading. Reading 3-4 wiki pages (~2,000 tokens) typically replaces crawling raw source directories (~100,000-500,000 tokens). Always invoke when orchestrator, a role agent, or code-review needs project context, architecture, component knowledge, or design decisions before touching files. Trigger on \"how does X work\", \"understand the architecture\", \"review this code\", or \"build X\" when project context matters. Skip only for purely mechanical tasks (rename a variable, fix a typo) where zero project understanding is needed.\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "wiki/",
+          "index.md"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "composes_with": [
+        "repo-deep-dive",
+        "llm-wiki",
+        "project-profiler"
+      ],
+      "spawned_by": [
+        "orchestrator",
+        "code-review-agent"
+      ]
+    },
+    "lines": 167,
+    "body_words": 1054,
+    "sha256": "da9be11b335596aeba453730bd4421ac06d3a03d9df99704de277f60225b0ff5",
+    "references": [
+      "skills/workflows/wiki-research/references/contradiction-finding.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/work-item-brief/SKILL.md",
+    "frontmatter": {
+      "name": "work-item-brief",
+      "version": "1.1.1",
+      "description": "Produce a durable, agent-ready work-item brief that captures intent precisely enough for an autonomous agent to grab and finish unattended. The brief excludes brittle references (file paths, line numbers, \"the file we just edited\") and instead names behavioral acceptance criteria, types/signatures, and explicit out-of-scope. Pairs with Beads or any ticket tracker. Use after grill-me or plan-builder, before dispatching. Trigger on \"make a work-item brief\", \"write the agent brief\", \"agent-ready ticket\", \"make this dispatchable\", \"package this for an agent\", \"brief this\".\n",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [
+          "briefs/**/*.md"
+        ],
+        "shared_read": []
+      },
+      "allowed-tools": [
+        "Read",
+        "Write",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "grill-me",
+        "plan-builder",
+        "contract-author"
+      ],
+      "spawned_by": []
+    },
+    "lines": 92,
+    "body_words": 616,
+    "sha256": "b9c326416d09fef1d00bc82980fc2cba5b3cc3c9dff687bfe809f011af6c498f",
+    "references": [
+      "skills/workflows/work-item-brief/references/afk-hitl-rubric.md",
+      "skills/workflows/work-item-brief/references/brief-format.md",
+      "skills/workflows/work-item-brief/references/out-of-scope-pattern.md"
+    ],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/yagni-gate/SKILL.md",
+    "frontmatter": {
+      "name": "yagni-gate",
+      "version": "1.0.1",
+      "description": "Gate every build behind a persistent YAGNI ladder \u2014 the laziest senior dev in the room, adapted from DietrichGebert/ponytail (MIT). Before any code: does this need to exist, can something already present do it, can it be one line \u2014 only then the minimum that works. Never lazy about trust-boundary validation, data-loss error handling, security, accessibility, or understanding the problem first; every non-trivial change leaves one runnable check. Persists until 'stop yagni-gate' or 'normal mode'. Use when code keeps getting over-built, a tiny ask balloons into scaffolding, or you want a standing minimal-code gate on a session. Trigger on: 'yagni-gate', '/yagni-gate', 'yagni mode', 'YAGNI', 'stop over-building', 'over-engineered', 'keep it minimal', 'minimum code', 'lazy mode', 'don't gold-plate', 'ponytail', 'less code'.",
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "caveman",
+        "architecture-rescue",
+        "plan-intake"
+      ],
+      "spawned_by": []
+    },
+    "lines": 117,
+    "body_words": 582,
+    "sha256": "88484660e66ae1965c4344c8f20f697b847a8cb9e3ee6c0c69ab671dcb9de371",
+    "references": [],
+    "scripts": []
+  },
+  {
+    "path": "skills/workflows/zoom-out/SKILL.md",
+    "frontmatter": {
+      "name": "zoom-out",
+      "version": "1.1.1",
+      "description": "User-invoked only, via /zoom-out \u2014 never auto-fires. Steps back from the current code to give a higher-level perspective: which modules are involved, how do they connect, what is this change touching that isn't obvious? Reads the project's CONTEXT.md / domain glossary when available. Invoke it deliberately when you feel stuck in detail, when a change feels bigger than expected, or before making a structural decision and you want a map first.",
+      "disable-model-invocation": true,
+      "requires_agent_teams": false,
+      "requires_claude_code": false,
+      "min_plan": "starter",
+      "owns": {
+        "directories": [],
+        "patterns": [],
+        "shared_read": [
+          "*"
+        ]
+      },
+      "allowed-tools": [
+        "Read",
+        "Grep",
+        "Glob"
+      ],
+      "composes_with": [
+        "maintain-context"
+      ],
+      "spawned_by": []
+    },
+    "lines": 30,
+    "body_words": 95,
+    "sha256": "496904c6676a3f9d2504c86069b0d52918b2e73a59f362473115073064e7e74b",
+    "references": [],
+    "scripts": []
+  }
+]

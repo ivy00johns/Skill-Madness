@@ -1,6 +1,6 @@
 ---
 name: setup-project-skills
-version: 1.1.1
+version: 1.2.0
 description: |
   Bootstrap the per-repo config other Skill-Madness skills consume: domain doc layout (CONTEXT.md, ADRs), contract format (OpenAPI / Pydantic / TS / JSON Schema), and work-item tracker (Beads / GitHub / GitLab / local). Writes docs/agents/ plus an "## Agent skills" block in CLAUDE.md or AGENTS.md (never both, never overwriting). Downstream skills fail loud if this config is missing. Run once per repo. Trigger on "setup project skills", "configure project skills", "bootstrap this repo", "/setup-project-skills".
 disable-model-invocation: true
@@ -21,7 +21,7 @@ spawned_by: []
 Explicit-invocation only. Run once per repository.
 
 > **What this writes:** a `docs/agents/` directory containing three config files (`domain-docs.md`, `contract-format.md`, `work-item-tracker.md`) plus an `## Agent skills` block appended to either `CLAUDE.md` or `AGENTS.md`. Never both. Never overwrites an existing `## Agent skills` block without explicit confirmation.
-
+>
 > **Ownership:** this skill owns `docs/agents/` exclusively. It is carved out of `docs-agent`'s broader `docs/` ownership — `docs-agent` reads `docs/agents/` for context but never writes there. See the canonical map in the orchestrator's `references/file-ownership.md`.
 
 This skill bootstraps the per-repo configuration that the rest of the Skill-Madness toolkit reads at runtime. Downstream skills like `maintain-context`, `contract-author`, and the orchestrator look in `docs/agents/` for these files and fail loud if they are missing.
@@ -97,11 +97,10 @@ To re-run setup, invoke `/setup-project-skills`.
 
 ## Failure-loud contract for downstream skills
 
-Skills that consume this config MUST fail loud when it is missing. Pattern for downstream skill authors:
+Skills that consume this config MUST handle missing configuration explicitly:
 
-```text
-This action needs docs/agents/<config-file>. Run /setup-project-skills first.
-```
+- For setup and administrative skills: fail loud, surfacing the missing configuration and prompting the user to run `/setup-project-skills`.
+- For interactive user sessions where the user prefers to proceed immediately: pause before writes and offer setup or an explicit session-only fallback. Name every missing choice that the task needs: domain layout (root `CONTEXT.md`, `docs/adr/`), detected contract format, and local `briefs/` tracker as applicable. A layout approval never approves contract/tracker defaults. Proceed only after the human approves those exact choices; record them in the handoff. No answer means BLOCKED. The orchestrator's existing single-context/format-by-detection/local-tracker option is retained only with that explicit approval.
 
 Example downstream uses:
 

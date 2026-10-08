@@ -23,6 +23,9 @@ setup_file() {
   cp "$SCRIPTS_DIR/lib/slug.sh"        "$FAKEREPO/scripts/lib/slug.sh"
   cp "$SCRIPTS_DIR/lib/term.sh"        "$FAKEREPO/scripts/lib/term.sh"
   cp "$SCRIPTS_DIR/lib/platform.sh"    "$FAKEREPO/scripts/lib/platform.sh"
+  cp "$SCRIPTS_DIR/lib/resource_delivery.py" "$FAKEREPO/scripts/lib/resource_delivery.py"
+  cp "$SCRIPTS_DIR/lib/capability_resolver.py" "$FAKEREPO/scripts/lib/capability_resolver.py"
+  cp "$SCRIPTS_DIR/lib/standard_export.py" "$FAKEREPO/scripts/lib/standard_export.py"
   cp -r "$FIXTURE_SKILLS"              "$FAKEREPO/skills"
 
   export OUTDIR

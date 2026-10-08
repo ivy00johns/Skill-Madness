@@ -1,6 +1,6 @@
 ---
 name: use-freellmapi
-version: 1.4.0
+version: 1.5.1
 description: |
   Wire any project or coding agent to FreeLLMAPI — a local proxy aggregating ~30 free LLM provider
   tiers behind one endpoint — so you can prototype without paying for API calls. Use to switch a
@@ -36,11 +36,10 @@ changes beyond a base URL and a key.
 > **Don't hardcode the roster or the numbers into advice.** Providers come and go, the catalog
 > self-updates from a signed feed, and free installs run on a 30-day catalog trail. Read the live
 > `/v1/models` and the dashboard rather than trusting any list — including this one.
-
-> **Tiering note:** a FreeLLMAPI project is the toolkit's one sanctioned multi-provider setup. The
+>
+> **Tiering note:** a FreeLLMAPI project is the toolkit's explicit aggregating multi-provider setup. The
 > model & effort tiering policy (`model-adaptation`, *Model & effort tiering*) is provider-relative —
-> within a normal build you pick tiers inside ONE provider's ladder and never mix vendors to save
-> tokens — and FreeLLMAPI is its explicit carve-out: here the aggregated free tiers ARE the ladder,
+> within a normal build you pick tiers inside ONE provider's ladder and require explicit provider/privacy/budget consent for cross-provider review — and FreeLLMAPI is its explicit carve-out: here the aggregated free tiers ARE the ladder,
 > and the scarce resource is rate/quota headroom, not dollars.
 
 ## The whole integration, in three facts
@@ -98,7 +97,9 @@ curl -fsS http://localhost:3001/api/ping
 > Kill the `npm run dev` parent (not just the node child — `tsx watch` respawns it), then re-probe.
 > Never reach for `docker compose down -v` to "reset" this; that is what actually destroys keys.
 
-If nothing answers, install and start it with the official one-liner (needs Docker running):
+If nothing answers, ask the user before installing or executing external setup scripts:
+never pipe internet scripts to bash (`curl ... | bash`) without explicit user review and confirmation.
+Once approved, install and start with the official one-liner (needs Docker running):
 
 ```bash
 curl -fsSL https://freellmapi.co/install.sh | bash
@@ -116,7 +117,20 @@ If the user already runs it on a non-default port or another host, use that `bas
 
 ### Step 2 — Get the unified key and make sure a provider can serve requests
 
-**Unified key** (`freellmapi-…`): the install-wide bearer token. Get it from:
+**Find the existing key first — never ask the user to mint or paste one.** A working install
+almost always has a key wired somewhere already. Look, printing variable *names* only, never values:
+
+1. the process environment (`FREELLMAPI_KEY`, or an `OPENAI_API_KEY` that starts with `freellmapi-` / `sk-cp-`);
+2. this project's `.env` / `.env.local`;
+3. sibling projects already wired to the proxy (their `.env` holds `FREELLMAPI_KEY` + `FREELLMAPI_BASE_URL`);
+4. saved agent memories, which often record exactly which file holds it.
+
+Read only that one variable — never `source` another project's whole `.env`, which runs its shell
+code and exports every secret in it: `export FREELLMAPI_KEY="$(grep -m1 '^FREELLMAPI_KEY=' path/to/.env | cut -d= -f2-)"`.
+Never echo it. Only if all of that comes
+up empty is a new key needed. Even then, say what you checked before involving the user.
+
+**Unified key** (`freellmapi-…`): the install-wide bearer token. If none exists anywhere yet, it is in:
 
 - the **Keys page header** at `http://localhost:3001` (the dashboard), or
 - the first-run container logs:

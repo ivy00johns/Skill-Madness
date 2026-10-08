@@ -1,0 +1,39 @@
+{"skill": "orchestrator", "kind": "positive", "prompt": "run the approved plan with an agent team", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 37.6}
+{"skill": "madness", "kind": "positive", "prompt": "/madness kick off the Bazaar II build", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 21.8}
+{"skill": "skill-explorer", "kind": "positive", "prompt": "which skill handles dependency freshness?", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 25.6}
+{"skill": "skill-review", "kind": "positive", "prompt": "audit the four skills that under-triggered in this run", "loads": ["skill-review"], "first_tool": "Bash", "hit": true, "error": null, "secs": 22.5}
+{"skill": "plan-builder", "kind": "positive", "prompt": "turn the research into a build plan", "loads": ["plan-builder"], "first_tool": "Skill", "hit": true, "error": null, "secs": 5.9}
+{"skill": "plan-intake", "kind": "positive", "prompt": "intake the run report into the ledger", "loads": ["plan-intake"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.4}
+{"skill": "living-plan", "kind": "positive", "prompt": "set up the living-plan convention for Bazaar II", "loads": ["living-plan"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.5}
+{"skill": "grill-me", "kind": "positive", "prompt": "interview me about the escrow design, one question at a time", "loads": ["grill-me"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.7}
+{"skill": "find-unknowns", "kind": "positive", "prompt": "run a blindspot pass before we commit to the plan", "loads": ["find-unknowns"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.3}
+{"skill": "architecture-rescue", "kind": "positive", "prompt": "find the shallow modules and missing seams in the ledger", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 40.4}
+{"skill": "work-item-brief", "kind": "positive", "prompt": "write an agent-ready ticket for the fraud service", "loads": ["work-item-brief"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.3}
+{"skill": "yagni-gate", "kind": "positive", "prompt": "before we build the fraud service, climb the reuse ladder", "loads": ["yagni-gate"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.1}
+{"skill": "context-manager", "kind": "positive", "prompt": "the orchestrator context is filling \u2014 plan the handoff", "loads": ["context-manager"], "first_tool": "Skill", "hit": true, "error": null, "secs": 13.2}
+{"skill": "maintain-context", "kind": "positive", "prompt": "update the CONTEXT glossary and ADR for the escrow decision", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 29.7}
+{"skill": "project-profiler", "kind": "positive", "prompt": "profile the skeleton and emit profile.yaml", "loads": ["project-profiler"], "first_tool": "Skill", "hit": true, "error": null, "secs": 12.9}
+{"skill": "diagnose-loop", "kind": "positive", "prompt": "the bid race is flaky \u2014 build the fast feedback loop first", "loads": ["diagnose-loop"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.5}
+{"skill": "repo-deep-dive", "kind": "positive", "prompt": "deep-dive the Stripe SDK for the payments architecture", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 19.1}
+{"skill": "wiki-research", "kind": "positive", "prompt": "read the relevant wiki pages before crawling source", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 16.3}
+{"skill": "llm-wiki", "kind": "positive", "prompt": "stand up the Bazaar II knowledge wiki", "loads": ["llm-wiki"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.7}
+{"skill": "ui-brief", "kind": "positive", "prompt": "write the UI brief for the marketplace refresh", "loads": ["ui-brief"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.4}
+{"skill": "claude-design-brief", "kind": "positive", "prompt": "produce the paste-ready Claude Design prompt for the auction page", "loads": ["claude-design-brief"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.2}
+{"skill": "mermaid-charts", "kind": "positive", "prompt": "draw the service and escrow architecture as a diagram", "loads": ["mermaid-charts"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.4}
+{"skill": "render-sanity", "kind": "positive", "prompt": "tests pass but the checkout UI is broken \u2014 click-through and stale-data scan", "loads": ["render-sanity"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.3}
+{"skill": "design-token-guard", "kind": "positive", "prompt": "verify no inline styles bypass the design tokens", "loads": ["design-token-guard"], "first_tool": "Skill", "hit": true, "error": null, "secs": 3.7}
+{"skill": "class-extraction-guard", "kind": "positive", "prompt": "check for utility-class soup that should be extracted", "loads": ["class-extraction-guard"], "first_tool": "Skill", "hit": true, "error": null, "secs": 3.9}
+{"skill": "playwright", "kind": "positive", "prompt": "run the end-to-end signup to bid to pay journey with screenshots", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 22.7}
+{"skill": "website-walkthrough-video", "kind": "positive", "prompt": "capture a scrolling walkthrough video of the built site", "loads": ["website-walkthrough-video"], "first_tool": "Skill", "hit": true, "error": null, "secs": 3.4}
+{"skill": "nano-banana", "kind": "positive", "prompt": "generate the eight listing photos and the hero banner", "loads": ["nano-banana"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.2}
+{"skill": "artifact-publish", "kind": "positive", "prompt": "publish the run report as a shareable artifact page", "loads": ["artifact-publish"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.2}
+{"skill": "railway-deploy", "kind": "positive", "prompt": "prepare the multi-service Railway deployment config", "loads": ["railway-deploy"], "first_tool": "Skill", "hit": true, "error": null, "secs": 3.6}
+{"skill": "deployment-checklist", "kind": "positive", "prompt": "run the pre-deploy verification gates", "loads": ["deployment-checklist"], "first_tool": "Bash", "hit": true, "error": null, "secs": 7.9}
+{"skill": "use-freellmapi", "kind": "positive", "prompt": "wire Bazaar II to the FreeLLMAPI proxy for the fraud stub", "loads": ["use-freellmapi"], "first_tool": "Skill", "hit": true, "error": null, "secs": 9.6}
+{"skill": "use-pxpipe", "kind": "positive", "prompt": "wire the token-saver proxy for this long run", "loads": ["use-pxpipe"], "first_tool": "Skill", "hit": true, "error": null, "secs": 3.7}
+{"skill": "caveman", "kind": "positive", "prompt": "give me the ultra-compressed summary of the diff", "loads": [], "first_tool": "Bash", "hit": false, "error": null, "secs": 12.6}
+{"skill": "prose-slop-guard", "kind": "positive", "prompt": "check the docs for AI-slop prose before they ship", "loads": ["prose-slop-guard"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.0}
+{"skill": "interactive-doc", "kind": "positive", "prompt": "produce the paired Obsidian and HTML companion for the ledger doc", "loads": ["interactive-doc"], "first_tool": "Bash", "hit": true, "error": null, "secs": 9.8}
+{"skill": "payload-cms", "kind": "positive", "prompt": "optionally rebuild the storefront on Payload CMS", "loads": ["payload-cms"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.4}
+{"skill": "sync-skills", "kind": "positive", "prompt": "sync the repo skills globally so the session can see them", "loads": ["sync-skills"], "first_tool": "Skill", "hit": true, "error": null, "secs": 4.1}
+{"skill": "settings-consolidator", "kind": "positive", "prompt": "consolidate the permissions into one project allowlist", "loads": ["settings-consolidator"], "first_tool": "Skill", "hit": true, "error": null, "secs": 6.0}

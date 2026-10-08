@@ -1,11 +1,11 @@
 ---
 name: performance-agent
-version: 1.3.0
+version: 1.4.2
 disable-model-invocation: true
-description: "Orchestrator-dispatched only. Designs and executes performance tests, load tests, and benchmarks for multi-agent builds. Composed by orchestrator during multi-agent builds. Not user-invocable."
-compatibility: "Claude Code; requires Bash + k6"
+description: "Design and execute performance tests, load tests and benchmarks in native orchestrator dispatch or explicitly requested solo measurement work. Freeze targets and obtain approval for nonlocal load; load it when the orchestrator assigns this role or the user asks for it."
+compatibility: "Read/edit/shell host; requires project benchmark tools; native Claude dispatch retained"
 requires_agent_teams: false
-requires_claude_code: true
+requires_claude_code: false
 min_plan: starter
 owns:
   directories: ["tests/performance/", "load-tests/"]
@@ -30,7 +30,9 @@ This skill assumes a contract-first multi-agent build model:
 - Each role-agent consumes a machine-readable contract from `/contracts/`
 - `qe-agent` gates the build via `qa-report.json`
 
-For single-agent or ad-hoc work, this skill is not the right tool.
+### Execution mode
+
+**Dispatched** (the orchestrator supplied a role packet — natively, or in its sequential mode on any host): preserve the orchestrator's role packet, exclusive ownership, teams/Agent/Workflow choices and QE gate. **Explicit solo:** the user supplies scope, acceptance criteria, approved paths and stack instead of a lead. Read existing contracts; ask for missing boundary decisions. Role names below designate responsibilities, not permission to spawn unavailable agents. Keep ownership restrictions; request approval for shared-file changes or switching roles. Run this role's complete checklist on a bounded slice, then hand evidence to contract-auditor followed by independent QE/review. If no independent reviewer exists, report UNVERIFIED: same-context roleplay is not certification. Missing tools/checks are BLOCKED, not passes. Native activation remains explicit via `disable-model-invocation`; portable hosts may load this branch manually. Never run load against production or paid services without target/budget approval.
 
 ## Role
 

@@ -1,6 +1,6 @@
 ---
 name: git-pr-feedback
-version: 1.3.0
+version: 1.4.0
 description: >
   Fetch, triage, and address PR review comments from GitHub Copilot and human
   reviewers. Use when the user asks to check PR feedback, review comments,
@@ -65,9 +65,14 @@ Parse each comment to extract:
 - **where**: `path` and `line` — the file and line the comment targets
 - **what**: `body` — the feedback text
 - **id**: `id` — needed for replying
-- **replied**: to detect already-handled comments, scan all comments for
-  replies where `in_reply_to_id == <top_level_id>` and the reply author is
-  the PR author.
+- **thread state**: use paginated GraphQL `reviewThreads` and join `comments.nodes.databaseId` to REST comment IDs. Author replies are context only, never resolution. Issue comments have no review-thread resolution flag; triage them explicitly.
+
+```bash
+gh api graphql --paginate -F owner='{owner}' -F repo='{repo}' -F number='{pr}' \
+  -f query='query($owner:String!,$repo:String!,$number:Int!,$endCursor:String){repository(owner:$owner,name:$repo){pullRequest(number:$number){reviewThreads(first:100,after:$endCursor){pageInfo{hasNextPage endCursor} nodes{id isResolved isOutdated comments(first:100){nodes{databaseId body author{login}} pageInfo{hasNextPage endCursor}}}}}}}'
+```
+
+Fetch additional comment pages for any thread whose nested `pageInfo.hasNextPage` is true. If API auth/pagination/state lookup fails, mark unresolved status UNKNOWN and stop automatic skipping; never infer resolution from a reply or `isOutdated`.
 
 ### 3. Triage Each Comment
 
@@ -185,8 +190,9 @@ later.
 
 ## Edge Cases
 
-- **Already-replied comments**: Skip any top-level comment that has a reply
-  from the PR author (`in_reply_to_id` points back to the parent).
+- **Unresolved review threads vs author replies**: An author reply does NOT equal
+  resolution. Check thread status directly (`isResolved: true` or review thread state);
+  never skip a review comment merely because someone replied to it without resolving.
 - **Outdated comments**: After pushing fixes, read the file fresh — don't
   trust the diff context in the comment.
 - **Multiple commits**: Batch fixes into one commit unless the fixes are

@@ -1,11 +1,11 @@
 ---
 name: model-adaptation
-version: 1.5.0
+version: 1.7.1
 description: |
-  Adapt prompts, skills, and agent scaffolding when the underlying model changes — currently the Claude 5 family (Fable 5/Mythos 5) vs Opus 4.x, plus the cross-vendor DeepSeek landscape. Stronger models need LESS scaffolding: this skill says what to PRUNE, what backfires (narrating reasoning trips a reasoning_extraction refusal), and what to add for long autonomous runs. Canonical home of the model & effort tiering policy (declared-provider ladder — Anthropic or DeepSeek; FreeLLMAPI carve-out) and the capability-handoff technique — extract an operating manual from a stronger model to run on a cheaper one. Use when migrating a skill to a new model, agents get refused, or picking model/effort per role. Trigger on "migrate to Fable", "Fable 5", "Mythos 5", "deepseek", "model migration", "reasoning_extraction", "tune effort", "model tiering", "long-running agent hygiene", "extract operating manual", "pxpipe", "image proxy".
+  Load this skill for any adaptation-for-a-cell request even when no brief is attached — it adapts whatever is in context and, when nothing is supplied, emits the per-cell adaptation rules and routing directly instead of asking for the brief. Migrate and adapt a prompt, skill, brief, or agent scaffold when the underlying model or host changes — a new Claude version, DeepSeek, GPT, Gemini, Freebuff, or an unknown runtime. Stronger models need less scaffolding, so this says what to prune, what backfires, and what to add for long autonomous runs; it is the canonical home of the model/effort tiering policy and cross-vendor routing consent. Use when adapting a brief or a skill for a specific cell or vendor ("adapt this for the DeepSeek cell", "migrate to Fable 5"), picking model or effort, or tuning prompts for a different host.
 requires_claude_code: false
 min_plan: starter
-compatibility: "Claude Code, Claude.ai, or DeepSeek hosts (e.g. Freebuff); reference/advisory skill. No special tools required — WebFetch is optional, only to re-pull the live Anthropic or DeepSeek guide."
+compatibility: "Reference/advisory doctrine for Claude, GPT, Gemini, DeepSeek and unknown runtimes. Host tools, provider routing and endpoint effort controls must be observed separately; documentation fetch is optional."
 allowed-tools: ["Read", "Grep", "Glob", "Edit", "WebFetch"]
 composes_with: ["skill-writer", "skill-review", "skill-update", "loop-controller", "orchestrator", "use-freellmapi", "use-pxpipe", "claude-api"]
 spawned_by: []
@@ -165,20 +165,25 @@ routine passes, raise it only for the hardest reasoning). Output tokens cost
 ~5× input across the Anthropic family, so moving bulk work down a tier and
 trimming output dominate every other cost lever.
 
-**The provider-relativity rule (load-bearing).** One project, one provider
-ladder — never mix vendors to save tokens. A project *declares* its provider
-and runs the whole toolkit on that one vendor's ladder:
+**The provider-relativity rule (load-bearing).** Single-provider is the default,
+not automatic Anthropic. Observe endpoint, actual routed model and supported controls
+separately from host capabilities. Cross-provider review is permitted only with explicit
+provider/privacy/budget consent under `references/cross-vendor-tiering.md`:
 
 - **Default = Anthropic-native.** The ladder is Haiku → Sonnet → Opus → Fable,
   plus the effort dial. Read a project's declared provider from
-  `.claude/profile.yaml`; absent that, assume Anthropic.
+  `.claude/profile.yaml`; absent that, use this ladder only in confirmed native Claude
+  sessions. Otherwise record unknown and read `references/unknown-model-adaptation.md`.
+- **GPT / Gemini / unknown.** Read the matching reference on demand; select from the
+  approved live catalog, omit unsupported effort/thinking knobs and preserve opaque
+  continuation items. No account entitlement or current price is inferred.
 - **DeepSeek-native.** The ladder is `deepseek-v4-flash` → `deepseek-v4-pro`,
   with thinking mode + effort (`none/low/high/max`) as the dial within each.
   Full facts in `references/deepseek-adaptation.md`.
 - **The doctrine is a shape** — cheapest-that-clears-the-bar for grunt work, top
   tier for the reasoning gate — instantiated with whatever single provider the
   project actually runs on, staying inside that provider's own ladder.
-- **FreeLLMAPI is the only multi-provider carve-out** (see `use-freellmapi`): it
+- **FreeLLMAPI is an explicit aggregating carve-out** (see `use-freellmapi`): it
   deliberately aggregates free provider tiers behind one endpoint, the scarce
   resource is rate/quota rather than dollars, and the aggregation *is* the ladder.
 
@@ -216,7 +221,7 @@ everywhere." Detail in `references/model-effort-tiering.md`.
   sweet spot, and `low` effort often matches or beats prior-generation
   `xhigh`/`max` — so `low`/`medium` is the correct setting for routine work,
   not a compromise.
-- **Pass `model` and `effort` explicitly on every Agent/Workflow spawn.**
+- **Pin `model` on every supported spawn; pass only supported `effort` controls.**
   Per-agent defaults resolve to the *session-start* model, which goes stale the
   moment the user runs `/model` — the subagent-model footgun. This deliberately
   overrides the Workflow tool's generic "omit `opts.model` by default" guidance.
@@ -353,3 +358,16 @@ Run this checklist against an existing skill/harness (or the whole toolkit) on a
   (orchestrator dispatch, Workflow-mode stages, loop-controller Step 6, use-freellmapi,
   use-pxpipe) wires the policy in. Read when assigning model+effort to roles/stages/loops,
   when enabling the image proxy, or when a new model ships and the ladder needs updating.
+- `references/gpt-adaptation.md` — OpenAI / GPT runtime adaptation: verified Luna/Sol
+  references, reasoning best practices (Markdown/XML allowed, no fake chain-of-thought
+  extraction), tool continuations, and catalog-checked model/effort mapping.
+- `references/gemini-adaptation.md` — Google Gemini API / Gemini CLI adaptation:
+  Interactions vs generateContent thinking signatures, thinking controls, JSON-only
+  hook stdout discipline, and prompt mappings.
+- `references/unknown-model-adaptation.md` — Unknown-model baseline and safe default
+  behavior: never assume Claude outside confirmed Claude sessions; preserve structured
+  handoffs, refuse unattended runs without hard external limits, and evaluate against
+  measured capabilities.
+- `references/cross-vendor-tiering.md` — Cost-aware cross-vendor routing policy (UA-16):
+  explicit owner approval required for cross-vendor worker/reviewer routing, clean
+  reviewer packets, hard monetary/time limits, and measuring cost per accepted result.

@@ -1,0 +1,5 @@
+$ bash scripts/catalog.sh --check
+[OK]  plugin.json skills array matches disk (76 skills)
+[OK]  catalog clean: counts + plugin.json listing all match disk (total = 76)
+
+EXIT_CODE=0

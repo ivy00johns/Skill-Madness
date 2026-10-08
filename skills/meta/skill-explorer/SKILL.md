@@ -1,8 +1,8 @@
 ---
 name: skill-explorer
-version: 1.4.0
+version: 1.4.1
 description: |
-  Help the user discover, recall, understand, and pick the right skill from the available toolkit. Names the skill; does NOT invoke it. Use when the user is trying to find a skill ("I forgot the name of the one that does X", "what was that skill called"), asking what skills exist ("what skills do I have", "list all my skills", "show me the catalog"), asking what a specific skill does ("what does X do", "explain the X skill"), asking how skills relate ("how do these connect", "what does orchestrator spawn"), or asking for routing help ("which skill for this task", "what should I use to Y"). Also trigger when the user reaches for orchestrator on something that isn't a multi-agent build, or asks any meta-question about the skill ecosystem itself.
+  Guide the user to the right skill without running it. Use when someone asks which skill handles a task — "which skill handles dependency freshness?", "what should I use to do X?", "which skill for this?" — asks what skills exist ("what skills do I have"), asks what a named skill does or how skills relate ("what does orchestrator spawn?", "explain the X skill"), or has forgotten a skill's name ("the one that does X"). Also use for routing help when a request is vague about which skill should own it. Names the skill and says why it fits; it does not invoke it.
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
@@ -25,14 +25,12 @@ The user has accumulated a large toolkit (40+ repo skills plus plugin skills loa
 
 It answers four kinds of question:
 
-
 | Mode        | Triggered by                                                         | Output                                                                                       |
 | ----------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | **Recall**  | "what was that skill called", "I forgot the name of the one that..." | The skill name, in code, plus one sentence on what it does                                   |
 | **Catalog** | "what skills do I have", "list all my skills", "show me the toolkit" | Grouped list, one line per skill                                                             |
 | **Explain** | "what does X do", "tell me about X", "when should I use X"           | Purpose, when it triggers, what it produces, related skills                                  |
 | **Route**   | "which skill for Y", "I want to do Z", "what should I use to..."     | One recommended skill (in code) + why; alternates only if the request is genuinely ambiguous |
-
 
 ## Core principle: name, don't invoke
 
@@ -48,7 +46,7 @@ The exception: if the user's intent is unambiguous AND they explicitly say "go a
 
 For the Skill Madness repo specifically, skills live in:
 
-```
+```text
 skills/orchestrator/SKILL.md
 skills/{contracts,git,loops,meta,roles,workflows}/<skill-name>/SKILL.md
 ```
@@ -70,7 +68,7 @@ If you can't pin down a single skill, list 2–3 candidates with one line each.
 
 Group by category. One line per skill: `` `name` `` — what it does in <12 words.
 
-```
+```markdown
 ## Orchestration
 - `orchestrator` — coordinator for multi-agent contract-first builds
 
@@ -84,7 +82,7 @@ If the user asks for "everything" including plugin skills, separate repo skills 
 
 ### Explain ("what does X do")
 
-```
+```markdown
 **`<name>`** (v<version>) — <one-line summary>
 
 **Triggers on:** <2–3 sample trigger phrases from the description>
@@ -99,14 +97,14 @@ Pull `version`, `composes_with`, `spawned_by` from frontmatter. Skip fields that
 
 ### Route ("which skill for...")
 
-```
+```text
 Use `<skill-name>` — <one sentence on why it fits>.
 Trigger it with: "<sample phrase>" or `/<skill-name>`.
 ```
 
 Add an alternate only if the request genuinely could go either way:
 
-```
+```text
 If you actually mean <reframe>, use `<other-skill>` instead.
 ```
 
@@ -139,7 +137,6 @@ When orchestrator would be wrong, **say so explicitly**: "This isn't a multi-age
 
 ## Anti-patterns
 
-
 | Anti-pattern                                       | Why it fails                                                                                                                         |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
 | Auto-invoking the recommended skill                | The user said "names the skill" — auto-invoking hides the decision and creates a meta-orchestrator                                   |
@@ -149,9 +146,7 @@ When orchestrator would be wrong, **say so explicitly**: "This isn't a multi-age
 | Long preambles before the answer                   | The user wants the name. Lead with `` `skill-name` `` and explain after                                                              |
 | Inventing skill names                              | If you don't see a skill that fits, say "no skill covers this — closest is X" or "this might warrant a new skill via `skill-writer`" |
 
-
 ## References
 
 - `references/routing-table.md` — fuller table of common requests → recommended skill (plus a "By unresolved decision" index for when a shared term like "deploy" or "review" matches several plausible skills), used when the rules of thumb above don't cover the case
 - `references/troubleshooting.md` — named symptom taxonomy for skill discovery and routing problems (skill not triggering, wrong skill firing, overlapping triggers, instructions not followed)
-
