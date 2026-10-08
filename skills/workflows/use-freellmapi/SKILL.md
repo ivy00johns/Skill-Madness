@@ -125,7 +125,9 @@ almost always has a key wired somewhere already. Look, printing variable *names*
 3. sibling projects already wired to the proxy (their `.env` holds `FREELLMAPI_KEY` + `FREELLMAPI_BASE_URL`);
 4. saved agent memories, which often record exactly which file holds it.
 
-Load it at run time (`set -a; . path/to/.env; set +a`) and never echo it. Only if all of that comes
+Read only that one variable — never `source` another project's whole `.env`, which runs its shell
+code and exports every secret in it: `export FREELLMAPI_KEY="$(grep -m1 '^FREELLMAPI_KEY=' path/to/.env | cut -d= -f2-)"`.
+Never echo it. Only if all of that comes
 up empty is a new key needed. Even then, say what you checked before involving the user.
 
 **Unified key** (`freellmapi-…`): the install-wide bearer token. If none exists anywhere yet, it is in:

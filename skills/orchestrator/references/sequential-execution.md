@@ -102,7 +102,7 @@ assigns; it is never a way to load something the owner did not approve.
 Some skills the phases name are Claude-Code-only and are not exported to other
 hosts. The step they serve still applies; perform it with what *is* available
 and record the substitution in `coordination/MISSION_SKILLS.md` ("not installed
-on this host — performed inline" or "BLOCKED: <missing tool>"). A substitute
+on this host — performed inline" or "BLOCKED: `<missing tool>`"). A substitute
 never reports a PASS it could not observe.
 
 | Named skill | Do this instead |
