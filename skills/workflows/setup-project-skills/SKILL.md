@@ -3,7 +3,6 @@ name: setup-project-skills
 version: 1.2.0
 description: |
   Bootstrap the per-repo config other Skill-Madness skills consume: domain doc layout (CONTEXT.md, ADRs), contract format (OpenAPI / Pydantic / TS / JSON Schema), and work-item tracker (Beads / GitHub / GitLab / local). Writes docs/agents/ plus an "## Agent skills" block in CLAUDE.md or AGENTS.md (never both, never overwriting). Downstream skills fail loud if this config is missing. Run once per repo. Trigger on "setup project skills", "configure project skills", "bootstrap this repo", "/setup-project-skills".
-disable-model-invocation: true
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
@@ -18,7 +17,7 @@ spawned_by: []
 
 # setup-project-skills
 
-Explicit-invocation only. Run once per repository.
+Run once per repository. Safe to re-run: it keeps existing config unless you choose to replace it. Model-invocable, so requests like "set up this project" or "the README is wrong" reach it without a slash command.
 
 > **What this writes:** a `docs/agents/` directory containing three config files (`domain-docs.md`, `contract-format.md`, `work-item-tracker.md`) plus an `## Agent skills` block appended to either `CLAUDE.md` or `AGENTS.md`. Never both. Never overwrites an existing `## Agent skills` block without explicit confirmation.
 >
@@ -70,6 +69,10 @@ For each answer, copy the matching template from `references/templates/` into `d
 - Q3 → `references/templates/work-item-tracker-{beads|github|gitlab|local}.md` → `docs/agents/work-item-tracker.md`
 
 After copying, fill in repo-specific paths if the template has placeholders.
+
+## Root README check
+
+After the config is written, check the root `README.md` against the required sections in `skills/orchestrator/references/workspace-bootstrap.md` (What the project is, Stack, Prerequisites, Setup, Start, Tests, Deploy, Project structure, Known issues, Documentation map). Verify every command against the real scripts (`package.json`, `Makefile`, the Procfile) and run the typecheck and test commands before listing them as working. Report missing sections, placeholder commands, and failing checks. Offer to rewrite the README from `skills/roles/docs-agent/references/doc-templates.md` before writing anything (ask first, never overwrite silently).
 
 ## Update CLAUDE.md or AGENTS.md
 

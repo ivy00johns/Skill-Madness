@@ -113,7 +113,7 @@ Run `references/doc-templates.md` checklist before reporting done.
 
 Before reporting completion:
 
-- [ ] README.md has working Quick Start that matches actual project setup
+- [ ] README.md has the workspace-bootstrap sections (Setup, Start, Tests, Known issues, Documentation map), and every command was run and matches the real scripts
 - [ ] All API endpoints from the contract are documented with curl examples
 - [ ] Project structure overview matches actual file tree
 - [ ] CHANGELOG follows Keep a Changelog format
