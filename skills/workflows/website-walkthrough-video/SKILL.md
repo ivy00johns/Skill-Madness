@@ -1,6 +1,6 @@
 ---
 name: website-walkthrough-video
-version: 1.3.0
+version: 1.4.0
 description: |
   Generate a smooth scrolling walkthrough video of an entire website — capture
   every page full-length at desktop and mobile widths, then render an mp4 that
@@ -186,7 +186,10 @@ Everything tunable, plus the device-mode schema and ffmpeg internals, is in
   page in some sites. If you see that, see `references/tuning.md` for the CSS-injection
   knob to neutralize sticky positioning before capture.
 - **Auth-gated pages**: capture runs a fresh browser context with no login. For pages
-  behind auth you'll need to extend `capture.mjs` to set cookies/storage state — out of
-  scope for the default flow; capture the public pages and note the gap to the user.
+  behind auth, pass Playwright cookie objects (`name`/`value` plus `url`, or
+  `domain`/`path`) as `cookies` in the config, or point `cookiesFile` at a JSON array
+  of them. Every capture context loads them before the first page. Keep the cookie
+  file outside the repo and never put session tokens in a committed config. Without
+  cookies, capture the public pages and note the gap to the user.
 - **Output is large.** mp4s and full-page PNGs are big and regenerable — keep `outDir`
   gitignored.
