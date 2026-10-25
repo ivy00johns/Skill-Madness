@@ -1,9 +1,13 @@
 ---
 name: skill-review
-version: 1.3.0
+version: 1.3.1
 argument-hint: skill-name or 'all'
-description: |
-  Audit and review skills for quality, consistency, and triggering accuracy — including skills that under-trigger or mis-fire. Two modes: 'all' (bulk ecosystem scan for ownership conflicts, length outliers, weak triggers, dead cross-references) or one skill name (deep dive on description quality, body structure, naming, cross-references). Outputs a structured markdown report plus a JSON sidecar consumable by skill-update. Use when asked to "audit skills", "review this skill", "health check skills", "which skills under-trigger", "why didn't this skill fire", "bulk review", or "deep review".
+description: >-
+  Audit skills for quality, consistency and triggering: 'all' for an ecosystem
+  scan (ownership conflicts, length outliers, weak triggers, dead references) or
+  one skill for a deep review. Writes a markdown report plus JSON for
+  skill-update. Use when asked to "audit skills", "review this skill", "which
+  skills under-trigger", "why didn't this skill fire".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

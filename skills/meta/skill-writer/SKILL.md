@@ -1,8 +1,11 @@
 ---
 name: skill-writer
-version: 1.7.0
-description: |
-  Write a new skill from scratch — scaffold a SKILL.md with correct frontmatter, directory layout, file ownership, reference files, and a recorded triggering test. Use when creating a new agent role, meta skill, workflow skill, or contract skill — anything that needs a new SKILL.md — or when asked to "write a new skill", "create a skill", "add a skill for X", "scaffold a skill", or "add a role to the skill ecosystem".
+version: 1.7.1
+description: >-
+  Write a new skill from scratch: SKILL.md with correct frontmatter, directory
+  layout, file ownership, references and a triggering test. Use when creating a
+  new role, meta, workflow or contract skill. Trigger on "write a new skill",
+  "create a skill", "add a skill for X", "scaffold a skill".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

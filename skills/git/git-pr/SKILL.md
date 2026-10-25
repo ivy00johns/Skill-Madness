@@ -1,15 +1,12 @@
 ---
 name: git-pr
-version: 1.5.0
-description: >
-  Guide for creating and updating GitHub pull requests in this repository:
-  PR title format, body structure, clean descriptions, and the gh CLI workflow.
-  Use when creating a pull request, writing a PR description, updating a PR,
-  or preparing changes for review. Trigger on: "create a PR", "open a PR",
-  "pull request", "PR description", "PR body", "ready for review",
-  "gh pr create", "open pull request", "submit PR", "PR template".
-  Also use proactively whenever you are about to run `gh pr create` —
-  even if the user did not explicitly mention this skill.
+version: 1.5.1
+description: >-
+  PR title format, body structure and the gh CLI workflow for creating or
+  updating pull requests in this repo. Use when opening a PR, writing or
+  updating a PR description, or preparing changes for review, and whenever
+  you're about to run `gh pr create`. Trigger on "create a PR", "open a PR", "PR
+  description", "ready for review".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

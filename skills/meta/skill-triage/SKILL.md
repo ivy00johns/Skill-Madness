@@ -1,18 +1,13 @@
 ---
 name: skill-triage
-version: 0.2.0
+version: 0.2.1
 description: >-
-  Measure and fix skill routing with TypeSafe's Jev decision model: ask which
-  skill a request should load, score the catalog against labeled routing cases,
-  and find description collisions where one skill steals another's trigger
-  phrases. Returns probabilities, not opinions, in under a second per call. Use
-  when skills misfire or under-trigger, before or after editing a description,
-  when skill-review needs trigger evidence, when madness wants a second opinion
-  on a route, or to regression-test the catalog after adding a skill. Trigger
-  on: "jev", "typesafe", "which skill should fire for this", "why did the wrong
-  skill trigger", "description collisions", "are my skills stealing each
-  other's triggers", "check routing accuracy", "trigger check", "test the
-  routing table", "score skill descriptions".
+  Measure skill routing with TypeSafe's Jev decision model: which skill a
+  request should load, accuracy against labeled routing cases, and description
+  collisions where one skill steals another's triggers. Cheap and spend-capped.
+  Use when skills misfire or under-trigger, or before and after editing
+  descriptions. Trigger on "jev", "check routing accuracy", "description
+  collisions", "trigger check".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

@@ -1,19 +1,12 @@
 ---
 name: madness
-version: 1.6.0
+version: 1.6.1
 description: >-
-  The front door to the whole toolkit — one reliable entry point that reads what
-  you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a
-  role or workflow skill, or skill-explorer), and launches it for you — so you
-  stop reaching for `orchestrator` on everything just to be sure a skill fires.
-  Use when you don't know which skill to start with, want to kick off work but
-  aren't sure of the entry point, or just want to summon the toolkit. Confirms
-  before anything expensive (agent swarms, autonomous loops, full builds) and
-  fires cheap routes immediately. Trigger on: "/madness", "madness", "where do I
-  start", "which skill do I use", "route me", "kick this off", "get me into the
-  right workflow", "I don't know what skill", "use the toolkit", "what's the
-  front door", "what should I run for this". It routes and hands off — it does
-  not do the work itself and it is not a meta-orchestrator.
+  The front door to the toolkit: reads what you want, picks the right starting
+  skill (orchestrator, plan-builder, a loop, a role or workflow skill, or
+  skill-explorer) and launches it. Confirms before anything expensive. Use when
+  you don't know which skill to start with. Trigger on "/madness", "where do I
+  start", "which skill do I use", "route me", "kick this off".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
