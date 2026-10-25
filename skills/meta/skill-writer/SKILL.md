@@ -1,6 +1,6 @@
 ---
 name: skill-writer
-version: 1.6.0
+version: 1.7.0
 description: |
   Write a new skill from scratch — scaffold a SKILL.md with correct frontmatter, directory layout, file ownership, reference files, and a recorded triggering test. Use when creating a new agent role, meta skill, workflow skill, or contract skill — anything that needs a new SKILL.md — or when asked to "write a new skill", "create a skill", "add a skill for X", "scaffold a skill", or "add a role to the skill ecosystem".
 requires_agent_teams: false
@@ -65,9 +65,9 @@ Required fields:
 
 - `name` — kebab-case, max 64 chars. `claude-*` / `anthropic-*` prefixes are reserved by Anthropic; use them only as a documented exception when the skill targets the corresponding Anthropic product (e.g., `claude-design-brief`).
 - `version` — semver (start at 1.0.0), top-level
-- `description` — `[What] + [When] + [Capabilities]` anatomy (≤200 chars target, 1024 hard ceiling)
+- `description` — `[What] + [When] + [Capabilities]` anatomy (≤400 chars target, 1024 hard ceiling)
 
-The description is the primary trigger mechanism. Write it "pushy" — enumerate contexts where the skill should activate. See `references/description-patterns.md` for templates and the 3-slot anatomy.
+The description is the primary trigger mechanism. Make it specific, not long: what it does, "Use when…", and a few phrases users really say. Claude Code's skill listing has a shared character budget (1% of the context window: about 8,000 chars on 200k), and over it descriptions are cut to the bare skill name, so the longest-winded catalog loses its long tail. Trigger detail beyond that belongs in the body. See `references/description-patterns.md` for templates and the 3-slot anatomy.
 
 **Declare portability explicitly.** Set `requires_claude_code: false` unless the skill genuinely needs Claude-Code machinery (Agent-Teams subagents, the Artifact tool, `~/.claude` config). Default to portable — a host-agnostic skill costs nothing extra, while one marked `true` is skipped entirely when converting for other tools. If the skill is host-specific, say which host in `compatibility` (e.g. `"Claude Code or any host with Bash"`).
 
@@ -141,7 +141,7 @@ Work one focused change at a time — make a single edit, re-validate (lint + th
 - [ ] Frontmatter has all required fields
 - [ ] `name` is kebab-case. If it starts with `claude-` or `anthropic-`, that's a documented exception (skill targets the corresponding Anthropic product)
 - [ ] No `<` or `>` anywhere in frontmatter
-- [ ] Description is ≤200 chars (target) and "pushy"; never exceeds 1024 chars (ceiling)
+- [ ] Description is ≤400 chars, leads with what it does and "Use when…"; never exceeds 1024 chars (ceiling)
 - [ ] Body is ≤5,000 words (soft warning past 500 lines)
 - [ ] File ownership doesn't overlap with existing agents (check v1.1 resolved conflicts)
 - [ ] Directory ownership takes precedence over pattern ownership

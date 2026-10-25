@@ -737,7 +737,7 @@ Set the override env var documented in `scripts/README.md` (e.g. `CURSOR_RULES_D
 - 🪞 **Lossy conversion is announced** — every stripped field gets a stderr line per skill per host. The installer never silently drops content.
 - 🛡️ **Fail loud, fail early** — frontmatter schema, ownership conflicts, broken cross-refs are all CI errors, not warnings.
 - 🔁 **Symlinks > copies** — `/sync-skills` defaults to symlinking so edits in the repo are instantly live in every Claude Code session.
-- 📣 **Pushy descriptions** — skill `description` fields intentionally over-enumerate trigger contexts. Under-triggering is a worse failure than over-triggering.
+- 📣 **Short, specific descriptions** — each `description` says what the skill does, when to use it, and a few phrases users really say (≤400 chars). Hosts budget the skill listing, and an over-long catalog gets its descriptions cut to bare names, which is the worst kind of under-triggering.
 
 ---
 

@@ -70,6 +70,17 @@ CHANGED_BASE=""
 # Issue tracking
 # ---------------------------------------------------------------------------
 ERRORS=()    # "FILE:LINE:MESSAGE"
+# Sum of description chars across installable skills (archive/in-progress
+# excluded) — DR-1. Claude Code (2.1.310) sizes its skill listing at
+# context_tokens x 4 chars x skillListingBudgetFraction (default 0.01): 8,000
+# chars on a 200k window, 40,000 on 1M, shared with every other installed
+# skill and plugin. Over budget it logs "Skill listing over budget" and cuts
+# descriptions back to the bare name, so those skills stop auto-triggering.
+# Each description is also capped at skillListingMaxDescChars (1,536).
+# Override with ATS_DESC_BUDGET.
+DESC_TOTAL=0
+DESC_COUNTED=0
+DESC_BUDGET="${ATS_DESC_BUDGET:-8000}"
 WARNS=()
 INFOS=()
 
@@ -342,6 +353,10 @@ lint_one() {
 
   fm_end_line="$(printf '%s' "$json_out" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['fm_end_line'])")"
   desc_len="$(printf '%s' "$json_out" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('desc_len',0))")"
+  case "$file" in
+    */archive/*|*/in-progress/*) ;;
+    *) DESC_TOTAL=$(( DESC_TOTAL + desc_len )); DESC_COUNTED=$(( DESC_COUNTED + 1 )) ;;
+  esac
   body_wc="$(printf '%s' "$json_out" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['body_word_count'])")"
   body_lc="$(printf '%s' "$json_out" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('body_line_count',0))")"
   has_verb="$(printf '%s' "$json_out" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('has_action_verb',False))")"
@@ -430,10 +445,8 @@ lint_one() {
     # WARN once a description crosses 950 so it gets trimmed BEFORE one more edit
     # pushes it over and turns a clean tree red. WARN-only — never touches exit.
     emit_issue WARN "$file" "" "description is ${desc_len} chars — within $(( 1024 - desc_len )) of the 1024 hard ceiling; trim trigger text (move detail to body/references) before an edit pushes it over and FAILs the schema check"
-  elif (( desc_len > 500 )); then
-    emit_issue WARN "$file" "" "description is ${desc_len} chars (consider whether some trigger context belongs in body/references)"
-  elif (( desc_len > 200 )); then
-    emit_issue WARN "$file" "" "description is ${desc_len} chars (soft target ≤200; pushy descriptions are OK per CLAUDE.md)"
+  elif (( desc_len > 400 )); then
+    emit_issue WARN "$file" "" "description is ${desc_len} chars (target ≤400: lead with what it does + 'Use when…', a few real trigger phrases; detail belongs in the body — DR-1)"
   fi
 
   # ---------------------------------------------------------------------------
@@ -1013,6 +1026,11 @@ main() {
 
   # Cross-skill checks
   cross_validate "${files[@]}"
+
+  # Suite description budget (DR-1) — only meaningful on a multi-skill run.
+  if (( DESC_COUNTED > 1 && DESC_TOTAL > DESC_BUDGET )); then
+    emit_issue WARN "(cross-skill)" "" "descriptions total ${DESC_TOTAL} chars across ${DESC_COUNTED} skills (Claude Code listing budget ${DESC_BUDGET} on a 200k window, shared with every installed skill); over budget, descriptions are cut to the bare name and those skills stop auto-triggering — trim the longest, or raise skillListingBudgetFraction"
+  fi
 
   local n_errors=${#ERRORS[@]}
   local n_files=${#files[@]}

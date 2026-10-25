@@ -492,3 +492,18 @@ EOF
   run bash "$FIX/scripts/lint-skills.sh" --changed no-such-ref-xyz
   [ "$status" -eq 2 ]
 }
+
+# ---------------------------------------------------------------------------
+# DR-1: suite description budget (WARN-only, multi-skill runs)
+# ---------------------------------------------------------------------------
+@test "suite description budget: WARN when total exceeds ATS_DESC_BUDGET" {
+  ATS_DESC_BUDGET=50 run bash "$LINT" "$FIXTURES/skills/roles/minimal-agent" "$FIXTURES/skills/roles/full-agent"
+  [[ "$output" == *"descriptions total"*"budget 50"* ]]
+}
+
+@test "suite description budget: silent under budget and on single-skill runs" {
+  ATS_DESC_BUDGET=999999 run bash "$LINT" "$FIXTURES/skills/roles/minimal-agent" "$FIXTURES/skills/roles/full-agent"
+  [[ "$output" != *"descriptions total"* ]]
+  ATS_DESC_BUDGET=1 run bash "$LINT" "$FIXTURES/skills/roles/minimal-agent"
+  [[ "$output" != *"descriptions total"* ]]
+}
