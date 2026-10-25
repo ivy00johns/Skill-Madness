@@ -37,6 +37,8 @@ provider. Pure python3 stdlib. Exit codes: 0 ok, 1 below --fail-under,
 2 argument error, 3 API rejected the request, 4 Jev unavailable (no key,
 401/402/403 — e.g. a zero balance — unreachable, or still rate-limited after
 retries). Exit 4 means "route without Jev", never "stop".
+5 stopped at the --max-cost spend cap (default $0.02; runs estimated above it
+are refused before any call, exit 2).
 """
 
 import argparse
@@ -68,9 +70,15 @@ PROVIDERS = [
     ("typesafe", "TYPESAFE_API_KEY", "https://api.typesafe.ai"),
     ("openrouter", "OPENROUTER_API_KEY", "https://openrouter.ai/api"),
 ]
+OVER_BUDGET = 5  # exit code: the run hit --max-cost and stopped
 UNAVAILABLE = 4  # exit code: Jev can't be reached or paid for -> caller routes without it
 UNAVAILABLE_HTTP = {401, 402, 403, 429, 500, 502, 503, 529}  # 429/5xx only after retries
 VENICE_USD_PER_M_INPUT = 0.042  # from Venice /models jev-latest spec, 2026-10-24
+EST_USD_PER_M_INPUT = 0.045     # conservative estimate for the pre-run budget check, any provider
+MAX_COST = 0.02                 # default per-run spend cap in USD; raise with --max-cost
+BATCH_SIZE = 32                 # probes per call; Venice rejects 40 (HTTP 400), 32 verified 2026-10-25
+TOKENS_PER_QUESTION = 1300      # measured: Jev bills ~1.3k input tokens per batched question,
+                                # whatever the option labels (names vs short ids cost the same)
 DEFAULT_ROOT = Path(__file__).resolve().parents[3]  # repo skills/
 
 
@@ -160,11 +168,11 @@ def trigger_phrases(description):
 # ---------------------------------------------------------------- API
 
 class Client:
-    def __init__(self, model, env_file=None, retries=8, timeout=60):
+    def __init__(self, model, env_file=None, retries=8, timeout=60, max_cost=MAX_COST):
         if env_file:
             _load_env_file(env_file)
         model = model or os.environ.get("JEV_MODEL", "jev-latest")
-        self.retries, self.timeout = retries, timeout
+        self.retries, self.timeout, self.max_cost = retries, timeout, max_cost
         self.lock = threading.Lock()
         forced = os.environ.get("JEV_PROVIDER")
         candidates = [p for p in PROVIDERS if not forced or p[0] == forced]
@@ -189,6 +197,10 @@ class Client:
         self.served = set()
 
     def ask(self, state, questions):
+        with self.lock:
+            if self.cost >= self.max_cost:
+                raise BudgetError(f"spend reached the ${self.max_cost} cap after {self.calls} calls; "
+                                  "stopped (raise --max-cost to allow more)")
         retries = self.retries
         body = json.dumps({"model": self.model, "state": state, "questions": questions}).encode()
         req = urllib.request.Request(self.url, data=body, method="POST", headers={
@@ -233,6 +245,10 @@ class Client:
             if data.get("model"):
                 self.served.add(data["model"])
         return data["answers"]
+
+
+class BudgetError(RuntimeError):
+    pass
 
 
 class ApiError(RuntimeError):
@@ -365,29 +381,58 @@ def cases_from_triggers(catalog, skills):
     return cases
 
 
-def score_cases(client, catalog, cases, concurrency):
-    question = {"which": wide_choice(catalog)}
+def _score(case, answer):
+    order = ranked(answer)
+    if not order:
+        return {**case, "error": "Jev returned no probability distribution"}
+    got, p_got = order[0]
+    p_expect = max(answer["probabilities"].get(e, 0) for e in case["expect"])
+    second, runner_up = order[1] if len(order) > 1 else (None, 0)
+    return {**case, "got": got, "p_got": round(p_got, 3), "p_expect": round(p_expect, 3),
+            "ok": got in case["expect"], "margin": round(p_got - runner_up, 3),
+            "runner_up": second, "p_runner_up": round(runner_up, 3),
+            "confidence": round(answer.get("confidence", 0), 3)}
 
-    def one(case):
+
+def batch_question(catalog, prompt):
+    return {"type": "choice",
+            "instructions": f"A user says: \"{prompt}\". Using the skill descriptions in the "
+                            "state, which skill should the agent load to handle it?",
+            "criteria": {name: name for name in catalog}}  # names only: the state holds the descriptions
+
+
+def score_cases(client, catalog, cases, concurrency, batch_size=BATCH_SIZE):
+    """Rank each case's prompt over the catalog.
+
+    batch_size 1 sends one call per case with the descriptions as Choice
+    criteria. Larger batches put the descriptions in the state once and ask
+    one Choice per case, so the catalog is paid for once per call, not per case.
+    """
+    if batch_size <= 1:
+        question = {"which": wide_choice(catalog)}
+        batches = [[c] for c in cases]
+    else:
+        state = {"skills": {name: s["description"] for name, s in catalog.items()}}
+        batches = [cases[i:i + batch_size] for i in range(0, len(cases), batch_size)]
+
+    def one(batch):
         try:
-            answer = client.ask({"request": case["prompt"]}, question)["which"]
+            if batch_size <= 1:
+                answers = [client.ask({"request": batch[0]["prompt"]}, question)["which"]]
+            else:
+                qs = {f"q{i}": batch_question(catalog, c["prompt"]) for i, c in enumerate(batch)}
+                got = client.ask(state, qs)
+                answers = [got[f"q{i}"] for i in range(len(batch))]
         except ApiError as err:
             if err.unavailable:
                 raise  # a dead key or empty account fails every case; stop the run
-            return {**case, "error": str(err)}
-        order = ranked(answer)
-        if not order:
-            return {**case, "error": "Jev returned no probability distribution"}
-        got, p_got = order[0]
-        p_expect = max(answer["probabilities"].get(e, 0) for e in case["expect"])
-        second, runner_up = order[1] if len(order) > 1 else (None, 0)
-        return {**case, "got": got, "p_got": round(p_got, 3), "p_expect": round(p_expect, 3),
-                "ok": got in case["expect"], "margin": round(p_got - runner_up, 3),
-                "runner_up": second, "p_runner_up": round(runner_up, 3),
-                "confidence": round(answer.get("confidence", 0), 3)}
+            return [{**c, "error": str(err)} for c in batch]
+        except BudgetError as err:  # keep what was scored; mark the rest as not run
+            return [{**c, "error": str(err), "over_budget": True} for c in batch]
+        return [_score(c, a) for c, a in zip(batch, answers)]
 
     with ThreadPoolExecutor(max_workers=max(1, concurrency)) as pool:
-        return list(pool.map(one, cases))
+        return [r for rows in pool.map(one, batches) for r in rows]
 
 
 def summarize(results):
@@ -449,6 +494,10 @@ def main():
     ap.add_argument("--env-file", help="load the API key from this .env (value never printed)")
     ap.add_argument("--limit", type=int, help="score at most N cases")
     ap.add_argument("--concurrency", type=int, default=4)
+    ap.add_argument("--batch-size", type=int, default=BATCH_SIZE,
+                    help=f"check/collisions probes per call (default {BATCH_SIZE}; 1 = one call per probe)")
+    ap.add_argument("--max-cost", type=float, default=float(os.environ.get("JEV_MAX_COST", MAX_COST)),
+                    help=f"refuse or stop a run whose spend would pass this many USD (default {MAX_COST})")
     ap.add_argument("--fail-under", type=float, help="exit 1 if accuracy is below this (0-1)")
     ap.add_argument("--dry-run", action="store_true", help="show what would be sent; no API calls")
     ap.add_argument("--json", action="store_true")
@@ -461,17 +510,20 @@ def main():
         if not args.request:
             die("route needs the request text")
         if args.dry_run:
-            print(json.dumps({"skills": len(catalog), "calls": 2,
-                              "approx_input_tokens": (criteria_chars + len(args.request)) // 4 + 2000}))
+            tokens = (criteria_chars + len(args.request)) // 4 + 2000
+            print(json.dumps({"skills": len(catalog), "calls": 2, "approx_input_tokens": tokens,
+                              "est_cost_usd": round(tokens * EST_USD_PER_M_INPUT / 1e6, 5)}))
             return 0
         # route is a pre-check another skill waits on: fail over to exit 4 fast.
-        client = Client(args.model, args.env_file, retries=2, timeout=15)
+        client = Client(args.model, args.env_file, retries=2, timeout=15, max_cost=args.max_cost)
         try:
             result = route(client, catalog, args.request)
         except ApiError as err:
             die(("jev unavailable: " if err.unavailable else "") + str(err), UNAVAILABLE if err.unavailable else 3)
         except (KeyError, TypeError, IndexError) as err:
             die(f"jev unavailable: unexpected response shape ({err!r})", UNAVAILABLE)
+        except BudgetError as err:
+            die(str(err), OVER_BUDGET)
         result.update({"served_model": sorted(client.served), "cost": round(client.cost, 6)})
         if args.json:
             print(json.dumps(result, indent=2))
@@ -506,20 +558,32 @@ def main():
     if not cases:
         die("no cases to score")
 
+    if args.batch_size <= 1:
+        calls = len(cases)
+        tokens = calls * (criteria_chars // 4 + 300)
+    else:
+        calls = -(-len(cases) // args.batch_size)
+        tokens = calls * (criteria_chars // 4 + 300) + len(cases) * TOKENS_PER_QUESTION
+    est_cost = tokens * EST_USD_PER_M_INPUT / 1e6
     if args.dry_run:
-        print(json.dumps({"skills": len(catalog), "calls": len(cases),
-                          "approx_input_tokens": len(cases) * (criteria_chars // 4 + 300),
+        print(json.dumps({"skills": len(catalog), "calls": calls, "approx_input_tokens": tokens,
+                          "est_cost_usd": round(est_cost, 5), "max_cost_usd": args.max_cost,
                           "skipped_phrases_outside_catalog": len(skipped),
                           "sample": cases[:5]}, indent=2))
         return 0
 
-    client = Client(args.model, args.env_file)
+    if est_cost > args.max_cost:
+        die(f"estimated ${est_cost:.4f} for {calls} calls exceeds the ${args.max_cost} cap; "
+            "narrow with --skill/--limit or pass --max-cost to allow it")
+    client = Client(args.model, args.env_file, max_cost=args.max_cost)
     try:
-        results = score_cases(client, catalog, cases, args.concurrency)
+        results = score_cases(client, catalog, cases, args.concurrency, args.batch_size)
     except ApiError as err:
         die(("jev unavailable: " if err.unavailable else "") + str(err), UNAVAILABLE if err.unavailable else 3)
     except (KeyError, TypeError, IndexError) as err:
         die(f"jev unavailable: unexpected response shape ({err!r})", UNAVAILABLE)
+    except BudgetError as err:
+        die(str(err), OVER_BUDGET)
     summary = summarize(results)
     summary.update({"skills": len(catalog), "served_model": sorted(client.served),
                     "calls": client.calls, "cost": round(client.cost, 6),
@@ -531,6 +595,9 @@ def main():
         if skipped:
             print(f"\nSkipped {len(skipped)} routing-table phrases whose targets are outside this catalog.")
         print(f"\n{client.calls} calls, model {', '.join(summary['served_model'])}, cost ${summary['cost']}")
+    if any(e.get("over_budget") for e in summary["errors"]):
+        print(f"stopped at the ${args.max_cost} spend cap; results above are partial", file=sys.stderr)
+        return OVER_BUDGET
     if args.fail_under is not None and summary["accuracy"] < args.fail_under:
         return 1
     return 0
