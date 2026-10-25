@@ -1,9 +1,9 @@
 ---
 name: skill-eval
-version: 0.1.0
+version: 0.1.1
 description: >-
   Measure whether a skill actually helps: build a `claude plugin eval` suite,
-  run it with and without the skill under a required dollar cap, and read the
+  run it with and without the skill under a required spend cap, and read the
   delta. Use when adding evals to a skill, converting evals.json, re-checking
   skills after a model upgrade, or deciding if a skill should be cut. Trigger
   on: "plugin eval", "eval this skill", "does this skill help", "skill delta".
@@ -37,7 +37,16 @@ means it isn't pulling its weight.
 
 This skill wraps that runner for single skills in this repo. Its job is to
 make suites correct and keep spend near zero: cheap checks are free, and the
-only paid step demands a cap you chose.
+only step that runs Claude sessions demands a cap you chose.
+
+**What "cost" means here.** Every case run is a full Claude Code session on
+whatever credential the CLI is logged in with. Logged in through claude.ai
+(`claude auth status` shows `authMethod: claude.ai`), runs draw on the
+subscription's usage allowance, not dollars. The runner's `costUsd` and
+`--max-cost-usd` are estimated API-equivalent figures, which still work as a
+size gauge and a cap. Real dollars are spent only with an API key, or with
+paid extra usage past the plan limit. Check `claude auth status` before
+telling the owner what a run will cost them.
 
 ## Where this fits
 
@@ -61,7 +70,7 @@ skill directory as the target:
 | ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `convert <skill> [--negative "…"]` | free     | Each `evals.json` entry → a case dir with `prompt.md`, a display-only "skill fired" check and a judge rubric from its assertions. `--negative` adds a must-not-fire case. Existing case dirs are kept untouched. |
 | `lint <skill>…`                    | free     | Enforces the runner's floor rules (below), flags sandbox-breaking paths, and prints the suite's session count and paid-grader count.                                                                             |
-| `run <skill> --max-cost-usd N`     | **paid** | Lints, then runs `claude plugin eval` with/without ablation and a local-only report. The cap is required; there is no default.                                                                                   |
+| `run <skill> --max-cost-usd N`     | **usage** | Lints, then runs `claude plugin eval` with/without ablation and a local-only report. The cap is required; there is no default.                                                                                   |
 | `report <skill>`                   | free     | Δ, scores and the real `costUsd` from the latest `evals/results/*/aggregate-result.json`.                                                                                                                        |
 
 Exit codes: 0 ok, 1 lint failure or a case below `--threshold`, 2 argument
@@ -135,15 +144,15 @@ prints that count so the size is visible before anything is spent.
 
 ## The spend protocol
 
-Paid runs follow the same rule as every paid call in this repo: estimate,
+Session runs follow the same rule as every paid call in this repo: estimate,
 run the smallest version, never raise a cap without asking.
 
 1. `lint` — free. Read the session count.
 2. **Pilot one case**: `run <skill> --case '<one>' --runs 1 --max-cost-usd 0.25`.
    Use the must-not-fire case first; it's the shortest.
 3. `report` — real `costUsd` for those 2 sessions. Multiply by the session
-   count from step 1 for the full suite, and tell the owner the dollar figure
-   before running it.
+   count from step 1 for the full suite, and tell the owner the figure
+   (subscription usage, or dollars on an API key) before running it.
 4. Full run only on the owner's yes, with a cap at that figure plus headroom.
    Exit 5 means the cap stopped it; report the partial result. Don't rerun
    with a higher cap on your own.
