@@ -145,6 +145,9 @@ export async function capture(config) {
   const baseUrl = config.baseUrl.replace(/\/$/, '');
   const outDir = isAbsolute(config.outDir) ? config.outDir : join(process.cwd(), config.outDir);
   mkdirSync(outDir, { recursive: true });
+  // Auth-gated sites: Playwright cookie objects (name/value + url or domain/path), either
+  // inline or read from a file kept outside the repo, so no session token lands in a config.
+  const cookies = config.cookies || (config.cookiesFile ? JSON.parse(readFileSync(config.cookiesFile, 'utf8')) : null);
 
   const modes = (config.modes && config.modes.length ? config.modes : DEFAULT_MODES).map((m) => {
     const base = DEFAULT_MODES.find((d) => d.name === m.name) || {};
@@ -193,6 +196,7 @@ export async function capture(config) {
         // the settled end state, which is the only state a still frame can show honestly.
         reducedMotion,
       });
+      if (cookies) await context.addCookies(cookies);
       const page = await context.newPage();
       const prefix = mode.name[0].toLowerCase();
       const clips = [];

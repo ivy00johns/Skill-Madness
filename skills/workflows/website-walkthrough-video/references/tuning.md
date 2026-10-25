@@ -161,6 +161,6 @@ In rough order of impact:
 | Page blank or half-rendered | Raise `timeout`; the page may need data/auth, or `networkidle` never settles (heavy polling/websockets) — capture still proceeds after a 15s fallback |
 | Header repeats down the page | Full-page screenshots can duplicate `position: fixed`/`sticky` elements. Add a pre-screenshot CSS injection in `capture.mjs` (in the route loop, before `page.screenshot`): `await page.addStyleTag({ content: '*{position:static !important}' })` — test it; it can shift layouts. A gentler version targets only the known header selector |
 | Black bars at the bottom of a short page | The page is shorter than the window; set `bg` to the page color (e.g. `0xFFFFFF`) |
-| Auth-gated pages 401/redirect | Default capture has no session. Extend `capture.mjs` to `context.addCookies(...)` or load `storageState` before navigating |
+| Auth-gated pages 401/redirect | Default capture has no session. Set `cookies` (inline Playwright cookie objects) or `cookiesFile` (a JSON array kept outside the repo) in the config; each context loads them before navigating. A full `storageState` (localStorage too) still needs a `capture.mjs` change |
 | Text too small on mobile | Raise that mode's `fontSize` |
 | Want a single combined video | Render per-mode as usual, then concatenate the mp4s with a separate ffmpeg concat, or add a mode that captures both — simplest is to keep them separate for side-by-side review |
