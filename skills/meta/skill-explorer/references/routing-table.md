@@ -151,7 +151,7 @@ All loop skills are `disable-model-invocation: true` — name them, then the use
 
 ## By unresolved decision
 
-Descriptions are deliberately pushy, so collision-prone terms ("deploy", "review") match several skills on topic. Topic overlap is not the test — each skill resolves a *different decision*, and usually only one of those decisions is open in the request. Route to the skill that resolves the open decision; if no decision is open, no skill is warranted — say so instead of force-fitting the closest miss.
+Collision-prone terms ("deploy", "review") match several skills on topic. Topic overlap is not the test — each skill resolves a *different decision*, and usually only one of those decisions is open in the request. Route to the skill that resolves the open decision; if no decision is open, no skill is warranted — say so instead of force-fitting the closest miss.
 
 Note: plugin-namespaced and globally-installed refs in this index (`code-review:code-review`, `ux-review`, `security-review`) are environment-relative — they resolve in this toolkit author's setup, not necessarily in yours. Treat them as placeholders for your host's equivalent.
 

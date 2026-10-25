@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.6.1
+version: 1.6.2
 description: >-
   The front door to the toolkit: reads what you want, picks the right starting
   skill (orchestrator, plan-builder, a loop, a role or workflow skill, or
@@ -87,7 +87,9 @@ See "madness vs skill-explorer" below for when to use which.
 
 Route intent -> front door. Each front door owns the deeper routing from there.
 Targets marked *Claude-Code-native* (`feature-dev:feature-dev`,
-`frontend-design:frontend-design`, `orchestrator`, the loops) need their native runtime. Role skills now offer explicit solo branches on read/edit/shell hosts; check actual availability and choose that branch instead of inventing native Agent/teams calls. Keep native dispatched roles when an orchestrator is active.
+`frontend-design:frontend-design`) need Claude Code. `orchestrator` and the loops
+run natively there and fall back to sequential or in-session modes elsewhere (see
+"Host awareness" below). Role skills offer explicit solo branches on read/edit/shell hosts; check actual availability and choose that branch instead of inventing native Agent/teams calls. Keep native dispatched roles when an orchestrator is active.
 
 | When the intent is... | Front door | Cost |
 |---|---|---|
@@ -111,8 +113,8 @@ A UI-building route hands off to frontend-agent's source-guard bootstrap before 
 
 ## The load budget: one skill, or none
 
-Route to **one** skill. Pushy descriptions mean any request touching a shared
-term ("deploy", "review") makes several skills look plausible — but
+Route to **one** skill. Any request touching a shared term ("deploy",
+"review") makes several skills look plausible — but
 plausible-on-topic is not the test. Ask which decision is actually *unresolved*
 and route to the skill that resolves it (the "By unresolved decision" index in
 `skill-explorer/references/routing-table.md` keys on exactly this). Add a second
@@ -227,7 +229,7 @@ skills changes. **"Not Claude Code" is never a reason to skip routing.**
 
 The one host-specific step: **route to skills that actually exist here.** The
 skills available in this session are listed in your context — check that list
-before you name a target. Some front doors in the map below are
+before you name a target. Some front doors in the map above are
 Claude-Code-native (`orchestrator`'s Agent Teams, the concrete `loops/*` skills, the
 workflows bound to the Artifact tool or `~/.claude` config). The role agents have portable explicit solo branches, while native dispatch still uses orchestrator ownership and QE order. `orchestrator` itself runs sequential role packets after one plan approval and `loop-controller` runs in-session iterations (or `run_guarded.py` around a bounded adapter) on hosts that cannot spawn agents. On a host where those aren't present or don't run, route to the closest
 portable skill — the git, planning, docs, review, debugging, and contract

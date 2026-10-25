@@ -49,11 +49,11 @@ Check:
 Check against description-patterns:
 
 - Starts with an action verb
-- Under 200 characters (target)
+- Under 400 characters (target; the host's skill listing is budgeted)
 - Contains ≥3 specific trigger contexts
 - Includes keyword variants users might say
 - States exclusions if commonly confused with another skill
-- "Pushy" enough to combat under-triggering
+- Specific enough to beat its neighbors: a few phrases users really say, not an exhaustive list
 
 ## Dimension: Progressive Disclosure
 

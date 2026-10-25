@@ -108,9 +108,9 @@ These check whether a skill is written for the model actually running it. See th
   model-migration signal: a stronger model needs less scaffolding, and prescription that
   helped a weaker model now measurably degrades output. On a skill that predates the
   current model, treat a dense enumeration of behaviors as a **prune** candidate — one
-  brief instruction plus the *why* usually replaces the list. Don't carry the frontmatter
-  `description`'s intentional "pushy / over-enumerate" style into the body's behavioral
-  instructions; that boundary is deliberate (over-enumerate the *trigger*, not the *behavior*).
+  brief instruction plus the *why* usually replaces the list. The same holds for the
+  frontmatter `description`: a few precise trigger phrases, ≤400 chars, because the
+  host's skill listing is budgeted and long descriptions get cut to bare names (DR-1).
 - [ ] **Anti-laziness nagging on a model that doesn't need it.** A `## Performance Notes`
   / "do not truncate, produce it in full" block is a prior-model tactic; on the Claude 5
   family output laziness is far less common, so keep the block only where a *measured*

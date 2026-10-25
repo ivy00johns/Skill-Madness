@@ -1,6 +1,6 @@
 ---
 name: skill-triage
-version: 0.2.1
+version: 0.2.2
 description: >-
   Measure skill routing with TypeSafe's Jev decision model: which skill a
   request should load, accuracy against labeled routing cases, and description
@@ -22,7 +22,7 @@ spawned_by: []
 
 # skill-triage
 
-Skill routing fails quietly. With dozens of pushy descriptions loaded at once, a
+Skill routing fails quietly. With dozens of skill descriptions loaded at once, a
 request lands on a plausible-but-wrong skill, or on none, and nobody notices
 until the output is off. This skill makes routing **measurable**: it asks a
 small decision model which skill fits, gets back a probability for every skill,
