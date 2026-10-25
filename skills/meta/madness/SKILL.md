@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.5.2
+version: 1.6.0
 description: >-
   The front door to the whole toolkit — one reliable entry point that reads what
   you want, picks the RIGHT starting skill (orchestrator, plan-builder, a loop, a
@@ -21,7 +21,7 @@ owns:
   directories: []
   patterns: []
   shared_read: ["skills/"]
-composes_with: ["skill-explorer", "orchestrator", "plan-builder", "loop-controller", "use-pxpipe"]
+composes_with: ["skill-explorer", "orchestrator", "plan-builder", "loop-controller", "use-pxpipe", "skill-triage"]
 spawned_by: []
 ---
 
@@ -71,7 +71,10 @@ See "madness vs skill-explorer" below for when to use which.
    `plan-builder`, and `loop-controller` each do their own internal routing, so
    handing off to them is enough. For the long tail the map doesn't cover, lean
    on `skill-explorer`'s `references/routing-table.md` (the full intent->skill
-   table) rather than reinventing it here.
+   table) rather than reinventing it here. If the user has opted in to Jev
+   routing and a key is available, `skill-triage`'s `route` mode gives a
+   probability-backed second opinion. It's a hint only; your judgment and the
+   confirm gate still decide.
 
 3. **Decide cheap or expensive.** See the confirm gate below. This decides
    whether you launch immediately or check first.

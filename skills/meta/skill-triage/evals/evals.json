@@ -1,0 +1,48 @@
+{
+  "skill_name": "skill-triage",
+  "evals": [
+    {
+      "id": 1,
+      "name": "collision-scan-one-skill",
+      "prompt": "I think fix-until-green and loop-controller keep stealing each other's triggers. can you check with jev which of fix-until-green's trigger phrases actually land on it?",
+      "expected_output": "Runs `triage.py collisions --skill fix-until-green` (dry-run first), reports accuracy, stealers and thin margins with the served model and cost, and gives a one-line verdict per miss (description fix / label fix / ambiguity) without editing any description unasked.",
+      "files": [],
+      "assertions": [
+        "Made at least one live Jev (systemone) call scoped to fix-until-green's trigger phrases",
+        "Report states a per-phrase or aggregate result (N/M landed on fix-until-green)",
+        "Report names which skill wins any phrase that does not land on fix-until-green (or says none)",
+        "Report includes the served model and the cost of the run",
+        "No repo file was modified and no API key value appears in outputs"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "routing-table-regression",
+      "prompt": "I just added a bunch of skills. Run the skill-explorer routing table through the triage check and tell me what's misrouting now.",
+      "expected_output": "Runs `check --from-routing-table` against skills/meta/skill-explorer/references/routing-table.md after a dry-run, reports N/M, lists misses with verdicts, notes skipped phrases whose targets are outside the catalog, and pins or reports the model.",
+      "files": [],
+      "assertions": [
+        "Ran the routing-table cases from skills/meta/skill-explorer/references/routing-table.md through live Jev",
+        "Report gives an accuracy figure (N/M correct)",
+        "Report lists each misroute with expected and actual skill",
+        "Report gives a verdict per miss (description fix vs label/routing-table fix vs ambiguity)",
+        "Report mentions phrases skipped because their target is outside the catalog",
+        "No repo file was modified and no API key value appears in outputs"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "no-key-or-no-credits",
+      "prompt": "which skill should fire for 'set up structured logging and tracing for the api service'? use typesafe to decide",
+      "expected_output": "Looks for the key name in env/.env without printing it; on a missing key or HTTP 402 it reports that plainly, does NOT fabricate probabilities, and falls back to a judgment-based pick clearly labeled as not from Jev.",
+      "files": [],
+      "assertions": [
+        "Located a usable key by name without printing its value (or reported plainly that none exists)",
+        "Made a live Jev call and reports a winner skill with probabilities or confidence",
+        "Picked observability-agent (the catalog's logging/metrics/tracing role) or justified a different pick from Jev's output",
+        "Does not present any probability that was not returned by the API",
+        "No repo file was modified and no API key value appears in outputs"
+      ]
+    }
+  ]
+}
