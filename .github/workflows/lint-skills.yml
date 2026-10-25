@@ -67,6 +67,12 @@ jobs:
       - name: Check version-drift guard
         run: scripts/lint-skills.sh --changed origin/main
 
+      # Free eval tier (DR-4): lint every claude plugin eval suite against the
+      # runner's floor rules (must-not-fire case, outcome grader, runs >= 3,
+      # sandbox-safe paths). Never runs a paid eval — those need an owner cap.
+      - name: Lint plugin-eval suites (free)
+        run: python3 skills/meta/skill-eval/scripts/skill_eval.py lint --all skills
+
       # Upload the JUnit XML even when the job fails so reviewers can
       # inspect which rules fired without re-running locally.
       - name: Upload lint results

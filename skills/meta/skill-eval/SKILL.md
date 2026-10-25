@@ -1,6 +1,6 @@
 ---
 name: skill-eval
-version: 0.1.1
+version: 0.1.2
 description: >-
   Measure whether a skill actually helps: build a `claude plugin eval` suite,
   run it with and without the skill under a required spend cap, and read the
@@ -70,6 +70,7 @@ skill directory as the target:
 | ---------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `convert <skill> [--negative "…"]` | free     | Each `evals.json` entry → a case dir with `prompt.md`, a display-only "skill fired" check and a judge rubric from its assertions. `--negative` adds a must-not-fire case. Existing case dirs are kept untouched. |
 | `lint <skill>…`                    | free     | Enforces the runner's floor rules (below), flags sandbox-breaking paths, and prints the suite's session count and paid-grader count.                                                                             |
+| `lint --all skills/` | free | The same checks for every skill that has plugin-eval cases. CI runs this on every PR. |
 | `run <skill> --max-cost-usd N`     | **usage** | Lints, then runs `claude plugin eval` with/without ablation and a local-only report. The cap is required; there is no default.                                                                                   |
 | `report <skill>`                   | free     | Δ, scores and the real `costUsd` from the latest `evals/results/*/aggregate-result.json`.                                                                                                                        |
 
