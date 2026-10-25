@@ -5,7 +5,7 @@
 
 ## Status at a glance
 
-A mature library of **77 skills** (contracts · git · loops · meta · orchestrator · roles · workflows), PSFS author validation, Ubuntu CI gates and a non-blocking macOS smoke job. Structural checks do not certify live-host retrieval or model efficacy.
+A mature library of **78 skills** (contracts · git · loops · meta · orchestrator · roles · workflows), PSFS author validation, Ubuntu CI gates and a non-blocking macOS smoke job. Structural checks do not certify live-host retrieval or model efficacy.
 
 | Effort | State |
 |--------|-------|

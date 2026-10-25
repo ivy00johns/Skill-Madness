@@ -7,12 +7,12 @@
 
 **Most AI coding setups give you one agent, one context window, one shot. Skill Madness gives you a coordinated fleet — plus the autonomous loops to keep it working until the job is provably done.**
 
-A multi-agent orchestration toolkit for Claude Code: **77 skills, seven categories** — turn a one-line ask into a contract-first parallel build, run **autonomous loops** until your tests are actually green, and author everything once in a portable `SKILL.md` format whose converters feed **eleven AI coding tools** (Claude Code runs the full library; the ten other hosts get its portable subset).
+A multi-agent orchestration toolkit for Claude Code: **78 skills, seven categories** — turn a one-line ask into a contract-first parallel build, run **autonomous loops** until your tests are actually green, and author everything once in a portable `SKILL.md` format whose converters feed **eleven AI coding tools** (Claude Code runs the full library; the ten other hosts get its portable subset).
 
 <p align="center">
   <a href="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml"><img src="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml/badge.svg" alt="Skill Lint" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
-  <img src="https://img.shields.io/badge/skills-77-success.svg" alt="77 skills" />
+  <img src="https://img.shields.io/badge/skills-78-success.svg" alt="78 skills" />
   <img src="https://img.shields.io/badge/role%20agents-10-blueviolet.svg" alt="10 role agents" />
   <img src="https://img.shields.io/badge/autonomous%20loops-13-9cf.svg" alt="13 autonomous loops" />
   <img src="https://img.shields.io/badge/orchestrator-14%20phases-success.svg" alt="14-phase orchestrator" />
@@ -61,7 +61,7 @@ Author once in `SKILL.md`; install into **eleven** AI coding tools — Claude Co
 </tr>
 </table>
 
-> 🚪 **New here, or not sure which skill to reach for?** Type **`/madness`** in Claude Code and just say what you want. It reads your intent, picks the right starting skill out of all 77, confirms before anything expensive, and launches it — so you never have to memorize the catalog. One front door for the whole toolkit.
+> 🚪 **New here, or not sure which skill to reach for?** Type **`/madness`** in Claude Code and just say what you want. It reads your intent, picks the right starting skill out of all 78, confirms before anything expensive, and launches it — so you never have to memorize the catalog. One front door for the whole toolkit.
 
 <sub><b>Maintainers / agents:</b> see <a href="START-HERE.md"><code>START-HERE.md</code></a> for current status and which docs are canonical.</sub>
 
@@ -78,15 +78,15 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 - 🤖 **Ten role agents, exclusive ownership** — backend, frontend, infrastructure, QE, security, docs, observability, db-migration, performance, code-review. Each declares `owns.directories` / `owns.files` in its frontmatter. No two agents touch the same path. Conflicts get resolved before spawn, not after.
 - 🛡️ **QA gate that blocks** — `qe-agent` emits a `qa-report.json` with critical / high / medium / low findings plus contract-conformance and security scores. The orchestrator gates the merge on the report. Agents can't self-declare "done."
 - 🔁 **Autonomous loops that converge** — 13 loop skills keep Claude working until something is *provably* true: `fix-until-green` won't stop until tests + lint + typecheck pass (and can't cheat the gate), `coverage-loop` grows the suite to a target without gaming it, `contract-conformance-loop` builds until a fresh-context evaluator agrees the spec is met, and `babysit` / `self-healing-loop` / `nightly-docs-and-changelog` run on a schedule. Every one is a configuration of `loop-controller`'s guardrail stack — iteration cap, token budget, no-progress breaker, stop condition — so they finish instead of thrashing. [See the loops →](#-autonomous-loops)
-- 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 77 and launches it. The cure for "which skill was that again?" across a 77-skill library.
-- 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 77-skill library stays cheap to host.
+- 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 78 and launches it. The cure for "which skill was that again?" across a 78-skill library.
+- 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 78-skill library stays cheap to host.
 - 🔁 **Two-runtime degradation** — Agent Teams (parallel tmux) → subagents (Task tool) → sequential. The orchestrator picks the highest mode the host supports; role skills work standalone in any of them.
-- 🧰 **77 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 8 meta-skills (including `madness`, the front-door router, and `model-adaptation`), 4 git-workflow skills, 39 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
+- 🧰 **78 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 8 meta-skills (including `madness`, the front-door router, and `model-adaptation`), 4 git-workflow skills, 40 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
 - 🌐 **Portable format, honest subset** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The native orchestrator and autonomous loops retain Claude Code's runtime primitives. All ten roles and contract-auditor now offer explicit bounded solo branches; native ownership and QE dispatch remain intact. Portable export is delivery, not live-host or independent-review certification. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
 
 > **Status — read before you pitch this to anyone:**
 >
-> - **The orchestrator + 77-skill library is the mature part.** PSFS author validation, ownership/cross-reference checks, an Ubuntu lint gate plus a non-blocking macOS smoke on every push. Body diagnostics report physical/nonblank lines and approximate tokens, not measured host context cost.
+> - **The orchestrator + 78-skill library is the mature part.** PSFS author validation, ownership/cross-reference checks, an Ubuntu lint gate plus a non-blocking macOS smoke on every push. Body diagnostics report physical/nonblank lines and approximate tokens, not measured host context cost.
 > - **The 13 autonomous loops are the newest layer.** All built on one `loop-controller` guardrail harness and CI-linted. The build/verify loops (`fix-until-green`, `coverage-loop`, `contract-conformance-loop`) are the most exercised; the scheduled ones (`self-healing-loop`, `dependency-health-loop`) are powerful but younger — keep a human in the loop on anything irreversible.
 > - **Claude Code is the native orchestration target.** Teams/agents/workflows and the `qa-report.json` gate remain its native path. This audit verified local tooling and fake-root delivery, not current live-host dispatch or model efficacy. The other ten converter targets receive the portable subset, not native parallel dispatch certification.
 > - **Lossy conversion is announced.** When a skill is converted to a non-Claude-Code host, orchestration-only fields (`allowed_tools`, `owns`, `composes_with`, `spawned_by`, `requires_agent_teams`) are stripped with a stderr line per skill. Skills marked `requires_claude_code: true` are skipped entirely for those targets. See `contracts/installer/per-tool-output-spec.md`.
@@ -118,7 +118,7 @@ From inside Claude Code:
 /plugin install skill-madness@skill-madness
 ```
 
-That installs all 77 skills into Claude Code's plugin storage. No clone, no symlink, no edits-to-the-repo workflow. Use this if you just want the skills.
+That installs all 78 skills into Claude Code's plugin storage. No clone, no symlink, no edits-to-the-repo workflow. Use this if you just want the skills.
 
 To update later: `/plugin update skill-madness`.
 
@@ -236,7 +236,7 @@ flowchart TB
         gpmc[git-post-merge-cleanup]
     end
 
-    subgraph workflows["⚙️ workflows/ — 39 skills"]
+    subgraph workflows["⚙️ workflows/ — 40 skills"]
         direction TB
         pb[plan-builder]
         cm[context-manager]
@@ -251,7 +251,7 @@ flowchart TB
         mc[mermaid-charts]
         rs[render-sanity]
         dl[diagnose-loop]
-        more["+ 26 more"]
+        more["+ 27 more"]
     end
 
     subgraph loops["🔁 loops/ — 13 skills"]
@@ -366,7 +366,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 🧰 Skill catalog
 
-77 skills organized into seven categories. Frontmatter is validated by PSFS author schema; lint checks declared ownership and cross-references. Body guidance is advisory: diagnostics separate physical/nonblank lines, words and UTF-8-bytes/4 approximate tokens. Resource inventories check literal local references and declare external dependencies, not live-host acceptance.
+78 skills organized into seven categories. Frontmatter is validated by PSFS author schema; lint checks declared ownership and cross-references. Body guidance is advisory: diagnostics separate physical/nonblank lines, words and UTF-8-bytes/4 approximate tokens. Resource inventories check literal local references and declare external dependencies, not live-host acceptance.
 
 <details>
 <summary><b>📚 Full skill table</b> (click to expand)</summary>
@@ -450,6 +450,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 | 75 | `codebase-exploration-loop` | loop | Fan-out read-only mappers until seed questions are answered |
 | 76 | `orchestrator-task-loop` | loop | Outer loop draining the Agent Teams shared task board (experimental) |
 | 77 | `repo-cleanup-loop` | loop | Weekly evidence-gated branch/PR/worktree hygiene, recover-before-delete |
+| 78 | `cloudflare-pages-deploy` | workflow | Deploy static sites/previews to Cloudflare Pages via wrangler, verified on the public URL |
 
 </details>
 
@@ -463,7 +464,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 ├── CLAUDE.md                         # project guidance for Claude Code
 ├── AGENTS.md                         # shared instructions for AI agents
 │
-├── skills/                           # the canonical skill library (77)
+├── skills/                           # the canonical skill library (78)
 │   ├── orchestrator/                 # 1 — entry point
 │   ├── roles/                        # 10 — implementation agents
 │   ├── contracts/                    # 2 — contract-author / contract-auditor
@@ -507,7 +508,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 🎁 Also works on ten other hosts
 
-Native hook execution and the twelve concrete autonomous loops retain their Claude-Code runtime path. The `orchestrator` and `loop-controller` keep that native path and also export to hosts that cannot spawn agents (sequential role packets that run the whole build after one plan approval; in-session iterations or `run_guarded.py` around a bounded adapter). The ten role skills and contract-auditor now also have explicit bounded solo branches: user-supplied scope/contracts, the same ownership/checklists, and honest blocked/independence reporting without invented Agent calls. Thus **53 of the 77 skills** export to the ten other converter targets. Export count is not runtime certification: resource delivery is covered by local fake-root regressions; live-host efficacy and mechanical unattended controls remain tracked in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md). The broader F1 generator framework remains parked.
+Native hook execution and the twelve concrete autonomous loops retain their Claude-Code runtime path. The `orchestrator` and `loop-controller` keep that native path and also export to hosts that cannot spawn agents (sequential role packets that run the whole build after one plan approval; in-session iterations or `run_guarded.py` around a bounded adapter). The ten role skills and contract-auditor now also have explicit bounded solo branches: user-supplied scope/contracts, the same ownership/checklists, and honest blocked/independence reporting without invented Agent calls. Thus **54 of the 78 skills** export to the ten other converter targets. Export count is not runtime certification: resource delivery is covered by local fake-root regressions; live-host efficacy and mechanical unattended controls remain tracked in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md). The broader F1 generator framework remains parked.
 
 The single-source model is deliberate, and there's a concrete counter-example for why: microsoft/SkillOpt shipped the opposite design — five bespoke per-host integrations (claude-code, codex, copilot, devin, openclaw) — and was already drifting within months of release: backend-enum mismatches between plugins, and an openclaw adapter broken-by-design against its own engine. One canonical `SKILL.md` plus converters means a fix lands once instead of five times.
 
@@ -683,9 +684,9 @@ Almost always a `pyyaml` version skew. CI installs `pyyaml` explicitly on macOS 
 </details>
 
 <details>
-<summary><b>"My non-Claude-Code host doesn't see all 77 skills"</b></summary>
+<summary><b>"My non-Claude-Code host doesn't see all 78 skills"</b></summary>
 
-Expected. Skills with `requires_claude_code: true` — the twelve concrete `loops/*` skills and workflows bound to Claude Code's runtime or `~/.claude` config — are skipped for the other hosts; 53 of the 77 skills export today. The roles and contract-auditor export explicit solo branches, not native orchestration emulation. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
+Expected. Skills with `requires_claude_code: true` — the twelve concrete `loops/*` skills and workflows bound to Claude Code's runtime or `~/.claude` config — are skipped for the other hosts; 54 of the 78 skills export today. The roles and contract-auditor export explicit solo branches, not native orchestration emulation. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
 </details>
 
 <details>
@@ -710,7 +711,7 @@ Set the override env var documented in `scripts/README.md` (e.g. `CURSOR_RULES_D
 
 ## 🗺️ Roadmap
 
-- [x] **Skill library** — 77 skills, seven categories, all linted
+- [x] **Skill library** — 78 skills, seven categories, all linted
 - [x] **Multi-tool installer** — convert / install / lint, eleven host adapters
 - [x] **CI matrix** — Ubuntu lint gate + macOS smoke on every push
 - [x] **Contract-first specs** — OpenAPI / AsyncAPI / Pydantic / TypeScript / JSON Schema templates
