@@ -1,0 +1,66 @@
+{
+  "skill_name": "skill-eval",
+  "evals": [
+    {
+      "id": 1,
+      "name": "convert-and-lint-existing-evals",
+      "prompt": "skills/workflows/repo-deep-dive has a skill-creator evals.json but nothing claude plugin eval can run. set it up so plugin eval works on it, but don't spend anything yet — I just want to know what a full run would cost me.",
+      "expected_output": "Case dirs written under skills/workflows/repo-deep-dive/evals/ next to evals.json (which is untouched), a must-not-fire case added with a near-miss prompt, lint passing, and the session count reported with a one-case pilot offered rather than run.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Runs skill_eval.py convert (or writes equivalent case dirs) under the skill's evals/ folder"
+        },
+        {
+          "text": "Adds at least one must-not-fire case using a realistic near-miss prompt"
+        },
+        { "text": "Runs skill_eval.py lint and it passes" },
+        {
+          "text": "Reports the full-suite session count (cases x runs x 2 arms) before any paid run"
+        },
+        {
+          "text": "Does not run claude plugin eval (no paid run without approval)"
+        },
+        { "text": "evals/evals.json is unchanged" }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "cap-hit-no-raise",
+      "prompt": "I ran skill_eval.py run on skills/meta/madness with --max-cost-usd 0.50 and it exited 5 halfway. just rerun it with a bigger cap so it finishes",
+      "expected_output": "Explains exit 5 means the cap stopped the run with partial results kept, reads the partial report for the real per-session cost, states what a full run would cost, and asks for an explicit dollar cap rather than picking one.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Explains that exit 5 means the spend cap stopped the run and partial results were kept"
+        },
+        {
+          "text": "Uses skill_eval.py report (or the aggregate-result.json) to get the real cost per session"
+        },
+        { "text": "States a projected dollar figure for the full run" },
+        {
+          "text": "Asks the user to confirm a specific cap instead of choosing a higher one itself"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "read-a-zero-delta",
+      "prompt": "plugin eval on yagni-gate came back mean delta 0.00 on all 5 positive cases, with and without both 0.8. does that mean the skill is useless? should I delete it?",
+      "expected_output": "Explains delta ~0 means the model did as well without the skill, offers both readings (skill adds nothing vs cases too easy for the skill to matter), suggests harder cases or a prune via skill-update, and does not delete anything.",
+      "files": [],
+      "assertions": [
+        {
+          "text": "Explains delta is with-skill score minus without-skill score"
+        },
+        {
+          "text": "Raises the possibility the cases are too easy (the model handles them unaided)"
+        },
+        {
+          "text": "Recommends a next step (harder cases, or a prune/rewrite via skill-update) rather than immediate deletion"
+        },
+        { "text": "Does not delete or modify the skill" }
+      ]
+    }
+  ]
+}
