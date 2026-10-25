@@ -2,39 +2,37 @@
 
 ## README.md Template
 
+The root README must contain the required sections in `skills/orchestrator/references/workspace-bootstrap.md` (What the project is, Stack, Prerequisites, Setup, Start, Tests, Deploy, Project structure, Known issues, Documentation map). Use this skeleton and omit a section only when it is genuinely irrelevant. Every command must be a real command from the project; verify it runs before writing it down.
+
 ````markdown
 # [Project Name]
 
-[1-2 sentence description of what this project does]
+[What the project is: one paragraph, no marketing]
 
-## Tech Stack
+## Stack
 
-- **Frontend:** [framework + language]
-- **Backend:** [framework + language]
-- **Database:** [database]
-- **Infrastructure:** [Docker, etc.]
+- **Language / framework:** [language + framework]
+- **Data / infra:** [database, queue, Docker, etc.]
 
 ## Prerequisites
 
-- [Runtime] v[version]+
+- [Runtime + version, e.g. Node.js LTS]
 - [Package manager]
-- [Database] (or Docker)
+- [Database or Docker, if needed]
 
-## Quick Start
+## Setup
 
 ```bash
-# Clone
-git clone [url]
-cd [project]
-
-# Install dependencies
-[install command]
-
-# Set up environment
+[exact install command]
+[infra-up command, if any]
 cp .env.example .env
+[migrate / seed commands, if any]
+```
 
-# Start development
-[start command]
+## Start
+
+```bash
+[dev command per service, or one aggregate dev command]
 ```
 
 ## Environment Variables
@@ -57,6 +55,18 @@ Base URL: `http://localhost:8000/api/v1`
 
 See [API Documentation](docs/api.md) for full details.
 
+## Tests
+
+```bash
+[unit / integration / e2e commands]
+```
+
+## Deploy
+
+```bash
+[actual deploy command, or "none (local-only)"]
+```
+
 ## Project Structure
 
 ```
@@ -67,18 +77,16 @@ See [API Documentation](docs/api.md) for full details.
 └── docker-compose.yml
 ```
 
-## Development
+## Known issues
 
-```bash
-# Run tests
-[test command]
+- [Failing checks, latent bugs, deferred work the human will hit on first run]
 
-# Lint
-[lint command]
+## Documentation map
 
-# Build for production
-[build command]
-```
+| Doc | Purpose |
+|---|---|
+| [CLAUDE.md](CLAUDE.md) | Agent instructions |
+| [docs/](docs/) | Plans, ADRs, reports |
 
 ## License
 
@@ -130,7 +138,7 @@ curl -X [METHOD] http://localhost:8000[path] \
 
 ## Documentation Quality Checklist
 
-- [ ] README has working Quick Start instructions
+- [ ] README has the workspace-bootstrap sections, with Setup, Start, Tests, Known issues, and Documentation map filled in
 - [ ] All environment variables documented with defaults
 - [ ] Every API endpoint has a curl example
 - [ ] Project structure overview is accurate

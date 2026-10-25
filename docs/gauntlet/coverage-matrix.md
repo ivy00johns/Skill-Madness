@@ -94,7 +94,7 @@ The **Must-fire** cell has three values. `yes` means the model must select the s
 | context-manager | P3 | "the orchestrator context is filling — plan the handoff" | yes | "what is context?" |
 | maintain-context | P3 | "update the CONTEXT glossary and ADR for the escrow decision" | yes | "what is a glossary?" |
 | project-profiler | P0 | "profile the skeleton and emit profile.yaml" | yes | "what is a profile?" |
-| setup-project-skills | P0 | "bootstrap the per-repo config for Bazaar II" | explicit | "what is a config?" |
+| setup-project-skills | P0 | "bootstrap the per-repo config for Bazaar II" | yes | "what is a config?" |
 | diagnose-loop | P4 | "the bid race is flaky — build the fast feedback loop first" | yes | "fix this bug" |
 | repo-deep-dive | P0 | "deep-dive the Stripe SDK for the payments architecture" | yes | "summarize this repo" |
 | wiki-research | P0 | "read the relevant wiki pages before crawling source" | yes | "what is a wiki?" |

@@ -7,12 +7,12 @@
 
 **Most AI coding setups give you one agent, one context window, one shot. Skill Madness gives you a coordinated fleet — plus the autonomous loops to keep it working until the job is provably done.**
 
-A multi-agent orchestration toolkit for Claude Code: **76 skills, seven categories** — turn a one-line ask into a contract-first parallel build, run **autonomous loops** until your tests are actually green, and author everything once in a portable `SKILL.md` format whose converters feed **eleven AI coding tools** (Claude Code runs the full library; the ten other hosts get its portable subset).
+A multi-agent orchestration toolkit for Claude Code: **77 skills, seven categories** — turn a one-line ask into a contract-first parallel build, run **autonomous loops** until your tests are actually green, and author everything once in a portable `SKILL.md` format whose converters feed **eleven AI coding tools** (Claude Code runs the full library; the ten other hosts get its portable subset).
 
 <p align="center">
   <a href="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml"><img src="https://github.com/ivy00johns/Skill-Madness/actions/workflows/lint-skills.yml/badge.svg" alt="Skill Lint" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
-  <img src="https://img.shields.io/badge/skills-76-success.svg" alt="76 skills" />
+  <img src="https://img.shields.io/badge/skills-77-success.svg" alt="77 skills" />
   <img src="https://img.shields.io/badge/role%20agents-10-blueviolet.svg" alt="10 role agents" />
   <img src="https://img.shields.io/badge/autonomous%20loops-13-9cf.svg" alt="13 autonomous loops" />
   <img src="https://img.shields.io/badge/orchestrator-14%20phases-success.svg" alt="14-phase orchestrator" />
@@ -61,7 +61,7 @@ Author once in `SKILL.md`; install into **eleven** AI coding tools — Claude Co
 </tr>
 </table>
 
-> 🚪 **New here, or not sure which skill to reach for?** Type **`/madness`** in Claude Code and just say what you want. It reads your intent, picks the right starting skill out of all 76, confirms before anything expensive, and launches it — so you never have to memorize the catalog. One front door for the whole toolkit.
+> 🚪 **New here, or not sure which skill to reach for?** Type **`/madness`** in Claude Code and just say what you want. It reads your intent, picks the right starting skill out of all 77, confirms before anything expensive, and launches it — so you never have to memorize the catalog. One front door for the whole toolkit.
 
 <sub><b>Maintainers / agents:</b> see <a href="START-HERE.md"><code>START-HERE.md</code></a> for current status and which docs are canonical.</sub>
 
@@ -78,15 +78,15 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 - 🤖 **Ten role agents, exclusive ownership** — backend, frontend, infrastructure, QE, security, docs, observability, db-migration, performance, code-review. Each declares `owns.directories` / `owns.files` in its frontmatter. No two agents touch the same path. Conflicts get resolved before spawn, not after.
 - 🛡️ **QA gate that blocks** — `qe-agent` emits a `qa-report.json` with critical / high / medium / low findings plus contract-conformance and security scores. The orchestrator gates the merge on the report. Agents can't self-declare "done."
 - 🔁 **Autonomous loops that converge** — 13 loop skills keep Claude working until something is *provably* true: `fix-until-green` won't stop until tests + lint + typecheck pass (and can't cheat the gate), `coverage-loop` grows the suite to a target without gaming it, `contract-conformance-loop` builds until a fresh-context evaluator agrees the spec is met, and `babysit` / `self-healing-loop` / `nightly-docs-and-changelog` run on a schedule. Every one is a configuration of `loop-controller`'s guardrail stack — iteration cap, token budget, no-progress breaker, stop condition — so they finish instead of thrashing. [See the loops →](#-autonomous-loops)
-- 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 76 and launches it. The cure for "which skill was that again?" across a 76-skill library.
-- 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 76-skill library stays cheap to host.
+- 🪄 **One front door** — `madness` is the router: type `/madness`, describe the task, and it picks the right starting skill out of all 77 and launches it. The cure for "which skill was that again?" across a 77-skill library.
+- 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 77-skill library stays cheap to host.
 - 🔁 **Two-runtime degradation** — Agent Teams (parallel tmux) → subagents (Task tool) → sequential. The orchestrator picks the highest mode the host supports; role skills work standalone in any of them.
-- 🧰 **76 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 7 meta-skills (including `madness`, the front-door router, and `model-adaptation`), 4 git-workflow skills, 39 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
+- 🧰 **77 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 8 meta-skills (including `madness`, the front-door router, and `model-adaptation`), 4 git-workflow skills, 39 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
 - 🌐 **Portable format, honest subset** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The native orchestrator and autonomous loops retain Claude Code's runtime primitives. All ten roles and contract-auditor now offer explicit bounded solo branches; native ownership and QE dispatch remain intact. Portable export is delivery, not live-host or independent-review certification. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
 
 > **Status — read before you pitch this to anyone:**
 >
-> - **The orchestrator + 76-skill library is the mature part.** PSFS author validation, ownership/cross-reference checks, an Ubuntu lint gate plus a non-blocking macOS smoke on every push. Body diagnostics report physical/nonblank lines and approximate tokens, not measured host context cost.
+> - **The orchestrator + 77-skill library is the mature part.** PSFS author validation, ownership/cross-reference checks, an Ubuntu lint gate plus a non-blocking macOS smoke on every push. Body diagnostics report physical/nonblank lines and approximate tokens, not measured host context cost.
 > - **The 13 autonomous loops are the newest layer.** All built on one `loop-controller` guardrail harness and CI-linted. The build/verify loops (`fix-until-green`, `coverage-loop`, `contract-conformance-loop`) are the most exercised; the scheduled ones (`self-healing-loop`, `dependency-health-loop`) are powerful but younger — keep a human in the loop on anything irreversible.
 > - **Claude Code is the native orchestration target.** Teams/agents/workflows and the `qa-report.json` gate remain its native path. This audit verified local tooling and fake-root delivery, not current live-host dispatch or model efficacy. The other ten converter targets receive the portable subset, not native parallel dispatch certification.
 > - **Lossy conversion is announced.** When a skill is converted to a non-Claude-Code host, orchestration-only fields (`allowed_tools`, `owns`, `composes_with`, `spawned_by`, `requires_agent_teams`) are stripped with a stderr line per skill. Skills marked `requires_claude_code: true` are skipped entirely for those targets. See `contracts/installer/per-tool-output-spec.md`.
@@ -118,7 +118,7 @@ From inside Claude Code:
 /plugin install skill-madness@skill-madness
 ```
 
-That installs all 76 skills into Claude Code's plugin storage. No clone, no symlink, no edits-to-the-repo workflow. Use this if you just want the skills.
+That installs all 77 skills into Claude Code's plugin storage. No clone, no symlink, no edits-to-the-repo workflow. Use this if you just want the skills.
 
 To update later: `/plugin update skill-madness`.
 
@@ -216,7 +216,7 @@ flowchart TB
         cra[code-review]
     end
 
-    subgraph meta["🧠 meta/ — 7 skills"]
+    subgraph meta["🧠 meta/ — 8 skills"]
         direction TB
         md["madness<br/><sub>(front door)</sub>"]:::entry
         sx[skill-explorer]
@@ -225,6 +225,7 @@ flowchart TB
         su[skill-update]
         mda[model-adaptation]
         sc[skill-catalog]
+        stg[skill-triage]
     end
 
     subgraph gitcat["🔁 git/ — 4 skills"]
@@ -365,7 +366,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 🧰 Skill catalog
 
-76 skills organized into seven categories. Frontmatter is validated by PSFS author schema; lint checks declared ownership and cross-references. Body guidance is advisory: diagnostics separate physical/nonblank lines, words and UTF-8-bytes/4 approximate tokens. Resource inventories check literal local references and declare external dependencies, not live-host acceptance.
+77 skills organized into seven categories. Frontmatter is validated by PSFS author schema; lint checks declared ownership and cross-references. Body guidance is advisory: diagnostics separate physical/nonblank lines, words and UTF-8-bytes/4 approximate tokens. Resource inventories check literal local references and declare external dependencies, not live-host acceptance.
 
 <details>
 <summary><b>📚 Full skill table</b> (click to expand)</summary>
@@ -392,62 +393,63 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 | 18 | `skill-update` | meta | Apply a skill-review report — edit, lint, ship |
 | 19 | `model-adaptation` | meta | Adapt prompts/skills/scaffolding across model generations (Fable 5 / Mythos 5) — prune, refusal-audit, long-run hygiene |
 | 20 | `skill-catalog` | meta | Catalog-as-CI-invariant — counts derived from disk, gated on every push |
-| 21 | `git-commit` | git | Conventional commits + branch naming |
-| 22 | `git-pr` | git | PR title/body format and gh CLI workflow |
-| 23 | `git-pr-feedback` | git | Triage and address PR review comments |
-| 24 | `git-post-merge-cleanup` | git | Prune merged branches, dead remote refs, stale worktrees |
-| 25 | `plan-builder` | workflow | Research / PRDs → orchestrator-ready build plans |
-| 26 | `plan-intake` | workflow | Turn any report into tracked living-plan ledger entries |
-| 27 | `living-plan` | workflow | Set up the living-plan convention (front door + strategic / tactical / frontier docs) |
-| 28 | `context-manager` | workflow | Compaction strategy, handoffs, token budgets |
-| 29 | `dependency-coordinator` | workflow | Cross-package dependency manifest before parallel dispatch |
-| 30 | `deployment-checklist` | workflow | Pre-deploy verification gates |
-| 31 | `project-profiler` | workflow | Codebase analysis → CLAUDE.md + profile.yaml |
-| 32 | `wiki-research` | workflow | Wiki-first protocol — read 3 pages before crawling source |
-| 33 | `setup-project-skills` | workflow | Bootstrap per-repo config that other Skill-Madness skills consume |
-| 34 | `work-item-brief` | workflow | Durable, agent-ready ticket — no paths, just acceptance criteria |
-| 35 | `maintain-context` | workflow | Keep CONTEXT.md glossary + ADR records up to date inline |
-| 36 | `zoom-out` | workflow | Step back — which modules are touched, what am I missing |
-| 37 | `grill-me` | workflow | Depth-first design interview — one question at a time |
-| 38 | `find-unknowns` | workflow | Blindspot pass + comprehension quiz — surface unknown-unknowns before, verify understanding after |
-| 39 | `diagnose-loop` | workflow | Build the fast feedback loop first, then debug |
-| 40 | `architecture-rescue` | workflow | Find shallow modules + missing seams; deletion + two-adapter test |
-| 41 | `caveman` | workflow | Ultra-compressed responses, ~75% token cut, full accuracy |
-| 42 | `render-sanity` | workflow | "Tests pass but UI is broken" gate — click-through + stale-data scan |
-| 43 | `design-token-guard` | workflow | Block inline styles / hardcoded CSS from bypassing the design-token system |
-| 44 | `class-extraction-guard` | workflow | Catch utility-class soup — repeated inline class runs that should be extracted |
-| 45 | `sync-skills` | workflow | Symlink/copy skills to `~/.claude/skills/` and Cursor |
-| 46 | `settings-consolidator` | workflow | Merge Claude Code permissions across projects |
-| 47 | `repo-deep-dive` | workflow | OSS repo → 12–14 doc technical reference series |
-| 48 | `llm-wiki` | workflow | Bootstrap + maintain LLM-powered knowledge bases |
-| 49 | `interactive-doc` | workflow | Paired Obsidian `.md` + self-contained `.html` companion |
-| 50 | `ui-brief` | workflow | Opinionated UI design briefs (greenfield + rebuild) |
-| 51 | `claude-design-brief` | workflow | Paste-ready prompts for Claude Design mockup canvas |
-| 52 | `mermaid-charts` | workflow | Expert-quality diagrams (15–30+ node systems) |
-| 53 | `nano-banana` | workflow | Google Gemini image generation + batch ops |
-| 54 | `artifact-publish` | workflow | Publish a visual/interactive deliverable as a shareable, hosted claude.ai Artifact page |
-| 55 | `playwright` | workflow | Browser-based E2E + screenshots with visible Chrome |
-| 56 | `website-walkthrough-video` | workflow | Smooth scrolling walkthrough mp4 of a whole site (desktop + mobile) |
-| 57 | `railway-deploy` | workflow | Deploy to Railway (Dockerfile, multi-service, GraphQL API) |
-| 58 | `use-freellmapi` | workflow | Wire a project to FreeLLMAPI — a local free-model OpenAI-compatible proxy |
-| 59 | `use-pxpipe` | workflow | Wire the Claude Code harness to pxpipe — local image-proxy token-saver, opt-in + reversible |
-| 60 | `yagni-gate` | workflow | Persistent YAGNI build-gate mode — climb the reuse ladder before writing new code |
-| 61 | `prose-slop-guard` | workflow | Source-level gate that catches AI-slop prose (em dashes, AI tells) before it ships |
-| 62 | `skill-creator` | workflow | Create, test, and iteratively improve skills with eval-driven benchmarking and description optimization |
-| 63 | `payload-cms` | workflow | Build, deploy and debug websites on Payload CMS, and clone or rebuild a site onto it (payloadcms.com included) |
-| 64 | `loop-controller` | loop | Foundation harness: 5-part contract + guardrail stack every loop composes on |
-| 65 | `fix-until-green` | loop | Drive tests+lint+typecheck green without cheating the gate |
-| 66 | `contract-conformance-loop` | loop | Build-until-spec: implement until contract criteria hold, fresh-context evaluator |
-| 67 | `coverage-loop` | loop | Grow the test suite to a coverage target without gaming the metric |
-| 68 | `perf-loop` | loop | Profile -> optimize -> re-benchmark a metric under budget, no regression |
-| 69 | `migration-loop` | loop | Migrate an enumerated target set until done + suite green + no legacy pattern |
-| 70 | `babysit` | loop | Scheduled review-and-revise: keep a PR rebased + green via `/loop` |
-| 71 | `self-healing-loop` | loop | Watch logs/CI -> root-cause -> fix -> verify -> PR on a poll cadence |
-| 72 | `nightly-docs-and-changelog` | loop | Nightly `/schedule` sweep keeping docs + changelog from rotting |
-| 73 | `dependency-health-loop` | loop | Scheduled audit + gated update + green gate; HITL on majors |
-| 74 | `codebase-exploration-loop` | loop | Fan-out read-only mappers until seed questions are answered |
-| 75 | `orchestrator-task-loop` | loop | Outer loop draining the Agent Teams shared task board (experimental) |
-| 76 | `repo-cleanup-loop` | loop | Weekly evidence-gated branch/PR/worktree hygiene, recover-before-delete |
+| 21 | `skill-triage` | meta | Score skill routing with TypeSafe's Jev — route a request, check accuracy, find description collisions |
+| 22 | `git-commit` | git | Conventional commits + branch naming |
+| 23 | `git-pr` | git | PR title/body format and gh CLI workflow |
+| 24 | `git-pr-feedback` | git | Triage and address PR review comments |
+| 25 | `git-post-merge-cleanup` | git | Prune merged branches, dead remote refs, stale worktrees |
+| 26 | `plan-builder` | workflow | Research / PRDs → orchestrator-ready build plans |
+| 27 | `plan-intake` | workflow | Turn any report into tracked living-plan ledger entries |
+| 28 | `living-plan` | workflow | Set up the living-plan convention (front door + strategic / tactical / frontier docs) |
+| 29 | `context-manager` | workflow | Compaction strategy, handoffs, token budgets |
+| 30 | `dependency-coordinator` | workflow | Cross-package dependency manifest before parallel dispatch |
+| 31 | `deployment-checklist` | workflow | Pre-deploy verification gates |
+| 32 | `project-profiler` | workflow | Codebase analysis → CLAUDE.md + profile.yaml |
+| 33 | `wiki-research` | workflow | Wiki-first protocol — read 3 pages before crawling source |
+| 34 | `setup-project-skills` | workflow | Bootstrap per-repo config that other Skill-Madness skills consume |
+| 35 | `work-item-brief` | workflow | Durable, agent-ready ticket — no paths, just acceptance criteria |
+| 36 | `maintain-context` | workflow | Keep CONTEXT.md glossary + ADR records up to date inline |
+| 37 | `zoom-out` | workflow | Step back — which modules are touched, what am I missing |
+| 38 | `grill-me` | workflow | Depth-first design interview — one question at a time |
+| 39 | `find-unknowns` | workflow | Blindspot pass + comprehension quiz — surface unknown-unknowns before, verify understanding after |
+| 40 | `diagnose-loop` | workflow | Build the fast feedback loop first, then debug |
+| 41 | `architecture-rescue` | workflow | Find shallow modules + missing seams; deletion + two-adapter test |
+| 42 | `caveman` | workflow | Ultra-compressed responses, ~75% token cut, full accuracy |
+| 43 | `render-sanity` | workflow | "Tests pass but UI is broken" gate — click-through + stale-data scan |
+| 44 | `design-token-guard` | workflow | Block inline styles / hardcoded CSS from bypassing the design-token system |
+| 45 | `class-extraction-guard` | workflow | Catch utility-class soup — repeated inline class runs that should be extracted |
+| 46 | `sync-skills` | workflow | Symlink/copy skills to `~/.claude/skills/` and Cursor |
+| 47 | `settings-consolidator` | workflow | Merge Claude Code permissions across projects |
+| 48 | `repo-deep-dive` | workflow | OSS repo → 12–14 doc technical reference series |
+| 49 | `llm-wiki` | workflow | Bootstrap + maintain LLM-powered knowledge bases |
+| 50 | `interactive-doc` | workflow | Paired Obsidian `.md` + self-contained `.html` companion |
+| 51 | `ui-brief` | workflow | Opinionated UI design briefs (greenfield + rebuild) |
+| 52 | `claude-design-brief` | workflow | Paste-ready prompts for Claude Design mockup canvas |
+| 53 | `mermaid-charts` | workflow | Expert-quality diagrams (15–30+ node systems) |
+| 54 | `nano-banana` | workflow | Google Gemini image generation + batch ops |
+| 55 | `artifact-publish` | workflow | Publish a visual/interactive deliverable as a shareable, hosted claude.ai Artifact page |
+| 56 | `playwright` | workflow | Browser-based E2E + screenshots with visible Chrome |
+| 57 | `website-walkthrough-video` | workflow | Smooth scrolling walkthrough mp4 of a whole site (desktop + mobile) |
+| 58 | `railway-deploy` | workflow | Deploy to Railway (Dockerfile, multi-service, GraphQL API) |
+| 59 | `use-freellmapi` | workflow | Wire a project to FreeLLMAPI — a local free-model OpenAI-compatible proxy |
+| 60 | `use-pxpipe` | workflow | Wire the Claude Code harness to pxpipe — local image-proxy token-saver, opt-in + reversible |
+| 61 | `yagni-gate` | workflow | Persistent YAGNI build-gate mode — climb the reuse ladder before writing new code |
+| 62 | `prose-slop-guard` | workflow | Source-level gate that catches AI-slop prose (em dashes, AI tells) before it ships |
+| 63 | `skill-creator` | workflow | Create, test, and iteratively improve skills with eval-driven benchmarking and description optimization |
+| 64 | `payload-cms` | workflow | Build, deploy and debug websites on Payload CMS, and clone or rebuild a site onto it (payloadcms.com included) |
+| 65 | `loop-controller` | loop | Foundation harness: 5-part contract + guardrail stack every loop composes on |
+| 66 | `fix-until-green` | loop | Drive tests+lint+typecheck green without cheating the gate |
+| 67 | `contract-conformance-loop` | loop | Build-until-spec: implement until contract criteria hold, fresh-context evaluator |
+| 68 | `coverage-loop` | loop | Grow the test suite to a coverage target without gaming the metric |
+| 69 | `perf-loop` | loop | Profile -> optimize -> re-benchmark a metric under budget, no regression |
+| 70 | `migration-loop` | loop | Migrate an enumerated target set until done + suite green + no legacy pattern |
+| 71 | `babysit` | loop | Scheduled review-and-revise: keep a PR rebased + green via `/loop` |
+| 72 | `self-healing-loop` | loop | Watch logs/CI -> root-cause -> fix -> verify -> PR on a poll cadence |
+| 73 | `nightly-docs-and-changelog` | loop | Nightly `/schedule` sweep keeping docs + changelog from rotting |
+| 74 | `dependency-health-loop` | loop | Scheduled audit + gated update + green gate; HITL on majors |
+| 75 | `codebase-exploration-loop` | loop | Fan-out read-only mappers until seed questions are answered |
+| 76 | `orchestrator-task-loop` | loop | Outer loop draining the Agent Teams shared task board (experimental) |
+| 77 | `repo-cleanup-loop` | loop | Weekly evidence-gated branch/PR/worktree hygiene, recover-before-delete |
 
 </details>
 
@@ -461,7 +463,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 ├── CLAUDE.md                         # project guidance for Claude Code
 ├── AGENTS.md                         # shared instructions for AI agents
 │
-├── skills/                           # the canonical skill library (76)
+├── skills/                           # the canonical skill library (77)
 │   ├── orchestrator/                 # 1 — entry point
 │   ├── roles/                        # 10 — implementation agents
 │   ├── contracts/                    # 2 — contract-author / contract-auditor
@@ -505,7 +507,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ## 🎁 Also works on ten other hosts
 
-Native hook execution and the twelve concrete autonomous loops retain their Claude-Code runtime path. The `orchestrator` and `loop-controller` keep that native path and also export to hosts that cannot spawn agents (sequential role packets that run the whole build after one plan approval; in-session iterations or `run_guarded.py` around a bounded adapter). The ten role skills and contract-auditor now also have explicit bounded solo branches: user-supplied scope/contracts, the same ownership/checklists, and honest blocked/independence reporting without invented Agent calls. Thus **52 of the 76 skills** export to the ten other converter targets. Export count is not runtime certification: resource delivery is covered by local fake-root regressions; live-host efficacy and mechanical unattended controls remain tracked in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md). The broader F1 generator framework remains parked.
+Native hook execution and the twelve concrete autonomous loops retain their Claude-Code runtime path. The `orchestrator` and `loop-controller` keep that native path and also export to hosts that cannot spawn agents (sequential role packets that run the whole build after one plan approval; in-session iterations or `run_guarded.py` around a bounded adapter). The ten role skills and contract-auditor now also have explicit bounded solo branches: user-supplied scope/contracts, the same ownership/checklists, and honest blocked/independence reporting without invented Agent calls. Thus **53 of the 77 skills** export to the ten other converter targets. Export count is not runtime certification: resource delivery is covered by local fake-root regressions; live-host efficacy and mechanical unattended controls remain tracked in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md). The broader F1 generator framework remains parked.
 
 The single-source model is deliberate, and there's a concrete counter-example for why: microsoft/SkillOpt shipped the opposite design — five bespoke per-host integrations (claude-code, codex, copilot, devin, openclaw) — and was already drifting within months of release: backend-enum mismatches between plugins, and an openclaw adapter broken-by-design against its own engine. One canonical `SKILL.md` plus converters means a fix lands once instead of five times.
 
@@ -681,9 +683,9 @@ Almost always a `pyyaml` version skew. CI installs `pyyaml` explicitly on macOS 
 </details>
 
 <details>
-<summary><b>"My non-Claude-Code host doesn't see all 76 skills"</b></summary>
+<summary><b>"My non-Claude-Code host doesn't see all 77 skills"</b></summary>
 
-Expected. Skills with `requires_claude_code: true` — the twelve concrete `loops/*` skills and workflows bound to Claude Code's runtime or `~/.claude` config — are skipped for the other hosts; 52 of the 76 skills export today. The roles and contract-auditor export explicit solo branches, not native orchestration emulation. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
+Expected. Skills with `requires_claude_code: true` — the twelve concrete `loops/*` skills and workflows bound to Claude Code's runtime or `~/.claude` config — are skipped for the other hosts; 53 of the 77 skills export today. The roles and contract-auditor export explicit solo branches, not native orchestration emulation. `./scripts/convert.sh` prints one `[convert] skipping <category>/<slug> for <tool> (requires_claude_code: true)` line to stderr per skipped skill — no extra flag needed.
 </details>
 
 <details>
@@ -708,7 +710,7 @@ Set the override env var documented in `scripts/README.md` (e.g. `CURSOR_RULES_D
 
 ## 🗺️ Roadmap
 
-- [x] **Skill library** — 76 skills, seven categories, all linted
+- [x] **Skill library** — 77 skills, seven categories, all linted
 - [x] **Multi-tool installer** — convert / install / lint, eleven host adapters
 - [x] **CI matrix** — Ubuntu lint gate + macOS smoke on every push
 - [x] **Contract-first specs** — OpenAPI / AsyncAPI / Pydantic / TypeScript / JSON Schema templates

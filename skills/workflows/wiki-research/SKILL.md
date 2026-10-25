@@ -1,8 +1,8 @@
 ---
 name: wiki-research
-version: 2.3.0
+version: 2.3.1
 description: |
-  Read the project's Obsidian-style wiki (index.md + wiki/) BEFORE any codebase exploration, repo-deep-dive, or raw source reading. Reading 3-4 wiki pages (~2,000 tokens) typically replaces crawling raw source directories (~100,000-500,000 tokens). Always invoke when orchestrator, a role agent, or code-review needs project context, architecture, component knowledge, or design decisions before touching files. Trigger on "how does X work", "understand the architecture", "review this code", or "build X" when project context matters. Skip only for purely mechanical tasks (rename a variable, fix a typo) where zero project understanding is needed.
+  Read the project's Obsidian-style wiki (index.md + wiki/) BEFORE any codebase exploration, repo-deep-dive, or raw source reading. Reading 3-4 wiki pages (~2,000 tokens) typically replaces crawling raw source directories (~100,000-500,000 tokens). Always invoke when orchestrator, a role agent, or code-review needs project context, architecture, component knowledge, or design decisions before touching files. Trigger on "how does X work", "understand the architecture", or "build X" when project context matters, and before a code review that needs that context. Skip only for purely mechanical tasks (rename a variable, fix a typo) where zero project understanding is needed.
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

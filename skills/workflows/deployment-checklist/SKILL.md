@@ -1,8 +1,8 @@
 ---
 name: deployment-checklist
-version: 1.2.0
+version: 1.2.1
 description: |
-  Run pre-deployment verification before pushing to staging or production — build, tests, env config, security, DB, infra, integration — and return a READY / NOT READY verdict. Trigger on: "pre-deploy check", "deployment checklist", "ready to ship", "is this ready for prod", "deploy readiness", "release checklist", "can we deploy", "verify the build", "pre-flight check".
+  Run pre-deployment verification before pushing to staging or production — build, tests, env config, security, DB, infra, integration — and return a READY / NOT READY verdict. Trigger on: "pre-deploy check", "deployment checklist", "ready to ship", "is this ready for prod", "deploy readiness", "release checklist", "can we deploy", "verify the build before deploying", "pre-flight check".
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

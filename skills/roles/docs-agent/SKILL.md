@@ -1,6 +1,6 @@
 ---
 name: docs-agent
-version: 1.3.2
+version: 1.3.3
 disable-model-invocation: true
 description: "Generate project documentation, API docs, READMEs and changelogs in native orchestrator dispatch or explicitly requested solo documentation work. Read real contracts and code; load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/edit host; native Claude dispatch retained"
@@ -113,7 +113,7 @@ Run `references/doc-templates.md` checklist before reporting done.
 
 Before reporting completion:
 
-- [ ] README.md has working Quick Start that matches actual project setup
+- [ ] README.md has the workspace-bootstrap sections (Setup, Start, Tests, Known issues, Documentation map), and every command was run and matches the real scripts
 - [ ] All API endpoints from the contract are documented with curl examples
 - [ ] Project structure overview matches actual file tree
 - [ ] CHANGELOG follows Keep a Changelog format
