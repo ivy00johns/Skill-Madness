@@ -46,7 +46,7 @@ flagged = sorted(
 assert explicit == flagged, (explicit, flagged)
 assert mode["backend-agent"] == "explicit"
 assert mode["payload-cms"] == "optional"
-assert sum(1 for m in mode.values() if m == "must_fire") == 48
+assert sum(1 for m in mode.values() if m == "must_fire") == 49
 assert len(mode) == 76
 PY
   run python3 "$TMP/probe_test.py" "$PROBE"
