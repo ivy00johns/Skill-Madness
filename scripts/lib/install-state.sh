@@ -127,6 +127,9 @@ resolve_dest() {
     antigravity)
       printf '%s/.gemini/antigravity/skills/%s\n' "$root" "$relpath"
       ;;
+    agent-skills)
+      printf '%s/.agents/skills/%s\n' "$root" "$relpath"
+      ;;
     gemini-cli)
       printf '%s/.gemini/extensions/alltheskills/%s\n' "$root" "$relpath"
       ;;

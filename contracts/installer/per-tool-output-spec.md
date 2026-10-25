@@ -18,6 +18,7 @@ The implementation agent MAY consult [msitarzewski/agency-agents](https://github
 | claude-code | user | `claude-code/<category>/<slug>/SKILL.md` + references | passthrough | trivial |
 | copilot | user | `copilot/<slug>.md` | passthrough | trivial |
 | antigravity | user | `antigravity/<slug>/SKILL.md` | generated | low |
+| agent-skills | user | `agent-skills/<slug>/SKILL.md` + references | generated (standard export) | low |
 | gemini-cli | user | `gemini-cli/skills/<slug>/SKILL.md` + manifest | generated | low |
 | opencode | project | `opencode/agents/<slug>.md` | generated | low |
 | cursor | project | `cursor/rules/<slug>.mdc` | generated | low |
@@ -54,16 +55,30 @@ Flat layout (no category nesting — Copilot's agent picker is a flat list).
 
 ```yaml
 ---
-name: <slug>
+name: <name>
 description: <description>
-risk: low
-source: alltheskills
-date_added: <ISO-8601 date of conversion>
+allowed-tools: <space-delimited, when the source declares tools>
+metadata:
+  psfs.<field>: <every non-core source field, as a string>
+  risk: low
+  source: alltheskills
+  date_added: <ISO-8601 date of conversion>
 ---
 ```
 
+Written by `scripts/lib/standard_export.py` (Agent Skills six-field core). `risk` / `source` / `date_added` come from the agency-agents integration rather than Antigravity, so they ride in `metadata` (DR-3).
+
 **Body:** unchanged.
 **References:** copy alongside `SKILL.md`.
+
+## 3b. agent-skills
+
+**Path:** `integrations/agent-skills/<slug>/SKILL.md`, installed to `~/.agents/skills/<slug>/` — the user-scope folder Codex reads (repos use `.agents/skills/`), shared by other Agent Skills hosts.
+
+**Frontmatter:** the Agent Skills six-field core from `scripts/lib/standard_export.py` — `name`, `description`, optional `license` / `compatibility` / `allowed-tools` (space-delimited), and every other source field as a string under `metadata.psfs.*`.
+
+**Body:** unchanged.
+**References / scripts:** copied alongside `SKILL.md`. Skills with `requires_claude_code: true` are skipped.
 
 ## 4. gemini-cli
 

@@ -9,8 +9,9 @@
 #   scripts/convert.sh [--tool <name>] [--out <dir>] [--parallel] [--jobs N] [--help]
 #
 # Tools:
-#   claude-code  antigravity  gemini-cli  opencode  cursor  openclaw
-#   qwen         kimi         aider       windsurf  copilot  all (default)
+#   claude-code  antigravity  agent-skills  gemini-cli  opencode  cursor
+#   openclaw     qwen         kimi          aider       windsurf  copilot
+#   all (default)
 #
 # Options:
 #   --tool NAME      Convert for a single tool only
@@ -45,7 +46,7 @@ OUT_DIR="$REPO_ROOT/integrations"
 SKILLS_ROOT="$REPO_ROOT/skills"
 TODAY="$(date -u +%Y-%m-%d)"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode cursor openclaw qwen kimi aider windsurf)
+ALL_TOOLS=(claude-code copilot antigravity agent-skills gemini-cli opencode cursor openclaw qwen kimi aider windsurf)
 
 # ---------------------------------------------------------------------------
 # Usage
@@ -314,6 +315,24 @@ convert_antigravity() {
 
   python3 "$LIB_DIR/standard_export.py" "$file" "$dest_file" \
     --meta risk=low --meta source=alltheskills --meta "date_added=$TODAY"
+  copy_references "$file" "$dest_dir"
+  copy_scripts "$file" "$dest_dir"
+}
+
+# ---------------------------------------------------------------------------
+# Converter: agent-skills
+# The Agent Skills standard layout (agentskills.io): <slug>/SKILL.md with the
+# six-field core frontmatter, installed to ~/.agents/skills/ — read by Codex
+# (user scope; repos use .agents/skills/) and other standard hosts (DR-2).
+# ---------------------------------------------------------------------------
+convert_agent_skills() {
+  local file="$1" slug="$3"
+  # shellcheck disable=SC2034 # category unused but kept for consistent signature
+  local category="$2"
+  local dest_dir="$OUT_DIR/agent-skills/$slug"
+  mkdir -p "$dest_dir"
+
+  python3 "$LIB_DIR/standard_export.py" "$file" "$dest_dir/SKILL.md"
   copy_references "$file" "$dest_dir"
   copy_scripts "$file" "$dest_dir"
 }
@@ -757,6 +776,7 @@ PY
     claude-code)  convert_claude_code  "$file" "$category" "$slug" ;;
     copilot)      convert_copilot      "$file" "$category" "$slug" ;;
     antigravity)  convert_antigravity  "$file" "$category" "$slug" ;;
+    agent-skills) convert_agent_skills "$file" "$category" "$slug" ;;
     gemini-cli)   convert_gemini_cli   "$file" "$category" "$slug" ;;
     opencode)     convert_opencode     "$file" "$category" "$slug" ;;
     cursor)       convert_cursor       "$file" "$category" "$slug" ;;

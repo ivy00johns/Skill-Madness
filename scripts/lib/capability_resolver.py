@@ -44,7 +44,7 @@ KNOWN_CAPABILITIES = {
 # Default tool capability mapping for known target tools
 DEFAULT_TOOL_CAPABILITIES: Dict[str, Set[str]] = {
     host: {"read_files", "write_files", "run_shell"}
-    for host in ("claude-code", "cursor", "gemini-cli", "copilot", "antigravity", "opencode", "openclaw", "qwen", "kimi", "aider", "windsurf")
+    for host in ("claude-code", "cursor", "gemini-cli", "copilot", "antigravity", "agent-skills", "opencode", "openclaw", "qwen", "kimi", "aider", "windsurf")
 }
 # Claude Code's native primitives (Agent tool, AskUserQuestion, hooks, /loop and
 # cron scheduling) are shipped host features, so native modes resolve natively.

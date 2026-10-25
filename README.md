@@ -16,7 +16,7 @@ A multi-agent orchestration toolkit for Claude Code: **79 skills, seven categori
   <img src="https://img.shields.io/badge/role%20agents-10-blueviolet.svg" alt="10 role agents" />
   <img src="https://img.shields.io/badge/autonomous%20loops-13-9cf.svg" alt="13 autonomous loops" />
   <img src="https://img.shields.io/badge/orchestrator-14%20phases-success.svg" alt="14-phase orchestrator" />
-  <img src="https://img.shields.io/badge/hosts-11-orange.svg" alt="11 hosts" />
+  <img src="https://img.shields.io/badge/hosts-12-orange.svg" alt="12 hosts" />
   <img src="https://img.shields.io/badge/format-SKILL.md-3178c6.svg" alt="SKILL.md format" />
   <img src="https://img.shields.io/badge/PRs-welcome-ff69b4.svg" alt="PRs welcome" />
 </p>
@@ -27,7 +27,7 @@ A multi-agent orchestration toolkit for Claude Code: **79 skills, seven categori
   <a href="#-autonomous-loops">Loops</a> ·
   <a href="#-architecture">Architecture</a> ·
   <a href="#-skill-catalog">Skill catalog</a> ·
-  <a href="#-also-works-on-ten-other-hosts">Other hosts</a> ·
+  <a href="#-also-works-on-eleven-other-hosts">Other hosts</a> ·
   <a href="#-roadmap">Roadmap</a>
 </p>
 
@@ -55,7 +55,7 @@ Point Claude at a goal and walk away. **13 autonomous loops** drive tests to gre
 
 **🌐 Port**
 
-Author once in `SKILL.md`; install into **eleven** AI coding tools — Claude Code gets the full library, and the portable subset converts for Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi.
+Author once in `SKILL.md`; install into **twelve** AI coding tools — Claude Code gets the full library, and the portable subset converts for Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, Kimi, and Codex or any Agent Skills host (`~/.agents/skills`).
 
 </td>
 </tr>
@@ -82,7 +82,7 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 - 🪜 **Progressive disclosure** — frontmatter (~100 tokens) always loaded, body loaded on trigger, references loaded on demand. A 79-skill library stays cheap to host.
 - 🔁 **Two-runtime degradation** — Agent Teams (parallel tmux) → subagents (Task tool) → sequential. The orchestrator picks the highest mode the host supports; role skills work standalone in any of them.
 - 🧰 **79 skills, seven categories, all CI-linted** — the `orchestrator`, 10 role agents, 2 contract skills, 9 meta-skills (including `madness`, the front-door router, and `model-adaptation`), 4 git-workflow skills, 40 cross-cutting workflow skills (plan-builder, repo-deep-dive, ui-brief, mermaid-charts, …), and 13 autonomous-loop skills. Frontmatter, body length, and cross-skill ownership are all gated on every push.
-- 🌐 **Portable format, honest subset** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, and Kimi formats. The native orchestrator and autonomous loops retain Claude Code's runtime primitives. All ten roles and contract-auditor now offer explicit bounded solo branches; native ownership and QE dispatch remain intact. Portable export is delivery, not live-host or independent-review certification. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts).
+- 🌐 **Portable format, honest subset** — `SKILL.md` is the canonical source; converters emit Claude Code, Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, Kimi, and Agent Skills (Codex) formats. The native orchestrator and autonomous loops retain Claude Code's runtime primitives. All ten roles and contract-auditor now offer explicit bounded solo branches; native ownership and QE dispatch remain intact. Portable export is delivery, not live-host or independent-review certification. See [Also works on eleven other hosts](#-also-works-on-eleven-other-hosts).
 
 > **Status — read before you pitch this to anyone:**
 >
@@ -103,7 +103,7 @@ Every AI coding tool ships the same traps. **One agent, one context window, one 
 | **python3** | Frontmatter parsing in `lint-skills.sh` |
 | **git** | Cloning the repo and (optionally) symlinking into your global skills dir |
 | **Claude Code** (recommended) | Where the orchestrator + multi-agent QA gate actually run end-to-end |
-| **(optional) any of ten other hosts** | Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, Kimi — see [Also works on ten other hosts](#-also-works-on-ten-other-hosts) |
+| **(optional) any of eleven other hosts** | Copilot, Cursor, Aider, Windsurf, OpenCode, Qwen, OpenClaw, Gemini CLI, Antigravity, Kimi, Codex (Agent Skills) — see [Also works on eleven other hosts](#-also-works-on-eleven-other-hosts) |
 
 ### Install for Claude Code
 
@@ -140,14 +140,14 @@ Use this if you want to author skills, iterate on them, or contribute upstream.
 
 ### Install for any of the other ten hosts
 
-Two scripts. The first translates the canonical `SKILL.md` files into eleven host-native shapes; the second installs the converted artifacts into whichever hosts it detects on your machine.
+Two scripts. The first translates the canonical `SKILL.md` files into twelve host-native shapes; the second installs the converted artifacts into whichever hosts it detects on your machine.
 
 ```bash
 ./scripts/convert.sh   # skills/**/SKILL.md  →  integrations/<host>/...
 ./scripts/install.sh   # integrations/<host> →  ~/.<host>/, .cursor/rules/, etc.
 ```
 
-`install.sh` is interactive when run in a TTY and auto-detects from environment variables in CI. See [Also works on ten other hosts](#-also-works-on-ten-other-hosts) for the per-host format matrix and what gets stripped on conversion, and `scripts/README.md` for flag-level docs.
+`install.sh` is interactive when run in a TTY and auto-detects from environment variables in CI. See [Also works on eleven other hosts](#-also-works-on-eleven-other-hosts) for the per-host format matrix and what gets stripped on conversion, and `scripts/README.md` for flag-level docs.
 
 ### Use it
 
@@ -508,9 +508,9 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 
 ---
 
-## 🎁 Also works on ten other hosts
+## 🎁 Also works on eleven other hosts
 
-Native hook execution and the twelve concrete autonomous loops retain their Claude-Code runtime path. The `orchestrator` and `loop-controller` keep that native path and also export to hosts that cannot spawn agents (sequential role packets that run the whole build after one plan approval; in-session iterations or `run_guarded.py` around a bounded adapter). The ten role skills and contract-auditor now also have explicit bounded solo branches: user-supplied scope/contracts, the same ownership/checklists, and honest blocked/independence reporting without invented Agent calls. Thus **54 of the 79 skills** export to the ten other converter targets. Export count is not runtime certification: resource delivery is covered by local fake-root regressions; live-host efficacy and mechanical unattended controls remain tracked in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md). The broader F1 generator framework remains parked.
+Native hook execution and the twelve concrete autonomous loops retain their Claude-Code runtime path. The `orchestrator` and `loop-controller` keep that native path and also export to hosts that cannot spawn agents (sequential role packets that run the whole build after one plan approval; in-session iterations or `run_guarded.py` around a bounded adapter). The ten role skills and contract-auditor now also have explicit bounded solo branches: user-supplied scope/contracts, the same ownership/checklists, and honest blocked/independence reporting without invented Agent calls. Thus **54 of the 79 skills** export to the eleven other converter targets. Export count is not runtime certification: resource delivery is covered by local fake-root regressions; live-host efficacy and mechanical unattended controls remain tracked in [`docs/REMAINING-WORK.md`](docs/REMAINING-WORK.md). The broader F1 generator framework remains parked.
 
 The single-source model is deliberate, and there's a concrete counter-example for why: microsoft/SkillOpt shipped the opposite design — five bespoke per-host integrations (claude-code, codex, copilot, devin, openclaw) — and was already drifting within months of release: backend-enum mismatches between plugins, and an openclaw adapter broken-by-design against its own engine. One canonical `SKILL.md` plus converters means a fix lands once instead of five times.
 
@@ -534,7 +534,8 @@ Two scripts handle it:
 | 🧮 **Qwen Code** | project | `.md` with optional `tools` | generated |
 | 🦾 **OpenClaw** | user | 3-file split (SOUL / AGENTS / IDENTITY) | generated |
 | 💎 **Gemini CLI** | user | extension manifest + `SKILL.md` | generated |
-| 🛰️  **Antigravity** | user | community-skill `SKILL.md` | generated |
+| 🛰️  **Antigravity** | user | Agent Skills `SKILL.md` | generated |
+| 🧩 **Codex / Agent Skills** | user | Agent Skills `SKILL.md` in `~/.agents/skills` | generated |
 | 🌙 **Kimi Code** | user | YAML config + `system.md` | generated |
 
 **Lossy by design.** Claude-Code-specific orchestration fields (`allowed-tools`, `owns`, `composes_with`, `spawned_by`, `requires_agent_teams`) are stripped on conversion to the other ten hosts — those hosts don't run multi-agent dispatch with file-ownership exclusivity, so the metadata would be noise. You'll see one `[host] stripped allowed-tools/owns from <slug>` line per affected skill on stderr. Skills marked `requires_claude_code: true` are skipped entirely for non-Claude-Code targets.
