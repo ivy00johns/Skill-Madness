@@ -1,6 +1,6 @@
 ---
 name: skill-explorer
-version: 1.4.2
+version: 1.4.3
 description: >-
   Point the user to the right skill without running it: names the skill and says
   why it fits. Use when someone asks which skill handles a task, what skills
@@ -21,7 +21,7 @@ spawned_by: []
 
 # Skill Explorer
 
-The user has accumulated a large toolkit (40+ repo skills plus plugin skills loaded into every session). Names blur together, descriptions overlap, and reaching for the wrong entry point (typically `orchestrator`) wastes a turn before getting redirected. This skill is the deliberate entry point for "what do I have / which one is right for this".
+The user has accumulated a large toolkit (dozens of repo skills plus plugin skills loaded into every session). Names blur together, descriptions overlap, and reaching for the wrong entry point (typically `orchestrator`) wastes a turn before getting redirected. This skill is the deliberate entry point for "what do I have / which one is right for this".
 
 **skill-explorer vs its siblings.** Use `skill-explorer` (this skill) to *discover, recall, explain, and route* — it names the right skill and stops, leaving you to fire it. Use `madness` when you want that routing decision *acted on* — it picks the entry point and launches it (confirming first on anything expensive). Use `skill-catalog` when you want the authoritative generated inventory/counts of what is installed, not a recall or routing answer. (There is no `find-skills` skill in this repo; that name belongs to a separately-installed plugin.)
 
@@ -38,7 +38,7 @@ It answers four kinds of question:
 
 ## Core principle: name, don't invoke
 
-The user said: *"first, names the skill."* When this skill recommends a tool, **stop after naming it** — do not silently invoke the recommended skill on the user's behalf. The user wants to see the recommendation, decide, and then trigger it themselves (either by typing the trigger phrase or via `/skill-name`). Auto-invoking would turn this into a meta-orchestrator and hide the routing decision.
+When this skill recommends a tool, **stop after naming it** — do not invoke the recommended skill on the user's behalf. The user wants to see the recommendation, decide, and then trigger it themselves (either by typing the trigger phrase or via `/skill-name`). Auto-invoking would turn this into a meta-orchestrator and hide the routing decision; `madness` exists for users who want the choice acted on.
 
 The exception: if the user's intent is unambiguous AND they explicitly say "go ahead" or "use it" in the same message ("which skill writes UI briefs and use it for the dashboard rebuild"), pass through. Otherwise, name and stop.
 
@@ -70,7 +70,7 @@ If you can't pin down a single skill, list 2–3 candidates with one line each.
 
 ### Catalog ("what skills do I have")
 
-Group by category. One line per skill: `` `name` `` — what it does in <12 words.
+Group by category. One line per skill: `` `name` `` — a short phrase on what it does.
 
 ```markdown
 ## Orchestration
@@ -122,7 +122,7 @@ These are common confusions. Lean toward the right answer rather than reflecting
 
 - **"I want to build X with multiple agents" / "swarm build" / "team build"** → `orchestrator`. This is its actual job.
 - **"I just want to write/fix one thing"** → name the role skill directly (`backend-agent`, `frontend-agent`, etc.), not orchestrator. Orchestrator is for *coordinating* a team, not for any task that touches code.
-- **"Design / rebuild / redesign a UI"** → `ui-brief` first to produce the brief, then `frontend-agent` to build from it (or `frontend-design` if that Claude-Code plugin is present).
+- **"Design / rebuild / redesign a UI"** → `ui-brief` first to produce the brief, then `frontend-agent` to build from it (or `frontend-design:frontend-design` if that Claude-Code plugin is loaded).
 - **"Make a plan from this research/PRD"** → `plan-builder`, then optionally `orchestrator` to execute the plan.
 - **"Audit / review my skills"** → `skill-review` (`--scope=all` for bulk, `--scope=<name>` for deep dive).
 - **"Create a new skill"** → `skill-writer`.
@@ -143,8 +143,8 @@ When orchestrator would be wrong, **say so explicitly**: "This isn't a multi-age
 
 | Anti-pattern                                       | Why it fails                                                                                                                         |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Auto-invoking the recommended skill                | The user said "names the skill" — auto-invoking hides the decision and creates a meta-orchestrator                                   |
-| Reading every SKILL.md to answer "what do I have"  | Descriptions are already in your session context; reading 38 files burns tokens for nothing                                          |
+| Auto-invoking the recommended skill                | Hides the routing decision and turns this into a meta-orchestrator — that is `madness`'s job                                   |
+| Reading every SKILL.md to answer "what do I have"  | Descriptions are already in your session context; reading every file burns tokens for nothing                                          |
 | Recommending `orchestrator` for single-skill tasks | Orchestrator is for multi-agent coordination, not generic routing                                                                    |
 | Listing 5 candidates when one fits                 | Picking is the job. If one skill clearly fits, name only that one                                                                    |
 | Long preambles before the answer                   | The user wants the name. Lead with `` `skill-name` `` and explain after                                                              |

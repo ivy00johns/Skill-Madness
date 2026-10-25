@@ -74,7 +74,7 @@ spawning a [role] agent, [specific task 1], [specific task 2], or
 ## Quality Checklist
 
 - [ ] Starts with an action verb (Build, Generate, Verify, Audit, Manage, Run)
-- [ ] Under 200 characters (target); under 1024 (hard ceiling)
+- [ ] Under 400 characters (target); under 1024 (hard ceiling)
 - [ ] Contains at least 3 specific trigger contexts
 - [ ] Includes keyword variants users might say
 - [ ] States exclusions if commonly confused with another skill

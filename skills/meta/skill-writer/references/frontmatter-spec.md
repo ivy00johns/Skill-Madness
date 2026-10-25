@@ -12,7 +12,7 @@ This reference conforms to **PSFS v1.1.0** (`spec/PSFS.md`), the published stand
 ---
 name: my-skill                           # required, kebab-case
 version: 1.0.0                           # required, semver (top-level)
-description: |                           # required, ≤200 char target, 1024 char ceiling
+description: |                           # required, ≤400 char target, 1024 char ceiling
   [What it does]. Use this skill when [when to use].
   [Key capabilities or keyword variants].
 
@@ -223,7 +223,7 @@ These rules come from Anthropic's spec. `skill-review` enforces them.
 | Field | Decision | Rationale |
 |-------|----------|-----------|
 | `version` (top-level) | Required | Semver visibility; Anthropic also allows `metadata.version` but top-level is canonical here |
-| `description` ≤200 char target | Soft guidance | Forces concise triggers; 1024 is the hard ceiling per Anthropic spec |
+| `description` ≤400 char target | Soft guidance | Forces concise triggers; 1024 is the hard ceiling per Anthropic spec |
 | `allowed-tools` (hyphen) | Canonical from this version | Aligns with Anthropic spec; `allowed_tools` accepted as deprecated alias |
 | `compatibility` | Added | Cross-platform parsers use this string; `requires_*` booleans complement for programmatic gating |
 | `metadata` | Spec-legal, unused here (FA7) | Nested form matches Anthropic spec, but PR #34 dropped it from all skills — directory conveys category, description carries keywords |
