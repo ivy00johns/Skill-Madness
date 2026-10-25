@@ -1,10 +1,13 @@
 ---
-name: duplicate-name-a
-description: |
-  Apply collision-test for testing the lint duplicate-name cross-skill check. This skill and duplicate-name-b intentionally share the same name value to trigger an ERROR.
-risk: low
-source: alltheskills
-date_added: 'YYYY-MM-DD'
+name: collision-test
+description: Apply collision-test for testing the lint duplicate-name cross-skill
+  check. This skill and duplicate-name-b intentionally share the same name value to
+  trigger an ERROR.
+metadata:
+  psfs.version: 1.0.0
+  risk: low
+  source: alltheskills
+  date_added: 'YYYY-MM-DD'
 ---
 
 ## Overview

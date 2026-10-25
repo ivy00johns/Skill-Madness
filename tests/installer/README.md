@@ -84,7 +84,7 @@ bash "$FAKEREPO/scripts/convert.sh" --out tests/installer/golden 2>/dev/null
 
 # Normalize date_added in antigravity output
 find tests/installer/golden/antigravity -name "SKILL.md" | while read f; do
-  sed -i "s/^date_added: '[0-9-]*'/date_added: 'YYYY-MM-DD'/" "$f"
+  sed -i "s/^\( *\)date_added: '[0-9-]*'/\1date_added: 'YYYY-MM-DD'/" "$f"
 done
 rm -rf "$FAKEREPO"
 ```

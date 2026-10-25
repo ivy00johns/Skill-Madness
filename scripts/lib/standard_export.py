@@ -20,7 +20,7 @@ def load(content):
     return data, content[match.end():]  # tolerant loader retains unknown keys
 
 
-def export(content):
+def export(content, extra_meta=None):
     data, body = load(content)
     name = data.get("name", "")
     if not isinstance(name, str) or len(name) > 64 or not NAME.fullmatch(name):
@@ -43,6 +43,7 @@ def export(content):
     for key, value in data.items():
         if key not in (*CORE, "metadata", "allowed-tools", "allowed_tools"):
             encoded["psfs." + key] = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False, sort_keys=True)
+    encoded.update(extra_meta or {})  # host-specific provenance, e.g. antigravity risk/source
     if encoded:
         out["metadata"] = encoded
     return "---\n" + yaml.safe_dump(out, sort_keys=False, allow_unicode=True) + "---\n" + body
@@ -52,8 +53,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source", type=Path)
     parser.add_argument("destination", type=Path)
+    parser.add_argument("--meta", action="append", default=[], metavar="KEY=VALUE",
+                        help="extra string metadata entry (repeatable)")
     args = parser.parse_args()
-    result = export(args.source.read_text(encoding="utf-8"))
+    extra = dict(item.split("=", 1) for item in args.meta)
+    result = export(args.source.read_text(encoding="utf-8"), extra)
     args.destination.write_text(result, encoding="utf-8")
 
 

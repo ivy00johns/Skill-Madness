@@ -1,10 +1,13 @@
 ---
 name: with-references
-description: |
-  Apply with-references when testing reference file handling across all 11 tools, including copy-alongside, inline-bundle, and skip strategies.
-risk: low
-source: alltheskills
-date_added: 'YYYY-MM-DD'
+description: Apply with-references when testing reference file handling across all
+  11 tools, including copy-alongside, inline-bundle, and skip strategies.
+metadata:
+  psfs.version: 1.0.0
+  psfs.composes_with: '["minimal-agent"]'
+  risk: low
+  source: alltheskills
+  date_added: 'YYYY-MM-DD'
 ---
 
 ## Overview
