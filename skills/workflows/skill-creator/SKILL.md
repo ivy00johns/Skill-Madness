@@ -1,8 +1,11 @@
 ---
 name: skill-creator
-version: 1.4.0
-description: |
-  Create new skills, modify and improve existing skills, and measure skill performance with Hermes Agent or Freebuff (Codebuff engine, any OpenAI-compatible endpoint). Use when users want to create a skill from scratch, edit or optimize an existing skill, run trigger evaluations with isolated snapshots and tri-state tracking, or run description optimization loops with strict SO-4 split hygiene (train/dev selection with single-use touch-once held-out test).
+version: 1.4.1
+description: >-
+  Create, edit and measure skills with Hermes Agent or Freebuff (Codebuff
+  engine, any OpenAI-compatible endpoint): trigger evals with isolated snapshots
+  and description optimization with strict train/dev/held-out split hygiene. Use
+  to build or optimize a skill on those hosts.
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

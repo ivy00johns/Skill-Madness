@@ -1,17 +1,13 @@
 ---
 name: use-pxpipe
-version: 1.0.1
-description: |
-  Wire the Claude Code agent harness to pxpipe — a local, loopback-only proxy that renders re-sent
-  bulk (system prompt, tool docs, older history) into dense PNGs so long sessions cost roughly half
-  to a third as much in input tokens, with a live savings dashboard and a one-line off switch. Use
-  when the user wants to cut Claude Code's own token bill, enable the token-saver proxy for a long or
-  multi-agent run, point the harness at pxpipe, or check whether compression is actually paying.
-  Opt-in and reversible: ANTHROPIC_BASE_URL behind an env toggle, model scope deferred to
-  model-adaptation's allowlist, verification that compression fired AND the prompt cache stayed warm.
-  Trigger on "use pxpipe", "token saver proxy", "compress my context", "cut session input tokens",
-  "optical context compression", "my Claude Code sessions are expensive". Sibling use-freellmapi
-  rewires an app's LLM client; this one rewires the agent harness itself.
+version: 1.0.2
+description: >-
+  Put pxpipe in front of Claude Code: a local proxy that renders re-sent bulk
+  context as dense images, cutting long-session input tokens to roughly a half
+  or a third. Opt-in and reversible behind an env toggle, with checks that
+  compression fired and the cache stayed warm. Trigger on "use pxpipe", "token
+  saver proxy", "cut session input tokens", "my Claude Code sessions are
+  expensive".
 compatibility: "Claude Code; requires Bash + Node/npx (proxy runs via npx pxpipe-proxy)"
 requires_agent_teams: false
 requires_claude_code: true

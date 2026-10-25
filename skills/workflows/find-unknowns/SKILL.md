@@ -1,19 +1,12 @@
 ---
 name: find-unknowns
-version: 1.0.1
+version: 1.0.2
 description: >-
-  Convert your unknown-unknowns to known — cheaply, before they get expensive to
-  fix. Owns two moves: a blindspot pass (research an unfamiliar domain and learn
-  the questions you don't yet know to ask) and a comprehension quiz (after a big
-  change, explain the diff and verify you understand it before merging). Routes
-  the rest of the unknowns lifecycle to the owning skills. Use when you're in
-  unfamiliar territory, can't articulate what "good" looks like, feel like you're
-  missing something, or want to be sure you understand what got built. Trigger on
-  "find my unknown unknowns", "blindspot pass", "what am I missing", "I don't know
-  this domain/codebase", "teach me my blind spots", "map my unknowns", "quiz me on
-  this change", "do I actually understand this diff", "only merge if I understand
-  it", "comprehension check". Sibling to grill-me — that interviews you on
-  decisions you already hold opinions about; this surfaces the ones you don't.
+  Turn unknown unknowns into known ones cheaply: a blindspot pass that finds the
+  questions you don't know to ask in unfamiliar territory, and a comprehension
+  quiz on a big diff before merging. Sibling of grill-me, which covers decisions
+  you already hold opinions on. Trigger on "find my unknown unknowns",
+  "blindspot pass", "what am I missing", "quiz me on this change".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

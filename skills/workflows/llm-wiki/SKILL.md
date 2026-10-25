@@ -1,8 +1,12 @@
 ---
 name: llm-wiki
-version: 1.3.0
-description: |
-  Bootstrap and operate LLM-maintained personal knowledge bases (wikis) for any project or domain — a persistent, compounding artifact, not RAG. Four modes: setup, ingest, query, lint. Trigger on "set up a wiki for X", "build me a knowledge base", "create an llm wiki", "organize my notes", "set up my second brain", "maintain a wiki for this project", and (inside an existing wiki) "add this article to the wiki", "what does the wiki say about X", "clean up the wiki", "process this source".
+version: 1.3.1
+description: >-
+  Bootstrap and run an LLM-maintained knowledge base for a project or domain, a
+  compounding wiki rather than RAG, with setup, ingest, query and lint modes.
+  Trigger on "set up a wiki for X", "build me a knowledge base", "set up my
+  second brain", and inside a wiki on "add this to the wiki" or "what does the
+  wiki say about X".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

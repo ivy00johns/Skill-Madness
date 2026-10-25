@@ -1,8 +1,12 @@
 ---
 name: setup-project-skills
-version: 1.3.0
-description: |
-  Bootstrap the per-repo config other Skill-Madness skills consume: domain doc layout (CONTEXT.md, ADRs), contract format (OpenAPI / Pydantic / TS / JSON Schema), and work-item tracker (Beads / GitHub / GitLab / local). Writes docs/agents/ plus an "## Agent skills" block in CLAUDE.md or AGENTS.md (never both, never overwriting). Downstream skills fail loud if this config is missing. Run once per repo. Trigger on "setup project skills", "configure project skills", "bootstrap this repo", "/setup-project-skills".
+version: 1.3.1
+description: >-
+  Bootstrap the per-repo config other skills read: domain doc layout
+  (CONTEXT.md, ADRs), contract format and work-item tracker. Writes docs/agents/
+  plus an "Agent skills" block in CLAUDE.md or AGENTS.md without overwriting.
+  Run once per repo. Trigger on "setup project skills", "configure project
+  skills", "bootstrap this repo".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

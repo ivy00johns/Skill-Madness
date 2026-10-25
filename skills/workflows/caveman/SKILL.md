@@ -1,8 +1,11 @@
 ---
 name: caveman
-version: 1.1.1
-description: |
-  Ultra-compressed communication mode. Cuts response tokens ~75% by dropping articles, filler, pleasantries, and hedging while preserving full technical accuracy (code, error strings, file paths untouched). Persists across every response until the user says 'stop caveman', 'normal mode', or 'be normal again'; body covers the auto-clarity exception list. Trigger on: 'caveman mode', 'talk like caveman', 'less tokens', 'be terse', 'compress', '/caveman', 'fewer tokens', 'stop being verbose'.
+version: 1.1.2
+description: >-
+  Ultra-compressed reply mode: cuts response tokens about 75% by dropping
+  articles, filler and hedging while keeping code, errors and paths exact.
+  Persists until "stop caveman" or "normal mode". Trigger on "caveman mode",
+  "talk like caveman", "less tokens", "be terse", "/caveman".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

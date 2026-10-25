@@ -1,8 +1,12 @@
 ---
 name: interactive-doc
-version: 1.2.2
-description: |
-  Produce rich documentation as a paired Obsidian-friendly markdown source plus a self-contained HTML companion built from it — the .md is canonical, the HTML is the experience. Two workflows: (A) render an existing research markdown file into an HTML companion (the .md stays read-only by default), or (B) write both for a new doc, .md first as the substantive source and the HTML derived from it. Trigger for architecture deep-dives, module maps, concept explainers with interactive demos, side-by-side repo/approach comparisons, feature walkthroughs, or whenever the user says "interactive doc", "wiki page", "Obsidian doc", "explainer", "render this research", "architecture diagram", or "compare these repos". Output is always a pair: an Obsidian-native `.md` plus a self-contained `.html`.
+version: 1.2.3
+description: >-
+  Produce documentation as an Obsidian-friendly markdown source plus a
+  self-contained HTML companion built from it: render an existing research .md,
+  or write both for a new doc. Use for architecture deep-dives, concept
+  explainers with demos, or repo comparisons. Trigger on "interactive doc",
+  "Obsidian doc", "explainer", "render this research", "compare these repos".
 allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep"]
 requires_agent_teams: false
 requires_claude_code: false

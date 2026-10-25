@@ -1,8 +1,13 @@
 ---
 name: artifact-publish
-version: 1.1.0
-description: |
-  Publish a visual or interactive deliverable as a Claude Code Artifact — a self-contained HTML/Markdown file rendered to a hosted, default-private claude.ai web page the user can share with a link — instead of leaving it as a local file. Use whenever a result reads better as a page than as text: a dashboard, rendered report, chart or diagram, comparison, prototype, walkthrough, or mockup you built in code. Trigger on "publish this as an artifact", "make a shareable link", "host this page", "turn this into a web page", "claude artifact", "publish the dashboard", "share this report as a page", "give me a link to this", "put this on claude.ai". This is the Claude Code Artifact feature (code.claude.com), NOT the claude.ai design canvas (that is claude-design-brief). It is the publish step for the visual-output skills — interactive-doc, mermaid-charts, dataviz, nano-banana — and defers all look-and-feel to the artifact-design skill.
+version: 1.1.1
+description: >-
+  Publish a visual or interactive result as a Claude Code Artifact: a
+  self-contained HTML or Markdown page on a private, shareable claude.ai link
+  instead of a local file. Use when a dashboard, report, chart, diagram or
+  prototype reads better as a page. Not the claude.ai design canvas
+  (claude-design-brief). Trigger on "publish this as an artifact", "make a
+  shareable link", "give me a link to this".
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: pro

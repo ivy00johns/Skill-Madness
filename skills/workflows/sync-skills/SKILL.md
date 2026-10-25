@@ -1,8 +1,11 @@
 ---
 name: sync-skills
-version: 2.2.1
-description: |
-  Sync approved Skill-Madness skills into Claude Code and Cursor skill directories with links or resource-complete copies. Use for "sync skills", "link skills", "skill status", "unlink skills", or importing an explicitly selected local skill. Honor category/skill subsets, preserve unrelated copies and links, and require explicit backed-up collision approval. Global mutation is never implicit in catalog maintenance.
+version: 2.2.2
+description: >-
+  Sync approved Skill-Madness skills into Claude Code and Cursor with links or
+  resource-complete copies, honoring category or skill subsets and never
+  touching unrelated skills without backed-up approval. Trigger on "sync
+  skills", "link skills", "skill status", "unlink skills".
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

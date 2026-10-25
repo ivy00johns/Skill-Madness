@@ -1,15 +1,13 @@
 ---
 name: cloudflare-pages-deploy
-version: 1.1.1
-description: >
-  Deploy static sites, previews, and multi-site review hubs to Cloudflare Pages (free hosting) with
-  wrangler, then verify them on the public URL. Covers hello-world pages, preview builds, per-branch
-  preview URLs, redeploys of existing *.pages.dev projects, and checking what is already live. This
-  machine is already logged in to Cloudflare with many live Pages projects, so use this skill BEFORE
-  concluding Cloudflare is unavailable, unconfigured, or unknown. Trigger on "deploy to Cloudflare",
-  "CF", "Cloudflare Pages", "pages.dev", "wrangler", "push a preview", "get this on a preview page",
-  "deploy the hub", "Delegating to the latest version of Cloudflare Pages", "Missing entry-point to Worker script", "put this online", "host this site publicly", "free hosting", "deploy a hello world", "is it
-  live" — even when the user never names Cloudflare. Not Railway (railway-deploy), not here.now, not a private shareable claude.ai page (artifact-publish).
+version: 1.1.2
+description: >-
+  Deploy static sites, previews and review hubs to Cloudflare Pages (free) with
+  wrangler, then verify the public URL. This machine is already logged in with
+  live projects, so check here before concluding Cloudflare is unavailable. Not
+  Railway, here.now, or a private claude.ai page (artifact-publish). Trigger on
+  "deploy to Cloudflare", "pages.dev", "wrangler", "host this site publicly",
+  "is it live".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

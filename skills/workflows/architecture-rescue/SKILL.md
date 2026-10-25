@@ -1,7 +1,12 @@
 ---
 name: architecture-rescue
-version: 1.1.1
-description: "Find deepening opportunities in a codebase — shallow modules, missing seams, leaky abstractions — and present them as numbered candidates ready for a grilling session before any interface is proposed. Use when the codebase feels tangled, tests are hard to write, modules feel 'shallow', or it's quarterly-architecture-review time. Trigger on: 'improve architecture', 'rescue this codebase', 'find refactoring opportunities', 'this is a mess', 'ball of mud', 'consolidate modules', 'make it testable', 'shallow modules', 'deepen modules', 'leaky abstraction', 'two-adapter rule', 'deletion test'."
+version: 1.1.2
+description: >-
+  Find deepening opportunities in a codebase (shallow modules, missing seams,
+  leaky abstractions) and present them as numbered candidates for a grilling
+  session before any interface is proposed. Use when the code feels tangled or
+  hard to test. Trigger on "improve architecture", "rescue this codebase", "find
+  refactoring opportunities", "ball of mud", "shallow modules".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
