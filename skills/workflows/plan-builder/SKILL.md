@@ -1,6 +1,6 @@
 ---
 name: plan-builder
-version: 1.4.2
+version: 1.4.3
 description: >-
   Turn research docs, PRDs and conversational goals into structured project
   plans the orchestrator can execute. Use when there's source material plus a
@@ -21,7 +21,7 @@ spawned_by: []
 
 # Plan Builder
 
-> **Tradeoff:** Biases toward thoroughness over speed. For simple changes that don't need a plan, skip directly to implementation.
+> **Tradeoff:** Spends a few turns on architecture before any code is written. For simple changes that don't need a plan, skip directly to implementation.
 
 ## When this skill applies
 
@@ -109,7 +109,7 @@ Wait for the user's choice. Do not auto-invoke the orchestrator.
 
 ## Anti-Pattern
 
-> **Forbidden:** Padding the plan with phases for the sake of structure. If three steps suffice, write three steps.
+> **Forbidden:** Padding the plan with phases for the sake of structure — the orchestrator reads the plan's dependency graph, so every padded phase becomes a false dependency that serializes work that could have run in parallel. If three steps suffice, write three steps.
 
 ## Supporting Info
 
