@@ -1,6 +1,6 @@
 ---
 name: docs-agent
-version: 1.3.2
+version: 1.3.3
 disable-model-invocation: true
 description: "Generate project documentation, API docs, READMEs and changelogs in native orchestrator dispatch or explicitly requested solo documentation work. Read real contracts and code; load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/edit host; native Claude dispatch retained"
