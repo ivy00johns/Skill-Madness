@@ -29,6 +29,8 @@ Write important decisions and state to files rather than keeping them only in co
 **Strategy 4: Handoff at 80%**
 Don't push to 100%. At ~80% usage, write a handoff file and let the orchestrator spawn a continuation agent. A fresh agent with a good handoff is more effective than a context-starved agent.
 
+Hosts may compact on their own: Claude Code auto-compacts, compacts idle sessions, and gives subagents their own compaction window. Let it. This skill doesn't replace compaction. It writes the handoff that makes a *fresh* session possible, and for long runs a reset with a good handoff has beaten compaction alone in Anthropic's harness experiments. Hand off on purpose at a task boundary rather than waiting for the host to compact mid-task.
+
 ## Handoff File Best Practices
 
 ### What to Include
