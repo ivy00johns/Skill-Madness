@@ -1,6 +1,6 @@
 ---
 name: skill-triage
-version: 0.1.0
+version: 0.2.0
 description: >-
   Measure and fix skill routing with TypeSafe's Jev decision model: ask which
   skill a request should load, score the catalog against labeled routing cases,
@@ -62,12 +62,20 @@ available on this host.
 | Mode                                         | What it answers                                            | Calls                       |
 | -------------------------------------------- | ---------------------------------------------------------- | --------------------------- |
 | `route "<request>"`                          | Which one skill should handle this, or none                | 2                           |
-| `check --cases F` / `--from-routing-table F` | How often the catalog routes labeled requests correctly    | 1 per case                  |
-| `collisions [--skill X]`                     | Which skills lose their _own_ trigger phrases, and to whom | 1 per quoted trigger phrase |
+| `check --cases F` / `--from-routing-table F` | How often the catalog routes labeled requests correctly    | 1 per 32 cases              |
+| `collisions [--skill X]`                     | Which skills lose their _own_ trigger phrases, and to whom | 1 per 32 trigger phrases    |
 
-Always `--dry-run` a `check` or `collisions` run first. It prints the call count
-and approximate input tokens without touching the network, and the
-full-catalog collision scan is several hundred calls.
+`check` and `collisions` batch: the catalog goes in the state once per call and
+each probe is one Choice question over the skill names, up to 32 per call
+(Venice rejects 40). `--batch-size 1` restores one call per probe, which costs
+about 6× more and scored no better (62/65 vs 64/65 on the routing table).
+
+**Every run has a spend cap.** The script estimates the cost before calling and
+refuses anything over `--max-cost` (default $0.02, or `JEV_MAX_COST`) with exit
+2. If the real spend still reaches the cap mid-run, it stops, prints the
+partial results, and exits 5. Use `--dry-run` to see the estimate, and scope
+with `--skill` rather than raising the cap: a full-catalog collision scan
+(about $0.036) is refused by default on purpose.
 
 ### How `route` decides
 
@@ -107,8 +115,14 @@ decision, so it uses every signal it has.
 - **Model:** `JEV_MODEL`/`--model`, default `jev-latest`. Every run reports the
   model that actually served it. Pin a version (e.g. `jev-1.13`) when comparing
   two `check` runs, or a model change will look like a description change.
-- **Cost:** measured 2026-10-22 via OpenRouter: a full 76-skill `route` was
-  about $0.0006 and 0.6–1.0 s; a 65-case `check` was $0.034 and 7 s. A 402
+- **Cost:** measured 2026-10-25 via Venice on the 78-skill catalog:
+  - a `route` is about $0.0006 and takes under a second
+  - the 65-case routing-table `check` is $0.0054 (3 calls)
+  - `collisions --skill X` is about $0.001
+  - Jev bills about 1,300 input tokens per batched question, whatever the
+    option labels, so roughly $0.00005 per probe is the floor.
+
+  A 402
   "insufficient credits" means the account needs credits; topping up is the
   user's call, never yours.
 - **Fallback (exit 4):** no key, a rejected key, an empty account (401/402/403),
@@ -179,6 +193,6 @@ and cost.
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | Rewriting a description until Jev agrees             | Overfits one classifier; the real router is the host model. Fix only what you can explain in a sentence |
 | Comparing runs on `jev-latest`                       | The alias moves (1.13 → 1.14 in October 2026); pin the model for before/after                           |
-| Full collision scan without `--dry-run`              | Hundreds of paid calls you didn't size first                                                            |
+| Raising `--max-cost` to push a full scan through     | The cap is the user's budget; scope with `--skill` to the skills you changed instead                    |
 | Letting a route hint override madness's confirm gate | Cost and blast radius are madness's call, not the classifier's                                          |
 | Sending private requests by default                  | Every call leaves the machine; opt-in only                                                              |
