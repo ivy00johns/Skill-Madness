@@ -7,7 +7,7 @@ a raw tool default; the table is the fallback when nothing is declared.
 
 ## Resolution order (per command)
 
-1. `.claude/profile.yaml` keys `test` / `lint` / `typecheck`, if present — verbatim.
+1. `.claude/profile.yaml` keys `ci_cd.test_command` / `ci_cd.lint_command`, if present — verbatim (the profile has no typecheck key).
 2. The project's own named script (so you run exactly what CI runs):
    `package.json` `scripts`, `Makefile` targets, `pyproject.toml`/`tox.ini`,
    `Cargo.toml` aliases, `composer.json` scripts, `Taskfile.yml`, `Justfile`.
