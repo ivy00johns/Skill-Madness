@@ -40,10 +40,12 @@ retries). Exit 4 means "route without Jev", never "stop".
 """
 
 import argparse
+import http.client
 import json
 import os
 import re
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -148,16 +150,22 @@ def trigger_phrases(description):
     """
     marker = TRIGGER_MARKER.search(description)
     text = description[marker.start():] if marker else description
-    phrases = re.findall(r"[\"“]([^\"”]{6,120})[\"”]", text)
-    return [p.strip() for p in phrases if not p.startswith("/")]
+    # Match every quoted span with no length limit, then filter: a length bound
+    # inside the regex pairs the closing quote of a short span with the next
+    # opening quote and turns the prose between them into a "phrase".
+    phrases = (p.strip() for p in re.findall(r"[\"“]([^\"”]*)[\"”]", text))
+    return [p for p in phrases if 3 <= len(p) <= 120 and not p.startswith("/")]
 
 
 # ---------------------------------------------------------------- API
 
 class Client:
-    def __init__(self, model, env_file=None):
+    def __init__(self, model, env_file=None, retries=8, timeout=60):
         if env_file:
             _load_env_file(env_file)
+        model = model or os.environ.get("JEV_MODEL", "jev-latest")
+        self.retries, self.timeout = retries, timeout
+        self.lock = threading.Lock()
         forced = os.environ.get("JEV_PROVIDER")
         candidates = [p for p in PROVIDERS if not forced or p[0] == forced]
         if not candidates:
@@ -180,14 +188,17 @@ class Client:
         self.cost = 0.0
         self.served = set()
 
-    def ask(self, state, questions, retries=8):
+    def ask(self, state, questions):
+        retries = self.retries
         body = json.dumps({"model": self.model, "state": state, "questions": questions}).encode()
         req = urllib.request.Request(self.url, data=body, method="POST", headers={
             "Authorization": f"Bearer {self.key}", "Content-Type": "application/json"})
         for attempt in range(retries):
             try:
-                with urllib.request.urlopen(req, timeout=60) as resp:
+                with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                     data = json.loads(resp.read())
+                if not isinstance(data, dict) or not isinstance(data.get("answers"), dict):
+                    raise ValueError("response has no answers map")
                 break
             except urllib.error.HTTPError as err:
                 if err.code in (429, 500, 502, 503, 529) and attempt < retries - 1:
@@ -201,15 +212,26 @@ class Client:
                     time.sleep(2 ** attempt)
                     continue
                 raise ApiError(f"cannot reach {self.url}: {err.reason}", unavailable=True) from None
-        self.calls += 1
+            except (TimeoutError, ConnectionError, http.client.HTTPException) as err:
+                if attempt < retries - 1:
+                    time.sleep(min(2 ** attempt, 30))
+                    continue
+                raise ApiError(f"connection to {self.provider} failed: {err!r}", unavailable=True) from None
+            except ValueError as err:  # includes JSONDecodeError: an HTML proxy page, a truncated body
+                raise ApiError(f"unusable response from {self.provider}: {err}", unavailable=True) from None
         usage = data.get("usage") or {}
         if "cost" in usage:
-            self.cost += float(usage["cost"] or 0)
+            cost = float(usage["cost"] or 0)
         elif self.provider == "venice":
             # Venice omits cost; its model spec prices Jev input-only.
-            self.cost += usage.get("input_tokens", 0) * VENICE_USD_PER_M_INPUT / 1e6
-        if data.get("model"):
-            self.served.add(data["model"])
+            cost = usage.get("input_tokens", 0) * VENICE_USD_PER_M_INPUT / 1e6
+        else:
+            cost = 0.0
+        with self.lock:
+            self.calls += 1
+            self.cost += cost
+            if data.get("model"):
+                self.served.add(data["model"])
         return data["answers"]
 
 
@@ -271,12 +293,15 @@ def route(client, catalog, request):
 
     gate = sum((1 - wide[k]["noul"]) if inv else wide[k]["noul"]
                for k, (_, inv) in GATES.items()) / len(GATES)
-    top = ranked(wide["which"])[:SHORTLIST]
+    top = ranked(wide.get("which", {}))[:SHORTLIST]
     result = {"request": request, "gate": round(gate, 3),
               "shortlist": [{"skill": n, "p": round(p, 3)} for n, p in top],
               "winner": None, "reason": ""}
     if gate < GATE_THRESHOLD:
         result["reason"] = f"gate {gate:.2f} < {GATE_THRESHOLD}: request likely needs no skill"
+        return result
+    if not top:
+        result["reason"] = "Jev returned no probability distribution; no winner"
         return result
 
     short = {n: catalog[n] for n, _ in top}
@@ -291,11 +316,15 @@ def route(client, catalog, request):
     fits = {n: round(second[f"fits::{n}"]["noul"], 3) for n in short}
     result["fits"] = fits
     result["confidence"] = round(second["which"].get("confidence", 0), 3)
-    if max(fits.values()) < FITS_THRESHOLD:
-        result["reason"] = f"best fit {max(fits.values()):.2f} < {FITS_THRESHOLD}: no shortlisted skill fits"
+    best = max(fits, key=fits.get)
+    if fits[best] < FITS_THRESHOLD:
+        result["reason"] = f"best fit {fits[best]:.2f} < {FITS_THRESHOLD}: no shortlisted skill fits"
         return result
-    result["winner"] = second["which"]["choice"]
-    result["reason"] = "rerank choice"
+    pick = second["which"].get("choice")
+    if pick in fits and fits[pick] >= FITS_THRESHOLD:
+        result["winner"], result["reason"] = pick, "rerank choice"
+    else:  # the rerank's pick failed its own fit check; trust the skill that passed
+        result["winner"], result["reason"] = best, f"rerank pick {pick} failed its fit check; best fit"
     return result
 
 
@@ -347,6 +376,8 @@ def score_cases(client, catalog, cases, concurrency):
                 raise  # a dead key or empty account fails every case; stop the run
             return {**case, "error": str(err)}
         order = ranked(answer)
+        if not order:
+            return {**case, "error": "Jev returned no probability distribution"}
         got, p_got = order[0]
         p_expect = max(answer["probabilities"].get(e, 0) for e in case["expect"])
         second, runner_up = order[1] if len(order) > 1 else (None, 0)
@@ -369,8 +400,9 @@ def summarize(results):
         for e in r["expect"]:
             key = f"{r['got']} <- {e}"
             stealers[key] = stealers.get(key, 0) + 1
-    return {"total": len(results), "correct": len(results) - len(misses),
-            "accuracy": round((len(results) - len(misses)) / len(results), 3) if results else 0,
+    total = len(results) + len(errors)  # unscored cases count against accuracy
+    return {"total": total, "correct": len(results) - len(misses),
+            "accuracy": round((len(results) - len(misses)) / total, 3) if total else 0,
             "misses": misses, "low_margin": thin, "errors": errors,
             "stealers": dict(sorted(stealers.items(), key=lambda kv: -kv[1]))}
 
@@ -413,7 +445,7 @@ def main():
     ap.add_argument("--skill", action="append", help="collisions: probe only these skills")
     ap.add_argument("--cases", help="check: JSON list of {prompt, expect}")
     ap.add_argument("--from-routing-table", help="check: build cases from a routing-table.md")
-    ap.add_argument("--model", default=os.environ.get("JEV_MODEL", "jev-latest"))
+    ap.add_argument("--model", help="model id (default: JEV_MODEL, including from --env-file, else jev-latest)")
     ap.add_argument("--env-file", help="load the API key from this .env (value never printed)")
     ap.add_argument("--limit", type=int, help="score at most N cases")
     ap.add_argument("--concurrency", type=int, default=4)
@@ -432,11 +464,14 @@ def main():
             print(json.dumps({"skills": len(catalog), "calls": 2,
                               "approx_input_tokens": (criteria_chars + len(args.request)) // 4 + 2000}))
             return 0
-        client = Client(args.model, args.env_file)
+        # route is a pre-check another skill waits on: fail over to exit 4 fast.
+        client = Client(args.model, args.env_file, retries=2, timeout=15)
         try:
             result = route(client, catalog, args.request)
         except ApiError as err:
             die(("jev unavailable: " if err.unavailable else "") + str(err), UNAVAILABLE if err.unavailable else 3)
+        except (KeyError, TypeError, IndexError) as err:
+            die(f"jev unavailable: unexpected response shape ({err!r})", UNAVAILABLE)
         result.update({"served_model": sorted(client.served), "cost": round(client.cost, 6)})
         if args.json:
             print(json.dumps(result, indent=2))
@@ -474,7 +509,7 @@ def main():
     if args.dry_run:
         print(json.dumps({"skills": len(catalog), "calls": len(cases),
                           "approx_input_tokens": len(cases) * (criteria_chars // 4 + 300),
-                          "skipped_rows_with_targets_outside_catalog": len(skipped),
+                          "skipped_phrases_outside_catalog": len(skipped),
                           "sample": cases[:5]}, indent=2))
         return 0
 
@@ -483,6 +518,8 @@ def main():
         results = score_cases(client, catalog, cases, args.concurrency)
     except ApiError as err:
         die(("jev unavailable: " if err.unavailable else "") + str(err), UNAVAILABLE if err.unavailable else 3)
+    except (KeyError, TypeError, IndexError) as err:
+        die(f"jev unavailable: unexpected response shape ({err!r})", UNAVAILABLE)
     summary = summarize(results)
     summary.update({"skills": len(catalog), "served_model": sorted(client.served),
                     "calls": client.calls, "cost": round(client.cost, 6),

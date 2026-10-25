@@ -118,7 +118,8 @@ decision, so it uses every signal it has.
   line. Never retry in a loop and never fabricate probabilities. Exit 3 is
   different: the API rejected the request itself, which is a bug to report.
 - **Privacy:** every call sends the request text and the catalog's
-  descriptions to TypeSafe (and to OpenRouter on that path). The catalog here
+  descriptions to the provider in use: Venice by default, or TypeSafe or
+  OpenRouter. The catalog here
   is public OSS, but a user's request may not be. Don't route private requests
   through it unless the user has opted in.
 
