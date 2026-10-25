@@ -157,6 +157,13 @@ anything without a test gate.
 
 Don't go from zero to overnight-unattended. Promote on evidence:
 
+- **Stage 0 (report-only):** the loop runs on its real trigger but changes
+  nothing. Each iteration writes what it *would* do (the fix, the PR, the
+  migration) plus its proof receipt to the state file. This is where most
+  loops seen in the wild actually live — event-triggered review that comments
+  and leaves the change to a human. **Promote when** a human would have accepted
+  the proposed action on most runs; that accept rate is the first real read on
+  cost per accepted result (guardrail 2).
 - **Stage 1 (attended, one repo):** run the loop with a human watching.
   **Promote when** it completes **5 consecutive runs** with no human intervention
   and no oscillation.
