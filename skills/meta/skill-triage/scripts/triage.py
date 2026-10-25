@@ -33,7 +33,9 @@ Credentials (read from the environment, never printed; first key found wins):
 
 Every request sends the request text and the catalog's descriptions to the
 provider. Pure python3 stdlib. Exit codes: 0 ok, 1 below --fail-under,
-2 config/argument error, 3 API failure.
+2 argument error, 3 API rejected the request, 4 Jev unavailable (no key,
+401/402/403 — e.g. a zero balance — unreachable, or still rate-limited after
+retries). Exit 4 means "route without Jev", never "stop".
 """
 
 import argparse
@@ -63,6 +65,8 @@ PROVIDERS = [
     ("typesafe", "TYPESAFE_API_KEY", "https://api.typesafe.ai"),
     ("openrouter", "OPENROUTER_API_KEY", "https://openrouter.ai/api"),
 ]
+UNAVAILABLE = 4  # exit code: Jev can't be reached or paid for -> caller routes without it
+UNAVAILABLE_HTTP = {401, 402, 403, 429, 500, 502, 503, 529}  # 429/5xx only after retries
 VENICE_USD_PER_M_INPUT = 0.042  # from Venice /models jev-latest spec, 2026-10-24
 DEFAULT_ROOT = Path(__file__).resolve().parents[3]  # repo skills/
 
@@ -162,8 +166,8 @@ class Client:
             if key:
                 break
         else:
-            die("no " + ", ".join(env for _, env, _ in candidates) + " in the environment "
-                "(pass --env-file to load one from a .env)")
+            die("jev unavailable: no " + ", ".join(env for _, env, _ in candidates) +
+                " in the environment (pass --env-file to load one from a .env)", UNAVAILABLE)
         self.key = key
         self.provider = name
         self.url = os.environ.get("TYPESAFE_BASE_URL", base).rstrip("/") + "/v1/systemone"
@@ -186,12 +190,13 @@ class Client:
                     time.sleep(_backoff(err.headers, attempt))
                     continue
                 detail = err.read().decode(errors="replace")[:300]
-                raise ApiError(f"HTTP {err.code} from {self.provider}: {detail}") from None
+                raise ApiError(f"HTTP {err.code} from {self.provider}: {detail}",
+                               unavailable=err.code in UNAVAILABLE_HTTP) from None
             except urllib.error.URLError as err:
                 if attempt < retries - 1:
                     time.sleep(2 ** attempt)
                     continue
-                raise ApiError(f"cannot reach {self.url}: {err.reason}") from None
+                raise ApiError(f"cannot reach {self.url}: {err.reason}", unavailable=True) from None
         self.calls += 1
         usage = data.get("usage") or {}
         if "cost" in usage:
@@ -205,7 +210,9 @@ class Client:
 
 
 class ApiError(RuntimeError):
-    pass
+    def __init__(self, msg, unavailable=False):
+        super().__init__(msg)
+        self.unavailable = unavailable
 
 
 def _backoff(headers, attempt):
@@ -332,6 +339,8 @@ def score_cases(client, catalog, cases, concurrency):
         try:
             answer = client.ask({"request": case["prompt"]}, question)["which"]
         except ApiError as err:
+            if err.unavailable:
+                raise  # a dead key or empty account fails every case; stop the run
             return {**case, "error": str(err)}
         order = ranked(answer)
         got, p_got = order[0]
@@ -423,7 +432,7 @@ def main():
         try:
             result = route(client, catalog, args.request)
         except ApiError as err:
-            die(str(err), 3)
+            die(("jev unavailable: " if err.unavailable else "") + str(err), UNAVAILABLE if err.unavailable else 3)
         result.update({"served_model": sorted(client.served), "cost": round(client.cost, 6)})
         if args.json:
             print(json.dumps(result, indent=2))
@@ -469,7 +478,7 @@ def main():
     try:
         results = score_cases(client, catalog, cases, args.concurrency)
     except ApiError as err:
-        die(str(err), 3)
+        die(("jev unavailable: " if err.unavailable else "") + str(err), UNAVAILABLE if err.unavailable else 3)
     summary = summarize(results)
     summary.update({"skills": len(catalog), "served_model": sorted(client.served),
                     "calls": client.calls, "cost": round(client.cost, 6),

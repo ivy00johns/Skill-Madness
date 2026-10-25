@@ -109,8 +109,14 @@ decision, so it uses every signal it has.
   two `check` runs, or a model change will look like a description change.
 - **Cost:** measured 2026-10-22 via OpenRouter: a full 76-skill `route` was
   about $0.0006 and 0.6–1.0 s; a 65-case `check` was $0.034 and 7 s. A 402
-  "insufficient credits" means the account needs credits. Report it and stop;
-  topping up is the user's call.
+  "insufficient credits" means the account needs credits; topping up is the
+  user's call, never yours.
+- **Fallback (exit 4):** no key, a rejected key, an empty account (401/402/403),
+  an unreachable endpoint, or rate limits that outlast the retries all exit
+  **4** with a one-line `jev unavailable: ...` reason. Exit 4 means "carry on
+  without Jev": route by judgment exactly as you would have, and say so in one
+  line. Never retry in a loop and never fabricate probabilities. Exit 3 is
+  different: the API rejected the request itself, which is a bug to report.
 - **Privacy:** every call sends the request text and the catalog's
   descriptions to TypeSafe (and to OpenRouter on that path). The catalog here
   is public OSS, but a user's request may not be. Don't route private requests
@@ -146,10 +152,12 @@ and cost.
 
 ## Composing with the rest of the toolkit
 
-- **madness:** when the user has opted in to Jev routing, madness can run
-  `route` as a pre-check and use the result as a hint. Its own judgment and its
-  confirm gate still decide. A Jev pick never skips the "...go?" on an
-  expensive route.
+- **madness:** the pre-check is off by default, because every call costs money
+  and sends the request off the machine. It runs only when `SKILL_TRIAGE_ROUTE=1`
+  is set or the user asks for Jev in the session. madness then runs `route` and
+  uses the result as a hint; its own judgment and its confirm gate still decide.
+  A Jev pick never skips the "...go?" on an expensive route. Any non-zero exit
+  means madness routes as if the pre-check never ran.
 - **skill-review / skill-update:** `collisions --skill <name>` gives trigger
   evidence for one skill under review. Re-run it after the update.
 - **skill-writer:** after adding a skill, run `collisions --skill <new>` and a
@@ -159,8 +167,8 @@ and cost.
 ## When not to use it
 
 - The user already named the skill. Run that skill.
-- No key and no network. Say so in one line and route by judgment. Never
-  fabricate probabilities.
+- The script exits 4 (no key, empty account, no network). Say so in one line
+  and route by judgment. Never fabricate probabilities.
 - Grading skill _output quality_. This measures which skill is picked, not how
   well it works once loaded. That's the skill-creator eval loop.
 

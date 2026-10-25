@@ -71,10 +71,11 @@ See "madness vs skill-explorer" below for when to use which.
    `plan-builder`, and `loop-controller` each do their own internal routing, so
    handing off to them is enough. For the long tail the map doesn't cover, lean
    on `skill-explorer`'s `references/routing-table.md` (the full intent->skill
-   table) rather than reinventing it here. If the user has opted in to Jev
-   routing and a key is available, `skill-triage`'s `route` mode gives a
-   probability-backed second opinion. It's a hint only; your judgment and the
-   confirm gate still decide.
+   table) rather than reinventing it here. Only when `SKILL_TRIAGE_ROUTE=1` is
+   set or the user asks for Jev this session, `skill-triage`'s `route` mode gives
+   a probability-backed second opinion. It's a hint only; your judgment and the
+   confirm gate still decide, and any non-zero exit (exit 4 = no key, empty
+   account or no network) means route as if it never ran.
 
 3. **Decide cheap or expensive.** See the confirm gate below. This decides
    whether you launch immediately or check first.
