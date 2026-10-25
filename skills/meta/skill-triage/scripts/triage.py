@@ -27,7 +27,8 @@ Credentials (read from the environment, never printed; first key found wins):
   TYPESAFE_API_KEY   -> https://api.typesafe.ai/v1/systemone
   OPENROUTER_API_KEY -> https://openrouter.ai/api/v1/systemone
   JEV_PROVIDER       force one provider: venice | typesafe | openrouter
-  TYPESAFE_BASE_URL  optional override of the base URL
+  TYPESAFE_BASE_URL  https override of the TypeSafe base URL only; never read
+                     from --env-file, so a key can't be sent to a planted host
   JEV_MODEL          model id (default jev-latest; pin e.g. jev-1.13 for
                      comparable check runs — the served model is always reported)
 
@@ -170,7 +171,10 @@ class Client:
                 " in the environment (pass --env-file to load one from a .env)", UNAVAILABLE)
         self.key = key
         self.provider = name
-        self.url = os.environ.get("TYPESAFE_BASE_URL", base).rstrip("/") + "/v1/systemone"
+        override = os.environ.get("TYPESAFE_BASE_URL") if name == "typesafe" else None
+        if override and not override.startswith("https://"):
+            die("TYPESAFE_BASE_URL must be an https:// URL")
+        self.url = (override or base).rstrip("/") + "/v1/systemone"
         self.model = model
         self.calls = 0
         self.cost = 0.0
@@ -232,7 +236,7 @@ def _backoff(headers, attempt):
 def _load_env_file(path):
     for line in Path(path).expanduser().read_text().splitlines():
         m = re.match(r"^\s*(?:export\s+)?([A-Z_][A-Z0-9_]*)\s*=\s*(.*)$", line)
-        if m and m.group(1) in [env for _, env, _ in PROVIDERS] + ["TYPESAFE_BASE_URL", "JEV_MODEL"]:
+        if m and m.group(1) in [env for _, env, _ in PROVIDERS] + ["JEV_MODEL"]:
             os.environ.setdefault(m.group(1), m.group(2).strip().strip("'\""))
 
 
