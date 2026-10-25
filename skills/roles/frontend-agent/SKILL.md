@@ -1,9 +1,13 @@
 ---
 name: frontend-agent
-version: 1.7.2
+version: 1.7.3
 disable-model-invocation: true
-description: |
-  Build user interfaces — pages, screens, components, routing, client-side state, responsive layout, and shared page shells. Use for any frontend implementation task: "build the item, auction, and checkout pages", "add the settings screen", "wire up this form", "restyle the navbar", React/Vue/Svelte/TSX/CSS work, or an orchestrator dispatch to the frontend role. Runs the frontend source guards before reporting done.
+description: >-
+  Build user interfaces: pages, screens, components, routing, client state,
+  responsive layout and page shells. Use for any frontend implementation task
+  (React, Vue, Svelte, TSX, CSS) or an orchestrator dispatch to the frontend
+  role. Runs the frontend source guards before reporting done. Trigger on "build
+  the checkout page", "add the settings screen", "wire up this form".
 compatibility: "Read/edit/shell host; project toolchain plus Python 3 for source guards; native Claude dispatch retained"
 requires_agent_teams: false
 requires_claude_code: false

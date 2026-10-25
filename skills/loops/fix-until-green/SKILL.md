@@ -1,18 +1,12 @@
 ---
 name: fix-until-green
-version: 1.0.0
+version: 1.0.1
 description: >-
-  Drive a failing build to passing in a disciplined loop: run the project's full
-  gate (tests + lint + typecheck), fix one root cause, re-run the whole gate, and
-  repeat until all three exit clean — with a hard iteration cap, no-progress
-  detection, and a rule against cheating the gate green. Use when tests/CI are
-  red and you want them green, when a build wave fails its checks, or as the QE
-  inner loop under an orchestrated build. Trigger on: "fix until green", "make
-  the tests pass", "get CI green", "fix the failing tests", "make it green",
-  "drive the build to passing", "red to green", "loop until tests pass", "fix
-  lint and type errors", "keep fixing until the suite is clean", "make the wave
-  gate pass". A configuration of loop-controller — it supplies the harness; this
-  skill supplies the proof (three exit codes) and the fix discipline.
+  Drive a failing build to passing: run the full gate (tests, lint, typecheck),
+  fix one root cause, re-run everything, until all three exit clean. Hard
+  iteration cap, no-progress detection, no cheating the gate. Use when tests or
+  CI are red, or as the QE inner loop. Trigger on "fix until green", "make the
+  tests pass", "get CI green", "loop until tests pass".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

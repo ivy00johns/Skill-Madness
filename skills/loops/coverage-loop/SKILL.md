@@ -1,19 +1,12 @@
 ---
 name: coverage-loop
-version: 1.0.0
+version: 1.0.1
 description: >-
-  Grow a test suite until a coverage target is met: run coverage, find the
-  lowest-covered meaningful unit, add REAL behavior-checking tests for it, then
-  re-measure the whole report — looping until total (and per-target) coverage is
-  at or above the configured target AND the full suite is green. Reads the target
-  from .claude/profile.yaml (no hard-coded 80 or 100). Forbids gaming the number
-  with assertion-free tests or excluding files from the coverage config — both are
-  findings. Use when coverage is below target, when a build wave needs more tests,
-  or as the QE coverage inner loop under an orchestrated build. Trigger on:
-  "raise coverage", "hit the coverage target", "add tests until coverage", "get
-  to N percent coverage", "coverage is too low", "loop until coverage passes",
-  "grow the test suite", "cover the untested code", "/coverage-loop". A
-  configuration of loop-controller.
+  Grow a test suite to a coverage target: find the lowest-covered meaningful
+  unit, add real behavior tests, re-measure, until coverage meets the target in
+  .claude/profile.yaml and the suite is green. Assertion-free tests and coverage
+  excludes count as findings. Use when coverage is below target. Trigger on
+  "raise coverage", "hit the coverage target", "get to N percent coverage".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

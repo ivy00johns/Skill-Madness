@@ -1,20 +1,12 @@
 ---
 name: repo-cleanup-loop
-version: 1.0.1
+version: 1.0.2
 description: >-
-  Keep a repo's git state intentional on a weekly cadence: scan every branch,
-  PR, commit trail, and worktree, classify each as current / owned / safely
-  removable-with-evidence, RECOVER any valuable work before deleting, then remove
-  exactly one class of stale items with evidence — looping until every item is
-  accounted for, with an HITL checkpoint on anything ambiguous and never a
-  force-delete of unmerged work. The broad recurring evidence-gated loop that
-  delegates the post-merge-branch case to git-post-merge-cleanup. Use when you
-  want a repo kept tidy on a schedule, stale branches and worktrees pruned safely
-  after sprints, or a weekly hygiene sweep that recovers before it deletes.
-  Trigger on "clean up the repo weekly", "weekly repo hygiene", "prune stale
-  branches and worktrees on a schedule", "tidy git state every week", "scheduled
-  repo cleanup", "sweep stale PRs and worktrees". A configuration of
-  loop-controller.
+  Weekly repo hygiene: classify every branch, PR and worktree, recover valuable
+  work first, then remove one class of stale items with evidence. HITL on
+  anything ambiguous; never force-deletes unmerged work. Broader and recurring;
+  one-off post-merge cleanup is git-post-merge-cleanup. Trigger on "weekly repo
+  hygiene", "clean up the repo weekly", "scheduled repo cleanup".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true
