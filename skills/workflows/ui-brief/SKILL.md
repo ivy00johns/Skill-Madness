@@ -15,7 +15,7 @@ owns:
   patterns: []
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
-composes_with: ["ui-ux-pro-max", "frontend-design:frontend-design", "superpowers:brainstorming", "ux-review", "frontend-agent", "orchestrator", "playwright"]
+composes_with: ["ui-ux-pro-max", "frontend-design:frontend-design", "superpowers:brainstorming", "ux-review", "frontend-agent", "orchestrator", "playwright", "accessibility-audit"]
 spawned_by: []
 ---
 
@@ -87,7 +87,7 @@ The briefs that work follow a specific shape. Each section earns its presence:
 5. **Page-by-Page Brief** — every primary route gets a layout treatment with what belongs and what does not.
 6. **Component Primitives** — name 8–12 reusable pieces with implied APIs (e.g. `<MetricNumber>`, `<DenseTable>`).
 7. **Motion / Sound / Notifications** — usually missing from briefs; including this section prevents drift toward over-animation or zero animation.
-8. **Accessibility & Responsive Baseline** — explicit, not aspirational. axe AA, specific viewports (default 375 × 667 mobile + 1440 × 900 desktop), mobile-first with `min-width` queries, the canonical breakpoint tokens (sm/md/lg/xl/2xl), no hardcoded `width: <px>` on layout containers, no inline `style=` for layout. These are contract clauses for the implementing agent — see `skills/roles/frontend-agent/references/mobile-responsive.md` for the playbook they will execute against.
+8. **Accessibility & Responsive Baseline** — explicit, not aspirational. Name the target standard (WCAG 2.2 AA by default; WCAG 2.0 AA plus 508 for federal, WCAG 2.1 AA for ADA Title II, EN 301 549 for the EU) and make an `accessibility-audit` pass with no Blockers or Serious findings a Definition of Done item. axe AA, specific viewports (default 375 × 667 mobile + 1440 × 900 desktop), mobile-first with `min-width` queries, the canonical breakpoint tokens (sm/md/lg/xl/2xl), no hardcoded `width: <px>` on layout containers, no inline `style=` for layout. These are contract clauses for the implementing agent — see `skills/roles/frontend-agent/references/mobile-responsive.md` for the playbook they will execute against.
 9. **Implementation Discipline** — which skills compose during the build (brainstorming → orchestrator → frontend-agent → playwright → ux-review).
 10. **Definition of Done** — verifiable items. Must include "loads in a browser with zero console errors" and a screenshot-diff item (vs old screenshot for rebuilds, vs target reference for greenfield). **And — whenever the product's moat depends on live data, a real service, or an integration — a "the moat is real" item that exercises the actual value path end-to-end against the real thing once (a real call, real data flowing), not a mock of it.** The whole brief leads with the moat (§2); a DoD that only checks render + screenshots is a DoD a mock can satisfy, and a mock-satisfiable DoD ships a fiction — a "watch real LLMs compete" product that never calls an LLM, a live dashboard wired to a fixture. Mocks are the right way to *build* the UI before the backend lands; the DoD's job is to force graduating from them. If the brief deliberately scopes the backend out, mark it a **SHELL spec** in one line at the top — so a green shell is never mistaken for a finished product.
 11. **Notes for the Operator** — guardrails to prevent drift back to generic defaults during the build.

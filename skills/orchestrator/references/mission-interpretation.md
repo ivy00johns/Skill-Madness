@@ -119,6 +119,7 @@ they earn their keep. This table maps "build situation" → "skill to invoke".
 | Find dead code, premature abstractions, duplicated logic | `simplify` | Phase 4 |
 | E2E happy-path validation with a real browser | `playwright` | Phase 4 |
 | Full visual + accessibility + responsive audit | `ux-review` | Phase 4, ON the running app |
+| Accessibility / WCAG / Section 508 / ADA compliance, or an ACR/VPAT | `accessibility-audit` | Phase 4 (audit), frontend waves (gate) |
 | Ready to ship | `deployment-checklist`, then `railway-deploy` (or equivalent) | Phase 5 |
 | Conventional commit | `git-commit` | Throughout |
 | Open the PR | `git-pr` | Phase 5 |

@@ -1,6 +1,6 @@
 # Remaining Work — Tactical Ledger
 
-**Last updated:** 2026-10-25 (DR-1–DR-8 intaken from the Oct 2026 agent-engineering research; UA-19 still open)
+**Last updated:** 2026-10-27 (UF-2 accessibility-audit added; 2026-10-25: DR-1–DR-8 intaken from the Oct 2026 agent-engineering research; UA-19 still open)
 **Companions:** [`PLAN.md`](../PLAN.md) (strategic roadmap + closure log), [`docs/COMPLETED-WORK.md`](COMPLETED-WORK.md) (completed archive — every closed item, verbatim), [`docs/FUTURE.md`](FUTURE.md) (frontier overflow)
 
 > ## Prior closure: CB-10 only as of 2026-08-03
@@ -25,6 +25,10 @@ ID prefixes are stable and never reused: `RF` (reference-file gaps), `TM` (think
 ---
 
 ## Open / in-progress
+
+### 2026-10-27 — direct user request (`UF`)
+
+- **UF-2** `[in-progress · P2 · wave — · skills/new]` — **Accessibility skill (WCAG 2.2 AA, Section 508, ADA).** Owner asked 2026-10-27: no a11y skill existed. Coverage was a one-line rule in `frontend-agent` §7, a checklist, and a Playwright quick-check that called the removed `page.accessibility` API. Shipped `workflows/accessibility-audit` v1.0.0 (catalog 79 → 80, workflows 40 → 41). It has audit, fix, gate, content and report (ACR/VPAT draft) modes, a law→standard map, `references/` (standards, manual-checks, fix-patterns, content-design from digital.gov and 18F, conformance-report), and `scripts/axe_scan.mjs` (axe-core plus a 320px reflow check). The scanner was verified against planted-violation pages: exit 1 on violations, 0 clean, 2 unreachable, missing deps or bad flag. Linked from frontend-agent (gate), its validation checklist, qe-agent (accessibility Blockers are CRITICAL), docs-agent, ui-brief §8, render-sanity, playwright (quick-check moved to `ariaSnapshot()`), and the orchestrator's routing table. Lint 0 errors, catalog clean. **Open:** (a) skill-creator or `skill-eval` with and without the skill on 2–3 audit prompts (unrun, no paid runs approved); (b) `references/standards.md` marks HHS Section 504 extension status and the current ITI VPAT version unverified as of 2026-10-27; (c) re-verify the ADA Title II dates (2027-04-26 / 2028-04-26) once the NFB challenge is ruled on.
 
 ### 2026-10-25 — agent-engineering research (`DR`)
 
