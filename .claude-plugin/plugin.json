@@ -89,10 +89,10 @@
     "./skills/workflows/use-pxpipe",
     "./skills/workflows/yagni-gate",
     "./skills/workflows/prose-slop-guard",
-    "./skills/workflows/skill-creator",
     "./skills/workflows/payload-cms",
     "./skills/workflows/cloudflare-pages-deploy",
     "./skills/workflows/accessibility-audit",
+    "./skills/workflows/madness-skill-creator",
 
     "./skills/loops/fix-until-green",
     "./skills/loops/loop-controller",

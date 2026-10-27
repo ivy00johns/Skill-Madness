@@ -87,7 +87,7 @@ Each trap names the **expected terminal state**. A trap that stays green means n
 
 - **Failure shape:** the candidate description is accepted but not applied; the runner forces skill loading and infers triggering from stdout; errors become negative results; the best candidate is chosen on repeated held-out-test scores.
 - **Injection point:** submit two candidate descriptions plus an unseen holdout set; inject a worker timeout.
-- **Guard under test:** `skills/workflows/skill-creator/scripts/run_eval.py`, `run_loop.py` (isolated candidate snapshot, actual retrieval trace, tri-state outcomes, train/dev selection), `check_matrix.py` (receipt validation: rejects forced treatment, reused holdout, single-rollout efficacy).
+- **Guard under test:** `skills/workflows/madness-skill-creator/scripts/run_eval.py`, `run_loop.py` (isolated candidate snapshot, actual retrieval trace, tri-state outcomes, train/dev selection), `check_matrix.py` (receipt validation: rejects forced treatment, reused holdout, single-rollout efficacy).
 - **Expected terminal state:** selection uses train/dev only; the held-out set is touched once; a timeout is an execution error, distinct from a non-trigger.
 - **UA rows:** UA-17, UA-18, UA-19.
 

@@ -438,7 +438,7 @@ Every loop is a configuration of **`loop-controller`**, the foundation harness t
 | 62 | `use-pxpipe` | workflow | Wire the Claude Code harness to pxpipe — local image-proxy token-saver, opt-in + reversible |
 | 63 | `yagni-gate` | workflow | Persistent YAGNI build-gate mode — climb the reuse ladder before writing new code |
 | 64 | `prose-slop-guard` | workflow | Source-level gate that catches AI-slop prose (em dashes, AI tells) before it ships |
-| 65 | `skill-creator` | workflow | Create, test, and iteratively improve skills with eval-driven benchmarking and description optimization |
+| 65 | `madness-skill-creator` | workflow | Create, test, and iteratively improve skills with eval-driven benchmarking and description optimization |
 | 66 | `payload-cms` | workflow | Build, deploy and debug websites on Payload CMS, and clone or rebuild a site onto it (payloadcms.com included) |
 | 67 | `loop-controller` | loop | Foundation harness: 5-part contract + guardrail stack every loop composes on |
 | 68 | `fix-until-green` | loop | Drive tests+lint+typecheck green without cheating the gate |

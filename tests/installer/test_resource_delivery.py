@@ -218,14 +218,14 @@ class ResourceDelivery(unittest.TestCase):
 
     def test_real_guard_creator_and_living_plan_resources_after_install(self):
         # No evaluator/provider process: only offline help/static viewer rendering.
-        for name in ('design-token-guard', 'class-extraction-guard', 'skill-creator', 'living-plan'):
+        for name in ('design-token-guard', 'class-extraction-guard', 'madness-skill-creator', 'living-plan'):
             shutil.copytree(REPO / 'skills/workflows' / name, self.repo / 'skills/workflows' / name,
                             ignore=shutil.ignore_patterns('__pycache__', 'node_modules'))
         self.convert('--tool', 'cursor')
         result = self.run_cli('install.sh', '--tool', 'cursor', '--no-interactive')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         base = self.project / '.cursor/rules'
-        creator = base / 'skill-creator-resources'
+        creator = base / 'madness-skill-creator-resources'
         self.assertTrue((creator / 'agents/grader.md').exists())
         self.assertTrue((creator / 'assets/eval_review.html').exists())
         # Viewer annotations require the skill's existing Python 3.10+ runtime;

@@ -10,7 +10,7 @@ import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / 'skills/workflows/skill-creator'))
+sys.path.insert(0, str(ROOT / 'skills/workflows/madness-skill-creator'))
 from scripts.run_eval import observe_trace, run_single_query, run_eval
 from scripts.run_loop import split_eval_set_hygiene, run_loop, claim_holdout
 from scripts.utils import update_skill_description

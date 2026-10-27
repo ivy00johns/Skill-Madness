@@ -12,7 +12,7 @@ import sys
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-SKILL = ROOT / 'skills/workflows/skill-creator'
+SKILL = ROOT / 'skills/workflows/madness-skill-creator'
 sys.path.insert(0, str(SKILL))
 from scripts.run_eval import observe_freebuff_trace, run_eval, run_single_query_freebuff
 

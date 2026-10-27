@@ -207,10 +207,10 @@ def bundle(skill, tool_root, tool, category, slug):
     diagnostics = source_diagnostics(skill)
     if diagnostics['missing']:
         raise ValueError('missing local resources: ' + ', '.join(diagnostics['missing']))
-    if skill.parent.name == 'skill-creator':
+    if skill.parent.name == 'madness-skill-creator':
         required = ['agents/grader.md', 'assets/eval_review.html', 'eval-viewer/generate_review.py', 'eval-viewer/viewer.html']
         if any(not (skill.parent / p).is_file() for p in required):
-            raise ValueError('skill-creator required helper resources missing')
+            raise ValueError('madness-skill-creator required helper resources missing')
     contained(root / '.boundary-check', tool_root)
     root.mkdir(parents=True, exist_ok=True)
     for src in files:
@@ -246,7 +246,7 @@ def bundle(skill, tool_root, tool, category, slug):
     checkout.extend(p.removeprefix('checkout/') for p in diagnostics['external_dependencies'] if p.startswith('checkout/'))
     runtime = {'schema_version': 1, 'skill': slug, 'category': category,
                'skill_dependencies': [p for p in diagnostics['external_dependencies'] if not p.startswith('checkout/')],
-               'skill_root': '.', 'runtime': 'project toolchain; Python 3.10+ for creator/nano helpers' if slug in ('skill-creator', 'nano-banana') else 'project toolchain; Python 3.9+ for delivery helpers',
+               'skill_root': '.', 'runtime': 'project toolchain; Python 3.10+ for creator/nano helpers' if slug in ('madness-skill-creator', 'nano-banana') else 'project toolchain; Python 3.9+ for delivery helpers',
                'checkout_dependencies': sorted(set(checkout)),
                'secrets': 'explicit process environment; optional ATS_ENV_FILE selected by owner; never bundled',
                'resources': [str(p.relative_to(skill.parent)) for p in files]}
