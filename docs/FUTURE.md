@@ -1,6 +1,6 @@
 # Future — Frontier (out of scope)
 
-**Last updated:** 2026-07-21 (WC-3 parked as an F1 sub-note + PX-4 parked from the pxpipe dive)
+**Last updated:** 2026-10-25 (F5 first slice in PR #87; `[DR1]` notes on F2, F3 and F9)
 **Companions:** [`PLAN.md`](../PLAN.md), [`docs/REMAINING-WORK.md`](REMAINING-WORK.md)
 
 Items explicitly out of scope for the current plan. Kept here so they aren't lost; pulled into the ledger only if a future cycle prioritizes them.
@@ -15,6 +15,8 @@ Sub-note (2026-07-21, `[WCT]`, parked WC-3): if/when host #12 lands, consider th
 
 A discoverable registry for publishing/pulling skills with remote version pinning (the `source` field reserved in `skills-lock.json` hints at this). No design committed.
 
+**`[DR1]` note (2026-10-25):** distribution channels have firmed up. Options: the GitHub marketplace repo (`.claude-plugin/marketplace.json` already exists), the cross-agent `npx skills add` / skills.sh path, and the Claude directory submission portal (opened 2026-09-25, safety-scanned, with analytics). None is committed.
+
 ## F3 — Per-host CI smoke tests
 
 **Narrow UA-19 extension implemented locally:** the existing creator's trace/split runner,
@@ -25,6 +27,8 @@ load/error handling only; live host retrieval/efficacy remain NOT RUN pending se
 This does not complete the wider F3/F5 platform or authorize paid calls.
 
 End-to-end verification that converted skills actually load and run on each non-Claude-Code host (not just that conversion produces a file). Today CI validates frontmatter, lint, catalog, hooks, and scan — but not live execution per host.
+
+**`[DR1]` note (2026-10-25):** the Oct research also recommends a published cross-harness *triggering* matrix (Claude Code, Codex CLI, plus OpenCode or Goose). Same frontier as this item and UA-19; not filed separately.
 
 ## F4 — README / docs image assets
 
@@ -42,6 +46,8 @@ Measured trigger-precision/recall harness for the library's own skills: generate
 
 **Grading discipline — acceptance vs cost (harness-engineering / `[HE]`, intaken 2026-07-22).** The two axes above say *what* to measure (triggerability, efficacy); this says *how to grade so the number means something*. From harness-engineering's `evals/` method, four rules F5 should adopt: **(1) grade four results separately** — Outcome (did the artifact satisfy the behavioral claim), Proof (does the evidence establish it *in the real environment*, not via an evaluator-only check), Architecture (did it preserve the owning invariant / `owns` boundary), and Trajectory diagnostics (latency, retries, tokens, human attention) — where **acceptance = outcome + proof + architecture** and trajectory cost only *explains* the result; never blend them into one score. **(2) Pre-register the falsifying result** before running, alongside the expected effect. **(3) Apply the nine disqualifiers** that invalidate a run: treatment never retrieved or invoked; an out-of-band instruction/tool/authority/state difference; a single rollout treated as representative; token/line/activity counts standing in for outcomes; evaluator-only checks reported as worker proof; worker changed mid-comparison; grader needing an undisclosed reference implementation; a corpus agreeing with its own shadow authority; opaque targets. **(4) Separate calibration from measurement** — a case whose answer is already disclosed in-repo (or plausibly in training data) can tune fixtures and graders but **cannot support a capability claim**; that needs a held-out target with a documented exclusion scan. Directly addresses the failure the functional audit already found — skills claiming QE scores that don't exist — which is the corpus's `proof` thesis verbatim: *a green check proves only its own assertion*. Source: `[HE]` = the 2026-07-22 harness-engineering deep dive (`../DeepResearch/harness-engineering_deepdive/source-material/`, esp. `05-playbooks-and-evals.md` + `09-frontier-assessment.md` §1).
 
+**First slice landed (PR #87, 2026-10-25):** `skills/meta/skill-eval` wraps the first-party `claude plugin eval` (Claude Code ≥ 2.1.269). It runs each case with and without the skill, reports Δ, enforces a must-not-fire case, and requires a dollar cap. This covers efficacy (Δ) and a fired check per case. Still open from this pitch: generated trigger prompt sets, description A/B and a threshold gate (see DR-1, DR-4).
+
 ## F6 — `mock-from-contract` (contracts, M)
 
 Serve a runnable, schema-faithful mock server (deterministic seeded responses) from an authored OpenAPI/AsyncAPI contract, so consumer agents build against a live fake before the backend exists. Completes the owned pipeline: contract-author → mock → parallel build → contract-conformance-loop. Would be `contracts/`' first addition since v1.
@@ -57,6 +63,8 @@ Infer the semver bump from conventional commits, bump version fields everywhere 
 ## F9 — `autonomy-profile` (loops, M)
 
 Design the scoped permission allowlist + sandbox profile a given loop needs to run unattended: enumerate exact tools/paths, generate the settings block, verify a dry pass never prompts. All 13 loops currently hand-wave this inline; the single biggest unblock for the loops category's walk-away promise.
+
+**`[DR1]` note (2026-10-25):** DR-5 adds the L0–L3 autonomy levels to loop-controller. A project `verify` skill that Claude Code reportedly auto-runs before commits (claimed for v2.1.286+, not confirmed in the 2.1.310 binary) stays `[speculative]` here until the behaviour is confirmed.
 
 ## F10 — `mcp-server-author` (workflows, M/L)
 
