@@ -98,3 +98,20 @@ EOF
   [ "$status" -eq 2 ]
   [[ "$output" == *"--max-cost-usd"* ]]
 }
+
+@test "lint --all finds only skills with plugin-eval cases" {
+  ROOT="$BATS_TEST_TMPDIR/root"; mkdir -p "$ROOT"
+  mv "$SK" "$ROOT/"
+  mkdir -p "$ROOT/other/evals"
+  printf -- '---\nname: other\nversion: 0.1.0\ndescription: Other.\n---\n' > "$ROOT/other/SKILL.md"
+  echo '{"evals": []}' > "$ROOT/other/evals/evals.json"
+  run python3 "$SE" lint --all "$ROOT"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"0 skill(s)"* ]]
+  python3 "$SE" convert "$ROOT/demo-skill" --negative "what time is it in Tokyo"
+  rm -rf "$ROOT"/demo-skill/evals/02-*
+  run python3 "$SE" lint --all "$ROOT"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"1 skill(s)"* ]]
+  [[ "$output" != *"other:"* ]]
+}

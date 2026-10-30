@@ -264,9 +264,19 @@ def lint_case(case, name):
     return errs, warns, paid, negative
 
 
+def suites_under(root):
+    """Skill dirs under root that have plugin-eval cases (evals.json-only skills are skipped)."""
+    return sorted(os.path.dirname(p) for p in glob.glob(os.path.join(root, "**", "SKILL.md"), recursive=True)
+                  if "-workspace" not in p and case_dirs(os.path.dirname(p)))
+
+
 def cmd_lint(args):
     failed = False
-    for skill_dir in args.skills:
+    skills = args.skills
+    if getattr(args, "all", None):
+        skills = suites_under(args.all)
+        print(f"{len(skills)} skill(s) with plugin-eval cases under {args.all}")
+    for skill_dir in skills:
         name = skill_name(skill_dir)
         cases = case_dirs(skill_dir)
         print(f"{name}: {len(cases)} case(s)")
@@ -395,7 +405,8 @@ def main():
     c.add_argument("skill")
     c.add_argument("--negative", action="append", help="a near-miss prompt the skill must NOT fire on")
     l = sub.add_parser("lint", help="check suites, count cost (free)")
-    l.add_argument("skills", nargs="+")
+    l.add_argument("skills", nargs="*")
+    l.add_argument("--all", metavar="ROOT", help="lint every skill under ROOT that has plugin-eval cases (CI)")
     r = sub.add_parser("run", help="claude plugin eval with a required cost cap (paid)")
     r.add_argument("skill")
     r.add_argument("--max-cost-usd", type=float, required=True)
@@ -413,6 +424,8 @@ def main():
     p.add_argument("skill")
     p.add_argument("--json", action="store_true")
     args = ap.parse_args()
+    if args.mode == "lint" and not (args.skills or args.all):
+        ap.error("lint needs a skill directory or --all ROOT")
     return {"convert": cmd_convert, "lint": cmd_lint, "run": cmd_run, "report": cmd_report}[args.mode](args)
 
 
