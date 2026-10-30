@@ -1,10 +1,13 @@
 ---
 name: no-headers
-description: |
-  Apply no-headers when testing the openclaw fallback path for skills whose body contains no double-hash section headers, verifying the entire body goes to AGENTS.md and SOUL.md becomes a placeholder.
-risk: low
-source: alltheskills
-date_added: 'YYYY-MM-DD'
+description: Apply no-headers when testing the openclaw fallback path for skills whose
+  body contains no double-hash section headers, verifying the entire body goes to
+  AGENTS.md and SOUL.md becomes a placeholder.
+metadata:
+  psfs.version: 1.0.0
+  risk: low
+  source: alltheskills
+  date_added: 'YYYY-MM-DD'
 ---
 
 This fixture skill intentionally has no markdown level-two headers in its body. The openclaw converter should detect the absence of headers and put the entire body into AGENTS.md while writing only a single-line placeholder into SOUL.md of the form: # no-headers

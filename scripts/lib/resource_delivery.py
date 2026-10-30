@@ -228,8 +228,9 @@ def bundle(skill, tool_root, tool, category, slug):
         else:
             (root / 'SKILL.md').write_text(skill.read_text())
     # Standard companion roots export standard types, never native arrays.
-    # Antigravity's host-specific risk/source/date_added header is already scalar
-    # and must retain its established delivery contract, like native Claude.
+    # Antigravity's prompt is already a standard export (convert_antigravity runs
+    # standard_export.py, keeping risk/source/date_added in metadata), so it is
+    # not exported twice; native Claude keeps its original prompt.
     if tool not in ('claude-code', 'antigravity'):
         from standard_export import export
         (root / 'SKILL.md').write_text(export(skill.read_text()), encoding='utf-8')

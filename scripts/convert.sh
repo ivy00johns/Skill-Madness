@@ -286,7 +286,8 @@ convert_copilot() {
 
 # ---------------------------------------------------------------------------
 # Converter: antigravity
-# Generated frontmatter: name, description, risk, source, date_added.
+# Agent Skills export (standard_export.py); risk/source/date_added ride in
+# metadata — they come from the agency-agents integration, not Antigravity (DR-3).
 # ---------------------------------------------------------------------------
 convert_antigravity() {
   local file="$1" slug="$3"
@@ -307,13 +308,12 @@ convert_antigravity() {
     while IFS= read -r dline; do
       printf '  %s\n' "$dline"
     done <<< "$description"
-    printf 'risk: low\n'
-    printf 'source: alltheskills\n'
-    printf "date_added: '%s'\n" "$TODAY"
     printf -- '---\n'
     printf '%s\n' "$body"
   } > "$dest_file"
 
+  python3 "$LIB_DIR/standard_export.py" "$file" "$dest_file" \
+    --meta risk=low --meta source=alltheskills --meta "date_added=$TODAY"
   copy_references "$file" "$dest_dir"
   copy_scripts "$file" "$dest_dir"
 }

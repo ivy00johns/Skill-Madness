@@ -119,16 +119,21 @@ teardown_file() {
   [ -f "$OUTDIR/antigravity/minimal-agent/SKILL.md" ]
 }
 
-@test "antigravity: frontmatter contains 'risk: low'" {
-  grep -q "^risk: low" "$OUTDIR/antigravity/minimal-agent/SKILL.md"
+@test "antigravity: metadata contains 'risk: low'" {
+  grep -q "^  risk: low" "$OUTDIR/antigravity/minimal-agent/SKILL.md"
 }
 
-@test "antigravity: frontmatter contains 'source: alltheskills'" {
-  grep -q "^source: alltheskills" "$OUTDIR/antigravity/minimal-agent/SKILL.md"
+@test "antigravity: metadata contains 'source: alltheskills'" {
+  grep -q "^  source: alltheskills" "$OUTDIR/antigravity/minimal-agent/SKILL.md"
 }
 
-@test "antigravity: frontmatter contains 'date_added' with ISO-8601 date format" {
-  grep -qE "^date_added: '[0-9]{4}-[0-9]{2}-[0-9]{2}'" "$OUTDIR/antigravity/minimal-agent/SKILL.md"
+@test "antigravity: metadata contains 'date_added' with ISO-8601 date format" {
+  grep -qE "^  date_added: '[0-9]{4}-[0-9]{2}-[0-9]{2}'" "$OUTDIR/antigravity/minimal-agent/SKILL.md"
+}
+
+@test "antigravity: top-level frontmatter is Agent Skills core only (DR-3)" {
+  run python3 -c 'import sys,yaml; fm=yaml.safe_load(open(sys.argv[1]).read().split("---")[1]); bad=set(fm)-{"name","description","license","compatibility","metadata","allowed-tools"}; sys.exit(1 if bad else 0)' "$OUTDIR/antigravity/full-agent/SKILL.md"
+  [ "$status" -eq 0 ]
 }
 
 @test "antigravity: does NOT have 'version:' in frontmatter" {

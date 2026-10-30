@@ -46,11 +46,11 @@ setup_file() {
   # Normalize date_added in both antigravity outputs
   local f
   for f in $(find "$OUTDIR1/antigravity" -name "SKILL.md" -type f 2>/dev/null); do
-    sed -i.bak "s/^date_added: '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'$/date_added: 'NORMALIZED'/" "$f"
+    sed -i.bak "s/^\( *\)date_added: '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'$/\1date_added: 'NORMALIZED'/" "$f"
     rm -f "${f}.bak"
   done
   for f in $(find "$OUTDIR2/antigravity" -name "SKILL.md" -type f 2>/dev/null); do
-    sed -i.bak "s/^date_added: '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'$/date_added: 'NORMALIZED'/" "$f"
+    sed -i.bak "s/^\( *\)date_added: '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'$/\1date_added: 'NORMALIZED'/" "$f"
     rm -f "${f}.bak"
   done
 

@@ -1,10 +1,12 @@
 ---
 name: minimal-agent
-description: |
-  Apply minimal-agent when you need a baseline role skill with only required fields for testing convert and lint tools.
-risk: low
-source: alltheskills
-date_added: 'YYYY-MM-DD'
+description: Apply minimal-agent when you need a baseline role skill with only required
+  fields for testing convert and lint tools.
+metadata:
+  psfs.version: 1.0.0
+  risk: low
+  source: alltheskills
+  date_added: 'YYYY-MM-DD'
 ---
 
 ## Overview

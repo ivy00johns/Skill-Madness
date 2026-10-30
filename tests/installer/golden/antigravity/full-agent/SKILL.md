@@ -1,10 +1,20 @@
 ---
 name: full-agent
-description: |
-  Apply full-agent when you need a role skill with every documented frontmatter field populated, for testing field-stripping behavior across all 11 tools.
-risk: low
-source: alltheskills
-date_added: 'YYYY-MM-DD'
+description: Apply full-agent when you need a role skill with every documented frontmatter
+  field populated, for testing field-stripping behavior across all 11 tools.
+allowed-tools: Read Write Bash
+metadata:
+  psfs.version: 2.1.0
+  psfs.owns: '{"directories": ["tests/installer/fixtures/output/"], "patterns": ["*.fixture"],
+    "shared_read": ["contracts/", "tests/"]}'
+  psfs.composes_with: '["minimal-agent"]'
+  psfs.spawned_by: '["minimal-agent"]'
+  psfs.requires_agent_teams: 'false'
+  psfs.requires_claude_code: 'false'
+  psfs.min_plan: starter
+  risk: low
+  source: alltheskills
+  date_added: 'YYYY-MM-DD'
 ---
 
 ## Identity
