@@ -35,3 +35,6 @@ audit/
 
 # Local runtime state (live sqlite + worktrees) — never committed
 .freebuff/
+
+# claude plugin eval run output (reports, traces, aggregate-result.json)
+skills/**/evals/results/
