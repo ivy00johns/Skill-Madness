@@ -1,12 +1,13 @@
 ---
 name: fix-until-green
-version: 1.0.1
+version: 1.0.2
 description: >-
   Drive a failing build to passing: run the full gate (tests, lint, typecheck),
-  fix one root cause, re-run everything, until all three exit clean. Hard
-  iteration cap, no-progress detection, no cheating the gate. Use when tests or
-  CI are red, or as the QE inner loop. Trigger on "fix until green", "make the
-  tests pass", "get CI green", "loop until tests pass".
+  fix one root cause, re-run everything, until all three exit clean. Hard cap,
+  no-progress detection, no cheating the gate. Use when asked to drive red tests
+  or CI green, or as the QE inner loop; not merely because a test failed.
+  Trigger on "fix until green", "make the tests pass", "get CI green", "loop
+  until tests pass".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true
@@ -24,8 +25,8 @@ spawned_by: ["orchestrator"]
 > that keeps the loop from cheating its way there. Read `loop-controller` for the
 > guardrails; they're inherited, not repeated here.
 >
-> **Why `disable-model-invocation`:** this loop edits and commits code on its own
-> until a gate passes. You want to *type* `/fix-until-green` (or have the
+> **Why `disable-model-invocation`:** this loop edits code on its own until a
+> gate passes. You want to *type* `/fix-until-green` (or have the
 > orchestrator dispatch it) — not have Claude start an autonomous edit loop
 > because a test happened to fail.
 
@@ -56,8 +57,9 @@ absence must be confirmed, not guessed.
 
 Find the three commands for *this* project before looping. Precedence:
 
-1. **`.claude/profile.yaml`** if present — it may declare `test` / `lint` /
-   `typecheck` explicitly. Use those verbatim.
+1. **`.claude/profile.yaml`** if present — use `ci_cd.test_command` and
+   `ci_cd.lint_command` verbatim. The profile has no typecheck key; resolve that
+   one from step 2 or 3.
 2. **Declared scripts** — `package.json` `scripts`, `Makefile` targets,
    `pyproject.toml` / `tox.ini`, `Cargo.toml`, `go.mod`, `composer.json`. Prefer
    the project's own named script (`npm run test`, `make check`) over a raw tool
@@ -96,9 +98,10 @@ that greens the failing test but reds typecheck has made the gate worse, and onl
 a full re-run catches it. This is the "restart the streak" rule: the proof is
 about the *whole*, re-checked after every change.
 
-On a green-ward step (strictly fewer failures, nothing new broken), **commit a
-checkpoint** with a message naming the root cause fixed — the git trail is the
-loop's undo and its post-mortem. When all three exit 0 together, the loop is
+On a green-ward step (strictly fewer failures, nothing new broken), checkpoint
+it: when the owner has authorized commits, commit with a message naming the root
+cause fixed; otherwise record the diff and the gate output in `fix_plan.md`. That
+trail is the loop's undo and its post-mortem. When all three exit 0 together, the loop is
 done; report the final gate output as evidence.
 
 ## Guardrails specific to this loop
@@ -106,7 +109,7 @@ done; report the final gate output as evidence.
 Inherits the full stack from `loop-controller` → `references/safety.md`. The
 caps this loop sets:
 
-- **Iteration cap** — default ~15–25 (read from `.claude/profile.yaml` if set).
+- **Iteration cap** — default ~15–25, unless the invocation sets one.
   Hitting the cap is a *stop-and-escalate*, not a license to weaken the gate.
 - **No-progress detection** — if the **same set of failures** survives **3
   consecutive iterations**, stop and escalate. The same failure three times means
@@ -141,7 +144,7 @@ Per `loop-controller` Step 1, by how you're running it:
 - **Default — `/goal`:** the proof is provable from command output, so
   `/goal "the test, lint, and typecheck commands for this project all exit 0 in
   the same run, with no test removed or weakened — or stop after N turns."` The
-  Haiku evaluator reads the gate output you surface each turn. Remember the
+  `/goal` evaluator reads the gate output you surface each turn. Remember the
   embedded turn cap — `/goal` has no native budget.
 - **Stop-hook gate** when you want the check to ship *with* the build and block
   exit deterministically (the orchestrator wave gate, a per-skill gate other role

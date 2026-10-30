@@ -20,7 +20,7 @@ Source: Anthropic Agent Skills guide (Reference A, p.30) + this repo's PSFS v1.1
 - [ ] `name` does not start with `claude-` or `anthropic-` — unless the skill explicitly targets that Anthropic product (document the exception in the body)
 - [ ] `version` is valid semver starting at `1.0.0`
 - [ ] `description` is present and uses the 3-slot anatomy: `[What] + [When] + [Key capabilities or keyword variants]`
-- [ ] `description` target ≤200 chars; hard ceiling 1024 chars; never exceeds it
+- [ ] `description` target ≤400 chars; hard ceiling 1024 chars; never exceeds it
 - [ ] `description` starts with an action verb
 - [ ] `description` contains at least one trigger context (`when`, `for`, `whenever`, or a sample phrase users would say)
 - [ ] No `<` or `>` anywhere in frontmatter values (security rule — frontmatter is injected into the system prompt)

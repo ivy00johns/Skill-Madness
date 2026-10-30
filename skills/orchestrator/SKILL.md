@@ -1,6 +1,6 @@
 ---
 name: orchestrator
-version: 1.23.2
+version: 1.23.3
 description: >-
   Coordinate multi-agent builds end to end: read the plan or MISSION.md, design
   contracts, dispatch role agents in parallel, gate on QA, ship. Sequential on
@@ -32,7 +32,7 @@ composes_with: [
   "contract-author", "contract-auditor", "dependency-coordinator",
   "context-manager", "deployment-checklist", "code-review-agent", "project-profiler",
   "mermaid-charts", "playwright",
-  "claude-design-brief", "ui-brief", "frontend-design:frontend-design", "ui-ux-pro-max", "ux-review", "render-sanity", "design-token-guard",
+  "claude-design-brief", "ui-brief", "frontend-design:frontend-design", "ui-ux-pro-max", "ux-review", "render-sanity", "design-token-guard", "class-extraction-guard",
   "nano-banana", "claude-api", "feature-dev:feature-dev",
   "git-commit", "git-pr", "git-pr-feedback", "git-post-merge-cleanup",
   "claude-mem:mem-search", "claude-mem:timeline-report", "claude-mem:knowledge-agent",
@@ -64,7 +64,7 @@ The orchestrator is the conductor — not the only player. It composes with thre
 
 - **INVOKES at the right phase:** `nano-banana` (seed imagery), `ui-ux-pro-max` + `frontend-design` (UI quality), `ux-review` + `render-sanity` (post-build *render*-level validation), `design-token-guard` (post-build *source*-level gate — no inline styles / hardcoded colors bypassing tokens), `class-extraction-guard` (post-build *source*-level *organization* gate — repeated utility-class soup extracted into named classes), `repo-deep-dive` (reference research), `llm-wiki` (project knowledge base), `mermaid-charts` (architecture diagrams), `deployment-checklist` (ship readiness).
 - **DISPATCHES role-agents in parallel:** `backend-agent`, `frontend-agent`, `infrastructure-agent`, `db-migration-agent`, `security-agent`, `observability-agent`, `performance-agent`, `docs-agent`, `qe-agent`.
-- **DELEGATES diff/code review to the external `/code-review` CLI:** during a build, the Phase 4 diff review pass is the external `/code-review` CLI, NOT a spawned `code-review-agent`. The in-repo `code-review-agent` skill is not a default build phase — invoke it only deliberately for a standalone, repo-aware review. See `references/mission-interpretation.md`.
+- **DELEGATES diff/code review to the external `/code-review` CLI:** during a build, the verify-phase diff review pass is the external `/code-review` CLI, NOT a spawned `code-review-agent`. The in-repo `code-review-agent` skill is not a default build phase — invoke it only deliberately for a standalone, repo-aware review. See `references/mission-interpretation.md`.
 - **DOES NOT preempt:** `brainstorming`, `plan-builder`, `writing-plans`, `claude-design-brief`, `ui-brief`, `feature-dev`, `claude-mem:*`. If any of these belong before the build starts, let them run first — orchestrator picks up from the artifacts they produce.
 - **RUNS the validation phases AS LOOPS (not one-shot checks)** — the canonical loop-harness mapping: the wave gate and the QA gate are convergence loops. `fix-until-green` is the contract for driving install/typecheck/test/QA red→green *without cheating the gate* — the QE inner loop and the wave-gate driver; `loop-controller` is the underlying harness (iterate → evaluate → guardrail → stop) whose no-progress/oscillation guardrail *is* the 3-failure circuit breaker and whose iteration/budget caps bound wave-gate retries. Under native Agent Teams, `orchestrator-task-loop` drives the whole-task-list OUTER loop (drain the shared task list until every task is completed + passing its `TaskCompleted` gate, feeding idle workers via `TeammateIdle`), with `fix-until-green` as each task's INNER loop. All three are `disable-model-invocation: true` — you **explicitly dispatch** them; they never auto-trigger because a test happened to fail. See `skills/loops/`.
 - **DISPATCHES four more build loops when the mission calls for them:** `contract-conformance-loop` (build-until-spec, graded by a fresh-context evaluator), `coverage-loop` (a test-coverage target), `perf-loop` (a performance budget), and `migration-loop` (an enumerated wide-refactor set). All four are `loop-controller` configs and `disable-model-invocation: true` — the **mission text** is their trigger, and you are their dispatcher. Dispatch table: `references/phase-guide.md` (Phase 13's *Optional build loops*).
@@ -150,10 +150,9 @@ runtime; only this orchestrator skill needs the full decision tree.
 
 **Model defaults don't change this gate.** The dynamic-workflows *feature* ships enabled by
 default on most plans, but *automatic* workflow orchestration happens only under `/effort
-ultracode` (session-only; resets every new session). "The session model is Fable 5" is NOT an
+ultracode` (session-only; resets every new session). Which model the session runs is not an
 opt-in signal — wait for the ultracode system-reminder or an explicit ask. The prompt trigger
-keyword is `ultracode` (renamed from `workflow` in v2.1.160); a natural-language "use a
-workflow" counts as the same opt-in in any version.
+keyword is `ultracode`; a natural-language "use a workflow" counts as the same opt-in.
 
 **Model and effort are per-role dials, not only the ultracode gate.** Every dispatch takes
 both a `model` and an `effort` — set them to the *work*, not one global level, per the tiering
@@ -198,7 +197,7 @@ Directory ownership takes precedence over pattern ownership. Subdirectory carve-
 
 - **Native parallel modes: never implement code yourself** — coordination only. Sequential mode permits only the approved BUILD_SLICE role packet.
 - **All inter-agent communication goes through you**
-- **Async, long-lived subagents where the build allows (Claude 5 family).** "Communication
+- **Async, long-lived subagents where the build allows.** "Communication
   goes through you" governs *contract and shared-file changes* — it is not a mandate to block
   on every subagent reply. Prefer launching independent work and continuing, and long-lived
   subagents over one-shot spawns (in Workflow mode: `pipeline()` over a barrier wherever a
@@ -292,7 +291,7 @@ ALL must be true:
 4. **Reality gate — the real value path runs, not just a mock** (the canonical statement). If the product's value depends on a live backend, a real service, an integration, or real data, at least **one real end-to-end path must be exercised and observed**: a real call that returns and renders, real data flowing through the UI, traffic visible in the dependency's own dashboard. Mocks are the right way to *build* — but a green mock-backed suite proves the *mocked* build is internally consistent, **not that the product works**; every other gate in this list measures presentation or internal consistency, and a fixture-backed shell greens all of them. A build that never touches the real path is **"scaffold complete — NOT done,"** and that status is the **headline** of the end-state report (item 17), never a deferred footnote. If the mission *explicitly* scoped the backend out, say so loudly: this build is a shell with its own DoD — don't let a green shell read as a finished product. (See `loop-controller` Step 2, *measure the goal, not a stand-in*.)
 5. End-to-end validation passed (startup, happy path, edge cases) — **and the happy path is verified against the real value path at least once, not only the mock.** The mock proves the wiring; the real call proves the product.
 6. All integration issues fixed and re-validated
-7. Plan's acceptance criteria met — **every numbered step in the user's mission/plan is ticked** with either a "done" or a written reason for deferring. The build isn't done because you're tired; it's done because the user's list is closed out.
+7. Plan's acceptance criteria met — **every numbered step in the user's mission/plan is ticked** with either a "done" or a written reason for deferring.
 8. **Mission skill manifest closed out** — `coordination/MISSION_SKILLS.md` exists and shows every skill the mission explicitly named, each with either ✅ (invoked) or a one-line reason for skipping. A mission that names `nano-banana`, `ui-ux-pro-max`, `frontend-design`, `ux-review`, `repo-deep-dive`, etc. and gets a build with none of them invoked is a regression, not a deliverable.
 9. **Visual assets exist for UI builds** — if the project has a UI, real seed imagery exists in `assets/` or `web/public/` (generated via `nano-banana` or sourced via another path). The bar is "looks like a product"; "stub URL placeholders" doesn't meet it.
 10. **Post-build UX review passed for UI builds** — `ux-review` invoked (or equivalent non-headless Playwright + screenshots pass), and the issues it surfaces are fixed or recorded.
@@ -310,7 +309,7 @@ ALL must be true:
 
 - **`references/mission-interpretation.md`** — how to read a multi-phase mission/plan as a script you EXECUTE, including the skill-trigger heuristic (when each composable skill earns its keep) and the `MISSION_SKILLS.md` template.
 - **`references/workflow-orchestration.md`** — Workflow mode (ultracode / "workflow"): the phase→workflow map, role-agents-as-workflow-agents, implement + verify script skeletons with schemas, adversarial QA verification, and the caveats that bite. Read before authoring any Workflow script.
-- **`references/phase-guide.md`** — the full 14-phase build playbook (Phase 0 external-services audit through Phase 13 handoff).
+- **`references/phase-guide.md`** — the full 14-phase build playbook (Phase 0 external-services audit through Phase 14 post-build).
 - **`references/team-sizing.md`** — how to size the agent team to the work; thresholds and starter formulas.
 - **`references/file-ownership.md`** — canonical agent-to-directory ownership map and contract-first architecture overview.
 - **`references/agent-spawning.md`** — the agent prompt template, the ~60-line split gate, the pre-dispatch checklist, AFK/HITL classification, spawn permissions, and a worked backend-agent example.

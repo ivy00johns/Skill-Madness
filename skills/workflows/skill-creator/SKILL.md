@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-version: 1.4.1
+version: 1.4.2
 description: >-
   Create, edit and measure skills with Hermes Agent or Freebuff (Codebuff
   engine, any OpenAI-compatible endpoint): trigger evals with isolated snapshots
@@ -88,7 +88,7 @@ Research in parallel via subagents if needed — come prepared with context to r
 Based on the user interview, fill in these components:
 
 - **name**: Skill identifier (kebab-case, max 64 chars)
-- **description**: When to trigger, what it does. This is the primary triggering mechanism — include both what the skill does AND specific contexts for when to use it. All "when to use" info goes here, not in the body. Make descriptions "pushy" — enumerate contexts where the skill should activate. Stay under 1024 characters.
+- **description**: When to trigger, what it does. This is the primary triggering mechanism — include both what the skill does AND specific contexts for when to use it. All "when to use" info goes here, not in the body. Make it specific: a few phrases users really say beat an exhaustive list, because hosts budget the skill listing and cut long descriptions. Aim for ≤400 characters; never exceed 1024.
 - **version**: Start at 1.0.0
 - **allowed-tools**: Tools the skill needs
 - **the rest of the skill :)**

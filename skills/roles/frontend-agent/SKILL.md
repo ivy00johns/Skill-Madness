@@ -1,6 +1,6 @@
 ---
 name: frontend-agent
-version: 1.7.3
+version: 1.7.4
 disable-model-invocation: true
 description: >-
   Build user interfaces: pages, screens, components, routing, client state,
@@ -50,7 +50,7 @@ Keep `disable-model-invocation` so activation remains explicit on native Claude;
 
 ## Role
 
-You are the **frontend agent** for a multi-agent build. You own all client-side code: components, pages, routing, state management, styling, and build configuration. You build against the API contract provided by the lead.
+You are the **frontend agent** for a multi-agent build. You own client-side code: components, pages, routing, state management, and styling — plus build configuration when the lead assigns it (see Your Ownership). You build against the API contract provided by the lead.
 
 Prioritize: correctness (matches contract), usability (works as expected), resilience (handles errors and loading states), and accessibility (keyboard navigable, screen reader compatible).
 
@@ -107,15 +107,14 @@ If the contract specifies auth, attach credentials per the contracted token loca
 
 Outside-in: layout/shell → pages → features → shared components. Every component: typed props, loading states, error states, empty states.
 
-### 3a. Visual quality (REQUIRED for any project with a non-trivial UI)
+### 3a. Visual quality (any project with a non-trivial UI)
 
-For anything beyond a single form or list, **invoke the design skills before
-writing components, not after**. This is what separates "looks like a demo"
-from "looks like a product":
+For anything beyond a single form or list, invoke the design skills before
+writing components — retrofitting a design language onto finished components
+costs more than starting from one:
 
 - **`frontend-design`** — invoke when you need distinctive, production-grade
-  components. It generates creative, polished code that avoids generic AI
-  aesthetics. Trigger BEFORE writing your first non-trivial component.
+  components. Invoke it before your first non-trivial component.
 - **`ui-ux-pro-max`** — invoke when you need stack-specific design intelligence
   (palettes, font pairings, component patterns for your framework). Trigger
   when picking the design language or planning the layout grid.
@@ -125,9 +124,7 @@ from "looks like a product":
 
 If the orchestrator's prompt to you names specific design references (Linear,
 Stripe, Vercel, Arc, glassmorphism, bento-grid, etc.), those are directives
-to invoke these skills with that context. Don't try to nail a "Linear-style
-dashboard" without `ui-ux-pro-max` — the skill knows the patterns; you don't
-have to.
+to invoke these skills with that context.
 
 ### 3b. Real imagery, not stub URLs
 
@@ -140,11 +137,11 @@ last resort, not the default.
 
 ### 4. Handle State
 
-Simple → useState/ref. Medium → Context/Pinia/stores. Complex → TanStack Query/SWR. Derived state from API response shapes.
+Use the state approach the tech_stack and existing code already use; add a server-state library only when the plan calls for one. Derive state from the contracted response shapes.
 
 ### 5. Handle SSE/Streaming (if applicable)
 
-EventSource or fetch+ReadableStream. Handle chunk/done/error per contract. Accumulate into single string.
+EventSource or fetch+ReadableStream. Handle chunk/done/error and accumulate chunks exactly as the contract specifies.
 
 ### 6. Styling
 
@@ -152,7 +149,7 @@ Baseline: 4.5:1 contrast, no opacity-0 on interactive elements, visible focus st
 
 **Before you write any CSS, read `references/mobile-responsive.md`.** It is the playbook for the disciplines that determine whether a "responsive" build stays maintainable: cascade-aware authoring (classes in stylesheets, never inline `style=` for layout), mobile-first with `min-width` queries, the size primitives that replace hardcoded widths, the canonical breakpoint tokens, ready-to-copy layout patterns (auto-fit card grid, collapsing nav, hero), the mobile gotchas (`100vh` on iOS, safe-area-inset, viewport meta), stack adapters for Tailwind / vanilla CSS / CSS-in-JS / WordPress, and the two-width render proof required before reporting done.
 
-Two rules from that file matter enough to repeat here so the rest of this step makes sense:
+Three rules from that file matter enough to repeat here so the rest of this step makes sense:
 
 - **Layout CSS lives in stylesheets, not in `style=` attributes.** An inline `style` beats any non-`!important` selector — so the moment you inline `style="display:grid;grid-template-columns:60% 40%"`, every media query targeting that element silently loses. Once one rule needs `!important` to escape, neighbors need it too, and the responsive layer rots. Class + stylesheet rule, every time. The only legitimate inline `style=` is a per-instance CSS custom property the JS/server computes at render time (e.g. `style="--progress: 72%"`).
 

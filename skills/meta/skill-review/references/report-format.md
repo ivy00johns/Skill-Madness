@@ -55,7 +55,7 @@ Skills scanned: [count]
 |------------|-----------------|-------------|
 
 ## Coverage Gaps
-[Capabilities referenced in `docs/architecture.md`, `CLAUDE.md`, or orchestrator phase-guide that no existing skill covers]
+[Capabilities referenced in `CLAUDE.md`, the orchestrator's `references/file-ownership.md`, or the orchestrator phase-guide that no existing skill covers]
 
 ## Recommendations
 [Top 5 highest-impact improvements, ordered by priority. For each, name the skill(s) involved and the suggested action.]
@@ -145,7 +145,7 @@ Why-now: [optional — the user-supplied context]
       {"type": "broken_composes_with", "from": "skill-a", "to": "skill-b"}
     ],
     "coverage_gaps": [
-      {"capability": "string", "source": "docs/architecture.md"}
+      {"capability": "string", "source": "CLAUDE.md"}
     ]
   },
   "single": {

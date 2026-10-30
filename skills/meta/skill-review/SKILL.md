@@ -1,6 +1,6 @@
 ---
 name: skill-review
-version: 1.3.1
+version: 1.4.0
 argument-hint: skill-name or 'all'
 description: >-
   Audit skills for quality, consistency and triggering: 'all' for an ecosystem
@@ -16,7 +16,7 @@ owns:
   patterns: []
   shared_read: ["skills/"]
 allowed-tools: ["Read", "Glob", "Grep", "Bash", "Write"]
-composes_with: ["skill-update", "skill-writer", "skill-creator:skill-creator", "model-adaptation"]
+composes_with: ["skill-update", "skill-writer", "skill-creator:skill-creator", "model-adaptation", "skill-triage", "skill-eval"]
 spawned_by: []
 ---
 
@@ -65,15 +65,15 @@ Optimize for speed. Score quickly, flag issues, move on. Use subagents to parall
 
 Run these check categories. Full checklist lives in `references/audit-checklist.md`.
 
-- **Frontmatter consistency** — required fields present, name matches directory, version is valid semver, description starts with action verb and is ≤200 chars
+- **Frontmatter consistency** — required fields present, name matches directory, version is valid semver, description starts with action verb and is ≤400 chars (the host's skill listing is budgeted; over it, descriptions are cut to the bare name)
 - **Spec compliance (FAIL)** — no `<` or `>` in frontmatter field values (security rule); description ≤1024 chars (hard ceiling)
 - **Spec compliance (WARN)** — reserved-prefix name (`claude-*` / `anthropic-*`). Acceptable as a documented exception when the skill targets the corresponding Anthropic product. Verify the documented exception exists in the skill body.
 - **Tool field naming** — `allowed-tools` (hyphen) is canonical; `allowed_tools` (underscore) accepted as deprecated alias (warn but don't fail)
 - **Ownership conflict detection** — collect every `owns.directories` and `owns.patterns` across agent roles. Flag overlaps. Validate against the v1.1 resolved conflicts table in `frontmatter-spec.md`
-- **Description quality scoring** — has action verb, ≥3 trigger contexts, keyword variants, states exclusions if ambiguous, estimated "pushiness" (low/medium/high)
+- **Description quality scoring** — has action verb, ≥3 trigger contexts, keyword variants, states exclusions if ambiguous, specific enough to beat its neighbors (a few phrases users really say, not an exhaustive list)
 - **Progressive disclosure** — SKILL.md body line + word count, references linked from body, body >5,000 words OR >500 lines flagged (soft warning), references >300 lines without TOC flagged
 - **Cross-skill consistency** — `composes_with` and `spawned_by` point to real skills, no circular `composes_with` chains, no orphan reference files
-- **Coverage gaps** — compare inventory against `docs/architecture.md`, `CLAUDE.md`, and the orchestrator's File Ownership Map; flag roles or workflows referenced but not implemented
+- **Coverage gaps** — compare inventory against `CLAUDE.md` and the orchestrator's File Ownership Map (`skills/orchestrator/references/file-ownership.md`); flag roles or workflows referenced but not implemented
 
 #### A3. Triage
 
@@ -88,7 +88,7 @@ Take time. Read every file in the skill's directory tree. Score each rubric dime
 Read `SKILL.md` and every file in `references/`. Score these dimensions against `references/deep-review-rubric.md`:
 
 1. **Frontmatter compliance** — required fields, types, semver, optional fields used appropriately
-2. **Description quality** — action verb, trigger contexts, keyword variants, length, "pushiness"
+2. **Description quality** — action verb, trigger contexts, keyword variants, length (≤400 chars), specificity against neighboring skills
 3. **Progressive disclosure** — body ≤5,000 words (soft warning past 500 lines), references used appropriately, clear pointers
 4. **Instruction clarity** — imperative voice, logical flow, no ambiguity, explains "why" not just "what"
 5. **Coordination** — ownership declarations, `composes_with` accuracy, no overlaps
@@ -99,14 +99,14 @@ Read `SKILL.md` and every file in `references/`. Score these dimensions against 
 
 First, check the skill carries a **triggering test** — at least one example phrasing that must activate it (ideally one near-miss that must not). Flag its absence as an issue. Then verify it actually holds.
 
-If `/skill-creator` is available, use its eval infrastructure to test whether the skill actually triggers:
+Test whether the skill actually triggers with `skill-triage` (routing accuracy against labeled cases, and which neighbors steal its trigger phrases); fall back to `/skill-creator`'s description-optimization tooling if skill-triage isn't available. Both make paid model calls — estimate the cost and confirm before running.
 
 1. Generate 3–5 realistic prompts that **should** trigger this skill
 2. Generate 2–3 near-miss prompts that should **not** trigger it
-3. Run trigger evaluation via skill-creator's description optimization tooling
+3. Run them as labeled routing cases
 4. Report should-trigger hit rate and false-positive rate. List any problem triggers.
 
-If `/skill-creator` is unavailable, skip this phase and note it in the report.
+If neither tool is available, or the cost isn't approved, skip this phase and note it in the report.
 
 #### B3. Output Quality Sampling
 
@@ -117,7 +117,7 @@ For skills that produce structured output (reports, files, configs):
 3. Compare actual output against the skill's stated format
 4. Note gaps between promised and actual output
 
-Optionally (recommended for non-trivial skills), run one prompt with and without the skill and compare — if the skill doesn't measurably improve the output, flag that it may not earn its context cost.
+Optionally (recommended for non-trivial skills), measure the with/without delta with `skill-eval` (it requires a spend cap) — if the skill doesn't measurably improve the output, flag that it may not earn its context cost.
 
 ### Phase 4: Report
 
@@ -148,7 +148,7 @@ The report is designed to feed directly into **skill-update**, which consumes th
 ## Data source
 
 Before recommending changes, consult real usage signal: run
-`scripts/skill-health.sh report --json` (P2-C skill-health telemetry). It returns
+`scripts/skill-health.sh report --json`. It returns
 per-skill total invocations, 7-day/30-day success rates, a `declining` flag, and
 version drift (recorded vs current `SKILL.md` frontmatter `version`). The math is
 deterministic in code, never a prompt. Treat the signal as coarse and

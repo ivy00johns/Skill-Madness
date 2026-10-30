@@ -14,7 +14,7 @@ For every SKILL.md modified in the pass:
 - [ ] No `<` or `>` anywhere in the frontmatter block (security rule)
 - [ ] `version` is valid semver — bump MINOR for new behavior, PATCH for fixes, MAJOR for breaks
 - [ ] `description` includes at least one action verb and one trigger phrase
-- [ ] `description` target ≤200 chars per the spec — flag overflow but don't block. Hard ceiling 1024 chars — block if exceeded.
+- [ ] `description` target ≤400 chars per the spec — flag overflow but don't block. Hard ceiling 1024 chars — block if exceeded.
 - [ ] `compatibility` string (1-500 chars) present for skills with host/tool/env requirements
 - [ ] `requires_agent_teams` and `requires_claude_code` are booleans
 - [ ] `min_plan` is one of `starter | pro | team | enterprise`

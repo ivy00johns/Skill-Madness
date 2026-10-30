@@ -1,6 +1,6 @@
 ---
 name: loop-controller
-version: 1.6.1
+version: 1.6.2
 description: >-
   The harness every loop skill builds on: a verifiable stop condition, the
   mandatory guardrails (iteration cap, enforced budget, no-progress detection),
@@ -289,7 +289,7 @@ convention; loops follow it.)
 ## Step 6 — Long-run behavioral hygiene (Claude 5 family)
 
 Steps 1–5 make the loop *converge*. This step keeps the **model's behavior** honest over
-a long run on the Claude 5 family (Fable 5 / Mythos 5), where a single turn can run for
+a long run on the Claude 5 family, where a single turn can run for
 minutes and an autonomous run for hours. These are prompt-level additions to the loop's
 brief — the harness enforces convergence; these keep the agent from lying, quitting early,
 or panicking about context on the way there. Drop-in instruction text and the 5-part
@@ -304,14 +304,15 @@ loop needs:
   no tool call, or pause to ask when it already has enough. `/goal` + Stop-hooks catch this
   mechanically (Step 1); add the prompt-level last-paragraph self-check and, for unattended
   runs, the autonomous-operation reminder so the agent doesn't lean on the hook.
-- **Don't surface the budget countdown to the model.** Guardrail 2 watches `/cost` for
-  *enforcement* — but that number is a **harness** stop signal, not something to show the
+- **Don't surface the budget countdown to the model.** Guardrail 2's budget is a
+  **harness** stop signal, enforced outside the model — not something to show the
   model. Seeing a remaining-token countdown makes the Claude 5 family prematurely summarize,
   offer to hand off, or trim its own work. Read the budget from externalized state (Step 4)
   and decide in the harness; if a count must be visible, add the "you have ample context,
   continue" reassurance.
 - **Model & effort per iteration.** Effort is the primary intelligence/latency/cost dial: `high`
   default, `xhigh` for the hardest proof/verify steps, `medium`/`low` for routine passes.
+  Set it explicitly per iteration rather than relying on the API default.
   Lower effort on the Claude 5 family often beats `xhigh` on prior models — reduce it if a
   loop converges but each iteration runs longer than the work needs. Model tiers the same
   way — pick both per `model-adaptation`'s *Model & effort tiering* policy: workers and
@@ -319,7 +320,8 @@ loop needs:
 - **Send-to-user for verbatim mid-turn output.** A loop otherwise only speaks by *ending*
   its turn for HITL. For long async loops that must surface a deliverable or a direct answer
   *without* stopping, give the agent a client-side `send_to_user` tool plus the elicitation
-  line — never route the model's reasoning through it (that's the `reasoning_extraction`
+  line, declared from the loop's first request (changing the tool list mid-run invalidates
+  the prompt cache) — never route the model's reasoning through it (that's the `reasoning_extraction`
   refusal landmine; see `model-adaptation`).
 
 The fresh-context evaluator (Step 2) is itself one of these patterns — the guide's

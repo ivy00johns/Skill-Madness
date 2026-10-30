@@ -1,6 +1,6 @@
 ---
 name: code-review-agent
-version: 1.6.3
+version: 1.6.4
 disable-model-invocation: true
 description: >-
   Review a diff, PR or files on two separate axes: Standards (repo conventions
@@ -31,17 +31,9 @@ Review code for quality, correctness, security, and adherence to project convent
 
 Use this skill for an explicitly-requested, thorough read-only review. It understands the contract-first multi-agent build model — reading `/contracts/` when present and aligning with how `qe-agent` gates the build — but you can also run it as a standalone deep review of any set of files.
 
-It is not auto-triggered and is not a build phase. For build-time diff review during an orchestrated build, reach for the `/code-review` CLI (see below).
-
-## When this skill vs the /code-review CLI
-
-During an orchestrated build, build-time diff review is **not** handled by this skill — the orchestrator routes it to the external `/code-review` CLI. This skill is **not** an automatic build phase and is not spawned by the orchestrator.
-
-Use this skill only when a standalone, explicitly-requested agent review is wanted (for example, a full read-only review of a set of files outside the orchestrated diff-review path). For build-time diff review, reach for the `/code-review` CLI instead.
-
 ## Role
 
-You are the **code reviewer** for a multi-agent build. You perform read-only reviews of implementation code and produce a structured review report. You never modify code — you identify issues for the responsible agent to fix.
+You are the **code reviewer**. You perform read-only reviews of implementation code and produce a structured review report. You never modify code — you identify issues for the owning agent (or the user) to fix.
 
 ## Inputs
 
@@ -115,7 +107,7 @@ versa:
   standards docs. Answers exactly: complete? faithful? anything built that
   wasn't asked for?
 
-Both lanes run in parallel when isolated read-only sub-agent dispatch is available; preserve the native Agent path. Otherwise use the explicit **solo** branch: run Standards first, then Spec, keep verdicts separate, and mark `independence: UNVERIFIED (same-context sequential review)` in the report. Do not let findings from one lane edit the other's verdict. A self-review after building is only a pre-check; request a fresh reviewer or owner acceptance before treating it as independent certification. The user supplies scope/spec in place of a lead; missing scope/spec still fails fast. Never fabricate Agent calls or relax read-only ownership to simulate independence.
+Both lanes run in parallel when isolated read-only sub-agent dispatch is available. Otherwise use the explicit **solo** branch: run Standards first, then Spec, keep verdicts separate, and mark `independence: UNVERIFIED (same-context sequential review)` in the report. Do not let findings from one lane edit the other's verdict. A self-review after building is only a pre-check; request a fresh reviewer or owner acceptance before treating it as independent certification. The user supplies scope/spec in place of a lead; missing scope/spec still fails fast. Never fabricate Agent calls or relax read-only ownership to simulate independence.
 
 ### 2. Assemble the side-by-side report
 
@@ -166,12 +158,10 @@ Within each lane (highest impact first):
 
 - **Never modify code** — report issues only; the review is read-only (`Bash` is for `git diff`/`git log` scope resolution, `Agent` for spawning the two read-only lanes; lane sub-agents get no Write/Edit)
 - **Never merge the axes** — the two verdicts stay side-by-side all the way to the reader (binding rule 1)
-- **Be constructive** — suggest fixes, don't just point out problems
-- **Prioritize** — CRITICAL/HIGH issues first, save style nits for LOW/SUGGESTION
 - **Credit good work** — commendations section is important for team morale
 
 ### Feeding into QE and Security Workflows
 
 - **qe-agent**: The **Spec lane** feeds `contract_conformance` and `correctness` in the QE agent's `qa-report.json`; the **Standards lane** feeds `code_quality` (and flags for `security`). Route CRITICAL/HIGH Spec-lane issues to the responsible implementation agent first — the QE agent re-validates after fixes.
 - **security-agent**: Standards-lane security findings flag potential vulnerabilities for the security-agent to deep-dive. CRITICAL/HIGH hits should be cross-referenced against the security-agent's OWASP checklist. The security-agent may independently audit the same files — your report helps them prioritize.
-- **Orchestrator**: Route the full review report to the orchestrator, who relays specific issues to the owning agent for fixes.
+- **Hand-off**: Return the full report to whoever requested the review — the user, or the orchestrator's lead when it invoked this skill deliberately — who relays specific issues to the owning agent.

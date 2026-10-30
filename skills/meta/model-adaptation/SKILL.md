@@ -1,6 +1,6 @@
 ---
 name: model-adaptation
-version: 1.7.3
+version: 1.7.4
 description: >-
   Adapt a prompt, skill, brief or agent scaffold when the model or host changes
   (new Claude version, DeepSeek, GPT, Gemini, Freebuff, unknown runtime): what
@@ -119,14 +119,14 @@ Depth lives in the two reference files; this is the map.
 |---|---|---|---|
 | **Prune over-prescription** | Prior-model prescription degrades Claude 5 output | On migration, delete enumerations/rigid templates the model no longer needs; keep the *why*, drop the MUSTs | `skill-review` anti-pattern checklist (*"Excessive MUST/NEVER/ALWAYS"*, *"Overly rigid templates"*) — now flagged as a **model-driven** re-review trigger, not just static smell |
 | **Reasoning-extraction refusal** | Telling the model to narrate/echo its reasoning as response text now trips a refusal | Never instruct "show your thinking / explain your reasoning in the output"; read structured `thinking` blocks or use a send-to-user tool instead | `skill-review` audit checklist (new anti-pattern) → detail in `references/refusal-and-fallback.md` |
-| **Brief instruction > enumeration** | One instruction + the reason steers a whole behavior cluster | Prefer a short "why" over naming every behavior; don't carry the *description* field's "pushy / over-enumerate" style into *behavioral* instructions | `skill-review` audit checklist (*"Excessive MUST/NEVER/ALWAYS"* + the prior-model over-prescription trigger); `references/long-run-hygiene.md` has the drop-in brevity instruction |
+| **Brief instruction > enumeration** | One instruction + the reason steers a whole behavior cluster | Prefer a short "why" over naming every behavior; the same goes for the *description* field: a few precise trigger phrases beat an exhaustive list | `skill-review` audit checklist (*"Excessive MUST/NEVER/ALWAYS"* + the prior-model over-prescription trigger); `references/long-run-hygiene.md` has the drop-in brevity instruction |
 | **Give the reason, not only the request** | The model connects the task to context better when it knows intent | Already a scored `skill-review` rubric dimension (*"explains WHY, not just WHAT"*) — the Claude 5 family rewards it more | `skill-review` deep-review rubric |
 
-The one boundary to hold explicit: the **"pushy / over-enumerate"** philosophy is correct
-for the frontmatter `description` (the trigger slot — you *want* to over-enumerate
-contexts to combat under-triggering) and **wrong** for the skill body's behavioral
-instructions (where over-enumeration is exactly the prescription that degrades the newer
-model). Same word, opposite slots. `skill-writer` and `skill-review` keep these apart.
+Over-enumeration is now wrong in both slots. In the body it is the prescription that
+degrades the newer model. In the frontmatter `description` it burns the host's shared
+skill-listing budget (Claude Code: 1% of the context window), and over budget the host
+cuts descriptions back to bare names. Describe the trigger with a few precise phrases
+(≤400 chars, DR-1); keep the body's behavioral instructions brief and explained.
 
 ### Bucket B — Long-running agents (enforced in `loop-controller` / the loops)
 
