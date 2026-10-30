@@ -1,19 +1,12 @@
 ---
 name: self-healing-loop
-version: 1.1.0
+version: 1.1.1
 description: >-
-  Watch a production or CI error signal on a cadence and, when an ACTIONABLE
-  error appears, trace its root cause, fix it in a branch, verify the failing
-  signal now passes, and open a PR for a human to merge — never auto-deploy and
-  never auto-merge a prod hotfix. One pass polls the error source: actionable
-  error present means hand the hard diagnosis to diagnose-loop, fix the cause,
-  verify, open or update a PR; no actionable error means record a clean-log
-  confirmation. Use when you want an unattended watcher over CI status, error
-  logs, alerts, or an observability feed that heals reversible failures and
-  escalates the rest. Trigger on "watch the logs and fix errors", "self-heal CI",
-  "production error sweep", "poll for failures and open a fix PR", "auto-fix the
-  red build", "watch CI and heal it", "error sweep loop", "auto-heal production
-  errors", "/self-healing-loop". A configuration of loop-controller.
+  Watch CI or production errors on a cadence; when an actionable error appears,
+  trace the root cause, fix it in a branch, verify the signal passes, and open a
+  PR. Never auto-deploys or auto-merges. Use for an unattended watcher over CI,
+  logs or alerts. Trigger on "watch the logs and fix errors", "self-heal CI",
+  "auto-fix the red build", "production error sweep".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

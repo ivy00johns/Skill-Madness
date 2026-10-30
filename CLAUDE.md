@@ -51,14 +51,14 @@ All SKILL.md files use the frontmatter convention defined in `skills/meta/skill-
 - **QE gates the build** — the qe-agent outputs `qa-report.json` per `skills/roles/qe-agent/references/qa-report-schema.json`. Build blocks on CRITICAL blockers or contract_conformance/security scores < 3.
 - **Native dispatch and explicit solo roles** — Agent Teams → subagents → sequential remains the orchestrator's runtime path. The ten roles and contract-auditor also accept explicitly requested bounded solo work on read/edit/shell hosts; native dispatch/ownership/QE order is unchanged. Same-context review is UNVERIFIED independence, not certification. Frontend entry invokes consented project source guards before authoring and requires visible two-width proof.
 - **Progressive disclosure** — frontmatter (~100 tokens) always loaded, SKILL.md body loaded on trigger, references loaded on demand.
-- **Descriptions are "pushy"** — skill descriptions intentionally over-enumerate trigger contexts to combat under-triggering.
+- **Descriptions are short and specific** — what the skill does, "Use when…", and a few phrases users really say; target ≤400 chars. Claude Code's skill listing has a shared character budget (1% of the context window: about 8,000 chars on 200k), and over it descriptions are cut to the bare skill name, so the longest-winded catalog loses its long tail. Under-triggering is fixed with precise trigger phrases and routing (`madness`, `skill-explorer`), checked with `skill-triage`, not with length (DR-1, 2026-10-25; replaced "pushy").
 
 ## Editing Skills
 
 When modifying a skill:
 
 - Aim for SKILL.md bodies under 5,000 tokens; lint reports a UTF-8-bytes/4 approximation (not a tokenizer measurement), words, physical lines and nonblank lines separately. The 500-line warning counts nonblank lines, not physical lines. Move detail to `references/`. Heavy skills may exceed when the length is load-bearing.
-- Description field is the primary trigger mechanism — include action verbs, specific contexts, and keyword variations
+- Description field is the primary trigger mechanism — lead with an action verb and "Use when…", keep a few real trigger phrases, stay ≤400 chars (lint warns past it and on the suite total)
 - `owns.directories` must not overlap with other agent roles
 - Maintain the frontmatter convention (see `skills/meta/skill-writer/references/frontmatter-spec.md`)
 - If using symlinks (default), edits are automatically reflected in both locations

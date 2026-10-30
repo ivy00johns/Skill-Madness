@@ -1,8 +1,13 @@
 ---
 name: contract-author
-version: 1.6.1
-description: |
-  Generate machine-readable integration contracts (API, data layer, shared types, events) before any implementation begins in a multi-agent build or explicitly requested solo contract design. Use when authoring API contracts, OpenAPI specs, AsyncAPI specs, Pydantic models, TypeScript interfaces, JSON Schema definitions, data layer interfaces, shared type schemas, integration boundaries between agents, or domain business rules. Trigger on "write the API contract", "define the shared types", "spec out the endpoints", "create the OpenAPI", "author the contract", or when the orchestrator needs contracts authored for a plan. Bundles six templates (OpenAPI, AsyncAPI, Pydantic, TypeScript, JSON Schema, data-layer YAML) — pick the one matching the project's stack.
+version: 1.6.2
+description: >-
+  Generate machine-readable integration contracts (API, data layer, shared
+  types, events) before implementation starts. Use when writing OpenAPI or
+  AsyncAPI specs, Pydantic models, TypeScript interfaces, JSON Schema or
+  data-layer interfaces, or when the orchestrator needs contracts for a plan.
+  Trigger on "write the API contract", "define the shared types", "spec out the
+  endpoints".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

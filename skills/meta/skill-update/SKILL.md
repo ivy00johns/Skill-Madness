@@ -1,8 +1,12 @@
 ---
 name: skill-update
-version: 1.2.1
-description: |
-  Apply changes to an existing skill: read a skill-review report or inline findings, draft an edit list with a recommended answer attached to each, walk the edits one at a time, apply them, and re-run lint and frontmatter checks. Use right after skill-review when you are ready to ship the recommendations — "apply the review", "apply the skill-review report to X", "update this skill", "fix the skill", "implement the changes", "ship the recommendations", or "edit this skill's description".
+version: 1.2.2
+description: >-
+  Apply changes to an existing skill: read a skill-review report or inline
+  findings, draft edits with a recommended answer each, walk and apply them,
+  then re-run lint. Use right after skill-review to ship its recommendations.
+  Trigger on "apply the review", "update this skill", "fix the skill", "edit
+  this skill's description".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

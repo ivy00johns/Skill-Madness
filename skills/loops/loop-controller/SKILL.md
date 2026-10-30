@@ -1,8 +1,13 @@
 ---
 name: loop-controller
-version: 1.6.0
-description: |
-  Add a verifiable stop condition and a mandatory guardrail stack to any task so an autonomous loop converges instead of thrashing or burning the budget — the foundation harness every loop skill composes on, so it loads first and then routes to the right primitive (/goal vs /loop vs Stop-hook vs a bash Ralph loop vs a dynamic workflow). Use whenever the agent must keep working until something is provably true — "loop until", "keep going until", "keep the suite green until it passes", "run until green", "work until done", "iterate until", tests pass, coverage hits a target, a contract's criteria hold, or a queue is empty — or to schedule a recurring check and cap iterations and budget ("iteration cap", "runaway agent", "overnight build").
+version: 1.6.1
+description: >-
+  The harness every loop skill builds on: a verifiable stop condition, the
+  mandatory guardrails (iteration cap, enforced budget, no-progress detection),
+  and the right primitive (/goal, /loop, Stop hook, bash Ralph loop, workflow).
+  Use when work must continue until something is provably true, or to author a
+  new loop. Trigger on "loop until", "keep going until", "author a new loop",
+  "overnight build".
 requires_claude_code: false
 execution_modes:
   native:

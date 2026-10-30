@@ -1,21 +1,14 @@
 ---
 name: class-extraction-guard
-version: 1.1.1
+version: 1.1.2
 composes_with: ["orchestrator", "frontend-agent", "design-token-guard", "render-sanity", "code-review-agent", "sync-skills"]
 description: >-
-  Source-level gate that catches utility-class soup — the same long run of
-  utility classes (e.g. `flex items-center gap-1.5 text-fg-muted hover:text-accent`)
-  copy-pasted inline across many files instead of extracted into a named class or
-  component. Use whenever frontend work touches className/class markup: before
-  committing or declaring a UI task done, when auditing for utility soup, when a
-  Tailwind combo is repeated everywhere, or as an orchestrator/agent wave-gate.
-  Trigger on: "utility soup", "repeated tailwind classes", "extract into named
-  classes", "className duplication", "class string copy-pasted", "DRY up the
-  styles", "class-extraction". Framework-agnostic (React/JSX, Vue, Svelte, Astro,
-  HTML; clsx/cn/cva). Sibling to design-token-guard: it checks WHICH values
-  styling uses (tokens vs hex), this checks HOW it's organized (extracted vs
-  repeated) — invisible to render review since repeated utilities render
-  identically.
+  Source-level gate for utility-class soup: the same long run of utility classes
+  copy-pasted across files instead of extracted into a named class or component.
+  Use when frontend work touches class markup, before calling UI work done, or
+  as a wave gate. Sibling of design-token-guard (that checks which values; this
+  checks how they're organized). Trigger on "utility soup", "repeated tailwind
+  classes".
 compatibility: Read/edit/shell host; requires Python 3.9+ (stdlib only) to run scripts/check_class_extraction.py
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---

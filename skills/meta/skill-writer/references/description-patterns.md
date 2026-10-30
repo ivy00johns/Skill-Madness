@@ -1,6 +1,6 @@
 # Description Writing Patterns
 
-Claude tends to "undertrigger" skills — not invoking them when they'd be useful. Combat this with "pushy" descriptions that enumerate trigger contexts.
+Claude tends to "undertrigger" skills — not invoking them when they'd be useful. Combat this with *specific* descriptions: what it does, when to use it, and a few phrases users really say. Length doesn't help. The host's skill listing has a shared character budget (Claude Code: 1% of the context window, about 8,000 chars on 200k), and over it descriptions are cut to the bare skill name — the worst under-triggering there is.
 
 ## The Problem
 
@@ -25,11 +25,11 @@ Anthropic's official spec recommends three slots:
 
 - **What it does** — start with an action verb in 3rd person. "Generate", "Audit", "Manage", "Verify".
 - **When to use it** — the trigger contexts. Phrase users would actually say. Multiple variants if the work has multiple natural entry points.
-- **Key capabilities or keyword variants** — domain keywords, file types, exclusions. The "pushy" surface that beats under-triggering.
+- **Key capabilities or keyword variants** — domain keywords, file types, exclusions. Pick the few that distinguish this skill from its neighbors.
 
 Length budget:
 
-- **Target:** ≤200 characters — keeps descriptions scannable and forces tight triggers
+- **Target:** ≤400 characters — the listing budget is shared by every installed skill (lint warns per skill past 400 and on the suite total)
 - **Hard ceiling:** 1024 characters (Anthropic spec maximum)
 - Use a multiline YAML block (`description: |`) when you need more than one paragraph
 

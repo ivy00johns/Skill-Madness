@@ -1,19 +1,13 @@
 ---
 name: living-plan
-version: 1.3.0
-description: |
-  Document and set up the living-plan convention: a front door (START-HERE.md), a
-  strategic roadmap, tactical ledger, done-archive, and frontier doc, wired to an
-  intake loop so reports become tracked entries instead of rotting. The ledger
-  trio is often named by file — the "remaining" / "completed" / "future" set
-  (REMAINING-WORK / COMPLETED-WORK / FUTURE). Use when the user says "set up a
-  living plan", "make this plan a living doc", "stop my docs from rotting", "set
-  up the remaining/completed/future files", "where are my remaining/completed/future
-  md files", "my ledger is full of done rows", "sweep done rows to the archive",
-  or wants a report-to-ledger intake loop. Key disambiguation: if the user asks
-  for their "remaining / completed / future" files and THIS project lacks them,
-  set the convention up HERE — never hunt across other repos; reading or editing
-  one existing file is a normal file operation, not this skill.
+version: 1.3.1
+description: >-
+  Set up the living-plan convention: START-HERE.md, a roadmap, the
+  REMAINING-WORK / COMPLETED-WORK / FUTURE ledger trio, and an intake loop so
+  reports become tracked work. If this project lacks those files, set them up
+  here rather than searching other repos. Trigger on "set up a living plan",
+  "stop my docs from rotting", "remaining/completed/future files", "sweep done
+  rows".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

@@ -1,20 +1,12 @@
 ---
 name: nightly-docs-and-changelog
-version: 1.0.1
+version: 1.0.2
 description: >-
-  Run a nightly sweep that keeps an existing repo's docs and changelog from
-  rotting: diff the code since the last run, bring the docs for the changed
-  surface back in line with the implementation, append every user-relevant
-  change to CHANGELOG.md (or record a no-change night), and open ONE reviewable
-  PR — never auto-merging. Scheduled to survive laptop-off via a cloud routine /
-  Desktop scheduled task, NOT a session-scoped loop. Use when you want docs and
-  the changelog kept current automatically while you sleep, when docs keep
-  drifting behind code, when the changelog is always stale, or when you want a
-  morning PR of doc+changelog updates to review. Trigger on: "keep the docs
-  current", "nightly docs sweep", "update the changelog nightly", "docs keep
-  drifting", "stale changelog", "overnight docs", "stop the docs rotting",
-  "nightly doc PR". Drafts AFK; merges HITL. A configuration of
-  loop-controller.
+  A nightly cloud routine that keeps an existing repo's docs and CHANGELOG.md in
+  step with the code: diff since the last run, fix docs for what changed, log
+  user-relevant changes, open one PR for review, never merge. Survives
+  laptop-off. Use when docs keep drifting or the changelog is stale. Trigger on
+  "keep the docs current", "nightly docs sweep", "update the changelog nightly".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

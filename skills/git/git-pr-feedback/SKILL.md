@@ -1,15 +1,11 @@
 ---
 name: git-pr-feedback
-version: 1.4.0
-description: >
-  Fetch, triage, and address PR review comments from GitHub Copilot and human
-  reviewers. Use when the user asks to check PR feedback, review comments,
-  address reviewer suggestions, or fix PR issues. Trigger on: "check PR
-  comments", "what did copilot say", "address PR feedback", "fix review
-  comments", "handle PR suggestions", "review feedback", "PR comments",
-  "copilot review", "reviewer feedback", or any mention of responding to pull
-  request comments. Also trigger when the user returns to a PR after some time
-  and wants to handle accumulated feedback.
+version: 1.4.1
+description: >-
+  Fetch, triage and address PR review comments from Copilot and human reviewers.
+  Use when asked to check or respond to PR feedback, or when returning to a PR
+  with accumulated comments. Trigger on "check PR comments", "address PR
+  feedback", "fix review comments", "what did copilot say".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

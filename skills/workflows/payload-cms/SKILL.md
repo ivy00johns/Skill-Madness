@@ -1,8 +1,13 @@
 ---
 name: payload-cms
-version: 1.0.0
-description: |
-  Build, extend, deploy and debug websites on Payload CMS (payloadcms.com): collections, blocks and layout builder, live preview, drafts, plugins, Postgres or Mongo, Vercel, migrations, plus cloning or rebuilding an existing site (including payloadcms.com itself) onto Payload. Use this skill whenever the user mentions Payload, Payload CMS, payload.config.ts, @payloadcms packages, a headless CMS or CMS for their websites, moving a site onto a CMS, cloning payloadcms.com, or asks how to model pages, blocks, a blog, redirects, SEO, forms or preview in Payload, even without saying "Payload". Complements Payload's own official payload skill with the website workflow, version pinning and verified pitfalls.
+version: 1.0.1
+description: >-
+  Build, extend, deploy and debug sites on Payload CMS: collections, blocks,
+  live preview, drafts, plugins, Postgres or Mongo, Vercel, migrations, and
+  rebuilding an existing site onto Payload. Use when the user mentions Payload,
+  payload.config.ts, @payloadcms packages, or a headless CMS for their site.
+  Complements Payload's own skill with the website workflow and verified
+  pitfalls.
 compatibility: "Any coding agent host; needs shell, file access and web access. Browser checks use Playwright."
 composes_with: ["playwright", "website-walkthrough-video", "design-token-guard", "class-extraction-guard", "render-sanity", "orchestrator", "ui-brief"]
 ---

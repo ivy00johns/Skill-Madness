@@ -1,19 +1,12 @@
 ---
 name: contract-conformance-loop
-version: 1.0.0
+version: 1.0.1
 description: >-
-  Drive an implementation until EVERY criterion of an authored contract holds —
-  a Plan-Generate-Evaluate (PGE / GAN-style) loop where the builder implements
-  toward one not-yet-passing criterion and a FRESH-CONTEXT evaluator subagent
-  (contract-auditor, spawned with no Write/Edit tools, default-FAIL) grades all
-  criteria against evidence and never lets the builder self-grade. This is the
-  loop form of the contract-author / contract-auditor pair. Use when a contract
-  or acceptance-criteria spec exists and an implementation must be built or
-  verified against it. Trigger on "build until the contract passes", "implement
-  the spec until all criteria hold", "conform to the contract", "drive this to
-  spec", "make the implementation match the contract", "loop until acceptance
-  criteria pass", "build-until-spec", "PGE loop", "evaluate against the
-  contract", "/contract-conformance-loop". A configuration of loop-controller.
+  Build until every criterion of an authored contract holds: the builder works
+  one failing criterion at a time and a fresh-context evaluator
+  (contract-auditor, no write tools, default-FAIL) grades all of them. Use when
+  a contract or acceptance-criteria spec exists. Trigger on "build until the
+  contract passes", "drive this to spec", "build-until-spec".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

@@ -1,8 +1,12 @@
 ---
 name: plan-builder
-version: 1.4.1
-description: |
-  Transform research documents, Compass artifacts, PRDs, and conversational goals into structured project plans the orchestrator can execute. Use when the user has source material plus a build request, says "make a plan" / "plan this out", or @-mentions files alongside a build ask. Also trigger when orchestrator would be the next step but no plan exists yet. Produces the plan — orchestrator consumes it.
+version: 1.4.2
+description: >-
+  Turn research docs, PRDs and conversational goals into structured project
+  plans the orchestrator can execute. Use when there's source material plus a
+  build request, or when orchestrator would be next but no plan exists. Produces
+  the plan; orchestrator consumes it. Trigger on "make a plan", "plan this out",
+  or files @-mentioned with a build ask.
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

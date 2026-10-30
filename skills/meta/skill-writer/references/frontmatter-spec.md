@@ -60,10 +60,10 @@ spawned_by: ["orchestrator"]
 ### description
 
 - **Type:** string (multiline YAML via `|` is fine)
-- **Target length:** ≤200 characters — forces tight, scannable triggers
+- **Target length:** ≤400 characters — the host's skill listing is budgeted, and over budget descriptions are cut to the bare name
 - **Hard ceiling:** 1024 characters (Anthropic spec maximum)
 - **Anatomy:** `[What it does] + [When to use it] + [Key capabilities or keyword variants]`
-- **Style:** "Pushy" — enumerate specific trigger contexts and keyword variants users might actually say
+- **Style:** Specific — a few trigger phrases users really say, not an exhaustive list; no "pick me" superlatives
 - **Forbidden:** XML angle brackets (`<`, `>`) — frontmatter loads into Claude's system prompt and could be used for prompt injection
 - **Purpose:** Primary trigger mechanism. Claude reads this to decide whether to invoke the skill.
 

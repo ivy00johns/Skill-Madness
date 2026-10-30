@@ -1,19 +1,13 @@
 ---
 name: yagni-gate
-version: 1.0.1
+version: 1.0.2
 description: >-
-  Gate every build behind a persistent YAGNI ladder — the laziest senior dev in
-  the room, adapted from DietrichGebert/ponytail (MIT). Before any code: does
-  this need to exist, can something already present do it, can it be one line —
-  only then the minimum that works. Never lazy about trust-boundary validation,
-  data-loss error handling, security, accessibility, or understanding the
-  problem first; every non-trivial change leaves one runnable check. Persists
-  until 'stop yagni-gate' or 'normal mode'. Use when code keeps getting
-  over-built, a tiny ask balloons into scaffolding, or you want a standing
-  minimal-code gate on a session. Trigger on: 'yagni-gate', '/yagni-gate',
-  'yagni mode', 'YAGNI', 'stop over-building', 'over-engineered', 'keep it
-  minimal', 'minimum code', 'lazy mode', 'don't gold-plate', 'ponytail', 'less
-  code'.
+  A standing YAGNI ladder for a session: before any code, ask whether it needs
+  to exist, whether something present already does it, whether it can be one
+  line. Never lazy about validation, data-loss handling, security or
+  accessibility; persists until "stop yagni-gate". Use when code keeps getting
+  over-built. Trigger on "yagni mode", "stop over-building", "keep it minimal",
+  "ponytail".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

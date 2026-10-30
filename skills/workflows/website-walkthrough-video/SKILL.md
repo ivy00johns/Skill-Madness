@@ -1,20 +1,13 @@
 ---
 name: website-walkthrough-video
-version: 1.4.0
-description: |
-  Generate a smooth scrolling walkthrough video of an entire website — capture
-  every page full-length at desktop and mobile widths, then render an mp4 that
-  pans down each page, stitched into one continuous tour. Use whenever the user
-  wants a video tour, demo reel, screen-recording, walkthrough, "show me the
-  site as a video", a marketing/launch clip, a before/after of a redesign, or a
-  desktop + mobile walkthrough mp4 — even if they don't say the word "video" but
-  describe wanting to show the whole site scrolling. Triggers on "walkthrough
-  video", "video tour of the site", "record the site", "demo video of all the
-  pages", "scrolling screen recording", "make a reel of the site", "capture the
-  whole site as a video", "smooth scroll-through". Also reach for it after a
-  build or redesign wraps. Prefer it over hand-driving the Playwright MCP
-  screenshot-by-screenshot — the bundled scripts capture and pan
-  deterministically.
+version: 1.4.1
+description: >-
+  Make a smooth scrolling walkthrough video of a whole website: capture every
+  page full-length at desktop and mobile widths, then render one mp4 that pans
+  down each page. Use for demo reels, launch clips or before/after redesigns;
+  prefer its scripts over hand-driving screenshots. Trigger on "walkthrough
+  video", "video tour of the site", "record the site", "make a reel of the
+  site".
 compatibility: Claude Code; requires ffmpeg + Node.js + Playwright (Chromium)
 requires_claude_code: true
 requires_agent_teams: false

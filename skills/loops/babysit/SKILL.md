@@ -1,20 +1,12 @@
 ---
 name: babysit
-version: 1.1.0
+version: 1.1.1
 description: >-
-  Keep one of your open PRs healthy on a schedule: poll for new review activity,
-  auto-address bot/Copilot nits and routine rebases, re-run the project gate, and
-  reconcile the PR thread — looping until the PR has zero blocking findings and is
-  mergeable, with HITL checkpoints on anything irreversible. This is the
-  scheduled, guardrailed loop around git-pr-feedback (which does the per-pass
-  fetch/triage/fix). Run it as Boris Cherny's daily-driver "/loop 5m /babysit",
-  or invoke /babysit once. Use when you want a PR babysat while you work
-  elsewhere, want review comments auto-handled on a cadence, or want a PR kept
-  rebased and green. Trigger on "babysit my PR", "babysit prs", "watch this PR",
-  "keep my PR green", "auto-address review comments on a schedule", "loop 5m
-  babysit", "keep the PR rebased", "poll the PR for new feedback". Never
-  auto-merges and never force-pushes a shared branch unattended. A
-  configuration of loop-controller.
+  Keep an open PR healthy on a schedule: poll for review activity, auto-address
+  bot and Copilot nits and routine rebases, re-run the gate, until the PR is
+  mergeable. HITL on anything irreversible; never auto-merges. The scheduled
+  loop around git-pr-feedback, run as "/loop 5m /babysit". Trigger on "babysit
+  my PR", "watch this PR", "keep my PR green", "keep the PR rebased".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

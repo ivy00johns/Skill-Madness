@@ -1,8 +1,12 @@
 ---
 name: plan-intake
-version: 1.3.0
-description: |
-  Turn any report (repo-deep-dive output, audit, skill-review, QA findings, design audit) into approved entries in a project's living-plan ledger. Use when the user says "intake this report", "add findings to the plan", "turn this audit into work items", "update the ledger from this report", "feed the deep-dive into the plan", or has a finished report and wants it tracked instead of rotting. Format-agnostic: adopts the target project's existing entry format.
+version: 1.3.1
+description: >-
+  Turn a finished report (deep dive, audit, skill-review, QA findings) into
+  approved entries in the project's living-plan ledger, in that ledger's own
+  format. Use when a report should become tracked work instead of rotting.
+  Trigger on "intake this report", "add findings to the plan", "turn this audit
+  into work items", "update the ledger from this report".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

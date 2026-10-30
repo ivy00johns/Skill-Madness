@@ -1,17 +1,12 @@
 ---
 name: skill-catalog
-version: 1.1.0
-description: |
-  Keep the Skill-Madness catalog in sync with the filesystem. The published
-  plugin.json `skills` array and every advertised skill count (README, CLAUDE.md,
-  PLAN.md, START-HERE.md, marketplace.json) are DERIVED from disk by one command,
-  so they never drift. Use this whenever you add, remove, or rename a skill,
-  register a skill in plugin.json, notice mismatched skill counts ("47 vs 49"),
-  hit a CI "catalog drift" failure, ask "how many skills are there", or need
-  skills symlinked into ~/.claude for global use. The filesystem is the single
-  source of truth: run `scripts/catalog.sh --sync` (a pre-commit hook also
-  auto-fixes drift on commit), then `sync-skills` for the global symlinks. Never
-  hand-edit the counts or the plugin.json array — let the tooling regenerate them.
+version: 1.1.1
+description: >-
+  Keep the catalog in sync with disk: plugin.json's skills array and every
+  advertised skill count are derived by `scripts/catalog.sh --sync`, never
+  hand-edited. Use when adding, removing or renaming a skill, on mismatched
+  counts or a CI "catalog drift" failure, or to ask how many skills there are.
+  Trigger on "catalog drift", "skill count", "register the skill".
 compatibility: Claude Code
 requires_claude_code: true
 requires_agent_teams: false

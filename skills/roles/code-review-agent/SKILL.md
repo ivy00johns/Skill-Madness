@@ -1,9 +1,13 @@
 ---
 name: code-review-agent
-version: 1.6.2
+version: 1.6.3
 disable-model-invocation: true
-description: |
-  Load this skill for any code-review request even when no diff is pasted — it locates the change itself (the working-tree or staged `git diff`, or the PR) before reviewing. Reviews a diff, pull request, or set of files on two independent axes — Standards (repo conventions plus a code-smell baseline) and Spec (does it faithfully implement the originating issue or contract) — run as separate sub-agents and reported side-by-side, never merged into one score. Use when asked to "review this diff", "review this PR", "code review", "check this for correctness and conventions", "does this follow our conventions", or for a thorough standalone review of changed files. Read-only — it never edits code. During an orchestrated build, build-time diff review is handled by the external /code-review CLI.
+description: >-
+  Review a diff, PR or files on two separate axes: Standards (repo conventions
+  and a code-smell baseline) and Spec (does it implement the issue or contract).
+  Finds the change itself (working tree, staged diff or PR) when none is pasted.
+  Read-only. Use for any code-review request. Trigger on "review this diff",
+  "review this PR", "code review", "does this follow our conventions".
 compatibility: "Read/shell host; native isolated Agent lanes when available, explicit sequential fallback otherwise"
 requires_agent_teams: false
 requires_claude_code: false

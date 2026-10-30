@@ -1,19 +1,12 @@
 ---
 name: git-post-merge-cleanup
-version: 1.3.0
-description: >
-  Clean up everything stale after merges in one pass: local branches fully
-  merged into the default branch, remote-tracking refs whose remote is gone,
-  and worktrees that look "modified" but are already on main. Scans, classifies,
-  presents a clear plan, and only acts on confirmation. Supports `--dry-run`
-  and `--yes`. Use whenever the user mentions cleaning up branches OR worktrees,
-  tidying git state after a batch of PRs landed, or noticing stale debris.
-  Trigger on: "clean up branches", "delete merged branches", "prune branches",
-  "stale branches", "branch cleanup", "remove old branches",
-  "clean up worktrees", "remove old worktrees", "worktree confusion", "phantom
-  modified files", "post-merge cleanup".
-  Also trigger proactively when `git worktree list` shows entries beyond the
-  main worktree, or after a batch of PRs land.
+version: 1.3.1
+description: >-
+  Clean up stale git state after merges in one pass: merged local branches,
+  tracking refs whose remote is gone, and worktrees that look modified but are
+  already on main. Scans, shows a plan, acts only on confirmation; supports
+  --dry-run and --yes. Use after a batch of PRs lands. Trigger on "clean up
+  branches", "prune branches", "stale branches", "clean up worktrees".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

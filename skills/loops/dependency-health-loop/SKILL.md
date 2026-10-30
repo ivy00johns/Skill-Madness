@@ -1,20 +1,12 @@
 ---
 name: dependency-health-loop
-version: 1.0.0
+version: 1.0.1
 description: >-
-  Keep a project's dependencies healthy on a schedule: audit for known
-  vulnerabilities and over-stale pins, apply ONE safe update (or a vuln fix) per
-  pass, run the full gate to prove the update is non-breaking, and open or update
-  a PR — looping on a sprint cadence with HITL on every major version bump and
-  never auto-merging. Use when you want deps watched while you build, want
-  security advisories acted on a cadence, want lockfiles kept fresh without
-  breaking the build, or want a dependency audit run every 30 minutes during a
-  sprint. Trigger on "audit my dependencies", "keep deps up to date", "dependency
-  health", "check for vulnerable packages", "npm audit on a schedule", "pip-audit
-  loop", "cargo audit loop", "update dependencies safely", "watch for CVEs",
-  "keep the lockfile fresh", "dependabot-style loop", "bump deps and test". Routes
-  major/breaking bumps to a human and never merges. A configuration of
-  loop-controller.
+  Keep dependencies healthy on a schedule: audit for vulnerabilities and stale
+  pins, apply one safe update per pass, prove it with the full gate, and open or
+  update a PR. HITL on every major bump; never auto-merges. Use to have deps
+  watched during a sprint. Trigger on "audit my dependencies", "keep deps up to
+  date", "watch for CVEs", "update dependencies safely".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

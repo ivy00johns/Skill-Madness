@@ -1,21 +1,13 @@
 ---
 name: prose-slop-guard
-version: 1.0.0
+version: 1.0.1
 composes_with: ["orchestrator", "docs-agent", "code-review-agent", "git-pr", "wiki-research", "interactive-doc", "llm-wiki", "skill-writer"]
 description: >-
-  Source-level gate that catches AI-slop prose ("claudenese") before it ships:
-  em dashes, AI vocabulary (delve, leverage, seamless, tapestry), negative
-  parallelism ("it's not X, it's Y"), throat-clearing openers, sycophantic
-  filler, rule-of-three rhythm, bullet soup. Use whenever writing or reviewing
-  outward prose — READMEs, docs, announcements, blog posts, PR descriptions,
-  wiki pages, marketing copy — before committing or declaring a writing task
-  done, when setting up enforcement so slop can't ship again, or as an
-  orchestrator/docs-agent wave-gate. Trigger on: "sounds like AI",
-  "reads as AI-written", "humanize this", "make it sound human", "de-AI this",
-  "too ChatGPT", "AI tells", "AI slop", "claudenese", "stop writing like a
-  bot". A deterministic lexical checker plus a judgment rewrite pass; don't
-  skip it because it "looks fine" — self-grading is the failure mode this
-  guards.
+  Gate that catches AI-sounding prose before it ships: em dashes, AI vocabulary
+  (delve, leverage, seamless), "not X, it's Y", throat-clearing, filler,
+  rule-of-three rhythm. A lexical checker plus a rewrite pass. Use on READMEs,
+  docs, PR descriptions and posts before calling writing done. Trigger on
+  "sounds like AI", "humanize this", "de-AI this", "AI slop", "claudenese".
 compatibility: Claude Code or any host with Bash; requires Python 3.8+ (stdlib only) for scripts/check_prose_slop.py
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---

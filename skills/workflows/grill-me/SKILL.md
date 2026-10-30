@@ -1,8 +1,12 @@
 ---
 name: grill-me
-version: 1.1.3
-description: |
-  Run a relentless interview of the user about a plan, design, or change — depth-first, one question at a time, each question carrying a recommended answer and code-checked before it is asked — until every branch of the decision tree is resolved. Use before any non-trivial change, when scope feels fuzzy, or to stress-test a plan before committing. Trigger on "grill me", "interview me about this", "ask me one question at a time", "challenge my plan", "ask me questions", "I'm not sure what I want", "help me think this through", "is this the right approach", "stress test this plan".
+version: 1.1.4
+description: >-
+  Interview the user relentlessly about a plan or design, one question at a
+  time, each with a recommended answer checked against the code, until every
+  branch of the decision is resolved. Use before non-trivial changes or when
+  scope is fuzzy. Trigger on "grill me", "interview me about this", "challenge
+  my plan", "stress test this plan", "help me think this through".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

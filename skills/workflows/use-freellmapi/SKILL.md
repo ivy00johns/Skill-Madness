@@ -1,17 +1,12 @@
 ---
 name: use-freellmapi
-version: 1.5.1
-description: |
-  Wire any project or coding agent to FreeLLMAPI — a local proxy aggregating ~30 free LLM provider
-  tiers behind one endpoint — so you can prototype without paying for API calls. Use to switch a
-  project off paid OpenAI/Anthropic/etc. onto free models, point an app or CLI agent at a local LLM
-  proxy, or stand up FreeLLMAPI itself. Speaks OpenAI, Anthropic Messages, native Gemini, and Ollama
-  wire formats, covering Claude Code, Codex CLI, Gemini CLI, Cline, Aider, Continue, Zed, and
-  JetBrains AI. Detects the project's LLM client, ensures the proxy is running, rewires base_url +
-  api_key behind an env toggle, and verifies with a live test call. Trigger on "use freellmapi",
-  "switch this to free models", "point this at freellmapi", "stop paying for openai here", "free llm
-  proxy", "prototype without api costs", "run claude code on free models", "point claude
-  code/codex/gemini cli at freellmapi", "free models for my coding agent".
+version: 1.5.2
+description: >-
+  Wire a project or coding agent (Claude Code, Codex, Gemini CLI, Aider and
+  others) to FreeLLMAPI, a local proxy over ~30 free LLM tiers, so prototypes
+  don't pay for API calls. Rewires base_url and key behind an env toggle and
+  verifies with a live call. Trigger on "use freellmapi", "switch this to free
+  models", "stop paying for openai here", "free models for my coding agent".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

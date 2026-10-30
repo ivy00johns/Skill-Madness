@@ -1,19 +1,13 @@
 ---
 name: migration-loop
-version: 1.1.0
+version: 1.1.1
 description: >-
-  Migrate a known, enumerated set of targets one at a time until EVERY one is
-  done — one iteration picks the next un-migrated target from a checklist,
-  transforms it, verifies behaviour-identical (the suite stays green), commits a
-  checkpoint, and marks it migrated, with a hard exit that BOTH the suite is
-  green AND a grep for the old pattern returns zero. The only loop over a fixed
-  target set whose proof is "no legacy pattern remains," not just "tests pass."
-  Use for a codemod across a repo, a Jest-to-Vitest swap, an API version bump, a
-  framework migration, an import/dependency rename, or any mechanical transform
-  applied to a finite list of files. Trigger on "migrate everything from
-  X to Y", "run the codemod across the repo", "bump every call site", "swap the
-  framework", "migrate all the tests", "finish the migration", "no old pattern
-  left", "/migration-loop". A configuration of loop-controller.
+  Migrate an enumerated set of targets one per iteration: transform, verify the
+  suite stays green, checkpoint, mark done, until every target is migrated and a
+  grep for the old pattern returns zero. Use for codemods, framework or
+  test-runner swaps, API version bumps, renames across a repo. Trigger on
+  "migrate everything from X to Y", "run the codemod across the repo", "finish
+  the migration".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

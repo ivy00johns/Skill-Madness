@@ -1,21 +1,13 @@
 ---
 name: design-token-guard
-version: 1.1.1
+version: 1.1.2
 composes_with: ["orchestrator", "frontend-agent", "render-sanity", "ux-review", "code-review-agent", "sync-skills"]
 description: >-
-  Source-level gate that prevents inline styles and hardcoded CSS from
-  bypassing a project's design-token system. Use whenever frontend work touches
-  colors, styling, or themes — before committing or declaring a UI task done,
-  when auditing for hardcoded hex/rgb/inline styles, when setting up enforcement
-  so inline CSS can't slip in again, or as an orchestrator/agent wave-gate.
-  Trigger on: "inline CSS", "inline styles", "hardcoded colors", "hardcoded
-  hex", "style={{}}", "theme/token drift", "design tokens", "we keep shipping
-  inline styles", "lint for tokens", "why did this get through review".
-  Framework- and stack-agnostic (React/JSX, Vue, Svelte, Angular, Astro, HTML;
-  CSS variables, SCSS/Less, JS theme objects, design-token JSON) —
-  auto-discovers the project's tokens; NOT specific to any one repo or to
-  Tailwind. Don't skip it because a render review passed: render gates can't see
-  a hardcoded color — it renders identically to the token.
+  Source-level gate that stops inline styles and hardcoded colors from bypassing
+  a project's design tokens. Framework-agnostic; auto-discovers the tokens. Use
+  when frontend work touches colors or themes, before calling a UI task done, or
+  as a wave gate. Render reviews can't see a hardcoded color. Trigger on "inline
+  styles", "hardcoded colors", "hardcoded hex", "design tokens", "token drift".
 compatibility: Read/edit/shell host; requires Python 3.9+ (stdlib only) to run scripts/check_design_tokens.py; ESLint scaffolding step is optional
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---

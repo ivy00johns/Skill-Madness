@@ -1,16 +1,12 @@
 ---
 name: settings-consolidator
-version: 1.4.0
-description: >
-  Scan every .claude/settings.local.json across the user's home directory,
-  deduplicate permissions, collapse supersets, and merge into the global
-  ~/.claude/settings.local.json with a categorized report. Also bootstraps
-  permissions for autonomous/unattended sessions using a 350+ command baseline
-  (shell operators, Claude tools, safety deny list). Trigger on "consolidate
-  settings", "merge permissions", "stop prompting me", "bootstrap permissions",
-  "autonomous mode", "unattended session", "overnight build setup", "I want
-  to go to sleep and let this run", or upgrading colon-wildcards to
-  space-wildcards across Claude Code permissions.
+version: 1.4.1
+description: >-
+  Merge every .claude/settings.local.json under the home directory into the
+  global one: dedupe permissions, collapse supersets, report by category. Also
+  bootstraps permissions for unattended sessions from a 350+ command baseline
+  with a deny list. Trigger on "consolidate settings", "merge permissions",
+  "stop prompting me", "autonomous mode", "overnight build setup".
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

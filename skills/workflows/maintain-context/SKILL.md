@@ -1,8 +1,12 @@
 ---
 name: maintain-context
-version: 1.3.0
-description: |
-  Maintain a project's CONTEXT.md domain glossary and docs/adr/ decision records inline as understanding crystallizes — write the glossary entry the moment a term resolves, write an ADR only when the body's three-condition gate fires. Use after any architectural discussion, requirements clarification, or when shared terminology starts to drift. Trigger on: 'update the glossary', 'add to CONTEXT', 'record this as an ADR', 'what do we call this', 'is this the right term', 'we just decided something', 'document this decision'.
+version: 1.3.1
+description: >-
+  Keep a project's CONTEXT.md glossary and docs/adr/ decision records current as
+  understanding settles: add a glossary entry when a term resolves, an ADR only
+  when its three-condition gate fires. Use after architectural discussions or
+  when terms drift. Trigger on "update the glossary", "record this as an ADR",
+  "what do we call this", "document this decision".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

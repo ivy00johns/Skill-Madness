@@ -1,20 +1,13 @@
 ---
 name: codebase-exploration-loop
-version: 1.0.0
+version: 1.0.1
 description: >-
-  Build a working mental model of an unfamiliar codebase by looping: fan out
-  read-only subagents to map subsystems, synthesize, find the gaps in your
-  understanding, and repeat until a written architecture summary answers every
-  seed question — each answer citing where in the code it comes from. The
-  deep-research fan-out shape applied to the LOCAL codebase (Read/Grep, no web),
-  with a subagent-parallelism cap and a loop-until-dry stop on understanding
-  gaps. Use when onboarding to a new repo,
-  reverse-engineering someone else's code, or answering "I don't understand how X
-  works here" before you touch it.
-  Trigger on "help me understand this codebase", "onboard me to this repo", "how
-  does X work in this code", "build a mental model of this project", "explore
-  this codebase", "map this codebase", "I don't understand this code", "explore
-  until I understand". A configuration of loop-controller.
+  Build a mental model of an unfamiliar codebase by looping: read-only subagents
+  map subsystems, you synthesize and find gaps, and repeat until a written
+  architecture summary answers every seed question with code citations. Use when
+  onboarding to a repo or before touching code you don't understand. Trigger on
+  "help me understand this codebase", "onboard me to this repo", "map this
+  codebase".
 requires_claude_code: true
 min_plan: starter
 disable-model-invocation: true

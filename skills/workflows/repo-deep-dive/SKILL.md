@@ -1,16 +1,12 @@
 ---
 name: repo-deep-dive
-version: 1.5.1
+version: 1.5.2
 description: >-
-  Perform a comprehensive technical deep dive on an open-source repository, combining
-  a deep-research markdown document with hands-on codebase analysis to produce a structured
-  12-14 document reference series. Use this skill whenever the user wants to deeply analyze
-  a repo, do a deep dive on a project, reverse-engineer a codebase, create a technical
-  reference for an open-source tool, understand how a project works inside and out, or
-  compare another project's architecture against a reference project. Also trigger when the
-  user mentions "deep dive", "deep research", "analyze this repo", "break down this codebase",
-  "technical reference", "how does this project work", or has a deep-research markdown
-  alongside a cloned repo ready for analysis.
+  Deep dive an open-source repo: combine a deep-research markdown with hands-on
+  code analysis into a 12-14 document reference series, optionally compared
+  against a reference project. Use to analyze, reverse-engineer or document how
+  a project works. Trigger on "deep dive", "analyze this repo", "break down this
+  codebase", "how does this project work".
 requires_agent_teams: false
 requires_claude_code: true
 min_plan: starter

@@ -1,14 +1,11 @@
 ---
 name: git-commit
-version: 1.3.0
-description: >
-  Guide for creating git commits in this repository: conventional commit format,
-  allowed types, and branch naming conventions.
-  Use when staging changes and writing a commit message, creating a branch,
-  or naming a branch. Trigger on: "commit", "create a commit", "git commit",
-  "stage changes", "write a commit message", "make a commit", "branch name",
-  "new branch", "create branch". Also use proactively whenever you are about
-  to run `git commit` — even if the user did not explicitly mention this skill.
+version: 1.3.1
+description: >-
+  Conventional commit format, allowed types and branch naming for this repo. Use
+  when staging changes, writing a commit message, or creating or naming a
+  branch, and whenever you're about to run `git commit`. Trigger on "commit",
+  "commit this", "write a commit message", "new branch", "branch name".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter

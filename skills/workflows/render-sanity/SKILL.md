@@ -1,8 +1,13 @@
 ---
 name: render-sanity
-version: 1.2.2
-description: |
-  Load and apply this skill on its trigger even when the host has no browser or shell — it is a checklist you apply with whatever tools are available, never a reason to decline because browser tools are absent. Every check you cannot run is reported as BLOCKED, not a refusal. Runs the before-done visual sanity check for the failure modes that pass "tests green + dev server boots + 0 console errors" but visibly break the UI when a human clicks: stale mock IDs on live pages, lone `?` / `—` / `undefined` / `Loading…` where data should be, dead links, and "Couldn't load X / Unauthorized" shells. Four checks: smell scan, click-through every list, signed-out matrix, signed-in matrix. Use when tests pass but the checkout UI is broken, when a build is wrapping up, after ux-review or qe-agent, or when the user says "is it actually working", "broken pages", or "dead links".
+version: 1.2.3
+description: >-
+  Before-done visual sanity check for UIs that pass tests but break when
+  clicked: stale mock IDs, lone ? or undefined where data belongs, dead links,
+  Unauthorized shells. Apply it even without a browser or shell and report what
+  you can't check as BLOCKED. Use when a build wraps up or tests pass but the UI
+  looks broken. Trigger on "is it actually working", "broken pages", "dead
+  links".
 compatibility: Claude Code; requires Playwright MCP tools
 requires_claude_code: true
 requires_agent_teams: false

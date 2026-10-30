@@ -1,8 +1,12 @@
 ---
 name: playwright
-version: 1.6.0
-description: |
-  Run browser-based E2E tests, capture screenshots, and validate user flows using Playwright with visible Chrome. Use this skill when testing a web UI end-to-end, capturing screenshots for visual review, checking responsive layouts, or auditing accessibility in a real browser. Trigger on: "e2e test", "screenshot the UI", "click through the app", "responsive layout check", "accessibility audit". Also invoke when qe-agent needs browser-level integration testing.
+version: 1.6.1
+description: >-
+  Run browser E2E tests, capture screenshots and validate user flows with
+  Playwright in visible Chrome. Use for end-to-end UI testing, visual review
+  screenshots, responsive checks or accessibility audits, including qe-agent's
+  browser testing. Trigger on "e2e test", "screenshot the UI", "click through
+  the app", "responsive layout check".
 requires_agent_teams: false
 requires_claude_code: false
 min_plan: starter
