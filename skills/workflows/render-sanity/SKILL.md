@@ -1,6 +1,6 @@
 ---
 name: render-sanity
-version: 1.2.3
+version: 1.2.4
 description: >-
   Before-done visual sanity check for UIs that pass tests but break when
   clicked: stale mock IDs, lone ? or undefined where data belongs, dead links,

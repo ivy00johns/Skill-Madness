@@ -1,6 +1,6 @@
 ---
 name: frontend-agent
-version: 1.7.4
+version: 1.7.5
 disable-model-invocation: true
 description: >-
   Build user interfaces: pages, screens, components, routing, client state,

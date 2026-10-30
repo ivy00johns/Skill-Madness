@@ -1,6 +1,6 @@
 ---
 name: ui-brief
-version: 1.2.2
+version: 1.2.3
 description: >-
   Write an opinionated, design-led brief for building or rebuilding a UI so it
   leads with the product's moat instead of a generic shadcn dashboard. Output is
