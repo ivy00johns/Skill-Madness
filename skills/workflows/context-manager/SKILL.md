@@ -1,6 +1,6 @@
 ---
 name: context-manager
-version: 1.2.1
+version: 1.2.2
 description: |
   Manage the context window and session handoffs for long-running and multi-agent builds — watch usage, choose a compaction strategy, and write and validate a structured handoff file so a fresh session or continuation agent picks up cleanly. Use when the context is filling — "context is filling", "the context is too full", "we're running out of context", "compact this", "handoff this conversation", "plan the handoff", "save state", "summarize this session for the next one", "continue in a fresh session" — including mid-orchestrator runs where the lead's context is the bottleneck.
 requires_agent_teams: false
@@ -10,7 +10,7 @@ owns:
   directories: [".claude/handoffs/"]
   patterns: []
   shared_read: ["*"]
-allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob"]
+allowed-tools: ["Read", "Write", "Edit", "Glob"]
 composes_with: ["orchestrator"]
 spawned_by: []
 ---
