@@ -15,7 +15,7 @@ owns:
   patterns: []
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
-composes_with: ["qe-agent", "frontend-agent", "deployment-checklist"]
+composes_with: ["qe-agent", "frontend-agent", "deployment-checklist", "accessibility-audit"]
 spawned_by: ["orchestrator", "qe-agent"]
 ---
 

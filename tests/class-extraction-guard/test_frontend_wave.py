@@ -291,7 +291,10 @@ class FrontendWave(unittest.TestCase):
         import shutil
         fake = self.root / "repo"
         shutil.copytree(REPO / "scripts", fake / "scripts")
-        for path in list((REPO / "skills/roles").glob("*/SKILL.md")) + [REPO / "skills/contracts/contract-auditor/SKILL.md"]:
+        # docs-agent cites accessibility-audit's references, so the fixture carries that skill too,
+        # plus the .env.example marker resource_delivery uses to find the checkout's skill library.
+        shutil.copy(REPO / ".env.example", fake / ".env.example")
+        for path in list((REPO / "skills/roles").glob("*/SKILL.md")) + [REPO / "skills/contracts/contract-auditor/SKILL.md", REPO / "skills/workflows/accessibility-audit/SKILL.md"]:
             target = fake / path.relative_to(REPO)
             target.parent.parent.mkdir(parents=True, exist_ok=True)
             shutil.copytree(path.parent, target.parent)
@@ -302,7 +305,7 @@ class FrontendWave(unittest.TestCase):
         self.assertIn('spawned_by: ["orchestrator"]', native.read_text())
         self.assertIn("disable-model-invocation: true", native.read_text())
         portable = fake / "integrations/gemini-cli/skills"
-        self.assertEqual(len(list(portable.glob("*/SKILL.md"))), 11)
+        self.assertEqual(len(list(portable.glob("*/SKILL.md"))), 12)
         self.assertIn("Explicit solo mode", (portable / "frontend-agent/SKILL.md").read_text())
 
     def test_native_and_solo_role_contracts(self):

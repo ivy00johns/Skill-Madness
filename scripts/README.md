@@ -52,7 +52,7 @@ scripts/convert.sh [--tool <name>] [--out <dir>] [--parallel] [--jobs N] [--help
 
 | Flag | Argument | Default | Effect |
 |---|---|---|---|
-| `--tool` | NAME | all | Convert for a single tool only; use `all` for all targets. Valid names: `claude-code`, `copilot`, `antigravity`, `gemini-cli`, `opencode`, `cursor`, `openclaw`, `qwen`, `kimi`, `aider`, `windsurf`, `all` |
+| `--tool` | NAME | all | Convert for a single tool only; use `all` for all targets. Valid names: `claude-code`, `copilot`, `antigravity`, `agent-skills`, `gemini-cli`, `opencode`, `cursor`, `openclaw`, `qwen`, `kimi`, `aider`, `windsurf`, `all` |
 | `--out` | DIR | `integrations/` | Override output base directory |
 | `--parallel` | — | — | Run per-tool conversions concurrently (only with `--tool all`). Use `--jobs` to set worker count. |
 | `--jobs` | N | nproc (Linux) or sysctl (macOS) | Parallel worker count. Ignored unless `--parallel` is set. |
@@ -71,6 +71,7 @@ See `contracts/installer/per-tool-output-spec.md` for the full specification. Su
 - `claude-code`: `integrations/claude-code/<category>/<slug>/SKILL.md` + references/
 - `copilot`: `integrations/copilot/<slug>.md` + references/
 - `antigravity`: `integrations/antigravity/<slug>/SKILL.md` + references/
+- `agent-skills`: `integrations/agent-skills/<slug>/SKILL.md` + references/ (Agent Skills core; installs to `~/.agents/skills/` for Codex)
 - `gemini-cli`: `integrations/gemini-cli/skills/<slug>/SKILL.md` + manifest
 - `opencode`: `integrations/opencode/agents/<slug>.md`
 - `cursor`: `integrations/cursor/rules/<slug>.mdc` (inline-bundled references)
@@ -147,6 +148,7 @@ scripts/install.sh [OPTIONS] [TOOL ...]
 | Claude Code | `~/.claude/` exists |
 | GitHub Copilot | `command -v code` OR `~/.github/` exists |
 | Antigravity | `~/.gemini/antigravity/skills/` exists |
+| Agent Skills (Codex) | `command -v codex` OR `~/.agents/skills/` exists |
 | Gemini CLI | `command -v gemini` OR `~/.gemini/` exists |
 | OpenCode | `command -v opencode` OR `$PWD/.opencode/` exists |
 | Cursor | `command -v cursor` OR `~/.cursor/` exists |

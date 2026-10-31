@@ -223,6 +223,8 @@ rule to block) means you are not done.
 
 ## Accessibility Verification
 
+The quick list below is the floor. The full procedure (axe scan, manual checks, WCAG/508 mapping) is the `accessibility-audit` skill, run in gate mode.
+
 - Tab through every interactive element — focus indicator visible on each
 - Every `<input>` has an associated `<label>` or `aria-label`
 - Every `<button>` has descriptive text (not just an icon)

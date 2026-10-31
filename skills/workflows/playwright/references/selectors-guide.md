@@ -60,11 +60,11 @@ npx tsx "$RUN_DIR/results/test-script.ts"
 
 ## Accessibility Quick-Check
 
-When testing any page, include a basic accessibility scan using Playwright's built-in accessibility tree:
+When testing any page, include a basic accessibility scan using Playwright's accessibility tree (`page.accessibility` was removed from Playwright; use ARIA snapshots):
 
 ```typescript
-const snapshot = await page.accessibility.snapshot();
-// Check for missing labels, empty buttons, missing alt text
+const tree = await page.locator('body').ariaSnapshot();
+// Look for controls with no name (`- button` with nothing after it), images with no alt, missing landmarks
 ```
 
 Report accessibility findings in a separate section of the report, noting:
@@ -74,4 +74,4 @@ Report accessibility findings in a separate section of the report, noting:
 - Contrast issues (if detectable via computed styles)
 - Missing ARIA landmarks
 
-This is a quick check, not a full WCAG audit — flag obvious issues, don't claim compliance.
+This is a quick check, not a full WCAG audit — flag obvious issues, don't claim compliance. For a real audit (axe-core scan, manual checks, WCAG 2.2 / Section 508 / ADA mapping, ACR/VPAT), use the `accessibility-audit` skill.

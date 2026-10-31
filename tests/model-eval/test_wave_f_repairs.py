@@ -11,7 +11,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts/lib'))
-sys.path.insert(0, str(ROOT / 'skills/workflows/skill-creator'))
+sys.path.insert(0, str(ROOT / 'skills/workflows/madness-skill-creator'))
 from standard_export import export, load
 from scripts.check_matrix import check_cell
 from resource_delivery import source_diagnostics
@@ -54,11 +54,11 @@ def test_matrix_cli_and_no_universal_claim(tmp_path):
     filename = tmp_path / 'cells.json'
     filename.write_text(json.dumps([record]))
     command = [sys.executable, '-m', 'scripts.check_matrix', str(filename)]
-    run = subprocess.run(command, cwd=ROOT / 'skills/workflows/skill-creator', capture_output=True, text=True)
+    run = subprocess.run(command, cwd=ROOT / 'skills/workflows/madness-skill-creator', capture_output=True, text=True)
     assert run.returncode == 0 and json.loads(run.stdout)[0]['accepted']
     record['trajectory']['seconds'] = 121
     filename.write_text(json.dumps([record]))
-    run = subprocess.run(command, cwd=ROOT / 'skills/workflows/skill-creator', capture_output=True, text=True)
+    run = subprocess.run(command, cwd=ROOT / 'skills/workflows/madness-skill-creator', capture_output=True, text=True)
     assert run.returncode == 2
 
 
@@ -98,7 +98,7 @@ def test_matrix_cli_invalid_container_and_negative_trigger(tmp_path):
     for invalid in ('{}', '[]', 'invalid JSON'):
         filename.write_text(invalid)
         run = subprocess.run([sys.executable, '-m', 'scripts.check_matrix', str(filename)],
-                             cwd=ROOT / 'skills/workflows/skill-creator', capture_output=True, text=True)
+                             cwd=ROOT / 'skills/workflows/madness-skill-creator', capture_output=True, text=True)
         assert run.returncode == 2 and not json.loads(run.stdout)['accepted']
         assert 'Traceback' not in run.stderr
     r = cell()

@@ -28,6 +28,7 @@ files or Python caches.
 | claude-code | `integrations/claude-code/` | `~/.claude/skills/<category>/<slug>/` | user | `[[ -d "$HOME/.claude" ]]` |
 | copilot | `integrations/copilot/` | `~/.github/agents/` AND `~/.copilot/agents/` | user | `command -v code` OR `[[ -d "$HOME/.github" ]]` |
 | antigravity | `integrations/antigravity/` | `~/.gemini/antigravity/skills/` | user | `[[ -d "$HOME/.gemini/antigravity/skills" ]]` |
+| agent-skills | `integrations/agent-skills/` | `~/.agents/skills/` (Codex user scope; repos use `.agents/skills/`) | user | `command -v codex` OR `[[ -d "$HOME/.agents/skills" ]]` |
 | gemini-cli | `integrations/gemini-cli/` | `~/.gemini/extensions/alltheskills/` | user | `command -v gemini` OR `[[ -d "$HOME/.gemini" ]]` |
 | opencode | `integrations/opencode/agents/` | `$PWD/.opencode/agents/` | project | `command -v opencode` OR `[[ -d "$PWD/.opencode" ]]` |
 | cursor | `integrations/cursor/rules/` | `$PWD/.cursor/rules/` | project | `command -v cursor` OR `[[ -d "$HOME/.cursor" ]]` |

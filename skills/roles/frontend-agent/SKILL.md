@@ -1,6 +1,6 @@
 ---
 name: frontend-agent
-version: 1.7.4
+version: 1.7.5
 disable-model-invocation: true
 description: >-
   Build user interfaces: pages, screens, components, routing, client state,
@@ -17,7 +17,7 @@ owns:
   patterns: ["*.tsx", "*.jsx", "*.vue", "*.svelte", "*.css"]
   shared_read: ["contracts/", "shared/", "src/types/", "assets/"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
-composes_with: ["backend-agent", "qe-agent", "infrastructure-agent", "contract-author", "frontend-design:frontend-design", "ui-ux-pro-max", "ui-brief", "nano-banana"]
+composes_with: ["backend-agent", "qe-agent", "infrastructure-agent", "contract-author", "frontend-design:frontend-design", "ui-ux-pro-max", "ui-brief", "nano-banana", "accessibility-audit"]
 spawned_by: ["orchestrator"]
 ---
 
@@ -164,6 +164,8 @@ For server-rendered themes (WordPress / Rails / Phoenix / Django / PHP) the same
 ### 7. Accessibility (non-negotiable)
 
 Focus indicators, labels on inputs, descriptive button text, alt text, keyboard navigation, aria-live for loading/error.
+
+Before reporting UI work done, run the `accessibility-audit` skill in gate mode on the changed components. Blockers and Serious findings mean not done. The target is WCAG 2.2 AA unless the plan or brief names another standard (Section 508, ADA Title II, EN 301 549).
 
 ## Coordination Rules
 

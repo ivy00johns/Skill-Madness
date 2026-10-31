@@ -13,7 +13,7 @@
 
 ## Where we are
 
-Skill-Madness is a mature **79-skill** library across **seven categories** — a contract-first multi-agent orchestrator (14 phases), 10 role agents with exclusive file ownership, contract/meta/git/workflow skills, and a **13-skill autonomous-loop library** — with a runtime + install layer on top. Several large efforts and two audits have landed; most recently the **entire autonomous-loop backlog** (`docs/research/DEEP-RESEARCH-LOOPS.md` §10) shipped across PRs #24–#30, taking the catalog 50 → 67:
+Skill-Madness is a mature **80-skill** library across **seven categories** — a contract-first multi-agent orchestrator (14 phases), 10 role agents with exclusive file ownership, contract/meta/git/workflow skills, and a **13-skill autonomous-loop library** — with a runtime + install layer on top. Several large efforts and two audits have landed; most recently the **entire autonomous-loop backlog** (`docs/research/DEEP-RESEARCH-LOOPS.md` §10) shipped across PRs #24–#30, taking the catalog 50 → 67:
 
 1. **Skill curation** (from `DeepResearch/skills-comparative_deepdive/PLAN-skill-creator.md`): authored 8 new skills, migrated 6, merged 3 pairs into 3 unified skills, and applied 8 categories of bulk in-place edits. Fully executed.
 2. **Ecosystem audit — surface pass** (`audit/MASTER_AUDIT_PLAN.md`, 7-dimension rubric, avg 4.49/5): all critical findings closed — 5 broken `composes_with` cross-references fixed, 7 oversized descriptions trimmed under the 1024-char ceiling, 2 missing frontmatter blocks restored. This was the *style / compliance / cross-ref* layer; its per-skill reports now live in `audit/reports-v1-sufrace/`.
@@ -49,6 +49,7 @@ FUTURE overlaps are narrowed, not wholesale promoted: UA-19 extends F3/F5's smal
 
 Items move here on ship. Format: `<ref> (date) — <one-line summary>`.
 
+- **UF-2 accessibility-audit** (2026-10-27) — new workflow skill for WCAG 2.2 AA / Section 508 / ADA audits (axe scanner, manual checks, content pass, ACR/VPAT draft), linked into frontend-, qe- and docs-agent, ui-brief, render-sanity, playwright and orchestrator routing; catalog 79 → 80. Evals and two unverified regulatory facts stay open on the ledger row.
 - **Universal-audit Sol review** (2026-10-05, isolated uncommitted worktree) — repaired evaluation proof/isolation/holdout leakage, fail-closed capability/export boundaries, executable resource/capture bounds, scoped consent and mechanical loop budget/freeze controls. **31 rows locally implemented; UA-19 open**, live model cells NOT RUN, independent QE UNVERIFIED. The [review](docs/reviews/2026-10-universal-audit/10-sol-review.md) records actual verification and limits; no paid call, real-HOME install, commit/push/PR or production mutation.
 
 - **PLAN-skill-creator Phase 0** (2026-05-17) — `skills/archive/` (6 retired skills + README) and `skills/in-progress/` (empty, sync-excluded) established.

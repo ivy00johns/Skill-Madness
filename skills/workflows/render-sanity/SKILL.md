@@ -1,6 +1,6 @@
 ---
 name: render-sanity
-version: 1.2.3
+version: 1.2.4
 description: >-
   Before-done visual sanity check for UIs that pass tests but break when
   clicked: stale mock IDs, lone ? or undefined where data belongs, dead links,
@@ -23,7 +23,7 @@ owns:
   directories: []
   patterns: []
   shared_read: ["*"]
-composes_with: ["ux-review", "orchestrator", "frontend-agent", "feature-dev:feature-dev", "playwright"]
+composes_with: ["ux-review", "orchestrator", "frontend-agent", "feature-dev:feature-dev", "playwright", "accessibility-audit"]
 spawned_by: ["orchestrator", "ux-review"]
 ---
 
@@ -186,7 +186,7 @@ checks: mark them **BLOCKED** with the reason and move on.
 ## What this skill is NOT
 
 - **Not visual review.** "The spacing feels off" / "the gradient is harsh" — those belong to `ux-review`. This skill has no opinion about aesthetics.
-- **Not accessibility audit.** Heading hierarchy, ARIA labels, keyboard nav — `ux-review` or a11y tooling.
+- **Not accessibility audit.** Heading hierarchy, ARIA labels, keyboard nav, WCAG/508/ADA — `accessibility-audit`.
 - **Not performance.** Bundle size, LCP, hydration — `performance-agent`.
 - **Not contract conformance.** Whether the API matches the OpenAPI spec — `qe-agent` / `contract-auditor`.
 - **Not test coverage.** Whether the unit tests cover this code — `qe-agent`.

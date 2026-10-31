@@ -75,7 +75,7 @@ setup_file() {
   OUTDIR_SKIP="$(mktemp -d /tmp/ats-skip.XXXXXX)"
 
   local tool
-  for tool in claude-code copilot antigravity gemini-cli opencode cursor openclaw qwen kimi aider windsurf; do
+  for tool in claude-code copilot antigravity agent-skills gemini-cli opencode cursor openclaw qwen kimi aider windsurf; do
     bash "$FAKEREPO_SKIP/scripts/convert.sh" --tool "$tool" --out "$OUTDIR_SKIP" \
       2>"$OUTDIR_SKIP/.stderr.$tool" || true
   done
@@ -125,6 +125,11 @@ teardown_file() {
 @test "cc-only: skipped for antigravity with stderr warning" {
   ! [ -d "$OUTDIR_SKIP/antigravity/cc-only" ]
   grep -q "skipping meta/cc-only for antigravity" "$OUTDIR_SKIP/.stderr.antigravity"
+}
+
+@test "cc-only: skipped for agent-skills with stderr warning" {
+  ! [ -d "$OUTDIR_SKIP/agent-skills/cc-only" ]
+  grep -q "skipping meta/cc-only for agent-skills" "$OUTDIR_SKIP/.stderr.agent-skills"
 }
 
 @test "cc-only: skipped for gemini-cli with stderr warning" {

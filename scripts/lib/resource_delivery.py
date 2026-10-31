@@ -11,7 +11,7 @@ import shutil
 import stat
 import tempfile
 
-TOOLS = ('claude-code', 'copilot', 'antigravity', 'gemini-cli', 'opencode',
+TOOLS = ('claude-code', 'copilot', 'antigravity', 'agent-skills', 'gemini-cli', 'opencode',
          'cursor', 'openclaw', 'qwen', 'kimi', 'aider', 'windsurf')
 RESOURCE_DIRS = ('references', 'scripts', 'assets', 'agents', 'eval-viewer',
                  'template', 'templates', 'sources')
@@ -99,8 +99,8 @@ def layout(tool, category, slug):
     if tool == 'gemini-cli':
         root = 'skills/' + slug
         return root, [root + '/SKILL.md']
-    if tool in ('antigravity', 'openclaw', 'kimi'):
-        names = {'antigravity': ['SKILL.md'], 'openclaw': ['SOUL.md', 'AGENTS.md', 'IDENTITY.md'],
+    if tool in ('antigravity', 'agent-skills', 'openclaw', 'kimi'):
+        names = {'antigravity': ['SKILL.md'], 'agent-skills': ['SKILL.md'], 'openclaw': ['SOUL.md', 'AGENTS.md', 'IDENTITY.md'],
                  'kimi': ['agent.yaml', 'system.md']}[tool]
         return slug, [slug + '/' + n for n in names]
     prefix = {'opencode': 'agents/', 'qwen': 'agents/', 'cursor': 'rules/'}.get(tool, '')
@@ -207,10 +207,10 @@ def bundle(skill, tool_root, tool, category, slug):
     diagnostics = source_diagnostics(skill)
     if diagnostics['missing']:
         raise ValueError('missing local resources: ' + ', '.join(diagnostics['missing']))
-    if skill.parent.name == 'skill-creator':
+    if skill.parent.name == 'madness-skill-creator':
         required = ['agents/grader.md', 'assets/eval_review.html', 'eval-viewer/generate_review.py', 'eval-viewer/viewer.html']
         if any(not (skill.parent / p).is_file() for p in required):
-            raise ValueError('skill-creator required helper resources missing')
+            raise ValueError('madness-skill-creator required helper resources missing')
     contained(root / '.boundary-check', tool_root)
     root.mkdir(parents=True, exist_ok=True)
     for src in files:
@@ -219,7 +219,7 @@ def bundle(skill, tool_root, tool, category, slug):
         shutil.copy2(src, dst)
     # Flat/consolidated formats also retain a usable skill-root prompt. Native
     # Claude's original prompt is never rewritten; legacy flat companions stay.
-    if tool != 'claude-code' and tool != 'gemini-cli' and tool != 'antigravity':
+    if tool not in ('claude-code', 'gemini-cli', 'antigravity', 'agent-skills'):
         if tool in ('copilot', 'opencode', 'qwen', 'cursor'):
             text = (tool_root / prompts[0]).read_text()
             if tool == 'cursor':
@@ -228,10 +228,10 @@ def bundle(skill, tool_root, tool, category, slug):
         else:
             (root / 'SKILL.md').write_text(skill.read_text())
     # Standard companion roots export standard types, never native arrays.
-    # Antigravity's prompt is already a standard export (convert_antigravity runs
-    # standard_export.py, keeping risk/source/date_added in metadata), so it is
-    # not exported twice; native Claude keeps its original prompt.
-    if tool not in ('claude-code', 'antigravity'):
+    # Antigravity and agent-skills prompts are already standard exports (their
+    # converters run standard_export.py; antigravity keeps risk/source/date_added
+    # in metadata), so they aren't exported twice; native Claude keeps its prompt.
+    if tool not in ('claude-code', 'antigravity', 'agent-skills'):
         from standard_export import export
         (root / 'SKILL.md').write_text(export(skill.read_text()), encoding='utf-8')
     # Repo-maintenance consumers must use the actual checkout, not pretend their
@@ -246,7 +246,7 @@ def bundle(skill, tool_root, tool, category, slug):
     checkout.extend(p.removeprefix('checkout/') for p in diagnostics['external_dependencies'] if p.startswith('checkout/'))
     runtime = {'schema_version': 1, 'skill': slug, 'category': category,
                'skill_dependencies': [p for p in diagnostics['external_dependencies'] if not p.startswith('checkout/')],
-               'skill_root': '.', 'runtime': 'project toolchain; Python 3.10+ for creator/nano helpers' if slug in ('skill-creator', 'nano-banana') else 'project toolchain; Python 3.9+ for delivery helpers',
+               'skill_root': '.', 'runtime': 'project toolchain; Python 3.10+ for creator/nano helpers' if slug in ('madness-skill-creator', 'nano-banana') else 'project toolchain; Python 3.9+ for delivery helpers',
                'checkout_dependencies': sorted(set(checkout)),
                'secrets': 'explicit process environment; optional ATS_ENV_FILE selected by owner; never bundled',
                'resources': [str(p.relative_to(skill.parent)) for p in files]}
@@ -334,6 +334,7 @@ def destinations(tool, rel, home, project):
     roots = {'claude-code': [home / '.claude/skills'],
              'copilot': [home / '.github/agents', home / '.copilot/agents'],
              'antigravity': [home / '.gemini/antigravity/skills'],
+             'agent-skills': [home / '.agents/skills'],
              'gemini-cli': [home / '.gemini/extensions/alltheskills'],
              'opencode': [project / '.opencode'], 'cursor': [project / '.cursor'],
              'qwen': [project / '.qwen'], 'openclaw': [home / '.openclaw/alltheskills'],

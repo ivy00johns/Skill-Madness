@@ -1,6 +1,6 @@
 ---
 name: qe-agent
-version: 1.6.2
+version: 1.6.3
 disable-model-invocation: true
 description: "Verify implementations match contracts, integrations connect and edge cases are handled in native orchestrator dispatch or explicitly requested solo QA. Own qa-report.json; disclose missing independence and blocked runtime checks. Load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/shell host; requires project test tools and Python 3; native Claude dispatch retained"
@@ -12,7 +12,7 @@ owns:
   patterns: ["*.test.*", "*.spec.*", "qa-report.md", "qa-report.json"]
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"]
-composes_with: ["backend-agent", "frontend-agent", "infrastructure-agent", "security-agent", "contract-auditor", "performance-agent", "playwright"]
+composes_with: ["backend-agent", "frontend-agent", "infrastructure-agent", "security-agent", "contract-auditor", "performance-agent", "playwright", "accessibility-audit"]
 spawned_by: ["orchestrator"]
 ---
 
@@ -82,6 +82,7 @@ Pick the right tool per test:
 - **curl / httpie** — fastest for API-level verification. Preferred default.
 - **Test files** (`tests/integration/`) — when the project has a runner configured. Tests persist as regression coverage.
 - **Playwright (via `/playwright` skill)** — for any test requiring a real browser: user flows, frontend rendering checks, visual regression, UI-state acceptance criteria. Invoke when there's a frontend and the plan includes E2E, when you need to verify the UI reflects backend state after mutations, or when acceptance criteria reference what the user *sees*. Runs in report mode by default and returns a structured report + screenshot paths you incorporate into the QA report.
+- **Accessibility (via `accessibility-audit` skill)** — whenever a frontend is in scope. Run audit mode on the running app, and record its summary (standard, automated counts, manual checks, Not Evaluated items) in the QA report. Accessibility Blockers are CRITICAL blockers. Never report "accessible" or "compliant" from an axe run alone.
 
 Run in this order:
 

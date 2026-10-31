@@ -36,7 +36,7 @@ setup_file() {
 
   # Run each tool once; capture stderr per-tool so tests can inspect it
   local tool
-  for tool in claude-code copilot antigravity gemini-cli opencode cursor openclaw qwen kimi aider windsurf; do
+  for tool in claude-code copilot antigravity agent-skills gemini-cli opencode cursor openclaw qwen kimi aider windsurf; do
     bash "$FAKEREPO/scripts/convert.sh" --tool "$tool" --out "$OUTDIR" \
       2>"$OUTDIR/.stderr.$tool"
   done
@@ -146,6 +146,22 @@ teardown_file() {
 
 @test "antigravity: references copied alongside" {
   [ -d "$OUTDIR/antigravity/with-references/references" ]
+}
+
+# ---------------------------------------------------------------------------
+# agent-skills — Agent Skills standard layout for ~/.agents/skills (Codex), DR-2
+# ---------------------------------------------------------------------------
+@test "agent-skills: minimal-agent output at <slug>/SKILL.md" {
+  [ -f "$OUTDIR/agent-skills/minimal-agent/SKILL.md" ]
+}
+
+@test "agent-skills: top-level frontmatter is Agent Skills core only" {
+  run python3 -c 'import sys,yaml; fm=yaml.safe_load(open(sys.argv[1]).read().split("---")[1]); bad=set(fm)-{"name","description","license","compatibility","metadata","allowed-tools"}; sys.exit(1 if bad else 0)' "$OUTDIR/agent-skills/full-agent/SKILL.md"
+  [ "$status" -eq 0 ]
+}
+
+@test "agent-skills: references copied alongside" {
+  [ -d "$OUTDIR/agent-skills/with-references/references" ]
 }
 
 # ---------------------------------------------------------------------------

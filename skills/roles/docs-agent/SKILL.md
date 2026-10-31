@@ -1,6 +1,6 @@
 ---
 name: docs-agent
-version: 1.3.3
+version: 1.3.4
 disable-model-invocation: true
 description: "Generate project documentation, API docs, READMEs and changelogs in native orchestrator dispatch or explicitly requested solo documentation work. Read real contracts and code; load it when the orchestrator assigns this role or the user asks for it."
 compatibility: "Read/edit host; native Claude dispatch retained"
@@ -12,7 +12,15 @@ owns:
   patterns: ["README.md", "CHANGELOG.md", "CONTRIBUTING.md"]
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep"]
-composes_with: ["backend-agent", "frontend-agent", "infrastructure-agent", "mermaid-charts", "contract-author"]
+composes_with:
+  [
+    "backend-agent",
+    "frontend-agent",
+    "infrastructure-agent",
+    "mermaid-charts",
+    "contract-author",
+    "accessibility-audit",
+  ]
 spawned_by: ["orchestrator"]
 ---
 
@@ -118,5 +126,6 @@ Before reporting completion:
 - [ ] Project structure overview matches actual file tree
 - [ ] CHANGELOG follows Keep a Changelog format
 - [ ] No broken internal links
+- [ ] User-facing docs pass the content checks in the `accessibility-audit` skill (`references/content-design.md`): descriptive link text, real heading levels, alt text on images, no screenshots standing in for text, and plain language for the named audience
 
 The **qe-agent** weighs documentation quality in its `completeness` and `code_quality` scores. Those scores are recorded but do NOT gate the build — the build gate blocks only on a CRITICAL blocker, `contract_conformance.score < 3`, or `security.score < 3`. Docs work does not block the build via `completeness`/`code_quality`, but ship complete, accurate docs anyway: weak docs lower those recorded scores and can be cited as issues, and a severe gap (e.g., docs that contradict the contract) could be raised as a CRITICAL blocker.

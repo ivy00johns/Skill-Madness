@@ -43,7 +43,7 @@ LIB_DIR="$SCRIPT_DIR/lib"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INTEGRATIONS="$REPO_ROOT/integrations"
 
-ALL_TOOLS=(claude-code copilot antigravity gemini-cli opencode cursor openclaw qwen kimi aider windsurf)
+ALL_TOOLS=(claude-code copilot antigravity agent-skills gemini-cli opencode cursor openclaw qwen kimi aider windsurf)
 
 # Only worker invocations inherit the parent's parsed preview choice.
 if [[ "${ATS_INSTALL_WORKER:-}" == "1" ]]; then
@@ -146,6 +146,7 @@ check_tool_integration() {
 detect_claude_code()  { [[ -d "${HOME}/.claude" ]]; }
 detect_copilot()      { command -v code >/dev/null 2>&1 || [[ -d "${HOME}/.github" || -d "${HOME}/.copilot" ]]; }
 detect_antigravity()  { [[ -d "${HOME}/.gemini/antigravity/skills" ]]; }
+detect_agent_skills() { command -v codex >/dev/null 2>&1 || [[ -d "${HOME}/.agents/skills" ]]; }
 detect_gemini_cli()   { command -v gemini >/dev/null 2>&1 || [[ -d "${HOME}/.gemini" ]]; }
 detect_opencode()     { command -v opencode >/dev/null 2>&1 || [[ -d "$PWD/.opencode" ]]; }
 detect_cursor()       { command -v cursor >/dev/null 2>&1 || [[ -d "${HOME}/.cursor" ]]; }
@@ -160,6 +161,7 @@ is_detected() {
     claude-code)  detect_claude_code  ;;
     copilot)      detect_copilot      ;;
     antigravity)  detect_antigravity  ;;
+    agent-skills) detect_agent_skills ;;
     gemini-cli)   detect_gemini_cli   ;;
     opencode)     detect_opencode     ;;
     cursor)       detect_cursor       ;;
@@ -180,6 +182,7 @@ tool_label() {
     claude-code)  printf '%-14s  %s' 'Claude Code'  '(~/.claude/skills/)'          ;;
     copilot)      printf '%-14s  %s' 'Copilot'      '(~/.github + ~/.copilot)'     ;;
     antigravity)  printf '%-14s  %s' 'Antigravity'  '(~/.gemini/antigravity)'      ;;
+    agent-skills) printf '%-14s  %s' 'Agent Skills' '(~/.agents/skills, Codex)'    ;;
     gemini-cli)   printf '%-14s  %s' 'Gemini CLI'   '(gemini extension)'           ;;
     opencode)     printf '%-14s  %s' 'OpenCode'     '(.opencode/agents)'           ;;
     cursor)       printf '%-14s  %s' 'Cursor'       '(.cursor/rules)'              ;;
@@ -603,6 +606,28 @@ install_antigravity() {
   ats_ok "Antigravity: $count skills -> $dest"
 }
 
+install_agent_skills() {
+  local src="$INTEGRATIONS/agent-skills"
+  local dest="${HOME}/.agents/skills"
+  local count=0 skill_dir skill_name
+
+  check_tool_integration "agent-skills" || return 1
+
+  while IFS= read -r -d '' skill_dir; do
+    skill_name="$(basename "$skill_dir")"
+    if $DRY_RUN; then
+      printf '  [dry-run] would install: %s -> %s/%s\n' "$skill_dir" "$dest" "$skill_name"
+      count=$(( count + 1 ))
+      continue
+    fi
+    mkdir -p "$dest/$skill_name"
+    install_dir "$skill_dir" "$dest/$skill_name"
+    count=$(( count + 1 ))
+  done < <(find "$src" -mindepth 1 -maxdepth 1 -type d -print0 | sort -z)
+
+  ats_ok "Agent Skills: $count skills -> $dest"
+}
+
 install_gemini_cli() {
   local src="$INTEGRATIONS/gemini-cli"
   local dest="${HOME}/.gemini/extensions/alltheskills"
@@ -893,6 +918,7 @@ install_tool() {
     claude-code)  install_claude_code  ;;
     copilot)      install_copilot      ;;
     antigravity)  install_antigravity  ;;
+    agent-skills) install_agent_skills ;;
     gemini-cli)   install_gemini_cli   ;;
     opencode)     install_opencode     ;;
     cursor)       install_cursor       ;;
