@@ -74,8 +74,7 @@ andon route "flaky login" --json
 ```
 
 It reports the eligible machines, the preferred one (a queued run's 30-second head start) and the queue reason,
-straight from the routing functions. A card whose `skill` field names a skill the machine's catalog doesn't have
-queues with `no_skill`; that's why `plan-to-cards.md` keeps skills in the notes instead. A machine-policy reason (a
+straight from the routing functions. A machine-policy reason (a
 recipe or harness not approved there) is fixed in `machine-admin.md` with the person's yes.
 
 ## Check a machine

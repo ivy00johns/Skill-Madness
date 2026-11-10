@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """Turn a plan's cards into Andon cards whose notes tell the run which skills to load.
 
-Andon gives a run the card's title and notes as its prompt. It has a native per-card `skill` field, but capture can't
-set it, it holds one skill, and the machine catalog behind it skips symlinked skills (every Skill-Madness skill on a
-`/sync-skills` machine). Until Andon reads skills natively, the skills go in the notes, as the first thing the run
-reads. This script writes that block the same way every time, checks the names, and captures the cards.
+Andon gives a run the card's title and notes as its prompt, and it has no per-card skills (andon PR #499 removed the
+skills shelf), so the skills a run must load go in the notes, as the first thing it reads. This script writes that
+block the same way every time, checks the names exist, and captures the cards.
 
 Input is a JSON file (see references/plan-to-cards.md for the full shape):
 
   {"team": "Web", "project": "Login revamp", "recipe": "code-change", "group": null,
-   "plan": "docs/plans/login.md",
+   "plan": "docs/plans/login.md", "repo": "~/Work/web",       # optional: also look in <repo>/.claude/skills
    "cards": [{"key": "api", "title": "Add the session endpoint", "goal": "...", "where": "...",
               "done": ["..."], "skills": [{"name": "contract-author", "why": "spec first"}, "fix-until-green"],
               "depends_on": []}]}
@@ -83,13 +82,14 @@ def skill_entry(s) -> dict:
     die(f"a skill must be a name or {{name, why}}: {s!r}")
 
 
-def find_skill(name: str):
-    """(path, symlinked) for the first shelf that has the skill, else (None, False)."""
+def find_skill(name: str, repo):
+    """Where the skill is: "repo" (the team repo's .claude/skills), "user" (this machine's shelves), or None."""
+    if repo and (Path(repo).expanduser() / ".claude" / "skills" / name / "SKILL.md").is_file():
+        return "repo"
     for shelf in SHELVES:
-        p = shelf / name
-        if (p / "SKILL.md").is_file():
-            return p, p.is_symlink()
-    return None, False
+        if (shelf / name / "SKILL.md").is_file():
+            return "user"
+    return None
 
 
 def order(cards: list) -> list:
@@ -122,8 +122,7 @@ def skills_block(skills: list) -> str:
     lines = [
         "## Skills to use",
         "",
-        "Load each of these skills before you start, and follow it. They are Skill-Madness skills installed on this",
-        "machine.",
+        "Load each of these skills before you start, and follow it.",
         "",
     ]
     for s in skills:
@@ -133,9 +132,8 @@ def skills_block(skills: list) -> str:
         "How to load one:",
         "",
         "1. Claude Code: invoke it by name (the Skill tool, or `/<name>`).",
-        "2. If it isn't listed (Codex, Gemini, or a run with its own Claude home): read",
-        "   `~/.claude/skills/<name>/SKILL.md` (or `~/.agents/skills/<name>/SKILL.md`) and follow it.",
-        "3. If the andon tool `use_skill` finds the name, call it too, so the board records that the skill was used.",
+        "2. If it isn't listed (Codex, Gemini, or a run under a harness): read its `SKILL.md` and follow it. Look in",
+        "   the repository's `.claude/skills/<name>/`, then `~/.claude/skills/<name>/`, then `~/.agents/skills/<name>/`.",
         "",
         "In your final report, name the skills you loaded and any you could not find.",
     ]
@@ -200,34 +198,30 @@ def main():
         die("two cards share a key")
 
     # Every skill named must be on this machine's shelf, or the run can't load it.
-    problems, symlinked = [], set()
+    problems, repo = [], spec.get("repo")
     for c in cards:
         if not c.get("skills"):
             print(f'warn: "{c["title"]}" names no skills; the run will choose its own', file=sys.stderr)
         for s in (skill_entry(x) for x in c.get("skills", [])):
-            path, link = find_skill(s["name"])
-            if not path:
-                problems.append(f'"{c["title"]}": skill "{s["name"]}" is not in ~/.claude/skills or ~/.agents/skills')
-            elif link:
-                symlinked.add(s["name"])
+            if not find_skill(s["name"], repo):
+                where = f"{repo}/.claude/skills, " if repo else ""
+                problems.append(f'"{c["title"]}": skill "{s["name"]}" is not in {where}~/.claude/skills or ~/.agents/skills'
+                                + ("" if repo else ' (set "repo" if it is a repo skill)'))
     for p in problems:
         print(f"{'warn' if a.allow_unknown_skills else 'error'}: {p}", file=sys.stderr)
     if problems and not a.allow_unknown_skills:
         die("fix the skill names (or pass --allow-unknown-skills)")
-    if symlinked:
-        print(f"note: {len(symlinked)} skill(s) are symlinks, which Andon's catalog skips, so `use_skill` won't find them;"
-              " the notes tell the run to read them by path instead.", file=sys.stderr)
 
     # A receipt from an earlier --send: cards it records as landed are skipped (and their keys reused), so a retry
     # after a failure resumes instead of duplicating the board. --again ignores it.
     receipt = src.with_suffix(".receipt.json")
     landed = {}
-    if receipt.exists() and not a.again:
+    if a.send and receipt.exists() and not a.again:
         try:
             landed = {x["key"]: x for x in json.loads(receipt.read_text()).get("cards", []) if x.get("status") == 201}
         except (OSError, json.JSONDecodeError, KeyError):
             die(f"{receipt} is unreadable; fix or move it, or pass --again")
-        if landed and len(landed) == len(cards):
+        if a.send and landed and len(landed) == len(cards):
             die(f"{receipt}: every card already landed (pass --again to capture them all again)")
 
     url, token, board = endpoint()

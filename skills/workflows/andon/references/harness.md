@@ -6,7 +6,8 @@ listing them. The run records the bundle's hash, so runs can be compared by the 
 `docs/harnesses.md` uses "madness" as its example; this is how to make that real.
 
 Rules below mirror the Andon commit in `andon-pin.json` (`packages/shared/src/harness.ts`, `apps/agent/src/harness.ts`).
-A harness is **team-scoped**; a machine's own skill shelves are a separate catalog (Settings → Skills).
+A harness is **team-scoped**, and it is the only way Andon itself installs skills for a run (the per-card skills shelf
+is being removed, andon PR #499). For skills that differ per card, use the notes (`plan-to-cards.md`).
 
 ## Why a build step
 
@@ -45,7 +46,7 @@ The bundle's `harness.json` declares the stages. The default is:
 | `verify` | agent | after `build`; "typecheck, lint and tests pass"           |
 
 Andon then appends its own `review` → `ci` → `merge`, which a bundle cannot redefine. The harness brief tells a run
-whose skill plans work to call `propose_tickets`, so that work becomes cards on the board rather than files. To change the stages, pass
+whose skill plans work to call `propose_steps`, so that work becomes cards on the board rather than files. To change the stages, pass
 `--outline stages.json` (a JSON list of stages, or a whole `harness.json`). Stage fields: `key`, `label`,
 `actor` (`agent` or `human`), `recipe`, `gate` (`requires`, `max_rounds`), `depends_on`, `produces`. At most 12
 stages. Today a run is told it is in the first stage; the runner that walks later stages is not built yet.

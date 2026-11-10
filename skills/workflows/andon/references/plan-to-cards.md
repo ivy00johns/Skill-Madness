@@ -9,17 +9,18 @@ each card's notes telling the run which skills to load. Checked against the Ando
   Captured notes pass through as instructions. Only a card imported from a tracker (`source = link`) has its notes
   fenced as untrusted data, so **never put the skills block on an imported card**; capture a new card instead.
 - Captures land in the team's first column (the **Backlog**) and never start a run.
-- Andon's native skill support is not usable for this yet. The card `skill` field can't be set by capture and
-  holds one skill. The machine catalog behind `use_skill` and skill routing skips symlinked skill folders, and
-  `/sync-skills` installs every Skill-Madness skill as a symlink. A plain Claude Code run still sees them by name
-  through `~/.claude/skills`, and Codex sees them through `~/.agents/skills` and `~/.codex/skills`. A run with a
-  harness or a chosen skill gets its own Claude home, so the block also gives the path to read.
+- Andon has no per-card skills (andon PR #499 removes the incomplete skills shelf: the card's Skill field,
+  `use_skill`, `list_skills`, Settings → Skills). The notes are the only way to tell a run which skills to use.
+- A plain Claude Code run sees skills by name: the repository's `.claude/skills` and `~/.claude/skills` (symlinks
+  from `/sync-skills` are fine). Codex sees `~/.agents/skills` and `~/.codex/skills`. A run under a harness gets its
+  own Claude home with only the harness's skills, so the block also says where to read each `SKILL.md`.
 
 ## Step 1: get the plan into cards
 
 From a `plan-builder` plan, one card per **Key Feature** (or per component when features are small). Each
-component and feature carries a `**Skills:**` line; when one doesn't, choose skills now from the catalog
-(`skill-explorer`'s routing table) and say which you chose. Write `cards.json` beside the plan:
+component and feature carries a `**Skills:**` line; when one doesn't, choose skills now (`skill-explorer`'s routing
+table) and say which you chose. Set `repo` to the team repository's checkout when cards name skills that live in its
+`.claude/skills`. Write `cards.json` beside the plan:
 
 ```json
 {
@@ -55,6 +56,7 @@ component and feature carries a `**Skills:**` line; when one doesn't, choose ski
 | `team`, `project`     | file, card | Exact names (or ids) as the board shows them. A project alone brings its team                 |
 | `recipe`              | file, card | Recipe **slug**: `code-change`, `bug`, `app-new`, `generic`, `plan`, `study`, … (the board's own list wins) |
 | `template`            | file, card | A card template's name; a name that matches nothing refuses the capture                       |
+| `repo`                | file       | The team repo's local checkout; its `.claude/skills` count as installed for the name check |
 | `group`               | file       | `null` for separate cards and PRs; `"new"` for one planned PR group holding every card, in order; or an open group's name |
 | `skills`              | card       | Names, or `{name, why}`. Each must be installed on this machine (the script checks)           |
 | `goal`, `where`, `done`, `notes`, `url` | card | The rest of the notes, in that order after the skills block                       |
@@ -70,8 +72,7 @@ or four is typical; a long list gets skimmed. Don't name `madness` on a card tha
 python3 skills/workflows/andon/scripts/push_cards.py cards.json          # prints every card's notes and payload
 ```
 
-It refuses unknown skill names, cycles, and unknown `depends_on` keys. It notes which skills are symlinks, which is
-expected. Show the person a short list (title, team › project, recipe, skills) and capture on a yes.
+It refuses unknown skill names, cycles, and unknown `depends_on` keys. Show the person a short list (title, team › project, recipe, skills) and capture on a yes.
 
 ## Step 3: send
 
@@ -97,7 +98,7 @@ plain to-do.
 ## Step 5: start them
 
 - Dependencies are written in the notes, not enforced: Andon's native dependencies come only from its own planners
-  (`propose_tickets`, a study's accepted proposal, Start Work's plan). So start cards in order: the first, then each
+  (a Plan card's `propose_steps`, a study's accepted proposal, Start Work's plan). So start cards in order: the first, then each
   one whose dependencies are done. A `"group": "new"` push ships as one PR and runs its cards in order by itself.
 - Start one with the card's **Run** button, or `andon run <KEY>` (`andon run "<group name>"` for a group) where the
   installed agent has it (`andon --help`). Ask before starting runs the person didn't ask to start.

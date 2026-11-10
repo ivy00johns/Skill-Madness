@@ -1,6 +1,6 @@
 ---
 name: andon
-version: 0.2.0
+version: 0.3.0
 description: |
   Run work through a live Andon board (the kanban that dispatches cards to Claude Code, Codex and Gemini on your machines): push a plan's cards with the skills each run must load, read the board, answer what needs you, administer a machine, and refresh this skill when Andon changes. Trigger on "/andon", "put this plan on andon", "what needs me on andon", "why isn't my card running".
 compatibility: "Any host with a shell and python3; the andon CLI on an enrolled machine, a capture token, or a connect token for the board's API"
@@ -40,11 +40,10 @@ guess. Questions about how Andon _works_ are answered from its docs or code.
 4. From **any** harness, `/andon` reads the board and the Needs you list to say what's running, done, or waiting
    (`references/board.md`, `references/attention.md`).
 
-**Why skills go in the notes.** Andon does have native skills (a card's `skill` field, `use_skill`, the machine
-catalog), but today capture can't set the field, the field holds one skill, and the catalog skips symlinked skills,
-which is every Skill-Madness skill on a `/sync-skills` machine. Until Andon handles this itself, the run learns which
-skills to load from its prompt, so the notes must say it, in the same words every time. `push_cards.py` writes that
-block; don't hand-write it.
+**Why skills go in the notes.** Andon has no per-card skills: its skills shelf (the card's Skill field,
+`use_skill`, Settings → Skills) is being removed (andon PR #499); skills are not an Andon feature. A run learns which skills
+to load only from its prompt, so the notes must say it, in the same words every time. `push_cards.py` writes that
+block; don't hand-write it. A harness (`references/harness.md`) still installs a fixed bundle of skills per team.
 
 ## Andon moves fast: check before you trust this file
 

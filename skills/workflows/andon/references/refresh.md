@@ -27,14 +27,14 @@ then the doc that explains it. Sort each change:
 | A CLI command or flag added, renamed or removed      | `board.md` / `machine-admin.md`, and mark it **(new)** until installed agents have it |
 | Capture fields or responses (`supabase/functions/capture`) | `board.md` capture section, `plan-to-cards.md`, `push_cards.py` |
 | How notes reach the prompt (`template.ts`, recipes)  | `plan-to-cards.md` "How a card reaches the run"; recheck the skills block |
-| Skills: catalog, `use_skill`, card `skill` field, capture setting skills | `plan-to-cards.md`, the skills block in `push_cards.py`, SKILL.md "Why skills go in the notes" |
+| Anything that gives a run skills (a new per-card skills design, capture fields, the run brief) | `plan-to-cards.md`, the skills block in `push_cards.py`, SKILL.md "Why skills go in the notes" |
 | Attention / Needs you API                            | `attention.md`                                               |
 | Harness format or limits                             | `harness.md`, `build_harness.py`                             |
 | A new area the skill should know about               | Add the file to `watched` and a line to the routing table    |
 
-**Watch for native skill support.** The notes-based skills block exists because capture can't set skills, a card
-holds one, and the catalog skips symlinks. When Andon fixes one of those, update that part of the workaround, and
-retire it entirely once runs get every named skill natively.
+**Skills are not an Andon feature.** Andon gives runs skills only through a team's harness; its per-card skills
+shelf was removed (andon PR #499). So the skills block in the notes is how this skill works, not a stopgap. If a
+watched change ever does install per-card skills, say so to the person before changing `push_cards.py`.
 
 ## Step 3: verify against the live system
 
