@@ -64,6 +64,7 @@ The orchestrator uses this to define agent boundaries.]
 - **Responsibility:** [What it does]
 - **Owns:** [Directories/files]
 - **Depends on:** [Other components, or "none"]
+- **Skills:** [The skills that build, check and ship it, e.g. `backend-agent`, `fix-until-green`, `git-pr`]
 - **Key features:** [Bulleted list]
 
 ### [Component Name]
@@ -81,9 +82,12 @@ Example: "Shared types → Backend API → Frontend pages"]
 [Numbered list of discrete, buildable features. Each should be
 assignable to one agent. Order by dependency — independent features first.]
 
-1. [Feature] — [which component owns it]
+1. [Feature] — [which component owns it] — Skills: [names, when they differ from the component's]
 2. [Feature] — [which component owns it]
 ...
+
+Name skills by their exact installed names. A plan handed to Andon (the `andon` skill) becomes one card per feature,
+and each card tells its run to load these skills, so a missing or wrong name means the run works without them.
 
 ## Validation Criteria
 [How we know the build is done. Specific, testable conditions.]

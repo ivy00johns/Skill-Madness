@@ -1,0 +1,22 @@
+{
+  "commit": "8d64fa04",
+  "date": "2026-11-10",
+  "installed_agent": "0.2.11",
+  "watched": [
+    "apps/agent/src/cli.ts",
+    "apps/agent/src/skill-catalog.ts",
+    "apps/agent/src/mcp-server.ts",
+    "supabase/functions/capture/index.ts",
+    "apps/server/src/instances/routes.ts",
+    "packages/shared/src/harness.ts",
+    "packages/shared/src/skill.ts",
+    "packages/shared/src/template.ts",
+    "docs/capture.md",
+    "docs/skills.md",
+    "docs/harnesses.md",
+    "docs/work-model.md",
+    "docs/start-work.md",
+    "docs/api.md",
+    "docs/andon-directory.md"
+  ]
+}

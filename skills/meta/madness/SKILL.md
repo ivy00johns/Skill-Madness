@@ -1,6 +1,6 @@
 ---
 name: madness
-version: 1.6.2
+version: 1.7.0
 description: >-
   The front door to the toolkit: reads what you want, picks the right starting
   skill (orchestrator, plan-builder, a loop, a role or workflow skill, or
@@ -14,7 +14,7 @@ owns:
   directories: []
   patterns: []
   shared_read: ["skills/"]
-composes_with: ["skill-explorer", "orchestrator", "plan-builder", "loop-controller", "use-pxpipe", "skill-triage"]
+composes_with: ["skill-explorer", "orchestrator", "plan-builder", "loop-controller", "use-pxpipe", "skill-triage", "andon"]
 spawned_by: []
 ---
 
@@ -95,6 +95,7 @@ run natively there and fall back to sequential or in-session modes elsewhere (se
 |---|---|---|
 | Multi-agent / parallel / "swarm" / "team" build, a `MISSION.md`, coordinate a build across components | `orchestrator` | expensive |
 | Turn research / a PRD / a goal into a build plan first | `plan-builder` (then `orchestrator`) | cheap |
+| Hand the work to Andon: "put this plan on Andon", "make cards for this", check or answer the board | `andon` (after `plan-builder` when there's no plan yet) | cheap; it confirms the batch |
 | Keep working until something is provably true — tests green, coverage target, contract met, queue drained, overnight/autonomous, "loop until" | `loop-controller` (it picks the specific loop + primitive) | expensive |
 | One concrete feature in an existing codebase (single-developer flow) | `feature-dev:feature-dev` (Claude-Code-native; else the matching role skill) | cheap->medium |
 | Build one component when you already know the role | the role skill (`backend-agent`, `frontend-agent`, `infrastructure-agent`, `db-migration-agent`, ...) | cheap->medium |
