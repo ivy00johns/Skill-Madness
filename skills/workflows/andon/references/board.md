@@ -26,8 +26,10 @@ andon add --template bug "Login fails" -t Web               # (new) fill the car
 - **Recipe slugs are not the board's display names.** Built-ins include `code-change`, `bug`, `app-new`,
   `generic`, `image-assets`, `plan` and `study`; an org adds its own. **An unknown recipe or project is silently
   dropped**: the capture still returns 201. Check the card afterwards.
-- It needs a capture token for **this** board: `ANDON_CAPTURE_TOKEN`, `captureToken` in the agent config, or
-  `~/.config/andon/capture.env`. The person makes one in **Settings → Connections → Developer → Capture tokens**;
+- It needs a capture token for **this** board. `andon add` reads only `ANDON_CAPTURE_TOKEN` (and
+  `ANDON_CAPTURE_URL`) from the environment, or `captureToken` in the agent config. It does **not** read
+  `~/.config/andon/capture.env`; `push_cards.py` does. Keep the token in that file and export it from the shell
+  profile (`set -a; . ~/.config/andon/capture.env; set +a`) so both work. The person makes one in **Settings → Connections → Developer → Capture tokens**;
   it starts `andon_cap_` and is shown once. A machine moved to a new board needs a new token.
 - Without the CLI, `POST <apiUrl>/functions/v1/capture` with `Authorization: Bearer <token>` and JSON
   `{title, notes, team, project, group, recipe, template, url}`. `201 {card_id, card_key, path, group, group_error}`;
