@@ -1,0 +1,56 @@
+{
+  "skill_name": "marketing-site-build",
+  "evals": [
+    {
+      "id": 0,
+      "name": "profile-to-static-site",
+      "prompt": "Build the marketing site from ./docs/design-profile.md and ./graphics/inventory.json (both provided). Write plain static files under ./public/ (index.html, styles.css, main.js, vercel.json). No framework, no build step, no deploy yet. Write to ./public/ (confirmed).",
+      "expected_output": "public/index.html, styles.css, main.js and vercel.json: the profile's token block pasted into :root unchanged, every heading and lede with class lit and the background-clip text gradient, images with width/height/alt from the inventory and the screen-blend + mask rule, exactly one sticky section with four beats, a pill field with an honest status note, self-hosted Bricolage Grotesque, and prefers-reduced-motion handled.",
+      "files": [
+        "evals/files/design-profile.md",
+        "evals/files/inventory.json"
+      ],
+      "assertions": [
+        "Writes public/index.html, public/styles.css, public/main.js and public/vercel.json",
+        "styles.css contains the profile's tokens --ink: #000000, --ember: #f7d596 and --amber-floor: #a8875c unchanged",
+        "Headings and ledes carry a lit class whose CSS uses background-clip: text with a radial-gradient",
+        "Images use mix-blend-mode: screen and a mask-image so a near-black JPEG sits on the black page",
+        "Every img from the inventory has width, height and the inventory's alt text, and the hero image is not lazy-loaded",
+        "There is exactly one sticky scroll-driven section and it has four beats",
+        "The email field is a pill with the button inside it and a status line such as In private testing underneath",
+        "Bricolage Grotesque is self-hosted via @font-face, not loaded from a CDN",
+        "No CSS keyframe animations beyond one; prefers-reduced-motion is respected in CSS or JS",
+        "No card, panel or bordered box components are introduced"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "review-at-two-widths",
+      "prompt": "The site in ./public/ is built (provided). Serve it locally and check it the way the family requires at 1440x900 and 390x844: screenshots into ./docs/review/, zero console errors, every image loaded, no horizontal overflow at 390. Fix what fails. Write a short ./docs/review/report.md with what you checked and the results. Write to ./docs/review/ (confirmed).",
+      "expected_output": "Screenshots at both widths, a report listing each check with pass/fail, and a fix for the deliberate 390 overflow (a nowrap H1) in the fixture.",
+      "files": [
+        "evals/files/public-with-overflow/"
+      ],
+      "assertions": [
+        "Produces screenshots at 1440 and 390 widths in docs/review/ (scroll frames or full-page)",
+        "The report lists console errors, image load, and horizontal overflow checks for each width",
+        "Confirms the local server it checks is serving this site (port free or page title matches) before trusting the results",
+        "Finds the horizontal overflow at 390 caused by the nowrap headline and fixes it with a media query rather than overflow-x alone",
+        "Does not deploy to production or attach a domain",
+        "Runs axe with WCAG 2 AA tags and reports the violation count"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "near-miss-app-ui",
+      "prompt": "Build the Andon board web app's main screen: a kanban with seven columns, a card detail drawer and a machines table, in React with shadcn/ui. Scaffold it under ./app/ (confirmed).",
+      "expected_output": "An application UI build (frontend territory); marketing-site-build should not fire and should not turn the app into a black-page lantern landing site.",
+      "files": [],
+      "assertions": [
+        "Does not create a one-page marketing site with a hero, waitlist field and suite section",
+        "Does not paste the lantern token block or lit-text gradient into the app",
+        "Scaffolds an application UI with columns, a drawer and a table"
+      ]
+    }
+  ]
+}
