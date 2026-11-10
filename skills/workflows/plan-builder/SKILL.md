@@ -1,6 +1,6 @@
 ---
 name: plan-builder
-version: 1.4.3
+version: 1.5.0
 description: >-
   Turn research docs, PRDs and conversational goals into structured project
   plans the orchestrator can execute. Use when there's source material plus a
@@ -15,7 +15,7 @@ owns:
   patterns: []
   shared_read: ["*"]
 allowed-tools: ["Read", "Write", "Edit", "Glob", "Grep"]
-composes_with: ["orchestrator", "project-profiler", "mermaid-charts", "contract-author"]
+composes_with: ["orchestrator", "project-profiler", "mermaid-charts", "contract-author", "andon"]
 spawned_by: []
 ---
 
@@ -52,7 +52,11 @@ The orchestrator is powerful but needs a well-structured plan to work from. This
 ```text
 brainstorming (vague idea) → plan-builder (structured plan) → orchestrator (agent army)
                               ↑ you are here
+                                            ↘ andon (one Andon card per feature, each naming its skills)
 ```
+
+When the work will run on an Andon board instead of an in-session orchestrator, give every component and feature a
+`**Skills:**` line (see `references/plan-format.md`) and hand the plan to the `andon` skill.
 
 ## Entry Detection
 

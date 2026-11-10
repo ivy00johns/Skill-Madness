@@ -1,0 +1,40 @@
+{
+  "skill_name": "andon",
+  "evals": [
+    {
+      "id": 1,
+      "name": "plan-to-cards-with-skills",
+      "prompt": "/andon put the plan in docs/plans/login-revamp.md on the board for the Web team",
+      "expected_output": "Triggers andon. Writes a cards.json with one card per Key Feature, each naming its skills; runs push_cards.py as a dry run; shows the list (title, team › project, recipe, skills) and waits for a yes before --send. Every card's notes open with the Skills to use block.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "status-from-any-harness",
+      "prompt": "what's the status of the login cards on andon? anything waiting on me?",
+      "expected_output": "Triggers andon. Runs andon status / andon list (and reads cards.receipt.json if present), checks Needs you, reports each card's state with links from this session's output. Does not answer from the Andon source or memory.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "refresh-after-andon-changed",
+      "prompt": "andon changed a bunch this week, bring the andon skill up to date",
+      "expected_output": "Triggers andon and follows references/refresh.md: runs check_drift.py, reads the diffs of watched files, updates the references, moves andon-pin.json, bumps the version, lints.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "near-miss-andon-source",
+      "prompt": "in ~/Work/andon, fix the capture endpoint so it accepts a skills field",
+      "expected_output": "Does NOT trigger andon: this changes Andon's own code, which the Andon repo's andon-dev skill covers.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "near-miss-hive",
+      "prompt": "create a work item in The Hive for the login fix and dispatch it to the fleet",
+      "expected_output": "Does NOT trigger andon: The Hive is a different platform (hive-cli).",
+      "files": []
+    }
+  ]
+}
