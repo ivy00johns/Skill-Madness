@@ -1,0 +1,66 @@
+{
+  "skill_name": "lantern-design-profile",
+  "evals": [
+    {
+      "id": 0,
+      "name": "sibling-site-profile",
+      "prompt": "We're building a marketing site for Refactor, the shared workspace in the PSci Labs suite (Fathom plans, Andon decides, Refactor is the workspace). It must be in the same family as tryfathom.dev: black page, amber light, a generated mascot carrying the only light. Refactor's mascot is Fibo, a nautilus whose shell glows. Write docs/design-profile.md for it. Don't build anything else. Write to ./docs/ (confirmed).",
+      "expected_output": "docs/design-profile.md under 200 lines with the family token block verbatim, Fibo as the one character with the glowing shell as the light, one named hero moment with exactly four beats, a graphics brief table with scene/ratio/light/character/alt rows, and the fixed suite triad.",
+      "files": [],
+      "assertions": [
+        "Writes docs/design-profile.md and nothing else of substance",
+        "Contains the token block with --ink: #000000, --ember: #f7d596, --amber-mid: #eebf7b and --amber-floor: #a8875c, unchanged",
+        "Names exactly one character (Fibo the nautilus) and one light source (the glowing shell), with a one-sentence reason",
+        "Names one hero moment and lists exactly four beats, each with a heading of six words or fewer ending in a full stop plus one sentence",
+        "Has a graphics brief table whose rows include scene, aspect ratio, light, character action and alt text, with at least hero, suite, closing and mark scenes",
+        "States the suite triad as the prompt gives it (Fathom plans, Andon decides, Refactor is the workspace), taken from the person rather than from a sibling site",
+        "Names Bricolage Grotesque as the only font and introduces no second accent colour",
+        "The file is under 200 lines"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "reskin-busy-site",
+      "prompt": "Our current product site is a teal aquarium with white panels, Geist for body text and about fifteen keyframe animations. We want it in the lantern family (black water, amber light, one character, one hero moment) like the Fathom site. The product is Andon: cards, runs, agents on machines, a board people watch; its mascot is a purple octopus. Write the design profile to ./docs/design-profile.md (confirmed) and include a Borrowed / changed list.",
+      "expected_output": "A profile that keeps the octopus, gives it a lantern with a reason tied to the name Andon, reduces the page to hero + one moment (four beats about a card) + a few static sections + suite + closing, and lists what was borrowed from each site and what changed (teal dropped, Geist dropped, animations reduced to scroll-driven).",
+      "files": [],
+      "assertions": [
+        "Keeps the octopus as the character rather than inventing a new creature",
+        "Gives the character a lantern (or another single light) and ties it to the word andon meaning lantern or the andon cord",
+        "The hero moment's four beats follow one card from drop-in to PR (or an equivalent single-thing story), not a feature list",
+        "States that teal, white panels and Geist are dropped and that motion becomes scroll-driven with at most one keyframe animation",
+        "Includes a Borrowed / changed section",
+        "Copy rules forbid exclamation marks and superlatives and require an honest status line such as In private testing",
+        "Uses the family token block (black ink, amber scale) rather than teal tokens"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "near-miss-ui-brief",
+      "prompt": "Write me a UI brief for the Andon board app itself: the kanban columns, card detail panel, the attention queue and the machines table. It's a dark app UI built with shadcn. Output a Markdown spec to ./docs/ui-brief.md (confirmed).",
+      "expected_output": "A UI brief for an application (ui-brief territory), not a lantern-family marketing design profile. The lantern-design-profile skill should not fire; if it does, it should defer to ui-brief rather than force the marketing-site token block onto an app.",
+      "files": [],
+      "assertions": [
+        "Does not write docs/design-profile.md",
+        "Does not impose the black-page amber-only marketing token block on the application UI",
+        "Produces an application UI brief covering columns, card detail, attention queue and machines table"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "original-cast-no-mascot",
+      "prompt": "John built his own Fathom prototype: a codebase drawn as a world map, places go imagined, decided, building, built; a new idea becomes a map in five steps. Write a design profile for its one-page site in the same visual family as tryfathom.dev (black page, amber lantern light, big generated character art), but it must be its own site, not a copy of Dave's. Research screenshots and findings already exist in ./docs/research/. Write ./docs/design-profile.md (confirmed).",
+      "expected_output": "A profile that reads the existing research instead of re-capturing, invents a new lead character carrying the only light plus at most three supporting characters with two sentences on why they fit, uses no anglerfish, telescope fish, octopus or nautilus, takes no headline or copy from the reference sites, and lists only styling under Borrowed.",
+      "files": [],
+      "assertions": [
+        "Does not open or re-screenshot the reference sites when docs/research/ already has screenshots and findings",
+        "Invents a new lead character that carries the only light, and at most three supporting characters",
+        "Uses none of the reference sites' characters: no anglerfish, telescope fish, octopus or nautilus",
+        "Gives two sentences on why the cast fits this product's job",
+        "Copies no headline or sentence from tryfathom.dev or tryandon.dev",
+        "The Borrowed list names styling only (black page, amber scale, lit text, generated art, one hero moment, effect level)",
+        "Keeps the family token block unchanged"
+      ]
+    }
+  ]
+}

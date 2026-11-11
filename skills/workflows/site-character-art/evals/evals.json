@@ -1,0 +1,54 @@
+{
+  "skill_name": "site-character-art",
+  "evals": [
+    {
+      "id": 0,
+      "name": "plan-scenes-from-profile",
+      "prompt": "Plan the generated character art for the site described in ./docs/design-profile.md (provided). Write ./graphics/scenes.json with one entry per scene in the profile's graphics brief, using the cast line + scene line + style block structure, with aspect ratios, reference images and alt text, and ./graphics/refs/README.md listing which reference images to put there and why. Do NOT render anything (no API calls). Write to ./graphics/ (confirmed).",
+      "expected_output": "graphics/scenes.json with a shared style block, a cast line per character, one scene per brief row (hero first), the hero listed as a reference for later scenes, aspect ratios matching the brief, background mode per scene, alt text per scene, and no text or labels requested inside images.",
+      "files": [
+        "evals/files/design-profile.md"
+      ],
+      "assertions": [
+        "Writes graphics/scenes.json and does not call any image generation command",
+        "scenes.json has a top-level style block that says pure black background, one light source, no text, glow fading to black inside the frame",
+        "Every scene from the profile's graphics brief appears exactly once, with the hero first",
+        "Scenes after the hero list the hero scene among their refs so the character stays consistent",
+        "Each scene has an aspect ratio matching the brief, a background mode (black, alpha or cutout) and a one-sentence alt text naming the character and the action",
+        "No prompt asks for words, card titles, labels or screens with text inside the image",
+        "Prompts describe objects by shape and material, such as a translucent frosted card, rather than by their content",
+        "No scene lists an image from a sibling or reference site among its refs; the hero has no refs"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "dark-rectangle-diagnosis",
+      "prompt": "In ./graphics/candidates/ (provided) there are two renders for the hero scene, hero-v1.png and hero-v2.png, plus ./graphics/inventory.json. On the black page one of them shows a faint dark box around the character. Work out which, why, decide which to promote, and write the inventory back with statuses and measured fields, then explain in ./graphics/NOTES.md what the build must do so the promoted image shows no rectangle. Write to ./graphics/ (confirmed).",
+      "expected_output": "Correctly identifies that the files are JPEG regardless of the .png name, that v2's edge is lit (edge brightness above the threshold) while v1's corners and edges are near black; promotes v1 (or re-roll v2 with the glow fading inside the frame), records measured format/size/corner/edge values, and tells the build to use mix-blend-mode: screen plus a radial mask on a #000 page.",
+      "files": [
+        "evals/files/candidates/",
+        "evals/files/inventory.json"
+      ],
+      "assertions": [
+        "States that both files are JPEG data despite the .png extension",
+        "Measures corner and edge brightness (or equivalent) rather than guessing from the filename",
+        "Identifies the version whose glow reaches the image edge as the one that shows the rectangle",
+        "Promotes exactly one hero candidate in the inventory and leaves the other as candidate or rejected with a reason",
+        "NOTES.md tells the build to use mix-blend-mode: screen and a mask-image on a pure black page, and says a lit edge needs a re-roll rather than a CSS fix",
+        "Does not delete or overwrite either candidate file"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "near-miss-product-photo",
+      "prompt": "Generate a photorealistic product photo of a brown leather messenger bag on an oak table for our shop's catalog grid, 3:4, and save it to ./shop/bag.png (confirmed).",
+      "expected_output": "A plain nano-banana task: one product photo, no cast, no inventory, no scene plan. site-character-art should not fire or should hand straight to nano-banana without creating scenes.json or inventory.json.",
+      "files": [],
+      "assertions": [
+        "Does not create graphics/scenes.json or graphics/inventory.json",
+        "Does not add a cast line, a lantern or a black background to the prompt",
+        "Treats the request as a single product photo generation"
+      ]
+    }
+  ]
+}
